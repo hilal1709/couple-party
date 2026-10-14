@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1792001023.7375154,
-    "seen": 1792001114.0483968,
-    "ast_hash": "a018dfd217ac99aecce756db67be8a46",
+    "mtime": 1792002182.9334035,
+    "seen": 1792002251.2269366,
+    "ast_hash": "76188cc0be4be980c568aa4904b9ca56",
     "semantic_hash": ""
   },
   "scripts/apk.mjs": {
@@ -54,9 +54,9 @@
     "semantic_hash": ""
   },
   "src/App.tsx": {
-    "mtime": 1792001016.1644518,
-    "seen": 1792001114.0484178,
-    "ast_hash": "7c1236b38b4f467a6be22afd139436c3",
+    "mtime": 1792002042.0572665,
+    "seen": 1792002251.2269611,
+    "ast_hash": "6e007d8d0e0e18965a0c2a8c803bd3ef",
     "semantic_hash": ""
   },
   "src/Demo.tsx": {
@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "src/components/memphis/Slab.tsx": {
-    "mtime": 1791998283.1823883,
-    "seen": 1791999715.0126324,
-    "ast_hash": "c738dad21d56fcc4db0067e5ec88a206",
+    "mtime": 1792002042.0572665,
+    "seen": 1792002251.2269926,
+    "ast_hash": "c647684478efdf3fff938689a4033ac2",
     "semantic_hash": ""
   },
   "src/components/memphis/patterns.ts": {
@@ -216,9 +216,9 @@
     "semantic_hash": ""
   },
   "src/games/uno/ui/UnoTable.tsx": {
-    "mtime": 1792000728.5051982,
-    "seen": 1792001114.048481,
-    "ast_hash": "7e3b977140603f18e67fa55c5c799ed2",
+    "mtime": 1792001913.3111892,
+    "seen": 1792002251.2270405,
+    "ast_hash": "8a19a6664ea03f8e044b40690cac3cd6",
     "semantic_hash": ""
   },
   "src/games/uno/ui/copy.ts": {
@@ -549,6 +549,234 @@
     "mtime": 1792000616.6818366,
     "seen": 1792001114.0484984,
     "ast_hash": "baed90355525121b50b64e9e44d58b28",
+    "semantic_hash": ""
+  },
+  "scripts/audio/build.py": {
+    "mtime": 1792001778.6677856,
+    "seen": 1792002251.226945,
+    "ast_hash": "70d59fdc822955df33c7ad63f5d87e8a",
+    "semantic_hash": ""
+  },
+  "src/audio/SoundSettings.tsx": {
+    "mtime": 1792002150.644893,
+    "seen": 1792002251.226982,
+    "ast_hash": "1bf05de1dfa6234cd565b5939e99265a",
+    "semantic_hash": ""
+  },
+  "src/audio/audio.ts": {
+    "mtime": 1792002042.01561,
+    "seen": 1792002251.2269847,
+    "ast_hash": "9d6aba64fa962a5e6fb1ae5af9f12e9c",
+    "semantic_hash": ""
+  },
+  "src/components/ui/slider.tsx": {
+    "mtime": 1792002005.5623407,
+    "seen": 1792002251.2270057,
+    "ast_hash": "2ecdfe2976710e4a39f50261f659a598",
+    "semantic_hash": ""
+  },
+  "src/games/uno/sounds.test.ts": {
+    "mtime": 1792001896.9843712,
+    "seen": 1792002251.2270296,
+    "ast_hash": "b933b96fa43d75d15907b54bab742d4b",
+    "semantic_hash": ""
+  },
+  "src/games/uno/sounds.ts": {
+    "mtime": 1792001894.8223028,
+    "seen": 1792002251.2270317,
+    "ast_hash": "e4f391837fc8b54f5ed2536bfc735357",
+    "semantic_hash": ""
+  },
+  "public/audio/CREDITS.md": {
+    "mtime": 1792001817.3032167,
+    "seen": 1792002251.2270858,
+    "ast_hash": "ef15c9aebffa7fea523dd2b22b6a9b89",
+    "semantic_hash": ""
+  },
+  "public/audio/music/menu.ogg": {
+    "mtime": 1792001789.0985248,
+    "seen": 1792002251.227185,
+    "ast_hash": "6344c1b5a02c080c759704cc8b4d5baf",
+    "semantic_hash": ""
+  },
+  "public/audio/music/uno-tense.ogg": {
+    "mtime": 1792001796.9389336,
+    "seen": 1792002251.2271867,
+    "ast_hash": "11644b579f6938e4e73665c4f4e78f55",
+    "semantic_hash": ""
+  },
+  "public/audio/music/uno.ogg": {
+    "mtime": 1792001793.1697567,
+    "seen": 1792002251.2271886,
+    "ast_hash": "891bbd4c8d0b67643bba64358b9aeef4",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/card-fan.ogg": {
+    "mtime": 1792001799.8489866,
+    "seen": 1792002251.2271903,
+    "ast_hash": "f97f822a28a834558147baeb782b5b69",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/card-place-1.ogg": {
+    "mtime": 1792001797.3215506,
+    "seen": 1792002251.2271926,
+    "ast_hash": "b3cab94e94e2fd462708f20e0e991430",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/card-place-2.ogg": {
+    "mtime": 1792001797.6063013,
+    "seen": 1792002251.227194,
+    "ast_hash": "fbf26e1562ac1e40fe905a25705637cb",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/card-place-3.ogg": {
+    "mtime": 1792001797.9379826,
+    "seen": 1792002251.2271962,
+    "ast_hash": "445b2f88906575b4ef09818d7c059ed7",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/card-shove.ogg": {
+    "mtime": 1792001800.1601975,
+    "seen": 1792002251.227198,
+    "ast_hash": "4c786debc99f92dc94ab4781a65a5fdc",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/card-shuffle.ogg": {
+    "mtime": 1792001799.522694,
+    "seen": 1792002251.2272,
+    "ast_hash": "05cb7f5d18ccc73f9484c7754f15679d",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/card-slide-1.ogg": {
+    "mtime": 1792001798.2571287,
+    "seen": 1792002251.2272017,
+    "ast_hash": "417b5990701788e0e8c043493f28057d",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/card-slide-2.ogg": {
+    "mtime": 1792001798.6111226,
+    "seen": 1792002251.2272036,
+    "ast_hash": "e8df50fa34673943bf42a74243c2a330",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/card-slide-3.ogg": {
+    "mtime": 1792001798.9677565,
+    "seen": 1792002251.2272053,
+    "ast_hash": "80543aaf603270c3250c63e008c97959",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/chips-stack.ogg": {
+    "mtime": 1792001801.0635357,
+    "seen": 1792002251.2272072,
+    "ast_hash": "e9e2d55879f52ba6c84227ff23b547d1",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/dice-shake.ogg": {
+    "mtime": 1792001801.4242706,
+    "seen": 1792002251.2272089,
+    "ast_hash": "557c5f0a6c43eff15c162e28b951b3cf",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/jingle-caught.ogg": {
+    "mtime": 1792001805.0244544,
+    "seen": 1792002251.227211,
+    "ast_hash": "bfb73531b6264e643dc490462245e053",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/jingle-challenge-lose.ogg": {
+    "mtime": 1792001805.63515,
+    "seen": 1792002251.227213,
+    "ast_hash": "645737e0c2cde25b69d34f4ad424ec12",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/jingle-challenge-win.ogg": {
+    "mtime": 1792001805.346989,
+    "seen": 1792002251.2272146,
+    "ast_hash": "1f3cff8075f2cf5a8ce730cbe81d439a",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/jingle-champion.ogg": {
+    "mtime": 1792001804.404729,
+    "seen": 1792002251.2272165,
+    "ast_hash": "c9da53199fe8206ba85b445e768f5b18",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/jingle-out.ogg": {
+    "mtime": 1792001805.948896,
+    "seen": 1792002251.2272182,
+    "ast_hash": "a2036007614270841fd91449cee9a41f",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/jingle-round-lose.ogg": {
+    "mtime": 1792001804.7305079,
+    "seen": 1792002251.22722,
+    "ast_hash": "c03cd56029709473654c5eec77f9125c",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/jingle-round-win.ogg": {
+    "mtime": 1792001804.0977502,
+    "seen": 1792002251.2272217,
+    "ast_hash": "728e1312bbb2b0989e2a4de4e1141166",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/jingle-uno.ogg": {
+    "mtime": 1792001803.7929926,
+    "seen": 1792002251.2272236,
+    "ast_hash": "5d9996874249d7861a62335ca10e90ea",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/pack-open.ogg": {
+    "mtime": 1792001800.4826622,
+    "seen": 1792002251.2272258,
+    "ast_hash": "838d1d8422009a1bdb53d2575b73336d",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/pack-take.ogg": {
+    "mtime": 1792001800.763733,
+    "seen": 1792002251.2272277,
+    "ast_hash": "388d972606f20a5e0a4dea5819b57f19",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/switch.ogg": {
+    "mtime": 1792001803.5161934,
+    "seen": 1792002251.2272296,
+    "ast_hash": "50e4a21f2cc96844a2665e96d49c8c8f",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/turn-ding.ogg": {
+    "mtime": 1792001803.215668,
+    "seen": 1792002251.2272315,
+    "ast_hash": "cfcbf21dd7c4d8cbb5711294451da814",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/ui-click.ogg": {
+    "mtime": 1792001801.689107,
+    "seen": 1792002251.2272341,
+    "ast_hash": "2015e0d26941481588f64d3ad2eb5bac",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/ui-close.ogg": {
+    "mtime": 1792001802.370679,
+    "seen": 1792002251.2272356,
+    "ast_hash": "c71f8d1835bc635becfa648c612ebbf3",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/ui-open.ogg": {
+    "mtime": 1792001802.0104442,
+    "seen": 1792002251.2272377,
+    "ast_hash": "7781419e1fd2977e019783d904889efa",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/ui-select.ogg": {
+    "mtime": 1792001802.9561734,
+    "seen": 1792002251.2272394,
+    "ast_hash": "3f532ad128ca579d2028c5ecf1115c6b",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/ui-toggle.ogg": {
+    "mtime": 1792001802.6877182,
+    "seen": 1792002251.2272413,
+    "ast_hash": "da729a24546cf98662c78b92be8988df",
     "semantic_hash": ""
   }
 }

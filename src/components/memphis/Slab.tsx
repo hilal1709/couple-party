@@ -2,6 +2,7 @@ import { Slot } from 'radix-ui'
 import type { ComponentProps, CSSProperties } from 'react'
 import { cn } from '@/lib/utils'
 import { sfx } from '@/audio/audio'
+import { Loader } from '@/components/feedback/Loader'
 import { hatch, squiggles } from './patterns'
 
 export type SlabTone = 'rose' | 'electric' | 'grass' | 'fern' | 'paper' | 'ink'
@@ -21,13 +22,15 @@ type Props = ComponentProps<'button'> & {
   /** status aktif ditandai pola squiggle, bukan sekadar warna */
   active?: boolean
   asChild?: boolean
+  /** tampilkan loader mini & kunci tombol selama proses berjalan */
+  loading?: boolean
 }
 
 /**
  * Tombol "balok" Memphis: jajar genjang miring, outline tinta, bayangan keras.
  * Saat ditekan balok turun ke bayangannya.
  */
-export function Slab({ tone = 'rose', size = 'md', active, asChild, className, style, children, onClick, ...rest }: Props) {
+export function Slab({ tone = 'rose', size = 'md', active, asChild, loading, className, style, children, onClick, disabled, ...rest }: Props) {
   const Comp = asChild ? Slot.Root : 'button'
   const pattern: CSSProperties = active
     ? { backgroundImage: squiggles(tone === 'ink' ? '#ffcae9' : '#121212', 44, 2.6), backgroundSize: '44px 44px' }
@@ -51,12 +54,17 @@ export function Slab({ tone = 'rose', size = 'md', active, asChild, className, s
         sfx('ui-click', { volume: 0.5 })
         onClick?.(e)
       }}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...rest}
     >
-      <span className="inline-flex skew-x-6 items-center gap-2">{children}</span>
+      <span className="inline-flex skew-x-6 items-center gap-2">
+        {loading && <Loader size={size === 'sm' ? 30 : 40} className="-my-2" />}
+        {children}
+      </span>
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 hidden group-disabled:block"
+        className={cn('pointer-events-none absolute inset-0 hidden', !loading && 'group-disabled:block')}
         style={{ backgroundImage: hatch('#121212', 8, 0.35) }}
       />
     </Comp>

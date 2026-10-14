@@ -6,17 +6,23 @@ import { Lottie } from 'lottie-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { sfx, useMusic } from '@/audio/audio'
 import { SoundButton } from '@/audio/SoundSettings'
+import { ConfirmModal } from '@/components/feedback/Modal'
 import { Slab, Tape } from '@/components/memphis/Slab'
 import { hatch, squiggles, terrazzo } from '@/components/memphis/patterns'
 import { cn } from '@/lib/utils'
 import confetti from '@/assets/lottie/confetti.json'
-import winArt from '@/assets/illustrations/win.webp'
-import loseArt from '@/assets/illustrations/lose.webp'
+import cardPop from '@/assets/lottie/card-pop.json'
+import diceRoll from '@/assets/lottie/dice-roll.json'
+import itemPop from '@/assets/lottie/item-pop.json'
+import ladderUp from '@/assets/lottie/ladder-up.json'
+import snakeBite from '@/assets/lottie/snake-bite.json'
+import winArt from '@/assets/snakes/snakes-win.webp'
+import loseArt from '@/assets/snakes/snakes-lose.webp'
 import type { GameProps, Seat } from '../../types'
 import { QUIZ } from '../challenges'
 import { BONUS, canUseItem, deckText } from '../engine'
 import { GOAL, type Item, type SnakesAction, type SnakesState } from '../types'
-import { center, Cells, Die, ItemIcon, Ladder, PAWN_HEX, Snake } from './art'
+import { center, Cells, Die, ItemIcon, Ladder, PAWN_HEX, Snake, sprite } from './art'
 import { eventText, ITEM_INFO } from './copy'
 
 gsap.registerPlugin(useGSAP)
@@ -34,6 +40,31 @@ const SPREAD: [number, number][] = [
   [0, 26],
   [-26, 0],
 ]
+
+type LottieDoc = { w: number; h: number }
+/** Efek Lottie satu kali di atas papan; `cell` null = tengah papan. */
+type Fx = { id: number; anim: LottieDoc; cell: number | null; delay: number; size: number }
+let fxSeq = 0
+
+function FxBurst({ fx, onDone }: { fx: Fx; onDone: () => void }) {
+  const [on, setOn] = useState(fx.delay === 0)
+  useEffect(() => {
+    if (on) return
+    const t = setTimeout(() => setOn(true), fx.delay)
+    return () => clearTimeout(t)
+  }, [on, fx.delay])
+  if (!on) return null
+  const c = fx.cell ? center(fx.cell) : { x: 500, y: 500 }
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2"
+      style={{ left: `${((c.x + 8) / 1016) * 100}%`, top: `${((c.y + 8) / 1016) * 100}%`, width: `${fx.size}%`, aspectRatio: `${fx.anim.w} / ${fx.anim.h}` }}
+    >
+      <Lottie src={fx.anim} autoplay loop={false} subscriptions={{ complete: onDone }} className="h-full w-full" />
+    </div>
+  )
+}
 
 function pawnSpots(pos: number[]) {
   const seen = new Map<number, number>()
@@ -55,8 +86,10 @@ export function SnakesBoard({ state: s, seat, names, online, act, exit }: Props)
   const diceRef = useRef<HTMLDivElement>(null)
   const lastEvent = useRef<number | null>(null)
   const turnName = names[s.turn] ?? '?'
+  const [fx, setFx] = useState<Fx[]>([])
+  const [diceFx, setDiceFx] = useState(0)
 
-  useMusic(Math.max(...s.pos) >= 80 ? 'uno-tense' : 'uno')
+  useMusic(Math.max(...s.pos) >= 80 ? 'snakes-tense' : 'snakes')
 
   // ---- suara dari tiap kejadian baru ----
   const prevTurn = useRef(s.turn)
@@ -67,6 +100,20 @@ export function SnakesBoard({ state: s, seat, names, online, act, exit }: Props)
       if (e.dice) sfx('dice-shake')
       for (let i = 0; i < walk; i++) sfx('card-slide-1', { delay: 250 + i * 170, volume: 0.35, rate: 1.1 })
       const later = 300 + walk * 170
+      const landed = e.path.at(-1) ?? null
+      const burst: Omit<Fx, 'id'>[] = []
+      for (const n of e.log) {
+        if (n.t === 'ladder') burst.push({ anim: ladderUp, cell: n.to, delay: later + 450, size: 20 })
+        if (n.t === 'snake') burst.push({ anim: snakeBite, cell: n.from, delay: later, size: 26 })
+        if (n.t === 'trap') burst.push({ anim: snakeBite, cell: n.at, delay: later, size: 22 })
+        if (n.t === 'shieldBlock') burst.push({ anim: itemPop, cell: n.at, delay: later, size: 24 })
+        if (n.t === 'gotItem') burst.push({ anim: itemPop, cell: landed, delay: later, size: 24 })
+        if (n.t === 'challenge' || n.t === 'quiz' || n.t === 'card') burst.push({ anim: cardPop, cell: null, delay: n.t === 'card' ? 0 : later, size: 60 })
+      }
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        if (burst.length) setFx((cur) => [...cur, ...burst.map((b) => ({ ...b, id: ++fxSeq }))])
+        if (e.dice) setDiceFx(s.eventId)
+      }
       for (const n of e.log) {
         if (n.t === 'ladder') sfx('jingle-challenge-win', { delay: later })
         if (n.t === 'snake') sfx('jingle-round-lose', { delay: later })
@@ -155,6 +202,9 @@ export function SnakesBoard({ state: s, seat, names, online, act, exit }: Props)
               </g>
             ))}
           </svg>
+          {fx.map((f) => (
+            <FxBurst key={f.id} fx={f} onDone={() => setFx((cur) => cur.filter((x) => x.id !== f.id))} />
+          ))}
           {p && <PendingCard s={s} seat={seat} names={names} act={act} />}
         </section>
 
@@ -169,26 +219,14 @@ export function SnakesBoard({ state: s, seat, names, online, act, exit }: Props)
               <HugeiconsIcon icon={ArrowLeft01Icon} size={18} strokeWidth={2.4} />
             </button>
             <SoundButton />
-            {confirmExit ? (
-              <div className="flex flex-1 flex-wrap items-center gap-2" role="alert">
-                <span className="text-[12px] font-semibold">Keluar? Game hilang untuk semua.</span>
-                <Slab tone="ink" size="sm" onClick={exit}>
-                  Keluar
-                </Slab>
-                <Slab tone="paper" size="sm" onClick={() => setConfirmExit(false)}>
-                  Batal
-                </Slab>
-              </div>
-            ) : (
-              <Tape
-                tone={myTurn ? 'rose' : 'paper'}
-                tilt={myTurn ? 'l' : 'r'}
-                className="ml-auto truncate text-base leading-tight"
-                style={myTurn ? undefined : { backgroundImage: terrazzo(21, ['#ff37a6', '#43b929', '#121212'], 90, 18) }}
-              >
-                {turnLabel}
-              </Tape>
-            )}
+            <Tape
+              tone={myTurn ? 'rose' : 'paper'}
+              tilt={myTurn ? 'l' : 'r'}
+              className="ml-auto truncate text-base leading-tight"
+              style={myTurn ? undefined : { backgroundImage: terrazzo(21, ['#ff37a6', '#43b929', '#121212'], 90, 18) }}
+            >
+              {turnLabel}
+            </Tape>
           </header>
 
           <ol className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1" aria-label="Pemain">
@@ -227,7 +265,17 @@ export function SnakesBoard({ state: s, seat, names, online, act, exit }: Props)
 
           {/* dadu */}
           <div className="flex items-center gap-3">
-            <div ref={diceRef} className="flex gap-1.5">
+            <div ref={diceRef} className="relative flex gap-1.5">
+              {diceFx > 0 && (
+                <Lottie
+                  key={diceFx}
+                  src={diceRoll}
+                  autoplay
+                  loop={false}
+                  aria-hidden
+                  className="pointer-events-none absolute left-1/2 top-1/2 size-36 -translate-x-1/2 -translate-y-1/2"
+                />
+              )}
               {(s.event?.dice ?? [1]).map((d, k) => (
                 <Die key={`${s.eventId}-${k}`} value={d} size={44} tone={k ? '#ff37a6' : '#fff4fa'} />
               ))}
@@ -240,6 +288,15 @@ export function SnakesBoard({ state: s, seat, names, online, act, exit }: Props)
       </div>
 
       {s.winner !== null && <WinScreen s={s} seat={seat} names={names} act={act} exit={exit} />}
+
+      <ConfirmModal
+        open={confirmExit}
+        onOpenChange={setConfirmExit}
+        title="Balik ke menu?"
+        description="Papan dan posisi semua pemain hilang untuk semua orang di room."
+        confirmLabel="Keluar"
+        onConfirm={exit}
+      />
     </div>
   )
 }
@@ -247,13 +304,16 @@ export function SnakesBoard({ state: s, seat, names, online, act, exit }: Props)
 function Pawn({ seatNo, name, me, turn, shield }: { seatNo: Seat; name: string; me: boolean; turn: boolean; shield: boolean }) {
   return (
     <g>
-      {turn && <circle r={36} fill="none" stroke="#121212" strokeWidth={5} strokeDasharray="10 7" />}
-      {shield && <circle r={31} fill="#5cf64a" opacity={0.55} stroke="#121212" strokeWidth={3} />}
-      <ellipse cx={4} cy={6} rx={25} ry={25} fill="#121212" />
-      <circle r={25} fill={PAWN_HEX[seatNo % PAWN_HEX.length]} stroke="#121212" strokeWidth={5} />
-      <text y={9} textAnchor="middle" fontSize={me ? 24 : 22} fontFamily="Dela Gothic One, sans-serif" fill="#121212">
-        {(name.trim()[0] ?? '?').toUpperCase()}
-      </text>
+      {turn && <ellipse cy={22} rx={38} ry={15} fill="none" stroke="#121212" strokeWidth={5} strokeDasharray="10 7" />}
+      {shield && <circle cy={-6} r={40} fill="#5cf64a" opacity={0.45} stroke="#121212" strokeWidth={3} />}
+      <ellipse cx={4} cy={24} rx={24} ry={9} fill="#121212" opacity={0.35} />
+      <image href={sprite(`pawn-${seatNo % 8}`)} x={-27} y={-54} width={54} height={80} />
+      <g transform="translate(22 14)">
+        <circle r={me ? 15 : 13} fill={me ? '#5cf64a' : '#fff4fa'} stroke="#121212" strokeWidth={4} />
+        <text y={6} textAnchor="middle" fontSize={me ? 18 : 16} fontFamily="Dela Gothic One, sans-serif" fill="#121212">
+          {(name.trim()[0] ?? '?').toUpperCase()}
+        </text>
+      </g>
     </g>
   )
 }
@@ -406,7 +466,7 @@ function WinScreen({ s, seat, names, act, exit }: { s: SnakesState; seat: Seat; 
       {happy && <Lottie src={confetti} autoplay loop className="pointer-events-none fixed inset-0 z-40 h-full w-full" />}
       <div className="flex w-full max-w-3xl flex-wrap items-center justify-center gap-5">
         <div className="flex flex-col items-center">
-          <img data-pop src={happy ? winArt : loseArt} alt={happy ? 'Maskot bermahkota di atas podium' : 'Maskot pink cemberut'} className="-mb-6 h-32 w-auto" draggable={false} />
+          <img data-pop src={happy ? winArt : loseArt} alt={happy ? 'Maskot bermahkota di podium samping tangga' : 'Maskot pink cemberut dililit ular hijau'} className="-mb-6 h-32 w-auto" draggable={false} />
           <div data-pop className="w-72 border-[3px] border-ink bg-paper p-4 shadow-lift">
             <Tape tone={happy ? 'electric' : 'rose'} className="text-xl leading-tight">
               {headline}

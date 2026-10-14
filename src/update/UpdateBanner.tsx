@@ -1,7 +1,9 @@
 import { Capacitor } from '@capacitor/core'
 import { Download04Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useState } from 'react'
+import { Banner } from '@/components/feedback/Banner'
+import { Loader } from '@/components/feedback/Loader'
+import { toast } from '@/components/feedback/toast'
 import { Slab } from '@/components/memphis/Slab'
 import { APP_VERSION, ApkUpdater, compareVersions, fetchLatest, installedVersion, type Release } from './updater'
 
@@ -49,66 +51,62 @@ export function UpdateBanner() {
       await ApkUpdater.downloadAndInstall({ url: rel.apkUrl })
       await sub.remove()
       setPhase({ k: 'installing', rel })
+      toast('Unduhan selesai. Tinggal pasang.', { tone: 'success' })
     } catch (e) {
       setPhase({ k: 'error', rel, message: e instanceof Error ? e.message : String(e) })
+      toast('Pembaruan gagal diunduh.', { tone: 'error' })
     }
   }
 
   const firstNote = rel.notes.split('\n').map((l) => l.replace(/^[-*#\s]+/, '').trim()).find(Boolean)
+  const pct = phase.k === 'downloading' ? Math.round(phase.progress * 100) : 0
 
   return (
-    <div role="status" className="relative -rotate-1 border-[3px] border-ink bg-electric p-3 shadow-slab">
-      <div className="flex items-start gap-2">
-        <HugeiconsIcon icon={Download04Icon} size={20} strokeWidth={2.4} className="mt-0.5 shrink-0" />
-        <div className="min-w-0 flex-1">
-          <p className="font-display text-sm uppercase">
-            Versi {rel.version} tersedia <span className="font-sans text-xs normal-case">({rel.sizeMb} MB · kamu di {current})</span>
-          </p>
-          {firstNote && <p className="mt-0.5 truncate text-[13px] font-semibold">{firstNote}</p>}
-
-          {phase.k === 'available' && (
-            <Slab tone="ink" size="sm" className="mt-2" onClick={start}>
-              Unduh & pasang
+    <Banner
+      tone={phase.k === 'error' ? 'error' : 'success'}
+      icon={Download04Icon}
+      className="min-w-0 flex-1"
+      title={
+        <>
+          Versi {rel.version} tersedia <span className="font-sans text-xs normal-case">({rel.sizeMb} MB · kamu di {current})</span>
+        </>
+      }
+      action={
+        phase.k === 'available' ? (
+          <Slab tone="ink" size="sm" onClick={start}>
+            Unduh & pasang
+          </Slab>
+        ) : phase.k === 'needPermission' ? (
+          <>
+            <Slab tone="ink" size="sm" onClick={() => ApkUpdater.openInstallSettings()}>
+              Buka pengaturan
             </Slab>
-          )}
-
-          {phase.k === 'needPermission' && (
-            <div className="mt-2 space-y-2 text-[13px] font-semibold">
-              <p>Android perlu izin "Pasang aplikasi tak dikenal" untuk Couple Party. Aktifkan, lalu kembali ke sini.</p>
-              <div className="flex gap-2">
-                <Slab tone="ink" size="sm" onClick={() => ApkUpdater.openInstallSettings()}>
-                  Buka pengaturan
-                </Slab>
-                <Slab tone="paper" size="sm" onClick={start}>
-                  Sudah, lanjut
-                </Slab>
-              </div>
+            <Slab tone="paper" size="sm" onClick={start}>
+              Sudah, lanjut
+            </Slab>
+          </>
+        ) : phase.k === 'error' ? (
+          <Slab tone="paper" size="sm" onClick={start}>
+            Coba lagi
+          </Slab>
+        ) : undefined
+      }
+    >
+      {phase.k === 'available' && firstNote && <p className="truncate">{firstNote}</p>}
+      {phase.k === 'needPermission' && <p>Android perlu izin "Pasang aplikasi tak dikenal" untuk Couple Party. Aktifkan, lalu kembali ke sini.</p>}
+      {phase.k === 'downloading' && (
+        <div className="mt-1 flex items-center gap-2" aria-label={`Mengunduh ${pct} persen`}>
+          <Loader size={44} />
+          <div className="flex-1">
+            <div className="h-4 -skew-x-12 border-[3px] border-ink bg-paper">
+              <div className="h-full bg-rose transition-[width] duration-150" style={{ width: `${pct}%` }} />
             </div>
-          )}
-
-          {phase.k === 'downloading' && (
-            <div className="mt-2" aria-label={`Mengunduh ${Math.round(phase.progress * 100)} persen`}>
-              <div className="h-4 -skew-x-12 border-[3px] border-ink bg-paper">
-                <div className="h-full bg-rose transition-[width] duration-150" style={{ width: `${Math.round(phase.progress * 100)}%` }} />
-              </div>
-              <p className="mt-1 text-xs font-semibold">Mengunduh… {Math.round(phase.progress * 100)}%</p>
-            </div>
-          )}
-
-          {phase.k === 'installing' && (
-            <p className="mt-2 text-[13px] font-semibold">Ketuk "Perbarui" di layar pemasang Android. App akan terbuka lagi dengan versi baru.</p>
-          )}
-
-          {phase.k === 'error' && (
-            <div className="mt-2 space-y-2 text-[13px] font-semibold">
-              <p>{phase.message}. Cek sinyal lalu coba lagi.</p>
-              <Slab tone="ink" size="sm" onClick={start}>
-                Coba lagi
-              </Slab>
-            </div>
-          )}
+            <p className="mt-1 text-xs">Mengunduh… {pct}%</p>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+      {phase.k === 'installing' && <p>Ketuk "Perbarui" di layar pemasang Android. App akan terbuka lagi dengan versi baru.</p>}
+      {phase.k === 'error' && <p>{phase.message}. Cek sinyal lalu coba lagi.</p>}
+    </Banner>
   )
 }

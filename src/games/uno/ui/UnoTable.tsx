@@ -8,6 +8,7 @@ import { sfx, useMusic } from '@/audio/audio'
 import { SoundButton } from '@/audio/SoundSettings'
 import { Slab, Tape } from '@/components/memphis/Slab'
 import { hatch, squiggles, terrazzo } from '@/components/memphis/patterns'
+import { ConfirmModal } from '@/components/feedback/Modal'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { cn } from '@/lib/utils'
 import burst from '@/assets/lottie/burst.json'
@@ -168,37 +169,25 @@ export function UnoTable({ state: s, seat, names, online, act, exit }: Props) {
             <HugeiconsIcon icon={ArrowLeft01Icon} size={18} strokeWidth={2.4} />
           </button>
           <SoundButton className="mt-1" />
-          {confirmExit ? (
-            <div className="flex flex-1 items-center gap-2 pt-1" role="alert">
-              <span className="text-[13px] font-semibold">Keluar? Game ini hilang untuk semua pemain.</span>
-              <Slab tone="ink" size="sm" onClick={exit}>
-                Keluar
-              </Slab>
-              <Slab tone="paper" size="sm" onClick={() => setConfirmExit(false)}>
-                Batal
-              </Slab>
-            </div>
-          ) : (
-            <div className="flex min-w-0 flex-1 items-start gap-2 overflow-x-auto pb-1" aria-label="Pemain lain">
-              {opponents.map((o) => (
-                <OpponentSeat
-                  key={o}
-                  s={s}
-                  seatNo={o}
-                  name={names[o] ?? '?'}
-                  online={online[o] ?? false}
-                  isTurn={s.turn === o && s.roundWinner === null}
-                  isNext={next === o && s.turn !== o}
-                  canCatch={catchable === o}
-                  onCatch={() => act({ type: 'catch' })}
-                  refFn={(el) => {
-                    if (el) seatRefs.current.set(o, el)
-                    else seatRefs.current.delete(o)
-                  }}
-                />
-              ))}
-            </div>
-          )}
+          <div className="flex min-w-0 flex-1 items-start gap-2 overflow-x-auto pb-1" aria-label="Pemain lain">
+            {opponents.map((o) => (
+              <OpponentSeat
+                key={o}
+                s={s}
+                seatNo={o}
+                name={names[o] ?? '?'}
+                online={online[o] ?? false}
+                isTurn={s.turn === o && s.roundWinner === null}
+                isNext={next === o && s.turn !== o}
+                canCatch={catchable === o}
+                onCatch={() => act({ type: 'catch' })}
+                refFn={(el) => {
+                  if (el) seatRefs.current.set(o, el)
+                  else seatRefs.current.delete(o)
+                }}
+              />
+            ))}
+          </div>
         </header>
 
         {/* ---- meja tengah ---- */}
@@ -398,6 +387,15 @@ export function UnoTable({ state: s, seat, names, online, act, exit }: Props) {
       {s.event?.t === 'uno' && <UnoBurst key={s.eventId} />}
 
       {s.roundWinner !== null && <RoundEnd s={s} seat={seat} names={names} act={act} exit={exit} />}
+
+      <ConfirmModal
+        open={confirmExit}
+        onOpenChange={setConfirmExit}
+        title="Balik ke menu?"
+        description="Game ini berhenti untuk semua pemain dan kartu di tangan hilang."
+        confirmLabel="Keluar"
+        onConfirm={exit}
+      />
     </div>
   )
 }

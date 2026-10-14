@@ -2,11 +2,11 @@
 // Pakai: npm run release -- <patch|minor|major|x.y.z> "catatan rilis"
 //   - menaikkan versi di package.json
 //   - build APK rilis (scripts/apk.mjs)
-//   - unggah ke GitHub Releases di repo publik khusus rilis (kode sumber tidak ikut)
+//   - unggah ke GitHub Releases di GitHub Releases repo utama (hilal1709/couple-party)
 import { execSync } from 'node:child_process'
 import { copyFileSync, readFileSync, writeFileSync } from 'node:fs'
 
-const REPO = 'hilal1709/couple-party-releases'
+const REPO = 'hilal1709/couple-party'
 const [bump = 'patch', ...noteParts] = process.argv.slice(2)
 const notes = noteParts.join(' ').trim() || 'Pembaruan Couple Party.'
 
@@ -26,13 +26,6 @@ console.log(`\n== Rilis v${next} ==`)
 sh('node scripts/apk.mjs')
 const asset = `CoupleParty-${next}.apk`
 copyFileSync('CoupleParty.apk', asset)
-
-// repo rilis dibuat sekali, publik, hanya berisi README + rilis
-try {
-  out(`gh repo view ${REPO} --json name`)
-} catch {
-  sh(`gh repo create ${REPO} --public --add-readme --description "Rilis APK Couple Party (unduhan update dari dalam aplikasi)"`)
-}
 
 writeFileSync('release-notes.md', notes + '\n')
 sh(`gh release create v${next} "${asset}" --repo ${REPO} --title "Couple Party ${next}" --notes-file release-notes.md`)

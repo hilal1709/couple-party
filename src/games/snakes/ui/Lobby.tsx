@@ -3,18 +3,19 @@ import { Slab, Tape } from '@/components/memphis/Slab'
 import { dots } from '@/components/memphis/patterns'
 import { Switch } from '@/components/ui/switch'
 import { defaultOptions } from '../engine'
+import type { LobbyProps } from '../../types'
 import type { SnakesOptions } from '../types'
 import { OPTION_INFO } from './copy'
 
 type Toggle = keyof typeof OPTION_INFO
 
-export function Lobby({ players, onStart }: { players: number; onStart: (o: SnakesOptions) => void }) {
-  const [opts, setOpts] = useState<SnakesOptions>(() => ({ ...defaultOptions(), players }))
+export function Lobby({ players, cta, initial, onSubmit }: LobbyProps<SnakesOptions>) {
+  const [opts, setOpts] = useState<SnakesOptions>(() => ({ ...defaultOptions(), ...initial }))
 
   return (
     <div className="flex flex-col gap-4">
       <h2 className="font-display text-2xl leading-none">
-        <Tape tone="electric">Ular Tangga</Tape> tantangan <span className="text-base">· {players} pemain</span>
+        <Tape tone="electric">Ular Tangga</Tape> tantangan {players !== undefined && <span className="text-base">· {players} pemain</span>}
       </h2>
       <div className="flex flex-wrap items-center gap-3">
         <span className="font-display text-sm uppercase">Tolak / gagal tantangan</span>
@@ -33,8 +34,8 @@ export function Lobby({ players, onStart }: { players: number; onStart: (o: Snak
             </Slab>
           ))}
         </div>
-        <Slab tone="rose" size="lg" className="ml-auto" onClick={() => onStart({ ...opts, players })}>
-          Mulai main
+        <Slab tone="rose" size="lg" className="ml-auto" onClick={() => onSubmit({ ...opts, players: players ?? opts.players })}>
+          {cta}
         </Slab>
       </div>
 

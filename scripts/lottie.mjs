@@ -1,4 +1,4 @@
-// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti & ledakan bentuk Memphis.
+// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader & efek Ular Tangga.
 // Jalankan: node scripts/lottie.mjs  → src/assets/lottie/*.json
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -165,7 +165,344 @@ function burst() {
   return doc('uno-burst', S, S, OP, layers)
 }
 
+// ---------- loader & efek Ular Tangga ----------
+const ring = (size, hex, w) => [{ ty: 'el', p: st([0, 0]), s: st([size, size]) }, stroke(hex, w)]
+const star = (outer, inner, pts, color) => [
+  { ty: 'sr', sy: 1, p: st([0, 0]), or: st(outer), ir: st(inner), os: st(0), is: st(0), r: st(0), pt: st(pts) },
+  fill(color),
+  stroke('#121212', 3),
+]
+const fade = (from, to, op) =>
+  anim([
+    [0, [100]],
+    [from, [100]],
+    [to, [0]],
+    [op - 1, [0]],
+  ])
+const slabRect = (w, h, color) => [{ ty: 'rc', p: st([0, 0]), s: st([w, h]), r: st(0) }, fill(color), ...(color === '#121212' ? [] : [stroke('#121212', 4)])]
+
+// Loader: tiga bentuk Memphis melompat bergantian di atas balok terrazzo (loop mulus)
+function loader() {
+  const W = 240
+  const H = 170
+  const OP = 96
+  const baseY = 100
+  const layers = []
+  const items = [
+    ['circle', '#ff37a6', 56, 0],
+    ['tri', '#5cf64a', 120, 120],
+    ['rect', '#87e752', 184, 180],
+  ]
+  items.forEach(([kind, color, x, turn], i) => {
+    const t0 = i * 18
+    const up = t0 + 14
+    const land = t0 + 28
+    layers.push(
+      layer(
+        i + 1,
+        shape(kind, 34, color),
+        {
+          p: anim([
+            [0, [x, baseY, 0]],
+            [t0, [x, baseY, 0]],
+            [up, [x, baseY - 50, 0]],
+            [land, [x, baseY, 0]],
+            [OP - 1, [x, baseY, 0]],
+          ]),
+          s: anim([
+            [0, [100, 100, 100]],
+            [t0, [118, 84, 100]],
+            [t0 + 5, [90, 112, 100]],
+            [up, [100, 100, 100]],
+            [land, [122, 80, 100]],
+            [land + 7, [100, 100, 100]],
+            [OP - 1, [100, 100, 100]],
+          ]),
+          r: anim([
+            [0, [0]],
+            [t0, [0]],
+            [land, [turn]],
+            [OP - 1, [turn]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  })
+  // balok terrazzo: serpihan warna di atas badan paper, lalu bayangan keras
+  const chips = [
+    [-80, -4, '#ff37a6'],
+    [-30, 6, '#43b929'],
+    [22, -6, '#121212'],
+    [70, 5, '#5cf64a'],
+  ].map(([cx, cy, c]) => ({ ty: 'gr', nm: 'chip', it: [{ ty: 'el', p: st([cx, cy]), s: st([9, 7]) }, fill(c), tr()] }))
+  const slab = layer(10, slabRect(206, 30, '#fff4fa'), { p: st([W / 2, baseY + 36, 0]), sk: st(-8), sa: st(0) }, OP)
+  slab.shapes = [...chips, ...slab.shapes]
+  layers.push(slab)
+  layers.push(layer(11, slabRect(206, 30, '#121212'), { p: st([W / 2 + 5, baseY + 42, 0]), sk: st(-8), sa: st(0) }, OP))
+  return doc('loader', W, H, OP, layers)
+}
+
+// Dadu mendarat: debu & bentuk terpental ke samping
+function diceRoll() {
+  const S = 300
+  const OP = 48
+  const layers = []
+  for (let i = 0; i < 10; i++) {
+    const side = i % 2 ? 1 : -1
+    const dx = side * (50 + rand() * 90)
+    const dy = -20 - rand() * 60
+    layers.push(
+      layer(
+        i + 1,
+        shape(pick(['circle', 'circle', 'tri', 'rect']), 10 + rand() * 12, PALETTE[i % 5]),
+        {
+          p: anim([
+            [0, [S / 2, S * 0.62, 0]],
+            [26, [S / 2 + dx, S * 0.62 + dy, 0]],
+          ]),
+          s: anim([
+            [0, [40, 40, 100]],
+            [10, [110, 110, 100]],
+            [OP - 1, [0, 0, 100]],
+          ]),
+          r: anim([
+            [0, [0]],
+            [OP - 1, [side * 200]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  layers.push(
+    layer(
+      20,
+      ring(60, '#121212', 4),
+      {
+        p: st([S / 2, S * 0.62, 0]),
+        s: anim([
+          [0, [20, 8, 100]],
+          [30, [300, 110, 100]],
+        ]),
+        o: fade(8, 30, OP),
+      },
+      OP,
+    ),
+  )
+  return doc('dice-roll', S, S, OP, layers)
+}
+
+// Naik tangga: bintang & panah melesat ke atas
+function ladderUp() {
+  const W = 220
+  const H = 320
+  const OP = 66
+  const layers = []
+  for (let i = 0; i < 9; i++) {
+    const x = 30 + rand() * (W - 60)
+    const d = Math.floor(rand() * 18)
+    layers.push(
+      layer(
+        i + 1,
+        star(12 + rand() * 8, 5, 5, pick(['#5cf64a', '#87e752', '#ff37a6', '#ffcc1f'])),
+        {
+          p: anim([
+            [d, [x, H - 30, 0]],
+            [d + 40, [x + (rand() - 0.5) * 40, 30 + rand() * 50, 0]],
+          ]),
+          r: anim([
+            [d, [0]],
+            [d + 40, [180]],
+          ]),
+          s: anim([
+            [0, [0, 0, 100]],
+            [d, [0, 0, 100]],
+            [d + 8, [120, 120, 100]],
+            [d + 30, [100, 100, 100]],
+            [d + 46, [0, 0, 100]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  const arrow = {
+    ty: 'sh',
+    ks: st({
+      c: true,
+      v: [[0, -40], [30, -6], [12, -6], [12, 40], [-12, 40], [-12, -6], [-30, -6]],
+      i: Array.from({ length: 7 }, () => [0, 0]),
+      o: Array.from({ length: 7 }, () => [0, 0]),
+    }),
+  }
+  layers.push(
+    layer(
+      30,
+      [arrow, fill('#5cf64a'), stroke('#121212', 5)],
+      {
+        p: anim([
+          [0, [W / 2, H - 40, 0]],
+          [36, [W / 2, 70, 0]],
+        ]),
+        s: anim([
+          [0, [40, 40, 100]],
+          [12, [115, 115, 100]],
+          [36, [100, 100, 100]],
+          [OP - 1, [60, 60, 100]],
+        ]),
+        o: fade(40, OP - 2, OP),
+      },
+      OP,
+    ),
+  )
+  return doc('ladder-up', W, H, OP, layers)
+}
+
+// Digigit ular: ledakan bergerigi + pecahan zigzag
+function snakeBite() {
+  const S = 300
+  const OP = 54
+  const c = S / 2
+  const layers = []
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2 + 0.2
+    layers.push(
+      layer(
+        i + 1,
+        shape('squiggle', 14, i % 2 ? '#ff37a6' : '#121212'),
+        {
+          p: anim([
+            [4, [c, c, 0]],
+            [30, [c + Math.cos(a) * 120, c + Math.sin(a) * 120, 0]],
+          ]),
+          r: st((a * 180) / Math.PI),
+          s: anim([
+            [0, [0, 0, 100]],
+            [6, [100, 100, 100]],
+            [OP - 1, [0, 0, 100]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  layers.push(
+    layer(
+      20,
+      star(96, 52, 9, '#ff37a6'),
+      {
+        p: st([c, c, 0]),
+        r: anim([
+          [0, [-25]],
+          [OP - 1, [10]],
+        ]),
+        s: anim([
+          [0, [0, 0, 100]],
+          [8, [115, 115, 100]],
+          [14, [92, 92, 100]],
+          [34, [100, 100, 100]],
+          [OP - 1, [0, 0, 100]],
+        ]),
+      },
+      OP,
+    ),
+  )
+  return doc('snake-bite', S, S, OP, layers)
+}
+
+// Dapat item: cincin melebar + bentuk terlempar
+function itemPop() {
+  const S = 300
+  const OP = 56
+  const c = S / 2
+  const layers = []
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2
+    const dist = 80 + rand() * 40
+    const ex = c + Math.cos(a) * dist
+    const ey = c + Math.sin(a) * dist
+    layers.push(
+      layer(
+        i + 1,
+        shape(pick(['circle', 'tri', 'rect', 'squiggle']), 12 + rand() * 8, PALETTE[i % 5]),
+        {
+          p: anim([
+            [0, [c, c, 0]],
+            [28, [ex, ey - 20, 0]],
+            [OP - 1, [ex, ey + 30, 0]],
+          ]),
+          r: anim([
+            [0, [0]],
+            [OP - 1, [(rand() - 0.5) * 400]],
+          ]),
+          s: anim([
+            [0, [30, 30, 100]],
+            [12, [110, 110, 100]],
+            [OP - 1, [0, 0, 100]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  layers.push(
+    layer(
+      20,
+      ring(80, '#5cf64a', 8),
+      {
+        p: st([c, c, 0]),
+        s: anim([
+          [0, [10, 10, 100]],
+          [26, [240, 240, 100]],
+        ]),
+        o: fade(10, 28, OP),
+      },
+      OP,
+    ),
+  )
+  return doc('item-pop', S, S, OP, layers)
+}
+
+// Kartu tantangan muncul: kilau garis memancar
+function cardPop() {
+  const S = 300
+  const OP = 40
+  const c = S / 2
+  const layers = []
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2
+    const v = (r) => [Math.cos(a) * r, Math.sin(a) * r]
+    layers.push(
+      layer(
+        i + 1,
+        [{ ty: 'sh', ks: st({ c: false, v: [v(20), v(46)], i: [[0, 0], [0, 0]], o: [[0, 0], [0, 0]] }) }, stroke(i % 2 ? '#ff37a6' : '#121212', 7)],
+        {
+          p: st([c, c, 0]),
+          s: anim([
+            [0, [100, 100, 100]],
+            [22, [300, 300, 100]],
+          ]),
+          o: fade(10, 30, OP),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('card-pop', S, S, OP, layers)
+}
+
 mkdirSync('src/assets/lottie', { recursive: true })
-writeFileSync('src/assets/lottie/confetti.json', JSON.stringify(confetti()))
-writeFileSync('src/assets/lottie/burst.json', JSON.stringify(burst()))
-console.log('Lottie dibuat: src/assets/lottie/confetti.json, burst.json')
+// urutan penting: confetti & burst duluan supaya hasil acaknya tetap sama seperti sebelumnya
+const out = {
+  confetti: confetti(),
+  burst: burst(),
+  loader: loader(),
+  'dice-roll': diceRoll(),
+  'ladder-up': ladderUp(),
+  'snake-bite': snakeBite(),
+  'item-pop': itemPop(),
+  'card-pop': cardPop(),
+}
+for (const [name, json] of Object.entries(out)) writeFileSync(`src/assets/lottie/${name}.json`, JSON.stringify(json))
+console.log('Lottie dibuat:', Object.keys(out).join(', '))
