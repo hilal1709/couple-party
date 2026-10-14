@@ -26,3 +26,5 @@ dist-ssr
 CoupleParty.apk
 CoupleParty-*.apk
 release-notes.md
+
+__pycache__/

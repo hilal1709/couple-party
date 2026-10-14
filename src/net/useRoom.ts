@@ -1,21 +1,8 @@
+export type { Pick, Session, SessionAction } from './session'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { gameById } from '../games/registry'
+import { applyAction, type Pick, type Session, type SessionAction } from './session'
 import type { Seat } from '../games/types'
 import { openTransport, store, type NetStatus, type Peer, type Transport } from './transport'
-
-export type Session = {
-  players: Peer[] // [host, tamu]
-  gameId: string | null
-  game: unknown
-  rev: number
-  /** nomor aksi terakhir yang sudah diterapkan per pemain (anti dobel saat kirim ulang) */
-  acked?: Record<string, number>
-}
-
-export type SessionAction =
-  | { kind: 'start'; gameId: string; options?: unknown }
-  | { kind: 'exit' }
-  | { kind: 'game'; action: unknown }
 
 type Msg =
   | { t: 'hello'; from: Peer }
@@ -27,31 +14,15 @@ export const MAX_ROOM = 8
 
 const storeKey = (code: string) => `couple-party:session:${code}`
 
-function applyAction(s: Session, a: SessionAction, byId: string): Session {
-  const seat = s.players.findIndex((p) => p.id === byId) as Seat | -1
-  if (seat === -1) return s
-  if (a.kind === 'exit') return { ...s, gameId: null, game: null, rev: s.rev + 1 }
-  if (a.kind === 'start') {
-    const g = gameById(a.gameId)
-    if (!g || s.players.length < 2) return s
-    const options = { ...(a.options as object), players: s.players.length }
-    return { ...s, gameId: g.id, game: g.init(Math.floor(Math.random() * 2 ** 31), options), rev: s.rev + 1 }
-  }
-  const g = gameById(s.gameId)
-  if (!g) return s
-  const game = g.reduce(s.game, a.action, seat)
-  return game === s.game ? s : { ...s, game, rev: s.rev + 1 }
-}
-
 /**
  * Host menyimpan "kebenaran" (session) dan menjalankan reducer.
  * Tamu hanya mengirim aksi dan menampilkan session terakhir dari host.
  */
-export function useRoom(code: string, me: Peer, isHost: boolean) {
+export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pick | null = null) {
   const [session, setSession] = useState<Session | null>(() => {
     if (!isHost) return null
     const saved = store.getItem(storeKey(code))
-    return saved ? (JSON.parse(saved) as Session) : { players: [me], gameId: null, game: null, rev: 0 }
+    return saved ? (JSON.parse(saved) as Session) : { players: [me], pick: initialPick, gameId: null, game: null, rev: 0 }
   })
   const [online, setOnline] = useState<Peer[]>([])
   const [net, setNet] = useState<NetStatus>('connecting')

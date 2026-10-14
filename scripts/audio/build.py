@@ -63,6 +63,17 @@ def music():
        '-ar', str(SR), '-c:a', 'libvorbis', '-b:a', '96k', str(tense))
     loop_raw.unlink()
 
+    # Ular Tangga: "Happy Clappy Loop" oleh OwlishMedia — piano ceria, beda nuansa dari funk UNO.
+    # Sumbernya sudah loop pas ketukan; crossfade justru menggeser ritme, jadi dipakai utuh.
+    snakes = load(m / 'happyclappy.wav')
+    write_ogg(snakes, OUT / 'music' / 'snakes.ogg', 96, lufs=-19)
+    tense_raw = OUT / 'music' / 'snakes-loop.tmp.f32'
+    tense_raw.write_bytes(snakes.astype(np.float32).tobytes())
+    ff('-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', str(tense_raw),
+       '-af', f'asetrate={int(SR * 1.06)},aresample={SR},atempo=1.06,loudnorm=I=-18:TP=-1.5:LRA=11',
+       '-ar', str(SR), '-c:a', 'libvorbis', '-b:a', '96k', str(OUT / 'music' / 'snakes-tense.ogg'))
+    tense_raw.unlink()
+
 
 SFX = {
     # kartu — Kenney "Casino Audio"

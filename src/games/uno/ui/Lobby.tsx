@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import { CardFace } from '../art/CardArt'
 import { defaultOptions } from '../engine'
+import type { LobbyProps } from '../../types'
 import type { Face, HouseRules, UnoOptions, Variant } from '../types'
 import { HOUSE_INFO, VARIANT_INFO } from './copy'
 
@@ -36,17 +37,17 @@ const STYLE: Record<Variant, { cls: string; bg: React.CSSProperties; tilt: strin
   noMercy: { cls: 'bg-electric', bg: { backgroundImage: squiggles('#121212', 52, 2.4) }, tilt: '-rotate-[0.6deg]' },
 }
 
-export function Lobby({ players, onStart }: { players: number; onStart: (o: UnoOptions) => void }) {
-  const [variant, setVariant] = useState<Variant>('classic')
-  const [house, setHouse] = useState<HouseRules>(defaultOptions().house)
-  const [target, setTarget] = useState(500)
+export function Lobby({ players, cta, initial, onSubmit }: LobbyProps<UnoOptions>) {
+  const [variant, setVariant] = useState<Variant>(initial?.variant ?? 'classic')
+  const [house, setHouse] = useState<HouseRules>(initial?.house ?? defaultOptions().house)
+  const [target, setTarget] = useState(initial?.target ?? 500)
   const [rulesOpen, setRulesOpen] = useState(false)
   const activeHouse = Object.entries(house).filter(([, v]) => v).length
 
   return (
     <div className="flex flex-col gap-4">
       <h2 className="font-display text-2xl leading-none">
-        Main <Tape tone="electric">UNO</Tape> versi apa? <span className="text-base">· {players} pemain</span>
+        Main <Tape tone="electric">UNO</Tape> versi apa? {players !== undefined && <span className="text-base">· {players} pemain</span>}
       </h2>
 
       <div role="radiogroup" aria-label="Varian UNO" className="grid grid-cols-3 gap-4">
@@ -119,9 +120,9 @@ export function Lobby({ players, onStart }: { players: number; onStart: (o: UnoO
           tone="rose"
           size="lg"
           className="flex-1"
-          onClick={() => onStart({ variant, target, house: variant === 'classic' ? house : defaultOptions().house })}
+          onClick={() => onSubmit({ variant, target, house: variant === 'classic' ? house : defaultOptions().house })}
         >
-          Mulai main
+          {cta}
         </Slab>
       </div>
 

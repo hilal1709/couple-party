@@ -2,7 +2,7 @@ import { Howl, Howler } from 'howler'
 import { useEffect, useSyncExternalStore } from 'react'
 import { store } from '@/net/transport'
 
-export type Track = 'menu' | 'uno' | 'uno-tense'
+export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense'
 
 export type SfxName =
   | 'card-place-1'
