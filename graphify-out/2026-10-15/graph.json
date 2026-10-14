@@ -4,6 +4,71 @@
   "graph": {},
   "nodes": [
     {
+      "id": "src_audio_audio_audiosettings",
+      "label": "AudioSettings",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "audiosettings",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L37"
+    },
+    {
+      "id": "src_audio_audio_sfxname",
+      "label": "SfxName",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "sfxname",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L7"
+    },
+    {
+      "id": "src_audio_audio_track",
+      "label": "Track",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "track",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_components_memphis_slab_props",
+      "label": "Props",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "props",
+      "source_file": "src/components/memphis/Slab.tsx",
+      "source_location": "L18"
+    },
+    {
+      "id": "src_components_memphis_slab_slabtone",
+      "label": "SlabTone",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "slabtone",
+      "source_file": "src/components/memphis/Slab.tsx",
+      "source_location": "L7"
+    },
+    {
       "id": "src_app_roominfo",
       "label": "RoomInfo",
       "_callable": true,
@@ -14,7 +79,7 @@
       "file_type": "code",
       "norm_label": "roominfo",
       "source_file": "src/App.tsx",
-      "source_location": "L17"
+      "source_location": "L19"
     },
     {
       "id": "src_games_registry_category",
@@ -56,6 +121,19 @@
       "source_location": "L30"
     },
     {
+      "id": "src_games_types_gamedef",
+      "label": "GameDef",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.tsx",
+      "file_type": "code",
+      "norm_label": "gamedef",
+      "source_file": "src/games/types.ts",
+      "source_location": "L21"
+    },
+    {
       "id": "src_games_types_gameprops",
       "label": "GameProps",
       "_callable": true,
@@ -67,6 +145,19 @@
       "norm_label": "gameprops",
       "source_file": "src/games/types.ts",
       "source_location": "L6"
+    },
+    {
+      "id": "src_games_uno_types_unooptions",
+      "label": "UnoOptions",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.tsx",
+      "file_type": "code",
+      "norm_label": "unooptions",
+      "source_file": "src/games/uno/types.ts",
+      "source_location": "L45"
     },
     {
       "id": "src_net_transport_netstatus",
@@ -147,32 +238,6 @@
       "source_location": "L15"
     },
     {
-      "id": "src_components_memphis_slab_props",
-      "label": "Props",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "props",
-      "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L17"
-    },
-    {
-      "id": "src_components_memphis_slab_slabtone",
-      "label": "SlabTone",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "slabtone",
-      "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L6"
-    },
-    {
       "id": "src_update_updatebanner_phase",
       "label": "Phase",
       "_callable": true,
@@ -210,32 +275,6 @@
       "norm_label": "release",
       "source_file": "src/update/updater.ts",
       "source_location": "L19"
-    },
-    {
-      "id": "src_games_uno_ui_roundend_props",
-      "label": "Props",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "RoundEnd.tsx",
-      "file_type": "code",
-      "norm_label": "props",
-      "source_file": "src/games/uno/ui/RoundEnd.tsx",
-      "source_location": "L14"
-    },
-    {
-      "id": "src_games_types_gamedef",
-      "label": "GameDef",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "engine.ts",
-      "file_type": "code",
-      "norm_label": "gamedef",
-      "source_file": "src/games/types.ts",
-      "source_location": "L21"
     },
     {
       "id": "src_games_uno_types_card",
@@ -342,32 +381,6 @@
       "source_location": "L65"
     },
     {
-      "id": "src_games_uno_types_unooptions",
-      "label": "UnoOptions",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "engine.ts",
-      "file_type": "code",
-      "norm_label": "unooptions",
-      "source_file": "src/games/uno/types.ts",
-      "source_location": "L45"
-    },
-    {
-      "id": "src_games_uno_types_unostate",
-      "label": "UnoState",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "engine.ts",
-      "file_type": "code",
-      "norm_label": "unostate",
-      "source_file": "src/games/uno/types.ts",
-      "source_location": "L90"
-    },
-    {
       "id": "src_games_uno_types_variant",
       "label": "Variant",
       "_callable": true,
@@ -407,6 +420,19 @@
       "source_location": "L184"
     },
     {
+      "id": "src_games_uno_sounds_soundcue",
+      "label": "SoundCue",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "soundcue",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L6"
+    },
+    {
       "id": "src_games_uno_types_color",
       "label": "Color",
       "_callable": true,
@@ -433,6 +459,32 @@
       "source_location": "L121"
     },
     {
+      "id": "src_games_uno_types_unostate",
+      "label": "UnoState",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "unostate",
+      "source_file": "src/games/uno/types.ts",
+      "source_location": "L90"
+    },
+    {
+      "id": "src_games_uno_ui_roundend_props",
+      "label": "Props",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "props",
+      "source_file": "src/games/uno/ui/RoundEnd.tsx",
+      "source_location": "L14"
+    },
+    {
       "id": "src_games_uno_ui_unotable_props",
       "label": "Props",
       "_callable": true,
@@ -443,7 +495,139 @@
       "file_type": "code",
       "norm_label": "props",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L21"
+      "source_location": "L24"
+    },
+    {
+      "id": "src_audio_audio_getsettings",
+      "label": "getSettings()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "getsettings()",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L105"
+    },
+    {
+      "id": "src_audio_audio_loadsettings",
+      "label": "loadSettings()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "loadsettings()",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L43"
+    },
+    {
+      "id": "src_audio_audio_musicvolume",
+      "label": "musicVolume()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "musicvolume()",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L58"
+    },
+    {
+      "id": "src_audio_audio_playmusic",
+      "label": "playMusic()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "playmusic()",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L71"
+    },
+    {
+      "id": "src_audio_audio_setsettings",
+      "label": "setSettings()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "setsettings()",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L109"
+    },
+    {
+      "id": "src_audio_audio_sfx",
+      "label": "sfx()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "sfx()",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L89"
+    },
+    {
+      "id": "src_audio_audio_trackhowl",
+      "label": "trackHowl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "trackhowl()",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L60"
+    },
+    {
+      "id": "src_audio_audio_useaudiosettings",
+      "label": "useAudioSettings()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "useaudiosettings()",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L117"
+    },
+    {
+      "id": "src_audio_soundsettings_soundbutton",
+      "label": "SoundButton()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "soundbutton()",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L19"
+    },
+    {
+      "id": "src_audio_soundsettings_sounddrawer",
+      "label": "SoundDrawer()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "sounddrawer()",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L42"
+    },
+    {
+      "id": "src_components_memphis_slab_slab",
+      "label": "Slab()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "slab()",
+      "source_file": "src/components/memphis/Slab.tsx",
+      "source_location": "L30"
     },
     {
       "id": "src_components_ui_button_button",
@@ -451,7 +635,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "button()",
       "source_file": "src/components/ui/button.tsx",
@@ -463,7 +647,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "dialog()",
       "source_file": "src/components/ui/dialog.tsx",
@@ -475,7 +659,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "dialogclose()",
       "source_file": "src/components/ui/dialog.tsx",
@@ -487,7 +671,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "dialogcontent()",
       "source_file": "src/components/ui/dialog.tsx",
@@ -499,7 +683,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "dialogdescription()",
       "source_file": "src/components/ui/dialog.tsx",
@@ -511,7 +695,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "dialogfooter()",
       "source_file": "src/components/ui/dialog.tsx",
@@ -523,7 +707,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "dialogheader()",
       "source_file": "src/components/ui/dialog.tsx",
@@ -535,7 +719,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "dialogoverlay()",
       "source_file": "src/components/ui/dialog.tsx",
@@ -547,7 +731,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "dialogportal()",
       "source_file": "src/components/ui/dialog.tsx",
@@ -559,7 +743,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "dialogtitle()",
       "source_file": "src/components/ui/dialog.tsx",
@@ -571,11 +755,143 @@
       "_callable": true,
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "dialogtrigger()",
       "source_file": "src/components/ui/dialog.tsx",
       "source_location": "L15"
+    },
+    {
+      "id": "src_components_ui_drawer_drawer",
+      "label": "Drawer()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "drawer()",
+      "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_components_ui_drawer_drawerclose",
+      "label": "DrawerClose()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "drawerclose()",
+      "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L23"
+    },
+    {
+      "id": "src_components_ui_drawer_drawercontent",
+      "label": "DrawerContent()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "drawercontent()",
+      "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L45"
+    },
+    {
+      "id": "src_components_ui_drawer_drawerdescription",
+      "label": "DrawerDescription()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "drawerdescription()",
+      "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L107"
+    },
+    {
+      "id": "src_components_ui_drawer_drawerfooter",
+      "label": "DrawerFooter()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "drawerfooter()",
+      "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L81"
+    },
+    {
+      "id": "src_components_ui_drawer_drawerheader",
+      "label": "DrawerHeader()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "drawerheader()",
+      "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L68"
+    },
+    {
+      "id": "src_components_ui_drawer_draweroverlay",
+      "label": "DrawerOverlay()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "draweroverlay()",
+      "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L29"
+    },
+    {
+      "id": "src_components_ui_drawer_drawerportal",
+      "label": "DrawerPortal()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "drawerportal()",
+      "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L17"
+    },
+    {
+      "id": "src_components_ui_drawer_drawertitle",
+      "label": "DrawerTitle()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "drawertitle()",
+      "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L91"
+    },
+    {
+      "id": "src_components_ui_drawer_drawertrigger",
+      "label": "DrawerTrigger()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "drawertrigger()",
+      "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L11"
+    },
+    {
+      "id": "src_components_ui_slider_slider",
+      "label": "Slider()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "slider()",
+      "source_file": "src/components/ui/slider.tsx",
+      "source_location": "L5"
     },
     {
       "id": "src_components_ui_switch_switch",
@@ -583,7 +899,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "switch()",
       "source_file": "src/components/ui/switch.tsx",
@@ -643,7 +959,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "run()",
       "source_file": "scripts/apk.mjs",
@@ -655,7 +971,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "send()",
       "source_file": "scripts/capture.mjs",
@@ -667,11 +983,167 @@
       "_callable": true,
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "sleep()",
       "source_file": "scripts/capture.mjs",
       "source_location": "L14"
+    },
+    {
+      "id": "scripts_lottie_anim",
+      "label": "anim()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "anim()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L17"
+    },
+    {
+      "id": "scripts_lottie_burst",
+      "label": "burst()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "burst()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L109"
+    },
+    {
+      "id": "scripts_lottie_confetti",
+      "label": "confetti()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "confetti()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L73"
+    },
+    {
+      "id": "scripts_lottie_doc",
+      "label": "doc()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "doc()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L70"
+    },
+    {
+      "id": "scripts_lottie_fill",
+      "label": "fill()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "fill()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L22"
+    },
+    {
+      "id": "scripts_lottie_layer",
+      "label": "layer()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "layer()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L53"
+    },
+    {
+      "id": "scripts_lottie_pick",
+      "label": "pick()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "pick()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L13"
+    },
+    {
+      "id": "scripts_lottie_rand",
+      "label": "rand()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "rand()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L9"
+    },
+    {
+      "id": "scripts_lottie_rgb",
+      "label": "rgb()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "rgb()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L6"
+    },
+    {
+      "id": "scripts_lottie_shape",
+      "label": "shape()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "shape()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L26"
+    },
+    {
+      "id": "scripts_lottie_st",
+      "label": "st()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "st()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L15"
+    },
+    {
+      "id": "scripts_lottie_stroke",
+      "label": "stroke()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "stroke()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L23"
+    },
+    {
+      "id": "scripts_lottie_tr",
+      "label": "tr()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "tr()",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L24"
     },
     {
       "id": "scripts_release_out",
@@ -679,7 +1151,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "out()",
       "source_file": "scripts/release.mjs",
@@ -691,7 +1163,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "sh()",
       "source_file": "scripts/release.mjs",
@@ -707,7 +1179,7 @@
       "file_type": "code",
       "norm_label": "app()",
       "source_file": "src/App.tsx",
-      "source_location": "L34"
+      "source_location": "L36"
     },
     {
       "id": "src_app_gamemenu",
@@ -719,7 +1191,7 @@
       "file_type": "code",
       "norm_label": "gamemenu()",
       "source_file": "src/App.tsx",
-      "source_location": "L294"
+      "source_location": "L303"
     },
     {
       "id": "src_app_gametile",
@@ -731,7 +1203,7 @@
       "file_type": "code",
       "norm_label": "gametile()",
       "source_file": "src/App.tsx",
-      "source_location": "L347"
+      "source_location": "L356"
     },
     {
       "id": "src_app_home",
@@ -743,7 +1215,7 @@
       "file_type": "code",
       "norm_label": "home()",
       "source_file": "src/App.tsx",
-      "source_location": "L74"
+      "source_location": "L76"
     },
     {
       "id": "src_app_load",
@@ -755,7 +1227,7 @@
       "file_type": "code",
       "norm_label": "load()",
       "source_file": "src/App.tsx",
-      "source_location": "L19"
+      "source_location": "L21"
     },
     {
       "id": "src_app_makecode",
@@ -767,7 +1239,7 @@
       "file_type": "code",
       "norm_label": "makecode()",
       "source_file": "src/App.tsx",
-      "source_location": "L27"
+      "source_location": "L29"
     },
     {
       "id": "src_app_netbanner",
@@ -779,7 +1251,7 @@
       "file_type": "code",
       "norm_label": "netbanner()",
       "source_file": "src/App.tsx",
-      "source_location": "L154"
+      "source_location": "L160"
     },
     {
       "id": "src_app_playerlist",
@@ -791,7 +1263,7 @@
       "file_type": "code",
       "norm_label": "playerlist()",
       "source_file": "src/App.tsx",
-      "source_location": "L271"
+      "source_location": "L280"
     },
     {
       "id": "src_app_room",
@@ -803,7 +1275,7 @@
       "file_type": "code",
       "norm_label": "room()",
       "source_file": "src/App.tsx",
-      "source_location": "L169"
+      "source_location": "L175"
     },
     {
       "id": "src_app_roomcode",
@@ -815,7 +1287,7 @@
       "file_type": "code",
       "norm_label": "roomcode()",
       "source_file": "src/App.tsx",
-      "source_location": "L245"
+      "source_location": "L254"
     },
     {
       "id": "src_app_rotatehint",
@@ -827,7 +1299,7 @@
       "file_type": "code",
       "norm_label": "rotatehint()",
       "source_file": "src/App.tsx",
-      "source_location": "L62"
+      "source_location": "L64"
     },
     {
       "id": "src_app_waiting",
@@ -839,7 +1311,7 @@
       "file_type": "code",
       "norm_label": "waiting()",
       "source_file": "src/App.tsx",
-      "source_location": "L367"
+      "source_location": "L376"
     },
     {
       "id": "src_components_memphis_logo_logomark",
@@ -998,234 +1470,6 @@
       "source_location": "L50"
     },
     {
-      "id": "src_components_memphis_patterns_dots",
-      "label": "dots()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "dots()",
-      "source_file": "src/components/memphis/patterns.ts",
-      "source_location": "L71"
-    },
-    {
-      "id": "src_components_memphis_patterns_hatch",
-      "label": "hatch()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "hatch()",
-      "source_file": "src/components/memphis/patterns.ts",
-      "source_location": "L60"
-    },
-    {
-      "id": "src_components_memphis_patterns_squiggles",
-      "label": "squiggles()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "squiggles()",
-      "source_file": "src/components/memphis/patterns.ts",
-      "source_location": "L46"
-    },
-    {
-      "id": "src_components_memphis_patterns_svgurl",
-      "label": "svgUrl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "svgurl()",
-      "source_file": "src/components/memphis/patterns.ts",
-      "source_location": "L5"
-    },
-    {
-      "id": "src_components_memphis_patterns_terrazzo",
-      "label": "terrazzo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "terrazzo()",
-      "source_file": "src/components/memphis/patterns.ts",
-      "source_location": "L11"
-    },
-    {
-      "id": "src_components_memphis_slab_slab",
-      "label": "Slab()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "slab()",
-      "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L29"
-    },
-    {
-      "id": "src_components_memphis_slab_tape",
-      "label": "Tape()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "tape()",
-      "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L62"
-    },
-    {
-      "id": "src_games_uno_ui_roundend_roundend",
-      "label": "RoundEnd()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "roundend()",
-      "source_file": "src/games/uno/ui/RoundEnd.tsx",
-      "source_location": "L22"
-    },
-    {
-      "id": "src_games_uno_ui_unotable_opponentseat",
-      "label": "OpponentSeat()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "opponentseat()",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L394"
-    },
-    {
-      "id": "src_components_ui_drawer_drawer",
-      "label": "Drawer()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "drawer()",
-      "source_file": "src/components/ui/drawer.tsx",
-      "source_location": "L5"
-    },
-    {
-      "id": "src_components_ui_drawer_drawerclose",
-      "label": "DrawerClose()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "drawerclose()",
-      "source_file": "src/components/ui/drawer.tsx",
-      "source_location": "L23"
-    },
-    {
-      "id": "src_components_ui_drawer_drawercontent",
-      "label": "DrawerContent()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "drawercontent()",
-      "source_file": "src/components/ui/drawer.tsx",
-      "source_location": "L45"
-    },
-    {
-      "id": "src_components_ui_drawer_drawerdescription",
-      "label": "DrawerDescription()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "drawerdescription()",
-      "source_file": "src/components/ui/drawer.tsx",
-      "source_location": "L107"
-    },
-    {
-      "id": "src_components_ui_drawer_drawerfooter",
-      "label": "DrawerFooter()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "drawerfooter()",
-      "source_file": "src/components/ui/drawer.tsx",
-      "source_location": "L81"
-    },
-    {
-      "id": "src_components_ui_drawer_drawerheader",
-      "label": "DrawerHeader()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "drawerheader()",
-      "source_file": "src/components/ui/drawer.tsx",
-      "source_location": "L68"
-    },
-    {
-      "id": "src_components_ui_drawer_draweroverlay",
-      "label": "DrawerOverlay()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "draweroverlay()",
-      "source_file": "src/components/ui/drawer.tsx",
-      "source_location": "L29"
-    },
-    {
-      "id": "src_components_ui_drawer_drawerportal",
-      "label": "DrawerPortal()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "drawerportal()",
-      "source_file": "src/components/ui/drawer.tsx",
-      "source_location": "L17"
-    },
-    {
-      "id": "src_components_ui_drawer_drawertitle",
-      "label": "DrawerTitle()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "drawertitle()",
-      "source_file": "src/components/ui/drawer.tsx",
-      "source_location": "L91"
-    },
-    {
-      "id": "src_components_ui_drawer_drawertrigger",
-      "label": "DrawerTrigger()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "drawertrigger()",
-      "source_file": "src/components/ui/drawer.tsx",
-      "source_location": "L11"
-    },
-    {
       "id": "src_update_updatebanner_updatebanner",
       "label": "UpdateBanner()",
       "_callable": true,
@@ -1274,18 +1518,6 @@
       "source_location": "L57"
     },
     {
-      "id": "src_components_memphis_shapes_shapes",
-      "label": "Shapes()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "RoundEnd.tsx",
-      "file_type": "code",
-      "norm_label": "shapes()",
-      "source_file": "src/components/memphis/Shapes.tsx",
-      "source_location": "L8"
-    },
-    {
       "id": "src_demo_demo",
       "label": "Demo()",
       "_callable": true,
@@ -1320,18 +1552,6 @@
       "norm_label": "shuffle()",
       "source_file": "src/games/rng.ts",
       "source_location": "L10"
-    },
-    {
-      "id": "src_games_uno_art_cardart_facelabel",
-      "label": "faceLabel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "engine.ts",
-      "file_type": "code",
-      "norm_label": "facelabel()",
-      "source_file": "src/games/uno/art/CardArt.tsx",
-      "source_location": "L34"
     },
     {
       "id": "src_games_uno_deck_builddeck",
@@ -1524,18 +1744,6 @@
       "norm_label": "endround()",
       "source_file": "src/games/uno/engine.ts",
       "source_location": "L179"
-    },
-    {
-      "id": "src_games_uno_engine_faceof",
-      "label": "faceOf()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "engine.ts",
-      "file_type": "code",
-      "norm_label": "faceof()",
-      "source_file": "src/games/uno/engine.ts",
-      "source_location": "L23"
     },
     {
       "id": "src_games_uno_engine_handpoints",
@@ -1754,18 +1962,6 @@
       "source_location": "L13"
     },
     {
-      "id": "src_games_uno_engine_topcard",
-      "label": "topCard()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "engine.ts",
-      "file_type": "code",
-      "norm_label": "topcard()",
-      "source_file": "src/games/uno/engine.ts",
-      "source_location": "L24"
-    },
-    {
       "id": "src_games_uno_engine_topface",
       "label": "topFace()",
       "_callable": true,
@@ -1790,16 +1986,52 @@
       "source_location": "L78"
     },
     {
-      "id": "src_games_uno_ui_copy_eventtext",
-      "label": "eventText()",
+      "id": "src_games_uno_sounds_test_c",
+      "label": "c()",
       "_callable": true,
       "_origin": "ast",
       "community": 3,
       "community_name": "engine.ts",
       "file_type": "code",
-      "norm_label": "eventtext()",
-      "source_file": "src/games/uno/ui/copy.ts",
+      "norm_label": "c()",
+      "source_file": "src/games/uno/sounds.test.ts",
       "source_location": "L7"
+    },
+    {
+      "id": "src_games_uno_sounds_test_filler",
+      "label": "filler()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "engine.ts",
+      "file_type": "code",
+      "norm_label": "filler()",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L8"
+    },
+    {
+      "id": "src_games_uno_sounds_test_names",
+      "label": "names()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "engine.ts",
+      "file_type": "code",
+      "norm_label": "names()",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L24"
+    },
+    {
+      "id": "src_games_uno_sounds_test_table",
+      "label": "table()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "engine.ts",
+      "file_type": "code",
+      "norm_label": "table()",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L9"
     },
     {
       "id": "src_games_uno_ui_lobby_lobby",
@@ -1814,40 +2046,100 @@
       "source_location": "L39"
     },
     {
-      "id": "src_games_uno_ui_unotable_hand",
-      "label": "Hand()",
+      "id": "src_audio_audio_usemusic",
+      "label": "useMusic()",
       "_callable": true,
       "_origin": "ast",
-      "community": 3,
-      "community_name": "engine.ts",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
       "file_type": "code",
-      "norm_label": "hand()",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L460"
+      "norm_label": "usemusic()",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L128"
     },
     {
-      "id": "src_games_uno_ui_unotable_opponentorder",
-      "label": "opponentOrder()",
+      "id": "src_components_memphis_patterns_dots",
+      "label": "dots()",
       "_callable": true,
       "_origin": "ast",
-      "community": 3,
-      "community_name": "engine.ts",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
       "file_type": "code",
-      "norm_label": "opponentorder()",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L24"
+      "norm_label": "dots()",
+      "source_file": "src/components/memphis/patterns.ts",
+      "source_location": "L71"
     },
     {
-      "id": "src_games_uno_ui_unotable_unotable",
-      "label": "UnoTable()",
+      "id": "src_components_memphis_patterns_hatch",
+      "label": "hatch()",
       "_callable": true,
       "_origin": "ast",
-      "community": 3,
-      "community_name": "engine.ts",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
       "file_type": "code",
-      "norm_label": "unotable()",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L28"
+      "norm_label": "hatch()",
+      "source_file": "src/components/memphis/patterns.ts",
+      "source_location": "L60"
+    },
+    {
+      "id": "src_components_memphis_patterns_squiggles",
+      "label": "squiggles()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "squiggles()",
+      "source_file": "src/components/memphis/patterns.ts",
+      "source_location": "L46"
+    },
+    {
+      "id": "src_components_memphis_patterns_svgurl",
+      "label": "svgUrl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "svgurl()",
+      "source_file": "src/components/memphis/patterns.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_components_memphis_patterns_terrazzo",
+      "label": "terrazzo()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "terrazzo()",
+      "source_file": "src/components/memphis/patterns.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "src_components_memphis_shapes_shapes",
+      "label": "Shapes()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "shapes()",
+      "source_file": "src/components/memphis/Shapes.tsx",
+      "source_location": "L8"
+    },
+    {
+      "id": "src_components_memphis_slab_tape",
+      "label": "Tape()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "tape()",
+      "source_file": "src/components/memphis/Slab.tsx",
+      "source_location": "L67"
     },
     {
       "id": "src_games_uno_art_cardart_cornertext",
@@ -1860,6 +2152,18 @@
       "norm_label": "cornertext()",
       "source_file": "src/games/uno/art/CardArt.tsx",
       "source_location": "L62"
+    },
+    {
+      "id": "src_games_uno_art_cardart_facelabel",
+      "label": "faceLabel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "facelabel()",
+      "source_file": "src/games/uno/art/CardArt.tsx",
+      "source_location": "L34"
     },
     {
       "id": "src_games_uno_art_cardart_motif",
@@ -1898,6 +2202,126 @@
       "source_location": "L91"
     },
     {
+      "id": "src_games_uno_engine_faceof",
+      "label": "faceOf()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "faceof()",
+      "source_file": "src/games/uno/engine.ts",
+      "source_location": "L23"
+    },
+    {
+      "id": "src_games_uno_engine_topcard",
+      "label": "topCard()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "topcard()",
+      "source_file": "src/games/uno/engine.ts",
+      "source_location": "L24"
+    },
+    {
+      "id": "src_games_uno_sounds_istense",
+      "label": "isTense()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "istense()",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L102"
+    },
+    {
+      "id": "src_games_uno_sounds_placesound",
+      "label": "placeSound()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "placesound()",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L9"
+    },
+    {
+      "id": "src_games_uno_sounds_soundsfor",
+      "label": "soundsFor()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "soundsfor()",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L39"
+    },
+    {
+      "id": "src_games_uno_ui_copy_eventtext",
+      "label": "eventText()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "eventtext()",
+      "source_file": "src/games/uno/ui/copy.ts",
+      "source_location": "L7"
+    },
+    {
+      "id": "src_games_uno_ui_roundend_roundend",
+      "label": "RoundEnd()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "roundend()",
+      "source_file": "src/games/uno/ui/RoundEnd.tsx",
+      "source_location": "L22"
+    },
+    {
+      "id": "src_games_uno_ui_unotable_hand",
+      "label": "Hand()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "hand()",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L472"
+    },
+    {
+      "id": "src_games_uno_ui_unotable_opponentorder",
+      "label": "opponentOrder()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "opponentorder()",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L27"
+    },
+    {
+      "id": "src_games_uno_ui_unotable_opponentseat",
+      "label": "OpponentSeat()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "opponentseat()",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L406"
+    },
+    {
       "id": "src_games_uno_ui_unotable_unoburst",
       "label": "UnoBurst()",
       "_callable": true,
@@ -1907,163 +2331,91 @@
       "file_type": "code",
       "norm_label": "unoburst()",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L536"
+      "source_location": "L548"
     },
     {
-      "id": "scripts_lottie_anim",
-      "label": "anim()",
+      "id": "src_games_uno_ui_unotable_unotable",
+      "label": "UnoTable()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "unotable()",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L31"
+    },
+    {
+      "id": "scripts_audio_build_ff",
+      "label": "ff()",
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "lottie.mjs",
+      "community_name": "build.py",
       "file_type": "code",
-      "norm_label": "anim()",
-      "source_file": "scripts/lottie.mjs",
+      "norm_label": "ff()",
+      "source_file": "scripts/audio/build.py",
       "source_location": "L17"
     },
     {
-      "id": "scripts_lottie_burst",
-      "label": "burst()",
+      "id": "scripts_audio_build_load",
+      "label": "load()",
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "lottie.mjs",
+      "community_name": "build.py",
       "file_type": "code",
-      "norm_label": "burst()",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L109"
+      "norm_label": "load()",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L21"
     },
     {
-      "id": "scripts_lottie_confetti",
-      "label": "confetti()",
+      "id": "scripts_audio_build_music",
+      "label": "music()",
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "lottie.mjs",
+      "community_name": "build.py",
       "file_type": "code",
-      "norm_label": "confetti()",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L73"
+      "norm_label": "music()",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L49"
     },
     {
-      "id": "scripts_lottie_doc",
-      "label": "doc()",
+      "id": "scripts_audio_build_seamless_loop",
+      "label": "seamless_loop()",
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "lottie.mjs",
+      "community_name": "build.py",
       "file_type": "code",
-      "norm_label": "doc()",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L70"
+      "norm_label": "seamless_loop()",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L40"
     },
     {
-      "id": "scripts_lottie_fill",
-      "label": "fill()",
+      "id": "scripts_audio_build_sfx",
+      "label": "sfx()",
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "lottie.mjs",
+      "community_name": "build.py",
       "file_type": "code",
-      "norm_label": "fill()",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L22"
+      "norm_label": "sfx()",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L102"
     },
     {
-      "id": "scripts_lottie_layer",
-      "label": "layer()",
+      "id": "scripts_audio_build_write_ogg",
+      "label": "write_ogg()",
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "lottie.mjs",
+      "community_name": "build.py",
       "file_type": "code",
-      "norm_label": "layer()",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L53"
-    },
-    {
-      "id": "scripts_lottie_pick",
-      "label": "pick()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "lottie.mjs",
-      "file_type": "code",
-      "norm_label": "pick()",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L13"
-    },
-    {
-      "id": "scripts_lottie_rand",
-      "label": "rand()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "lottie.mjs",
-      "file_type": "code",
-      "norm_label": "rand()",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L9"
-    },
-    {
-      "id": "scripts_lottie_rgb",
-      "label": "rgb()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "lottie.mjs",
-      "file_type": "code",
-      "norm_label": "rgb()",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L6"
-    },
-    {
-      "id": "scripts_lottie_shape",
-      "label": "shape()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "lottie.mjs",
-      "file_type": "code",
-      "norm_label": "shape()",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L26"
-    },
-    {
-      "id": "scripts_lottie_st",
-      "label": "st()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "lottie.mjs",
-      "file_type": "code",
-      "norm_label": "st()",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L15"
-    },
-    {
-      "id": "scripts_lottie_stroke",
-      "label": "stroke()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "lottie.mjs",
-      "file_type": "code",
-      "norm_label": "stroke()",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L23"
-    },
-    {
-      "id": "scripts_lottie_tr",
-      "label": "tr()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "lottie.mjs",
-      "file_type": "code",
-      "norm_label": "tr()",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L24"
+      "norm_label": "write_ogg()",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L29"
     },
     {
       "id": "scripts_blender_scene_add",
@@ -2306,11 +2658,110 @@
       "source_location": "L75"
     },
     {
+      "id": "src_audio_audio",
+      "label": "audio.ts",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "audio.ts",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_audio_audio_listeners",
+      "label": "listeners",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "listeners",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L53"
+    },
+    {
+      "id": "src_audio_audio_music",
+      "label": "music",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "music",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L54"
+    },
+    {
+      "id": "src_audio_audio_settings",
+      "label": "settings",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "settings",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L52"
+    },
+    {
+      "id": "src_audio_audio_sfxcache",
+      "label": "sfxCache",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "sfxcache",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L55"
+    },
+    {
+      "id": "src_audio_soundsettings",
+      "label": "SoundSettings.tsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "soundsettings.tsx",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_audio_soundsettings_credits",
+      "label": "CREDITS",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "credits",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L10"
+    },
+    {
+      "id": "src_components_memphis_slab",
+      "label": "Slab.tsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "slab.tsx",
+      "source_file": "src/components/memphis/Slab.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_memphis_slab_tone",
+      "label": "TONE",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "tone",
+      "source_file": "src/components/memphis/Slab.tsx",
+      "source_location": "L9"
+    },
+    {
       "id": "src_components_ui_button",
       "label": "button.tsx",
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "button.tsx",
       "source_file": "src/components/ui/button.tsx",
@@ -2321,7 +2772,7 @@
       "label": "buttonVariants",
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "buttonvariants",
       "source_file": "src/components/ui/button.tsx",
@@ -2332,10 +2783,32 @@
       "label": "dialog.tsx",
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "dialog.tsx",
       "source_file": "src/components/ui/dialog.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_ui_drawer",
+      "label": "drawer.tsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "drawer.tsx",
+      "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_ui_slider",
+      "label": "slider.tsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "slider.tsx",
+      "source_file": "src/components/ui/slider.tsx",
       "source_location": "L1"
     },
     {
@@ -2343,40 +2816,95 @@
       "label": "switch.tsx",
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "switch.tsx",
       "source_file": "src/components/ui/switch.tsx",
       "source_location": "L1"
     },
     {
+      "id": "src_games_uno_ui_copy_house_info",
+      "label": "HOUSE_INFO",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "house_info",
+      "source_file": "src/games/uno/ui/copy.ts",
+      "source_location": "L60"
+    },
+    {
+      "id": "src_games_uno_ui_copy_variant_info",
+      "label": "VARIANT_INFO",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "variant_info",
+      "source_file": "src/games/uno/ui/copy.ts",
+      "source_location": "L45"
+    },
+    {
+      "id": "src_games_uno_ui_lobby",
+      "label": "Lobby.tsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "lobby.tsx",
+      "source_file": "src/games/uno/ui/Lobby.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_games_uno_ui_lobby_showcase",
+      "label": "SHOWCASE",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "showcase",
+      "source_file": "src/games/uno/ui/Lobby.tsx",
+      "source_location": "L14"
+    },
+    {
+      "id": "src_games_uno_ui_lobby_style",
+      "label": "STYLE",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "code",
+      "norm_label": "style",
+      "source_file": "src/games/uno/ui/Lobby.tsx",
+      "source_location": "L33"
+    },
+    {
       "id": "src_lib_utils",
       "label": "utils.ts",
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "code",
       "norm_label": "utils.ts",
       "source_file": "src/lib/utils.ts",
       "source_location": "L1"
     },
     {
-      "id": "ref_class_variance_authority",
-      "label": "class-variance-authority",
+      "id": "ref_howler",
+      "label": "howler",
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "concept",
-      "norm_label": "class-variance-authority",
+      "norm_label": "howler",
       "source_file": "package.json",
-      "source_location": "L25"
+      "source_location": "L29"
     },
     {
       "id": "ref_hugeicons_core_free_icons",
       "label": "@hugeicons/core-free-icons",
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "concept",
       "norm_label": "@hugeicons/core-free-icons",
       "source_file": "package.json",
@@ -2387,7 +2915,7 @@
       "label": "@hugeicons/react",
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "concept",
       "norm_label": "@hugeicons/react",
       "source_file": "package.json",
@@ -2398,11 +2926,22 @@
       "label": "radix-ui",
       "_origin": "ast",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "file_type": "concept",
       "norm_label": "radix-ui",
       "source_file": "package.json",
-      "source_location": "L29"
+      "source_location": "L31"
+    },
+    {
+      "id": "ref_react",
+      "label": "react",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Lobby.tsx",
+      "file_type": "concept",
+      "norm_label": "react",
+      "source_file": "package.json",
+      "source_location": "L32"
     },
     {
       "id": "capacitor_config",
@@ -2446,7 +2985,7 @@
       "file_type": "code",
       "norm_label": "devdependencies",
       "source_file": "package.json",
-      "source_location": "L37"
+      "source_location": "L39"
     },
     {
       "id": "package_devdependencies_capacitor_cli",
@@ -2457,7 +2996,7 @@
       "file_type": "code",
       "norm_label": "@capacitor/cli",
       "source_file": "package.json",
-      "source_location": "L38"
+      "source_location": "L40"
     },
     {
       "id": "package_devdependencies_oxlint",
@@ -2468,7 +3007,7 @@
       "file_type": "code",
       "norm_label": "oxlint",
       "source_file": "package.json",
-      "source_location": "L43"
+      "source_location": "L45"
     },
     {
       "id": "package_devdependencies_types_node",
@@ -2479,7 +3018,7 @@
       "file_type": "code",
       "norm_label": "@types/node",
       "source_file": "package.json",
-      "source_location": "L39"
+      "source_location": "L41"
     },
     {
       "id": "package_devdependencies_types_react",
@@ -2490,7 +3029,7 @@
       "file_type": "code",
       "norm_label": "@types/react",
       "source_file": "package.json",
-      "source_location": "L40"
+      "source_location": "L42"
     },
     {
       "id": "package_devdependencies_types_react_dom",
@@ -2501,7 +3040,7 @@
       "file_type": "code",
       "norm_label": "@types/react-dom",
       "source_file": "package.json",
-      "source_location": "L41"
+      "source_location": "L43"
     },
     {
       "id": "package_devdependencies_typescript",
@@ -2512,7 +3051,7 @@
       "file_type": "code",
       "norm_label": "typescript",
       "source_file": "package.json",
-      "source_location": "L44"
+      "source_location": "L46"
     },
     {
       "id": "package_devdependencies_vite",
@@ -2523,7 +3062,7 @@
       "file_type": "code",
       "norm_label": "vite",
       "source_file": "package.json",
-      "source_location": "L45"
+      "source_location": "L47"
     },
     {
       "id": "package_devdependencies_vitejs_plugin_react",
@@ -2534,7 +3073,7 @@
       "file_type": "code",
       "norm_label": "@vitejs/plugin-react",
       "source_file": "package.json",
-      "source_location": "L42"
+      "source_location": "L44"
     },
     {
       "id": "package_devdependencies_vitest",
@@ -2545,7 +3084,7 @@
       "file_type": "code",
       "norm_label": "vitest",
       "source_file": "package.json",
-      "source_location": "L46"
+      "source_location": "L48"
     },
     {
       "id": "package_name",
@@ -2721,7 +3260,18 @@
       "file_type": "concept",
       "norm_label": "@capacitor/cli",
       "source_file": "package.json",
-      "source_location": "L38"
+      "source_location": "L40"
+    },
+    {
+      "id": "ref_class_variance_authority",
+      "label": "class-variance-authority",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "package.json",
+      "file_type": "concept",
+      "norm_label": "class-variance-authority",
+      "source_file": "package.json",
+      "source_location": "L26"
     },
     {
       "id": "ref_cn",
@@ -2732,7 +3282,7 @@
       "file_type": "concept",
       "norm_label": "cn",
       "source_file": "package.json",
-      "source_location": "L26"
+      "source_location": "L27"
     },
     {
       "id": "ref_fontsource_dela_gothic_one",
@@ -2765,7 +3315,7 @@
       "file_type": "concept",
       "norm_label": "oxlint",
       "source_file": "package.json",
-      "source_location": "L43"
+      "source_location": "L45"
     },
     {
       "id": "ref_shadcn",
@@ -2776,18 +3326,7 @@
       "file_type": "concept",
       "norm_label": "shadcn",
       "source_file": "package.json",
-      "source_location": "L32"
-    },
-    {
-      "id": "ref_supabase_supabase_js",
-      "label": "@supabase/supabase-js",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "package.json",
-      "file_type": "concept",
-      "norm_label": "@supabase/supabase-js",
-      "source_file": "package.json",
-      "source_location": "L23"
+      "source_location": "L34"
     },
     {
       "id": "ref_tailwindcss",
@@ -2798,7 +3337,7 @@
       "file_type": "concept",
       "norm_label": "tailwindcss",
       "source_file": "package.json",
-      "source_location": "L33"
+      "source_location": "L35"
     },
     {
       "id": "ref_tailwindcss_vite",
@@ -2820,7 +3359,18 @@
       "file_type": "concept",
       "norm_label": "tw-animate-css",
       "source_file": "package.json",
-      "source_location": "L34"
+      "source_location": "L36"
+    },
+    {
+      "id": "ref_types_howler",
+      "label": "@types/howler",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "package.json",
+      "file_type": "concept",
+      "norm_label": "@types/howler",
+      "source_file": "package.json",
+      "source_location": "L25"
     },
     {
       "id": "ref_types_node",
@@ -2831,7 +3381,7 @@
       "file_type": "concept",
       "norm_label": "@types/node",
       "source_file": "package.json",
-      "source_location": "L39"
+      "source_location": "L41"
     },
     {
       "id": "ref_types_react",
@@ -2842,7 +3392,7 @@
       "file_type": "concept",
       "norm_label": "@types/react",
       "source_file": "package.json",
-      "source_location": "L40"
+      "source_location": "L42"
     },
     {
       "id": "ref_types_react_dom",
@@ -2853,7 +3403,7 @@
       "file_type": "concept",
       "norm_label": "@types/react-dom",
       "source_file": "package.json",
-      "source_location": "L41"
+      "source_location": "L43"
     },
     {
       "id": "ref_typescript",
@@ -2864,7 +3414,7 @@
       "file_type": "concept",
       "norm_label": "typescript",
       "source_file": "package.json",
-      "source_location": "L44"
+      "source_location": "L46"
     },
     {
       "id": "ref_vaul",
@@ -2875,7 +3425,7 @@
       "file_type": "concept",
       "norm_label": "vaul",
       "source_file": "package.json",
-      "source_location": "L35"
+      "source_location": "L37"
     },
     {
       "id": "ref_vite",
@@ -2886,7 +3436,7 @@
       "file_type": "concept",
       "norm_label": "vite",
       "source_file": "package.json",
-      "source_location": "L45"
+      "source_location": "L47"
     },
     {
       "id": "ref_vitejs_plugin_react",
@@ -2897,18 +3447,7 @@
       "file_type": "concept",
       "norm_label": "@vitejs/plugin-react",
       "source_file": "package.json",
-      "source_location": "L42"
-    },
-    {
-      "id": "ref_vitest",
-      "label": "vitest",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "package.json",
-      "file_type": "concept",
-      "norm_label": "vitest",
-      "source_file": "package.json",
-      "source_location": "L46"
+      "source_location": "L44"
     },
     {
       "id": "tsconfig_app",
@@ -3800,7 +4339,7 @@
       "label": "apk.mjs",
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "apk.mjs",
       "source_file": "scripts/apk.mjs",
@@ -3811,7 +4350,7 @@
       "label": "{ version }",
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "{ version }",
       "source_file": "scripts/apk.mjs",
@@ -3822,7 +4361,7 @@
       "label": "capture.mjs",
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "capture.mjs",
       "source_file": "scripts/capture.mjs",
@@ -3833,7 +4372,7 @@
       "label": "chrome",
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "chrome",
       "source_file": "scripts/capture.mjs",
@@ -3844,7 +4383,7 @@
       "label": "pending",
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "pending",
       "source_file": "scripts/capture.mjs",
@@ -3855,7 +4394,7 @@
       "label": "profile",
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "profile",
       "source_file": "scripts/capture.mjs",
@@ -3866,7 +4405,7 @@
       "label": "[url, out, w = '390', h = '844', scale = '2']",
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "[url, out, w = '390', h = '844', scale = '2']",
       "source_file": "scripts/capture.mjs",
@@ -3877,18 +4416,51 @@
       "label": "ws",
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "ws",
       "source_file": "scripts/capture.mjs",
       "source_location": "L23"
     },
     {
+      "id": "scripts_lottie",
+      "label": "lottie.mjs",
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "lottie.mjs",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L1"
+    },
+    {
+      "id": "scripts_lottie_ease",
+      "label": "ease",
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "ease",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L16"
+    },
+    {
+      "id": "scripts_lottie_palette",
+      "label": "PALETTE",
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "lottie.mjs",
+      "file_type": "code",
+      "norm_label": "palette",
+      "source_file": "scripts/lottie.mjs",
+      "source_location": "L5"
+    },
+    {
       "id": "scripts_release",
       "label": "release.mjs",
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "release.mjs",
       "source_file": "scripts/release.mjs",
@@ -3899,7 +4471,7 @@
       "label": "[bump = 'patch', ...noteParts]",
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "[bump = 'patch', ...noteparts]",
       "source_file": "scripts/release.mjs",
@@ -3910,7 +4482,7 @@
       "label": "[ma, mi, pa]",
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "[ma, mi, pa]",
       "source_file": "scripts/release.mjs",
@@ -3921,7 +4493,7 @@
       "label": "pkg",
       "_origin": "ast",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "file_type": "code",
       "norm_label": "pkg",
       "source_file": "scripts/release.mjs",
@@ -3947,7 +4519,7 @@
       "file_type": "code",
       "norm_label": "floor",
       "source_file": "src/App.tsx",
-      "source_location": "L32"
+      "source_location": "L34"
     },
     {
       "id": "src_app_seat_tones",
@@ -3958,7 +4530,7 @@
       "file_type": "code",
       "norm_label": "seat_tones",
       "source_file": "src/App.tsx",
-      "source_location": "L269"
+      "source_location": "L278"
     },
     {
       "id": "src_components_memphis_logo",
@@ -4014,6 +4586,28 @@
       "norm_label": "games/types.ts",
       "source_file": "src/games/types.ts",
       "source_location": "L1"
+    },
+    {
+      "id": "src_games_uno_index",
+      "label": "index.ts",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.tsx",
+      "file_type": "code",
+      "norm_label": "index.ts",
+      "source_file": "src/games/uno/index.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_games_uno_index_uno",
+      "label": "uno",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.tsx",
+      "file_type": "code",
+      "norm_label": "uno",
+      "source_file": "src/games/uno/index.ts",
+      "source_location": "L6"
     },
     {
       "id": "src_net_transport",
@@ -4104,92 +4698,39 @@
       "source_location": "L26"
     },
     {
-      "id": "src_components_memphis_patterns",
-      "label": "patterns.ts",
+      "id": "ref_supabase_supabase_js",
+      "label": "@supabase/supabase-js",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.tsx",
+      "file_type": "concept",
+      "norm_label": "@supabase/supabase-js",
+      "source_file": "package.json",
+      "source_location": "L23"
+    },
+    {
+      "id": "public_audio_credits",
+      "label": "CREDITS.md",
       "_origin": "ast",
       "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "patterns.ts",
-      "source_file": "src/components/memphis/patterns.ts",
+      "community_name": "CREDITS.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "credits.md",
+      "source_file": "public/audio/CREDITS.md",
       "source_location": "L1"
     },
     {
-      "id": "src_components_memphis_patterns_cache",
-      "label": "cache",
+      "id": "public_audio_credits_kredit_audio_couple_party",
+      "label": "Kredit audio Couple Party",
       "_origin": "ast",
       "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "cache",
-      "source_file": "src/components/memphis/patterns.ts",
-      "source_location": "L3"
-    },
-    {
-      "id": "src_components_memphis_slab",
-      "label": "Slab.tsx",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "slab.tsx",
-      "source_file": "src/components/memphis/Slab.tsx",
+      "community_name": "CREDITS.md",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "kredit audio couple party",
+      "source_file": "public/audio/CREDITS.md",
       "source_location": "L1"
-    },
-    {
-      "id": "src_components_memphis_slab_tone",
-      "label": "TONE",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Slab.tsx",
-      "file_type": "code",
-      "norm_label": "tone",
-      "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L8"
-    },
-    {
-      "id": "src_components_ui_drawer",
-      "label": "drawer.tsx",
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "drawer.tsx",
-      "source_file": "src/components/ui/drawer.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_games_uno_ui_lobby",
-      "label": "Lobby.tsx",
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "lobby.tsx",
-      "source_file": "src/games/uno/ui/Lobby.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_games_uno_ui_lobby_showcase",
-      "label": "SHOWCASE",
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "showcase",
-      "source_file": "src/games/uno/ui/Lobby.tsx",
-      "source_location": "L14"
-    },
-    {
-      "id": "src_games_uno_ui_lobby_style",
-      "label": "STYLE",
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Lobby.tsx",
-      "file_type": "code",
-      "norm_label": "style",
-      "source_file": "src/games/uno/ui/Lobby.tsx",
-      "source_location": "L33"
     },
     {
       "id": "src_update_updatebanner",
@@ -4256,61 +4797,6 @@
       "norm_label": "@capacitor/core",
       "source_file": "package.json",
       "source_location": "L17"
-    },
-    {
-      "id": "src_components_memphis_shapes",
-      "label": "Shapes.tsx",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "RoundEnd.tsx",
-      "file_type": "code",
-      "norm_label": "shapes.tsx",
-      "source_file": "src/components/memphis/Shapes.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_games_uno_ui_roundend",
-      "label": "RoundEnd.tsx",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "RoundEnd.tsx",
-      "file_type": "code",
-      "norm_label": "roundend.tsx",
-      "source_file": "src/games/uno/ui/RoundEnd.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "ref_gsap",
-      "label": "gsap",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "RoundEnd.tsx",
-      "file_type": "concept",
-      "norm_label": "gsap",
-      "source_file": "package.json",
-      "source_location": "L27"
-    },
-    {
-      "id": "ref_gsap_react",
-      "label": "@gsap/react",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "RoundEnd.tsx",
-      "file_type": "concept",
-      "norm_label": "@gsap/react",
-      "source_file": "package.json",
-      "source_location": "L20"
-    },
-    {
-      "id": "ref_react",
-      "label": "react",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "RoundEnd.tsx",
-      "file_type": "concept",
-      "norm_label": "react",
-      "source_file": "package.json",
-      "source_location": "L30"
     },
     {
       "id": "src_vite_env_d",
@@ -4423,26 +4909,15 @@
       "source_location": "L21"
     },
     {
-      "id": "src_games_uno_index",
-      "label": "index.ts",
+      "id": "src_games_uno_sounds_test",
+      "label": "sounds.test.ts",
       "_origin": "ast",
       "community": 3,
       "community_name": "engine.ts",
       "file_type": "code",
-      "norm_label": "index.ts",
-      "source_file": "src/games/uno/index.ts",
+      "norm_label": "sounds.test.ts",
+      "source_file": "src/games/uno/sounds.test.ts",
       "source_location": "L1"
-    },
-    {
-      "id": "src_games_uno_index_uno",
-      "label": "uno",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "engine.ts",
-      "file_type": "code",
-      "norm_label": "uno",
-      "source_file": "src/games/uno/index.ts",
-      "source_location": "L6"
     },
     {
       "id": "src_games_uno_types",
@@ -4530,7 +5005,51 @@
       "file_type": "concept",
       "norm_label": "react-dom",
       "source_file": "package.json",
-      "source_location": "L31"
+      "source_location": "L33"
+    },
+    {
+      "id": "ref_vitest",
+      "label": "vitest",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "engine.ts",
+      "file_type": "concept",
+      "norm_label": "vitest",
+      "source_file": "package.json",
+      "source_location": "L48"
+    },
+    {
+      "id": "src_components_memphis_patterns",
+      "label": "patterns.ts",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "patterns.ts",
+      "source_file": "src/components/memphis/patterns.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_memphis_patterns_cache",
+      "label": "cache",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "cache",
+      "source_file": "src/components/memphis/patterns.ts",
+      "source_location": "L3"
+    },
+    {
+      "id": "src_components_memphis_shapes",
+      "label": "Shapes.tsx",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "shapes.tsx",
+      "source_file": "src/components/memphis/Shapes.tsx",
+      "source_location": "L1"
     },
     {
       "id": "src_games_uno_art_cardart",
@@ -4621,6 +5140,17 @@
       "source_location": "L6"
     },
     {
+      "id": "src_games_uno_sounds",
+      "label": "sounds.ts",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "code",
+      "norm_label": "sounds.ts",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L1"
+    },
+    {
       "id": "src_games_uno_ui_copy",
       "label": "copy.ts",
       "_origin": "ast",
@@ -4632,26 +5162,15 @@
       "source_location": "L1"
     },
     {
-      "id": "src_games_uno_ui_copy_house_info",
-      "label": "HOUSE_INFO",
+      "id": "src_games_uno_ui_roundend",
+      "label": "RoundEnd.tsx",
       "_origin": "ast",
       "community": 4,
       "community_name": "UnoTable.tsx",
       "file_type": "code",
-      "norm_label": "house_info",
-      "source_file": "src/games/uno/ui/copy.ts",
-      "source_location": "L60"
-    },
-    {
-      "id": "src_games_uno_ui_copy_variant_info",
-      "label": "VARIANT_INFO",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "UnoTable.tsx",
-      "file_type": "code",
-      "norm_label": "variant_info",
-      "source_file": "src/games/uno/ui/copy.ts",
-      "source_location": "L45"
+      "norm_label": "roundend.tsx",
+      "source_file": "src/games/uno/ui/RoundEnd.tsx",
+      "source_location": "L1"
     },
     {
       "id": "src_games_uno_ui_unotable",
@@ -4665,6 +5184,28 @@
       "source_location": "L1"
     },
     {
+      "id": "ref_gsap",
+      "label": "gsap",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "concept",
+      "norm_label": "gsap",
+      "source_file": "package.json",
+      "source_location": "L28"
+    },
+    {
+      "id": "ref_gsap_react",
+      "label": "@gsap/react",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "file_type": "concept",
+      "norm_label": "@gsap/react",
+      "source_file": "package.json",
+      "source_location": "L20"
+    },
+    {
       "id": "ref_lottie_react",
       "label": "lottie-react",
       "_origin": "ast",
@@ -4673,7 +5214,7 @@
       "file_type": "concept",
       "norm_label": "lottie-react",
       "source_file": "package.json",
-      "source_location": "L28"
+      "source_location": "L30"
     },
     {
       "id": "design",
@@ -5052,37 +5593,70 @@
       "source_location": "L178"
     },
     {
-      "id": "scripts_lottie",
-      "label": "lottie.mjs",
+      "id": "ndarray",
+      "label": "ndarray",
       "_origin": "ast",
       "community": 6,
-      "community_name": "lottie.mjs",
+      "community_name": "build.py",
       "file_type": "code",
-      "norm_label": "lottie.mjs",
-      "source_file": "scripts/lottie.mjs",
+      "norm_label": "ndarray",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "path",
+      "label": "Path",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "build.py",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "scripts_audio_build",
+      "label": "build.py",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "build.py",
+      "file_type": "code",
+      "norm_label": "build.py",
+      "source_file": "scripts/audio/build.py",
       "source_location": "L1"
     },
     {
-      "id": "scripts_lottie_ease",
-      "label": "ease",
+      "id": "scripts_audio_build_rationale_1",
+      "label": "Olah audio CC0 (sumber di D:/dev/audio-src) menjadi aset app di public/audio/.\u2026",
       "_origin": "ast",
       "community": 6,
-      "community_name": "lottie.mjs",
-      "file_type": "code",
-      "norm_label": "ease",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L16"
+      "community_name": "build.py",
+      "file_type": "rationale",
+      "norm_label": "olah audio cc0 (sumber di d:/dev/audio-src) menjadi aset app di public/audio/....",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L1"
     },
     {
-      "id": "scripts_lottie_palette",
-      "label": "PALETTE",
+      "id": "scripts_audio_build_rationale_30",
+      "label": "Normalisasi loudness lalu simpan OGG Vorbis.",
       "_origin": "ast",
       "community": 6,
-      "community_name": "lottie.mjs",
-      "file_type": "code",
-      "norm_label": "palette",
-      "source_file": "scripts/lottie.mjs",
-      "source_location": "L5"
+      "community_name": "build.py",
+      "file_type": "rationale",
+      "norm_label": "normalisasi loudness lalu simpan ogg vorbis.",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L30"
+    },
+    {
+      "id": "scripts_audio_build_rationale_41",
+      "label": "Loop mulus: ekor lagu di-crossfade ke kepalanya, lalu tubuh lagu disambung\u2026",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "build.py",
+      "file_type": "rationale",
+      "norm_label": "loop mulus: ekor lagu di-crossfade ke kepalanya, lalu tubuh lagu disambung...",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L41"
     },
     {
       "id": "scripts_blender_scene",
@@ -5423,7 +5997,7 @@
       "file_type": "code",
       "norm_label": "class-variance-authority",
       "source_file": "package.json",
-      "source_location": "L25"
+      "source_location": "L26"
     },
     {
       "id": "package_dependencies_cn",
@@ -5434,7 +6008,7 @@
       "file_type": "code",
       "norm_label": "cn",
       "source_file": "package.json",
-      "source_location": "L26"
+      "source_location": "L27"
     },
     {
       "id": "package_dependencies_fontsource_dela_gothic_one",
@@ -5467,7 +6041,7 @@
       "file_type": "code",
       "norm_label": "gsap",
       "source_file": "package.json",
-      "source_location": "L27"
+      "source_location": "L28"
     },
     {
       "id": "package_dependencies_gsap_react",
@@ -5479,6 +6053,17 @@
       "norm_label": "@gsap/react",
       "source_file": "package.json",
       "source_location": "L20"
+    },
+    {
+      "id": "package_dependencies_howler",
+      "label": "howler",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "dependencies",
+      "file_type": "code",
+      "norm_label": "howler",
+      "source_file": "package.json",
+      "source_location": "L29"
     },
     {
       "id": "package_dependencies_hugeicons_core_free_icons",
@@ -5511,7 +6096,7 @@
       "file_type": "code",
       "norm_label": "lottie-react",
       "source_file": "package.json",
-      "source_location": "L28"
+      "source_location": "L30"
     },
     {
       "id": "package_dependencies_radix_ui",
@@ -5522,7 +6107,7 @@
       "file_type": "code",
       "norm_label": "radix-ui",
       "source_file": "package.json",
-      "source_location": "L29"
+      "source_location": "L31"
     },
     {
       "id": "package_dependencies_react",
@@ -5533,7 +6118,7 @@
       "file_type": "code",
       "norm_label": "react",
       "source_file": "package.json",
-      "source_location": "L30"
+      "source_location": "L32"
     },
     {
       "id": "package_dependencies_react_dom",
@@ -5544,7 +6129,7 @@
       "file_type": "code",
       "norm_label": "react-dom",
       "source_file": "package.json",
-      "source_location": "L31"
+      "source_location": "L33"
     },
     {
       "id": "package_dependencies_shadcn",
@@ -5555,7 +6140,7 @@
       "file_type": "code",
       "norm_label": "shadcn",
       "source_file": "package.json",
-      "source_location": "L32"
+      "source_location": "L34"
     },
     {
       "id": "package_dependencies_supabase_supabase_js",
@@ -5577,7 +6162,7 @@
       "file_type": "code",
       "norm_label": "tailwindcss",
       "source_file": "package.json",
-      "source_location": "L33"
+      "source_location": "L35"
     },
     {
       "id": "package_dependencies_tailwindcss_vite",
@@ -5599,7 +6184,18 @@
       "file_type": "code",
       "norm_label": "tw-animate-css",
       "source_file": "package.json",
-      "source_location": "L34"
+      "source_location": "L36"
+    },
+    {
+      "id": "package_dependencies_types_howler",
+      "label": "@types/howler",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "dependencies",
+      "file_type": "code",
+      "norm_label": "@types/howler",
+      "source_file": "package.json",
+      "source_location": "L25"
     },
     {
       "id": "package_dependencies_vaul",
@@ -5610,14 +6206,14 @@
       "file_type": "code",
       "norm_label": "vaul",
       "source_file": "package.json",
-      "source_location": "L35"
+      "source_location": "L37"
     },
     {
       "id": "src_lib_utils_cn",
       "label": "src_lib_utils_cn",
       "_origin": "semantic",
       "community": 0,
-      "community_name": "dialog.tsx",
+      "community_name": "Lobby.tsx",
       "external": true,
       "file_type": "concept",
       "norm_label": "src_lib_utils_cn",
@@ -5689,7 +6285,7 @@
       "label": "ref_node_child_process",
       "_origin": "semantic",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "external": true,
       "file_type": "concept",
       "norm_label": "ref_node_child_process",
@@ -5701,7 +6297,7 @@
       "label": "ref_node_fs",
       "_origin": "semantic",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "external": true,
       "file_type": "concept",
       "norm_label": "ref_node_fs",
@@ -5713,7 +6309,7 @@
       "label": "ref_node_os",
       "_origin": "semantic",
       "community": 19,
-      "community_name": "capture.mjs",
+      "community_name": "lottie.mjs",
       "external": true,
       "file_type": "concept",
       "norm_label": "ref_node_os",
@@ -5745,42 +6341,6 @@
       "type": "external"
     },
     {
-      "id": "src_assets_illustrations_lose",
-      "label": "src_assets_illustrations_lose",
-      "_origin": "semantic",
-      "community": 23,
-      "community_name": "RoundEnd.tsx",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_assets_illustrations_lose",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "src_assets_illustrations_win",
-      "label": "src_assets_illustrations_win",
-      "_origin": "semantic",
-      "community": 23,
-      "community_name": "RoundEnd.tsx",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_assets_illustrations_win",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "src_assets_lottie_confetti",
-      "label": "src_assets_lottie_confetti",
-      "_origin": "semantic",
-      "community": 23,
-      "community_name": "RoundEnd.tsx",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_assets_lottie_confetti",
-      "source_file": "",
-      "type": "external"
-    },
-    {
       "id": "src_index",
       "label": "src_index",
       "_origin": "semantic",
@@ -5793,6 +6353,30 @@
       "type": "external"
     },
     {
+      "id": "src_assets_illustrations_lose",
+      "label": "src_assets_illustrations_lose",
+      "_origin": "semantic",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_assets_illustrations_lose",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "src_assets_illustrations_win",
+      "label": "src_assets_illustrations_win",
+      "_origin": "semantic",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_assets_illustrations_win",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "src_assets_lottie_burst",
       "label": "src_assets_lottie_burst",
       "_origin": "semantic",
@@ -5801,6 +6385,30 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "src_assets_lottie_burst",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "src_assets_lottie_confetti",
+      "label": "src_assets_lottie_confetti",
+      "_origin": "semantic",
+      "community": 4,
+      "community_name": "UnoTable.tsx",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_assets_lottie_confetti",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "sys",
+      "label": "sys",
+      "_origin": "semantic",
+      "community": 6,
+      "community_name": "build.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "sys",
       "source_file": "",
       "type": "external"
     },
@@ -5829,19 +6437,124 @@
       "type": "external"
     },
     {
-      "id": "sys",
-      "label": "sys",
-      "_origin": "semantic",
-      "community": 7,
-      "community_name": "scene.py",
+      "id": "numpy",
+      "label": "numpy",
+      "community": 6,
+      "community_name": "build.py",
       "external": true,
       "file_type": "concept",
-      "norm_label": "sys",
+      "norm_label": "numpy",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "pathlib",
+      "label": "pathlib",
+      "community": 6,
+      "community_name": "build.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "pathlib",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "subprocess",
+      "label": "subprocess",
+      "community": 6,
+      "community_name": "build.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "subprocess",
       "source_file": "",
       "type": "external"
     }
   ],
   "links": [
+    {
+      "source": "scripts_audio_build_music",
+      "target": "scripts_audio_build_load",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_music",
+      "target": "scripts_audio_build_seamless_loop",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_music",
+      "target": "scripts_audio_build_write_ogg",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_music",
+      "target": "scripts_audio_build_ff",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_sfx",
+      "target": "scripts_audio_build_load",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_sfx",
+      "target": "scripts_audio_build_write_ogg",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L111",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_write_ogg",
+      "target": "scripts_audio_build_ff",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L34",
+      "weight": 1.0
+    },
     {
       "source": "scripts_blender_scene_cheek",
       "target": "scripts_blender_scene_add",
@@ -6643,7 +7356,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L41",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -6655,7 +7368,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L129",
+      "source_location": "L135",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_home",
+      "target": "src_audio_audio_usemusic",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/App.tsx",
+      "source_location": "L78",
       "weight": 1.0
     },
     {
@@ -6667,7 +7392,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L170",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -6679,7 +7404,127 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.tsx",
-      "source_location": "L173",
+      "source_location": "L179",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_room",
+      "target": "src_audio_audio_usemusic",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/App.tsx",
+      "source_location": "L181",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio_playmusic",
+      "target": "src_audio_audio_trackhowl",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio_playmusic",
+      "target": "src_audio_audio_musicvolume",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio_setsettings",
+      "target": "src_audio_audio_musicvolume",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio_usemusic",
+      "target": "src_audio_audio_playmusic",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L130",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings_soundbutton",
+      "target": "src_audio_audio_useaudiosettings",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings_soundbutton",
+      "target": "src_audio_audio_sfx",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings_sounddrawer",
+      "target": "src_audio_audio_useaudiosettings",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings_sounddrawer",
+      "target": "src_audio_audio_setsettings",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings_sounddrawer",
+      "target": "src_audio_audio_sfx",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -6751,7 +7596,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L32",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_memphis_slab_slab",
+      "target": "src_audio_audio_sfx",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/components/memphis/Slab.tsx",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -6763,7 +7620,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L55",
+      "source_location": "L60",
       "weight": 1.0
     },
     {
@@ -7823,6 +8680,114 @@
       "weight": 1.0
     },
     {
+      "source": "src_games_uno_sounds_istense",
+      "target": "src_games_uno_engine_activeseats",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_soundsfor",
+      "target": "src_games_uno_engine_topcard",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_soundsfor",
+      "target": "src_games_uno_engine_faceof",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_soundsfor",
+      "target": "src_games_uno_sounds_placesound",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test_filler",
+      "target": "src_games_uno_sounds_test_c",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test_table",
+      "target": "src_games_uno_engine_defaultoptions",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test_table",
+      "target": "src_games_uno_engine_init",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test_table",
+      "target": "src_games_uno_sounds_test_c",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test_table",
+      "target": "src_games_uno_engine_faceof",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
       "source": "src_games_uno_ui_copy_eventtext",
       "target": "src_games_uno_art_cardart_facelabel",
       "relation": "calls",
@@ -7879,7 +8844,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L494",
+      "source_location": "L506",
       "weight": 1.0
     },
     {
@@ -7891,7 +8856,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L495",
+      "source_location": "L507",
       "weight": 1.0
     },
     {
@@ -7903,7 +8868,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L515",
+      "source_location": "L527",
       "weight": 1.0
     },
     {
@@ -7915,7 +8880,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L525",
+      "source_location": "L537",
       "weight": 1.0
     },
     {
@@ -7927,7 +8892,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L427",
+      "source_location": "L439",
       "weight": 1.0
     },
     {
@@ -7939,7 +8904,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L438",
+      "source_location": "L450",
       "weight": 1.0
     },
     {
@@ -7951,7 +8916,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L112",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -7963,7 +8928,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L114",
+      "source_location": "L125",
       "weight": 1.0
     },
     {
@@ -7975,7 +8940,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L141",
+      "source_location": "L152",
       "weight": 1.0
     },
     {
@@ -7987,7 +8952,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L142",
+      "source_location": "L153",
       "weight": 1.0
     },
     {
@@ -7999,7 +8964,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L142",
+      "source_location": "L153",
       "weight": 1.0
     },
     {
@@ -8011,7 +8976,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L197",
+      "source_location": "L209",
       "weight": 1.0
     },
     {
@@ -8023,7 +8988,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L234",
+      "source_location": "L246",
       "weight": 1.0
     },
     {
@@ -8035,7 +9000,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L278",
+      "source_location": "L290",
       "weight": 1.0
     },
     {
@@ -8047,7 +9012,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L30",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -8059,7 +9024,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L339",
+      "source_location": "L351",
       "weight": 1.0
     },
     {
@@ -8071,7 +9036,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L343",
+      "source_location": "L355",
       "weight": 1.0
     },
     {
@@ -8083,7 +9048,55 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L36",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable_unotable",
+      "target": "src_audio_audio_usemusic",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable_unotable",
+      "target": "src_games_uno_sounds_istense",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable_unotable",
+      "target": "src_audio_audio_sfx",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable_unotable",
+      "target": "src_games_uno_sounds_soundsfor",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L54",
       "weight": 1.0
     },
     {
@@ -8255,6 +9268,54 @@
       "weight": 1.0
     },
     {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_sounds_test_names",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_sounds_test_c",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_sounds_test_filler",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_sounds_test_table",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
       "source": "brand_logo_build_logo",
       "target": "math",
       "relation": "imports",
@@ -8376,7 +9437,7 @@
     },
     {
       "source": "package",
-      "target": "ref_class_variance_authority",
+      "target": "ref_types_howler",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8388,7 +9449,7 @@
     },
     {
       "source": "package",
-      "target": "ref_cn",
+      "target": "ref_class_variance_authority",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8400,7 +9461,7 @@
     },
     {
       "source": "package",
-      "target": "ref_gsap",
+      "target": "ref_cn",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8412,7 +9473,7 @@
     },
     {
       "source": "package",
-      "target": "ref_lottie_react",
+      "target": "ref_gsap",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8424,7 +9485,7 @@
     },
     {
       "source": "package",
-      "target": "ref_radix_ui",
+      "target": "ref_howler",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8436,7 +9497,7 @@
     },
     {
       "source": "package",
-      "target": "ref_react",
+      "target": "ref_lottie_react",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8448,7 +9509,7 @@
     },
     {
       "source": "package",
-      "target": "ref_react_dom",
+      "target": "ref_radix_ui",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8460,7 +9521,7 @@
     },
     {
       "source": "package",
-      "target": "ref_shadcn",
+      "target": "ref_react",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8472,7 +9533,7 @@
     },
     {
       "source": "package",
-      "target": "ref_tailwindcss",
+      "target": "ref_react_dom",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8484,7 +9545,7 @@
     },
     {
       "source": "package",
-      "target": "ref_tw_animate_css",
+      "target": "ref_shadcn",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8496,7 +9557,7 @@
     },
     {
       "source": "package",
-      "target": "ref_vaul",
+      "target": "ref_tailwindcss",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8508,31 +9569,31 @@
     },
     {
       "source": "package",
+      "target": "ref_tw_animate_css",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "package.json",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "package",
+      "target": "ref_vaul",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "package.json",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "package",
       "target": "ref_capacitor_cli",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "package.json",
-      "source_location": "L38",
-      "weight": 1.0
-    },
-    {
-      "source": "package",
-      "target": "ref_types_node",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "package.json",
-      "source_location": "L39",
-      "weight": 1.0
-    },
-    {
-      "source": "package",
-      "target": "ref_types_react",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8544,7 +9605,7 @@
     },
     {
       "source": "package",
-      "target": "ref_types_react_dom",
+      "target": "ref_types_node",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8556,7 +9617,7 @@
     },
     {
       "source": "package",
-      "target": "ref_vitejs_plugin_react",
+      "target": "ref_types_react",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8568,7 +9629,7 @@
     },
     {
       "source": "package",
-      "target": "ref_oxlint",
+      "target": "ref_types_react_dom",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8580,7 +9641,7 @@
     },
     {
       "source": "package",
-      "target": "ref_typescript",
+      "target": "ref_vitejs_plugin_react",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8592,7 +9653,7 @@
     },
     {
       "source": "package",
-      "target": "ref_vite",
+      "target": "ref_oxlint",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8604,7 +9665,7 @@
     },
     {
       "source": "package",
-      "target": "ref_vitest",
+      "target": "ref_typescript",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8612,6 +9673,66 @@
       "context": "import",
       "source_file": "package.json",
       "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "package",
+      "target": "ref_vite",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "package.json",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "package",
+      "target": "ref_vitest",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "package.json",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build",
+      "target": "numpy",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build",
+      "target": "subprocess",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build",
+      "target": "sys",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -8820,6 +9941,30 @@
     },
     {
       "source": "src_app",
+      "target": "src_audio_audio_usemusic",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/App.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_audio_soundsettings_soundbutton",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/App.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
       "target": "src_components_memphis_slab_slab",
       "relation": "imports",
       "_origin": "ast",
@@ -8879,6 +10024,138 @@
       "weight": 1.0
     },
     {
+      "source": "src_audio_audio",
+      "target": "src_net_transport_store",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_components_memphis_slab_slab",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_components_ui_drawer_drawer",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_components_ui_drawer_drawercontent",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_components_ui_drawer_drawerdescription",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_components_ui_drawer_drawertitle",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_components_ui_slider_slider",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_lib_utils_cn",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_audio_audio_setsettings",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_audio_audio_sfx",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_audio_audio_useaudiosettings",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
       "source": "src_components_memphis_patterns",
       "target": "src_games_rng_nextrand",
       "relation": "imports",
@@ -8904,7 +10181,7 @@
     },
     {
       "source": "src_components_memphis_slab",
-      "target": "src_components_memphis_patterns_hatch",
+      "target": "src_audio_audio_sfx",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8916,6 +10193,18 @@
     },
     {
       "source": "src_components_memphis_slab",
+      "target": "src_components_memphis_patterns_hatch",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/memphis/Slab.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_memphis_slab",
       "target": "src_components_memphis_patterns_squiggles",
       "relation": "imports",
       "_origin": "ast",
@@ -8923,7 +10212,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -8971,6 +10260,18 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_ui_slider",
+      "target": "src_lib_utils_cn",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/ui/slider.tsx",
       "source_location": "L2",
       "weight": 1.0
     },
@@ -9623,6 +10924,198 @@
       "weight": 1.0
     },
     {
+      "source": "src_games_uno_sounds",
+      "target": "src_audio_audio_sfxname",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_types_seat",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_uno_engine_activeseats",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_uno_engine_faceof",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_uno_engine_topcard",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_uno_types_face",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_uno_types_unostate",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_engine_defaultoptions",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_engine_faceof",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_engine_init",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_engine_reduce",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_sounds_istense",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_sounds_soundsfor",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_types_card",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_types_face",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_types_unostate",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
       "source": "src_games_uno_types",
       "target": "src_games_types_seat",
       "relation": "imports",
@@ -10008,7 +11501,7 @@
     },
     {
       "source": "src_games_uno_ui_unotable",
-      "target": "src_lib_utils_cn",
+      "target": "src_components_memphis_patterns_hatch",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -10020,282 +11513,6 @@
     },
     {
       "source": "src_games_uno_ui_unotable",
-      "target": "src_games_types_gameprops",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L12",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_types_seat",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L12",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_art_cardart_cardback",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L13",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_art_cardart_cardface",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L13",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_art_cardart_color_name",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L13",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_art_cardart_facelabel",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L13",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_art_cardart_suit_hex",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L13",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_engine_activeseats",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L14",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_engine_canplay",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L14",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_engine_faceof",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L14",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_engine_needsswaptarget",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L14",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_engine_nextseat",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L14",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_engine_sidecolors",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L14",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_engine_topcard",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L14",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_types_card",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L15",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_types_color",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L15",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_types_unoaction",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L15",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_types_unostate",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L15",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_ui_copy_eventtext",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L16",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_ui_roundend_roundend",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L17",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_components_memphis_slab_slab",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L7",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_components_memphis_slab_tape",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L7",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_components_memphis_patterns_hatch",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L8",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
       "target": "src_components_memphis_patterns_squiggles",
       "relation": "imports",
       "_origin": "ast",
@@ -10303,7 +11520,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L8",
+      "source_location": "L10",
       "weight": 1.0
     },
     {
@@ -10315,7 +11532,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L8",
+      "source_location": "L10",
       "weight": 1.0
     },
     {
@@ -10327,7 +11544,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L9",
+      "source_location": "L11",
       "weight": 1.0
     },
     {
@@ -10339,7 +11556,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L9",
+      "source_location": "L11",
       "weight": 1.0
     },
     {
@@ -10351,12 +11568,348 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L9",
+      "source_location": "L11",
       "weight": 1.0
     },
     {
       "source": "src_games_uno_ui_unotable",
       "target": "src_components_ui_drawer_drawertitle",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_lib_utils_cn",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_types_gameprops",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_types_seat",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_art_cardart_cardback",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_art_cardart_cardface",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_art_cardart_color_name",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_art_cardart_facelabel",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_art_cardart_suit_hex",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_engine_activeseats",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_engine_canplay",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_engine_faceof",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_engine_needsswaptarget",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_engine_nextseat",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_engine_sidecolors",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_engine_topcard",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_types_card",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_types_color",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_types_unoaction",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_types_unostate",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_sounds_istense",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_sounds_soundsfor",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_ui_copy_eventtext",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_ui_roundend_roundend",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_audio_audio_sfx",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_audio_audio_usemusic",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_audio_soundsettings_soundbutton",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_components_memphis_slab_slab",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_components_memphis_slab_tape",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -10644,6 +12197,18 @@
       "weight": 1.0
     },
     {
+      "source": "scripts_audio_build",
+      "target": "pathlib",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
       "source": "scripts_blender_scene",
       "target": "mathutils",
       "relation": "imports_from",
@@ -10826,6 +12391,30 @@
     },
     {
       "source": "src_app",
+      "target": "src_audio_audio",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/App.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_audio_soundsettings",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/App.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
       "target": "ref_hugeicons_react",
       "relation": "imports_from",
       "_origin": "ast",
@@ -10921,6 +12510,138 @@
       "weight": 1.0
     },
     {
+      "source": "src_audio_audio",
+      "target": "ref_howler",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "ref_react",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_net_transport",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "ref_hugeicons_core_free_icons",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "ref_hugeicons_react",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "ref_react",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_components_memphis_slab",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_components_ui_drawer",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_components_ui_slider",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_lib_utils",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_audio_audio",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
       "source": "src_components_memphis_patterns",
       "target": "src_games_rng",
       "relation": "imports_from",
@@ -11007,7 +12728,7 @@
     },
     {
       "source": "src_components_memphis_slab",
-      "target": "src_components_memphis_patterns",
+      "target": "src_audio_audio",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11015,6 +12736,18 @@
       "context": "import",
       "source_file": "src/components/memphis/Slab.tsx",
       "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_memphis_slab",
+      "target": "src_components_memphis_patterns",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/memphis/Slab.tsx",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -11170,6 +12903,42 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/ui/drawer.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_ui_slider",
+      "target": "ref_react",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/ui/slider.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_ui_slider",
+      "target": "src_lib_utils",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/ui/slider.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_ui_slider",
+      "target": "ref_radix_ui",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/ui/slider.tsx",
       "source_location": "L3",
       "weight": 1.0
     },
@@ -11514,6 +13283,106 @@
       "context": "import",
       "source_file": "src/games/uno/index.ts",
       "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_audio_audio",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L1",
+      "type_only": true,
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_types",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L2",
+      "type_only": true,
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_uno_engine",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_uno_types",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L4",
+      "type_only": true,
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "ref_vitest",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_engine",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_sounds",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds_test",
+      "target": "src_games_uno_types",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/sounds.test.ts",
+      "source_location": "L4",
+      "type_only": true,
       "weight": 1.0
     },
     {
@@ -11884,7 +13753,7 @@
     },
     {
       "source": "src_games_uno_ui_unotable",
-      "target": "src_lib_utils",
+      "target": "src_components_memphis_patterns",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11896,7 +13765,7 @@
     },
     {
       "source": "src_games_uno_ui_unotable",
-      "target": "src_assets_lottie_burst",
+      "target": "src_components_ui_drawer",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11908,7 +13777,7 @@
     },
     {
       "source": "src_games_uno_ui_unotable",
-      "target": "src_games_types",
+      "target": "src_lib_utils",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11916,6 +13785,30 @@
       "context": "import",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
       "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_assets_lottie_burst",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_types",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L14",
       "type_only": true,
       "weight": 1.0
     },
@@ -11928,7 +13821,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L13",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -11940,7 +13833,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L14",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -11952,8 +13845,20 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L15",
+      "source_location": "L17",
       "type_only": true,
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_sounds",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -11965,19 +13870,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L16",
-      "weight": 1.0
-    },
-    {
-      "source": "src_games_uno_ui_unotable",
-      "target": "src_games_uno_ui_roundend",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L17",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
@@ -11990,6 +13883,18 @@
       "context": "import",
       "source_file": "src/games/uno/ui/UnoTable.tsx",
       "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_ui_unotable",
+      "target": "src_games_uno_ui_roundend",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/games/uno/ui/UnoTable.tsx",
+      "source_location": "L20",
       "weight": 1.0
     },
     {
@@ -12042,7 +13947,7 @@
     },
     {
       "source": "src_games_uno_ui_unotable",
-      "target": "src_components_memphis_slab",
+      "target": "src_audio_audio",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12054,7 +13959,7 @@
     },
     {
       "source": "src_games_uno_ui_unotable",
-      "target": "src_components_memphis_patterns",
+      "target": "src_audio_soundsettings",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12066,7 +13971,7 @@
     },
     {
       "source": "src_games_uno_ui_unotable",
-      "target": "src_components_ui_drawer",
+      "target": "src_components_memphis_slab",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12355,6 +14260,42 @@
       "weight": 1.0
     },
     {
+      "source": "scripts_audio_build_load",
+      "target": "path",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_write_ogg",
+      "target": "ndarray",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_write_ogg",
+      "target": "path",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
       "source": "src_lib_utils",
       "target": "ref_cn",
       "relation": "imports_from",
@@ -12364,6 +14305,30 @@
       "context": "re-export",
       "source_file": "src/lib/utils.ts",
       "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_load",
+      "target": "ndarray",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "return_type",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_seamless_loop",
+      "target": "ndarray",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "return_type",
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -13133,7 +15098,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L37",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -13270,7 +15235,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_class_variance_authority",
+      "target": "package_dependencies_types_howler",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13281,7 +15246,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_cn",
+      "target": "package_dependencies_class_variance_authority",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13292,7 +15257,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_gsap",
+      "target": "package_dependencies_cn",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13303,7 +15268,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_lottie_react",
+      "target": "package_dependencies_gsap",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13314,7 +15279,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_radix_ui",
+      "target": "package_dependencies_howler",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13325,7 +15290,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_react",
+      "target": "package_dependencies_lottie_react",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13336,7 +15301,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_react_dom",
+      "target": "package_dependencies_radix_ui",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13347,7 +15312,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_shadcn",
+      "target": "package_dependencies_react",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13358,7 +15323,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_tailwindcss",
+      "target": "package_dependencies_react_dom",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13369,7 +15334,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_tw_animate_css",
+      "target": "package_dependencies_shadcn",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13380,13 +15345,35 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_vaul",
+      "target": "package_dependencies_tailwindcss",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
       "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_tw_animate_css",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "package.json",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_vaul",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "package.json",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -13397,7 +15384,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L38",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -13408,7 +15395,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L39",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -13419,7 +15406,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L40",
+      "source_location": "L42",
       "weight": 1.0
     },
     {
@@ -13430,7 +15417,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L41",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -13441,7 +15428,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L42",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -13452,7 +15439,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L43",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -13463,7 +15450,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L44",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -13474,7 +15461,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L45",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -13485,7 +15472,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L46",
+      "source_location": "L48",
       "weight": 1.0
     },
     {
@@ -13676,6 +15663,17 @@
       "weight": 1.0
     },
     {
+      "source": "public_audio_credits",
+      "target": "public_audio_credits_kredit_audio_couple_party",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/audio/CREDITS.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
       "source": "readme",
       "target": "readme_couple_party",
       "relation": "contains",
@@ -13783,6 +15781,72 @@
       "confidence_score": 1.0,
       "source_file": "scripts/apk.mjs",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build",
+      "target": "scripts_audio_build_sfx",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build",
+      "target": "scripts_audio_build_ff",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build",
+      "target": "scripts_audio_build_load",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build",
+      "target": "scripts_audio_build_write_ogg",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build",
+      "target": "scripts_audio_build_seamless_loop",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build",
+      "target": "scripts_audio_build_music",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L49",
       "weight": 1.0
     },
     {
@@ -14299,7 +16363,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L154",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -14310,7 +16374,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L169",
+      "source_location": "L175",
       "weight": 1.0
     },
     {
@@ -14321,7 +16385,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L17",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
@@ -14332,7 +16396,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L19",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -14343,7 +16407,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L245",
+      "source_location": "L254",
       "weight": 1.0
     },
     {
@@ -14354,18 +16418,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L269",
-      "weight": 1.0
-    },
-    {
-      "source": "src_app",
-      "target": "src_app_makecode",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/App.tsx",
-      "source_location": "L27",
+      "source_location": "L278",
       "weight": 1.0
     },
     {
@@ -14376,7 +16429,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L271",
+      "source_location": "L280",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_app_makecode",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/App.tsx",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -14387,23 +16451,12 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L294",
+      "source_location": "L303",
       "weight": 1.0
     },
     {
       "source": "src_app",
       "target": "src_app_floor",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/App.tsx",
-      "source_location": "L32",
-      "weight": 1.0
-    },
-    {
-      "source": "src_app",
-      "target": "src_app_app",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -14420,7 +16473,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L347",
+      "source_location": "L356",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_app_app",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/App.tsx",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -14431,7 +16495,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L367",
+      "source_location": "L376",
       "weight": 1.0
     },
     {
@@ -14442,7 +16506,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L62",
+      "source_location": "L64",
       "weight": 1.0
     },
     {
@@ -14453,7 +16517,216 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.tsx",
-      "source_location": "L74",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_getsettings",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_setsettings",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_useaudiosettings",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_usemusic",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_audiosettings",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_loadsettings",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_track",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_settings",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_listeners",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_music",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_sfxcache",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_musicvolume",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_trackhowl",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_sfxname",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_playmusic",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_audio",
+      "target": "src_audio_audio_sfx",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/audio.ts",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_audio_soundsettings_credits",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_audio_soundsettings_soundbutton",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "src_audio_soundsettings",
+      "target": "src_audio_soundsettings_sounddrawer",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/audio/SoundSettings.tsx",
+      "source_location": "L42",
       "weight": 1.0
     },
     {
@@ -14552,7 +16825,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -14563,18 +16836,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L29",
-      "weight": 1.0
-    },
-    {
-      "source": "src_components_memphis_slab",
-      "target": "src_components_memphis_slab_slabtone",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L6",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -14585,7 +16847,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L62",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_memphis_slab",
+      "target": "src_components_memphis_slab_slabtone",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/memphis/Slab.tsx",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -14596,7 +16869,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/memphis/Slab.tsx",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -14839,6 +17112,17 @@
       "confidence_score": 1.0,
       "source_file": "src/components/ui/drawer.tsx",
       "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_ui_slider",
+      "target": "src_components_ui_slider_slider",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/ui/slider.tsx",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -15579,6 +17863,50 @@
       "weight": 1.0
     },
     {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_uno_sounds_istense",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_uno_sounds_soundsfor",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_uno_sounds_soundcue",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_games_uno_sounds",
+      "target": "src_games_uno_sounds_placesound",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/games/uno/sounds.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
       "source": "src_games_uno_types",
       "target": "src_games_uno_types_kind",
       "relation": "contains",
@@ -15872,7 +18200,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L21",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -15883,7 +18211,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L24",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -15894,7 +18222,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L28",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -15905,7 +18233,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L394",
+      "source_location": "L406",
       "weight": 1.0
     },
     {
@@ -15916,7 +18244,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L460",
+      "source_location": "L472",
       "weight": 1.0
     },
     {
@@ -15927,7 +18255,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/games/uno/ui/UnoTable.tsx",
-      "source_location": "L536",
+      "source_location": "L548",
       "weight": 1.0
     },
     {
@@ -16753,6 +19081,39 @@
       "confidence_score": 1.0,
       "source_file": "brand/logo/build_logo.py",
       "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_rationale_1",
+      "target": "scripts_audio_build",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_rationale_30",
+      "target": "scripts_audio_build_write_ogg",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_audio_build_rationale_41",
+      "target": "scripts_audio_build_seamless_loop",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/audio/build.py",
+      "source_location": "L41",
       "weight": 1.0
     },
     {

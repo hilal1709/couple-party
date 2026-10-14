@@ -1,11 +1,11 @@
 {
-  "0": "dialog.tsx",
+  "0": "Lobby.tsx",
   "1": "package.json",
   "2": "App.tsx",
   "3": "engine.ts",
   "4": "UnoTable.tsx",
   "5": "Design System: Couple Party",
-  "6": "lottie.mjs",
+  "6": "build.py",
   "7": "scene.py",
   "8": "components.json",
   "9": "dependencies",
@@ -18,10 +18,8 @@
   "16": "Couple Party — logo",
   "17": "tsconfig.json",
   "18": "CLAUDE.md",
-  "19": "capture.mjs",
-  "20": "Slab.tsx",
-  "21": "Lobby.tsx",
+  "19": "lottie.mjs",
+  "20": "CREDITS.md",
   "22": "UpdateBanner.tsx",
-  "23": "RoundEnd.tsx",
   "24": "vite-env.d.ts"
 }

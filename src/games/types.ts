@@ -26,5 +26,15 @@ export type GameDef<S, A, O = unknown> = {
   View: ComponentType<GameProps<S, A>>
 }
 
+/** Layar pengaturan game sebelum mulai (dipakai di Home sebelum room ada, dan di room saat ganti game). */
+export type LobbyProps<O> = {
+  /** jumlah pemain di room; kosong saat room belum dibuat */
+  players?: number
+  /** label tombol utama, mis. "Buat room" */
+  cta: string
+  initial?: O
+  onSubmit: (options: O) => void
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyGame = GameDef<any, any, any>

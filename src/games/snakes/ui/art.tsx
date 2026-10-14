@@ -2,6 +2,10 @@ import { cellOf } from '../board'
 import type { Item, Tile } from '../types'
 import { FX_INFO } from './copy'
 
+/** Sprite hasil render Blender (scripts/blender/snakes.py → export.py). */
+const SPRITES = import.meta.glob('/src/assets/snakes/*.webp', { eager: true, import: 'default' }) as Record<string, string>
+export const sprite = (name: string) => SPRITES[`/src/assets/snakes/${name}.webp`]
+
 /** Ukuran satu kotak di viewBox papan (1000 x 1000). */
 export const CELL = 100
 
@@ -76,14 +80,7 @@ function TileMark({ tile, x, y }: { tile: Tile; x: number; y: number }) {
 }
 
 function Gift({ x, y }: { x: number; y: number }) {
-  return (
-    <g transform={`translate(${x - 20} ${y - 18})`} stroke="#121212" strokeWidth={4} strokeLinejoin="round">
-      <rect x={0} y={12} width={40} height={28} fill="#ff37a6" />
-      <rect x={-3} y={4} width={46} height={10} fill="#ffcae9" />
-      <path d="M20 4 V40" />
-      <path d="M20 4 C10 -8 2 0 12 4 M20 4 C30 -8 38 0 28 4" fill="none" />
-    </g>
-  )
+  return <image href={sprite('gift')} x={x - 26} y={y - 38} width={52} height={66} />
 }
 
 function Spikes({ x, y }: { x: number; y: number }) {
@@ -142,69 +139,28 @@ export function Snake({ from, to, tone }: { from: number; to: number; tone: numb
       <path d={d} stroke={body} strokeWidth={20} />
       <path d={d} stroke="#121212" strokeWidth={4} strokeDasharray="2 22" opacity={0.6} />
       <g transform={`translate(${h.x} ${h.y}) rotate(${ang})`}>
-        <path d="M22 0 L40 -6 M22 0 L40 6" stroke="#ff3b5c" strokeWidth={4} />
-        <ellipse cx={4} cy={0} rx={24} ry={19} fill={body} stroke="#121212" strokeWidth={5} />
-        <circle cx={10} cy={-8} r={5} fill="#fff4fa" stroke="#121212" strokeWidth={2.5} />
-        <circle cx={10} cy={8} r={5} fill="#fff4fa" stroke="#121212" strokeWidth={2.5} />
-        <circle cx={12} cy={-8} r={2} fill="#121212" />
-        <circle cx={12} cy={8} r={2} fill="#121212" />
+        <image href={sprite(`snake-head-${tone % 4}`)} x={-55} y={-55} width={110} height={110} />
       </g>
     </g>
   )
 }
 
-/** Ikon item, digambar manual. */
+/** Ikon item: sprite Blender. */
 export function ItemIcon({ item, size = 22 }: { item: Item; size?: number }) {
-  return (
-    <svg viewBox="0 0 32 32" width={size} height={size} aria-hidden fill="none" stroke="#121212" strokeWidth={2.6} strokeLinejoin="round" strokeLinecap="round">
-      {item === 'shield' && <path d="M16 3 L27 7 V15 C27 22 22 27 16 29 C10 27 5 22 5 15 V7 Z" fill="#5cf64a" />}
-      {item === 'shield' && <path d="M11 16 L15 20 L22 12" />}
-      {item === 'double' && (
-        <>
-          <rect x={3} y={9} width={14} height={14} rx={3} fill="#fff4fa" transform="rotate(-10 10 16)" />
-          <rect x={15} y={9} width={14} height={14} rx={3} fill="#ff37a6" transform="rotate(8 22 16)" />
-          <circle cx={10} cy={16} r={1.6} fill="#121212" />
-          <circle cx={19} cy={13} r={1.6} fill="#121212" />
-          <circle cx={25} cy={19} r={1.6} fill="#121212" />
-        </>
-      )}
-      {item === 'trap' && (
-        <polygon
-          fill="#121212"
-          stroke="#121212"
-          points={Array.from({ length: 12 }, (_, i) => {
-            const r = i % 2 ? 6 : 13
-            const a = (i / 12) * Math.PI * 2
-            return `${16 + Math.cos(a) * r},${16 + Math.sin(a) * r}`
-          }).join(' ')}
-        />
-      )}
-      {item === 'pass' && (
-        <>
-          <path d="M4 9 H28 V13 A3 3 0 0 0 28 19 V23 H4 V19 A3 3 0 0 0 4 13 Z" fill="#ffcc1f" />
-          <path d="M11 16 L14.5 19.5 L21 13" />
-        </>
-      )}
-    </svg>
-  )
+  return <img src={sprite(`item-${item}`)} width={size} height={size} alt="" aria-hidden className="shrink-0 object-contain" draggable={false} />
 }
 
-const PIPS: Record<number, [number, number][]> = {
-  1: [[50, 50]],
-  2: [[28, 28], [72, 72]],
-  3: [[28, 28], [50, 50], [72, 72]],
-  4: [[28, 28], [72, 28], [28, 72], [72, 72]],
-  5: [[28, 28], [72, 28], [50, 50], [28, 72], [72, 72]],
-  6: [[28, 26], [72, 26], [28, 50], [72, 50], [28, 74], [72, 74]],
-}
-
+/** Dadu: sprite Blender; `tone` rose untuk dadu kedua (Dadu Ganda). */
 export function Die({ value, size = 48, tone = '#fff4fa' }: { value: number; size?: number; tone?: string }) {
+  const v = Math.min(6, Math.max(1, value))
   return (
-    <svg viewBox="0 0 100 100" width={size} height={size} aria-label={`dadu ${value}`} role="img">
-      <rect x={5} y={5} width={90} height={90} rx={18} fill={tone} stroke="#121212" strokeWidth={7} />
-      {(PIPS[value] ?? []).map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r={9} fill="#121212" />
-      ))}
-    </svg>
+    <img
+      src={sprite(`die-${tone === '#ff37a6' ? 'rose' : 'paper'}-${v}`)}
+      width={size}
+      height={size}
+      alt={`dadu ${v}`}
+      className="object-contain"
+      draggable={false}
+    />
   )
 }
