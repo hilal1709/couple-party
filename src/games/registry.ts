@@ -1,4 +1,5 @@
 import type { AnyGame } from './types'
+import { snakes } from './snakes'
 import { uno } from './uno'
 
 export type Category = 'kartu' | 'board' | 'lainnya'
@@ -19,6 +20,7 @@ export type GameEntry = {
 
 export const GAMES: GameEntry[] = [
   { game: uno, category: 'kartu', blurb: 'Classic, Flip & No Mercy + aturan rumah', minPlayers: 2, maxPlayers: 8 },
+  { game: snakes, category: 'board', blurb: 'Ular tangga + Truth/Dare, item & kuis', minPlayers: 2, maxPlayers: 8 },
 ]
 
 export const gameById = (id: string | null) => GAMES.find((g) => g.game.id === id)?.game ?? null
