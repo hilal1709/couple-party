@@ -1,7 +1,7 @@
 import { Capacitor, registerPlugin, type PluginListenerHandle } from '@capacitor/core'
 
-/** Repo publik khusus rilis APK (kode sumber tidak ikut diunggah). */
-export const RELEASE_REPO = 'hilal1709/couple-party-releases'
+/** Repo publik tempat APK dirilis lewat GitHub Releases. */
+export const RELEASE_REPO = 'hilal1709/couple-party'
 
 /** Versi web bundle ini, disuntik Vite dari package.json. */
 export const APP_VERSION: string = __APP_VERSION__
