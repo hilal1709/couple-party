@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils'
 import { CATEGORIES, GAMES, gameById, type Category, type GameEntry } from './games/registry'
 import type { UnoOptions } from './games/uno/types'
 import { Lobby } from './games/uno/ui/Lobby'
+import type { SnakesOptions } from './games/snakes/types'
+import { Lobby as SnakesLobby } from './games/snakes/ui/Lobby'
 import { hasOnline, store, type NetStatus, type Peer } from './net/transport'
 import { MAX_ROOM, useRoom } from './net/useRoom'
 import { UpdateBanner } from './update/UpdateBanner'
@@ -305,13 +307,17 @@ function GameMenu({ players, onStart }: { players: number; onStart: (gameId: str
   const [picked, setPicked] = useState<string | null>(null)
   const entries = GAMES.filter((g) => g.category === cat)
 
-  if (picked === 'uno') {
+  if (picked === 'uno' || picked === 'snakes') {
     return (
       <div className="flex flex-col gap-3">
         <button onClick={() => setPicked(null)} className="self-start text-sm font-semibold underline underline-offset-4">
           ← Pilih game lain
         </button>
-        <Lobby players={players} onStart={(o: UnoOptions) => onStart('uno', o)} />
+        {picked === 'uno' ? (
+          <Lobby players={players} onStart={(o: UnoOptions) => onStart('uno', o)} />
+        ) : (
+          <SnakesLobby players={players} onStart={(o: SnakesOptions) => onStart('snakes', o)} />
+        )}
       </div>
     )
   }
