@@ -1,6 +1,7 @@
 import { Slot } from 'radix-ui'
 import type { ComponentProps, CSSProperties } from 'react'
 import { cn } from '@/lib/utils'
+import { sfx } from '@/audio/audio'
 import { hatch, squiggles } from './patterns'
 
 export type SlabTone = 'rose' | 'electric' | 'grass' | 'fern' | 'paper' | 'ink'
@@ -26,7 +27,7 @@ type Props = ComponentProps<'button'> & {
  * Tombol "balok" Memphis: jajar genjang miring, outline tinta, bayangan keras.
  * Saat ditekan balok turun ke bayangannya.
  */
-export function Slab({ tone = 'rose', size = 'md', active, asChild, className, style, children, ...rest }: Props) {
+export function Slab({ tone = 'rose', size = 'md', active, asChild, className, style, children, onClick, ...rest }: Props) {
   const Comp = asChild ? Slot.Root : 'button'
   const pattern: CSSProperties = active
     ? { backgroundImage: squiggles(tone === 'ink' ? '#ffcae9' : '#121212', 44, 2.6), backgroundSize: '44px 44px' }
@@ -46,6 +47,10 @@ export function Slab({ tone = 'rose', size = 'md', active, asChild, className, s
         className,
       )}
       style={{ ...pattern, ...style }}
+      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+        sfx('ui-click', { volume: 0.5 })
+        onClick?.(e)
+      }}
       {...rest}
     >
       <span className="inline-flex skew-x-6 items-center gap-2">{children}</span>

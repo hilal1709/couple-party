@@ -22,6 +22,9 @@ type Msg =
   | { t: 'sync'; session: Session }
   | { t: 'act'; from: string; n: number; action: SessionAction }
 
+/** jumlah kursi maksimum dalam satu room */
+export const MAX_ROOM = 8
+
 const storeKey = (code: string) => `couple-party:session:${code}`
 
 function applyAction(s: Session, a: SessionAction, byId: string): Session {
@@ -31,7 +34,8 @@ function applyAction(s: Session, a: SessionAction, byId: string): Session {
   if (a.kind === 'start') {
     const g = gameById(a.gameId)
     if (!g || s.players.length < 2) return s
-    return { ...s, gameId: g.id, game: g.init(Math.floor(Math.random() * 2 ** 31), a.options), rev: s.rev + 1 }
+    const options = { ...(a.options as object), players: s.players.length }
+    return { ...s, gameId: g.id, game: g.init(Math.floor(Math.random() * 2 ** 31), options), rev: s.rev + 1 }
   }
   const g = gameById(s.gameId)
   if (!g) return s
@@ -90,12 +94,18 @@ export function useRoom(code: string, me: Peer, isHost: boolean) {
       setOnline(peers)
       if (!isHost) return
       const s = sessionRef.current!
-      const guest = peers.find((p) => p.id !== me.id)
-      if (guest && (s.players.length < 2 || (s.players[1].id !== guest.id && !s.gameId))) {
-        commit({ ...s, players: [s.players[0], guest], rev: s.rev + 1 })
-      } else if (guest) {
-        t.send({ t: 'sync', session: s } satisfies Msg)
+      const guests = peers.filter((p) => p.id !== me.id)
+      if (!s.gameId) {
+        // di lobby: daftar pemain = host + tamu yang sedang online (urutan bergabung), maks 8
+        const kept = s.players.slice(1).filter((p) => guests.some((g) => g.id === p.id))
+        const fresh = guests.filter((g) => !kept.some((p) => p.id === g.id))
+        const players = [s.players[0], ...kept, ...fresh].slice(0, MAX_ROOM)
+        const changed =
+          players.length !== s.players.length || players.some((p, i) => p.id !== s.players[i]?.id || p.name !== s.players[i]?.name)
+        if (changed) return commit({ ...s, players, rev: s.rev + 1 })
       }
+      // saat game berjalan daftar pemain dikunci; yang reconnect cukup dikirimi state terbaru
+      if (guests.length) t.send({ t: 'sync', session: s } satisfies Msg)
     })
 
     t.onMessage((raw) => {

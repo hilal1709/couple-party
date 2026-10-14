@@ -1,14 +1,20 @@
 import { useState } from 'react'
-import { init, reduce } from './games/uno/engine'
+import { defaultOptions, init, reduce } from './games/uno/engine'
 import type { UnoAction, Variant } from './games/uno/types'
-import { defaultOptions } from './games/uno/engine'
 import { UnoTable } from './games/uno/ui/UnoTable'
 
-/** Hanya untuk development: meja UNO lokal tanpa jaringan (dipakai untuk tangkapan layar review). */
+const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
+
+/**
+ * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
+ * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
+ */
 export function Demo({ variant }: { variant: Variant }) {
-  // ?turn=lawan menampilkan meja saat giliran lawan
-  const viewOther = new URLSearchParams(location.search).get('turn') === 'lawan'
-  const [s, setS] = useState(() => init(42, defaultOptions(variant)))
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(8, Math.max(2, Number(q.get('n') ?? 2)))
+  const viewOther = q.get('turn') === 'lawan'
+  const [s, setS] = useState(() => init(42, defaultOptions(variant, n)))
   const act = (a: UnoAction) => setS((cur) => reduce(cur, a, cur.turn))
-  return <UnoTable state={s} seat={viewOther ? (s.turn === 0 ? 1 : 0) : s.turn} names={['Andi', 'Sari']} partnerOnline act={act} exit={() => {}} />
+  const seat = viewOther ? (s.turn + 1) % n : s.turn
+  return <UnoTable state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} />
 }

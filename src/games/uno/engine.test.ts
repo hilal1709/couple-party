@@ -349,3 +349,111 @@ describe('No Mercy', () => {
     expect(s.turn).toBe(0)
   })
 })
+
+describe('Banyak pemain (3–8)', () => {
+  const tableN = (hands: Card[][], top: Card, opts: Partial<UnoOptions> = {}): UnoState => {
+    const base = init(7, { ...defaultOptions(opts.variant ?? 'classic', hands.length), ...opts, players: hands.length })
+    return {
+      ...base,
+      hands,
+      discard: [top],
+      deck: Array.from({ length: 60 }, (_, i) => c('num', 'blue', i % 10)),
+      turn: 0,
+      dir: 1,
+      color: faceOf(top, 0).color,
+      pending: null,
+    }
+  }
+  const filler = () => [c('num', 'yellow', 1), c('num', 'yellow', 2)]
+
+  it('init membagi 7 kartu ke tiap pemain, host mulai', () => {
+    for (const n of [3, 5, 8]) {
+      const s = init(11, defaultOptions('classic', n))
+      expect(s.hands).toHaveLength(n)
+      expect(s.scores).toHaveLength(n)
+      expect(s.hands.reduce((a, h) => a + h.length, 0)).toBeGreaterThanOrEqual(7 * n)
+    }
+  })
+
+  it('giliran berputar 0 → 1 → 2 → 0', () => {
+    let s = tableN([[c('num', 'red', 1), ...filler()], [c('num', 'red', 2), ...filler()], [c('num', 'red', 3), ...filler()]], c('num', 'red', 5))
+    s = reduce(s, { type: 'play', cardId: s.hands[0][0].id }, 0)
+    expect(s.turn).toBe(1)
+    s = reduce(s, { type: 'play', cardId: s.hands[1][0].id }, 1)
+    expect(s.turn).toBe(2)
+    s = reduce(s, { type: 'play', cardId: s.hands[2][0].id }, 2)
+    expect(s.turn).toBe(0)
+  })
+
+  it('Skip melewati satu pemain, Reverse membalik arah', () => {
+    const sk = c('skip', 'red')
+    let s = tableN([[sk, ...filler()], filler(), filler(), filler()], c('num', 'red', 5))
+    s = reduce(s, { type: 'play', cardId: sk.id }, 0)
+    expect(s.turn).toBe(2)
+    const rv = c('reverse', 'red')
+    let t = tableN([[rv, ...filler()], filler(), filler(), filler()], c('num', 'red', 5))
+    t = reduce(t, { type: 'play', cardId: rv.id }, 0)
+    expect(t.dir).toBe(-1)
+    expect(t.turn).toBe(3)
+  })
+
+  it('+2 mengenai pemain berikutnya, lalu dia dilewati', () => {
+    const d2 = c('draw', 'red', 2)
+    let s = tableN([[d2, ...filler()], filler(), filler()], c('num', 'red', 5))
+    s = reduce(s, { type: 'play', cardId: d2.id }, 0)
+    expect(s.hands[1]).toHaveLength(4)
+    expect(s.turn).toBe(2)
+  })
+
+  it('tantangan Wild +4 oleh pemain berikutnya', () => {
+    const w4 = c('wildDraw', null, 4)
+    let s = tableN([[w4, c('num', 'red', 1), ...filler()], filler(), filler()], c('num', 'red', 5))
+    s = reduce(s, { type: 'play', cardId: w4.id, color: 'green' }, 0)
+    expect(s.pending).toMatchObject({ kind: 'challenge', victim: 1 })
+    s = reduce(s, { type: 'challenge' }, 1)
+    expect(s.hands[0]).toHaveLength(3 + 4) // curang: pelaku ambil 4
+    expect(s.turn).toBe(1)
+  })
+
+  it('pemain mana pun bisa menangkap yang lupa UNO', () => {
+    const a = c('num', 'red', 1)
+    let s = tableN([[a, c('num', 'red', 2)], filler(), filler()], c('num', 'red', 5))
+    s = reduce(s, { type: 'play', cardId: a.id }, 0)
+    s = reduce(s, { type: 'catch' }, 2)
+    expect(s.hands[0]).toHaveLength(3)
+  })
+
+  it('7-0: kartu 7 butuh target & menukar dengan pemain pilihan; kartu 0 menggeser semua tangan', () => {
+    const house = { ...DEFAULT_HOUSE, sevenZero: true }
+    const seven = c('num', 'red', 7)
+    const hands = [[seven, c('num', 'green', 1)], [c('num', 'blue', 1)], [c('num', 'blue', 2), c('num', 'blue', 3), c('num', 'blue', 4)]]
+    let s = tableN(hands, c('num', 'red', 5), { house })
+    expect(reduce(s, { type: 'play', cardId: seven.id }, 0)).toBe(s)
+    s = reduce(s, { type: 'play', cardId: seven.id, target: 2 }, 0)
+    expect(s.hands[0]).toHaveLength(3)
+    expect(s.hands[2]).toHaveLength(1)
+
+    const zero = c('num', 'red', 0)
+    let t = tableN([[zero, c('num', 'green', 1)], [c('num', 'blue', 1)], [c('num', 'blue', 2), c('num', 'blue', 3)]], c('num', 'red', 5), { house })
+    t = reduce(t, { type: 'play', cardId: zero.id }, 0)
+    expect(t.hands.map((h) => h.length)).toEqual([2, 1, 1])
+  })
+
+  it('No Mercy: pemain tembus 25 tersingkir, game lanjut tanpa dia', () => {
+    const w10 = c('wildDraw', null, 10)
+    const big = Array.from({ length: 16 }, () => c('num', 'blue', 1))
+    let s = tableN([[w10, c('num', 'red', 1), c('num', 'red', 2)], big, filler()], c('num', 'red', 5), { variant: 'noMercy' })
+    s = reduce(s, { type: 'play', cardId: w10.id, color: 'red' }, 0)
+    s = reduce(s, { type: 'accept' }, 1)
+    expect(s.out[1]).toBe(true)
+    expect(s.roundWinner).toBeNull()
+    expect(s.turn).toBe(2)
+  })
+
+  it('menang ronde: dapat poin dari semua pemain lain', () => {
+    const last = c('num', 'red', 1)
+    let s = tableN([[last], [c('num', 'blue', 9)], [c('skip', 'green')]], c('num', 'red', 5))
+    s = reduce(s, { type: 'play', cardId: last.id }, 0)
+    expect(s.roundPoints).toBe(9 + 20)
+  })
+})

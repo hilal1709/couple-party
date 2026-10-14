@@ -46,7 +46,12 @@ export type UnoOptions = {
   variant: Variant
   house: HouseRules
   target: number
+  /** jumlah pemain (2–8); diisi otomatis oleh room saat game dimulai */
+  players?: number
 }
+
+export const MIN_PLAYERS = 2
+export const MAX_PLAYERS = 8
 
 export const DEFAULT_HOUSE: HouseRules = {
   stacking: false,
@@ -74,7 +79,9 @@ export type Event =
   | { t: 'caught'; by: Seat; n: number }
   | { t: 'challengeWin'; by: Seat; n: number }
   | { t: 'challengeLose'; by: Seat; n: number }
-  | { t: 'swap' }
+  | { t: 'swap'; a: Seat; b: Seat }
+  | { t: 'rotate' }
+  | { t: 'reverse'; dir: 1 | -1 }
   | { t: 'flip'; side: number }
   | { t: 'mercy'; by: Seat }
   | { t: 'pass'; by: Seat }
@@ -86,17 +93,23 @@ export type UnoState = {
   side: number // 0 terang, 1 gelap (Flip)
   deck: Card[]
   discard: Card[]
-  hands: [Card[], Card[]]
+  /** jumlah pemain di meja */
+  players: number
+  hands: Card[][]
+  /** arah putaran: 1 = searah urutan duduk, -1 = berlawanan */
+  dir: 1 | -1
+  /** No Mercy: pemain yang tereliminasi (tangan ≥ 25 kartu) */
+  out: boolean[]
   turn: Seat
   color: Color | null
   pending: Pending | null
   /** kartu yang baru diambil & boleh langsung dimainkan */
   drawn: string | null
-  unoArmed: [boolean, boolean]
+  unoArmed: boolean[]
   unoVulnerable: Seat | null
   round: number
   dealer: Seat
-  scores: [number, number]
+  scores: number[]
   roundWinner: Seat | null
   roundPoints: number
   gameWinner: Seat | null
@@ -106,7 +119,7 @@ export type UnoState = {
 }
 
 export type UnoAction =
-  | { type: 'play'; cardId: string; color?: Color }
+  | { type: 'play'; cardId: string; color?: Color; /** target tukar tangan untuk kartu 7 */ target?: Seat }
   | { type: 'draw' }
   | { type: 'pass' }
   | { type: 'uno' }

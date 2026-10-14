@@ -1,13 +1,14 @@
 import type { ComponentType } from 'react'
 
-export type Seat = 0 | 1
+/** nomor kursi pemain: 0 = host, lalu urutan bergabung */
+export type Seat = number
 
 export type GameProps<S, A> = {
   state: S
   seat: Seat
-  names: [string, string]
-  /** pasangan sedang tersambung ke room */
-  partnerOnline: boolean
+  names: string[]
+  /** status tersambung tiap kursi */
+  online: boolean[]
   act: (action: A) => void
   /** kembali ke lobby */
   exit: () => void

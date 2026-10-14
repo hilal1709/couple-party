@@ -36,7 +36,7 @@ const STYLE: Record<Variant, { cls: string; bg: React.CSSProperties; tilt: strin
   noMercy: { cls: 'bg-electric', bg: { backgroundImage: squiggles('#121212', 52, 2.4) }, tilt: '-rotate-[0.6deg]' },
 }
 
-export function Lobby({ onStart }: { onStart: (o: UnoOptions) => void }) {
+export function Lobby({ players, onStart }: { players: number; onStart: (o: UnoOptions) => void }) {
   const [variant, setVariant] = useState<Variant>('classic')
   const [house, setHouse] = useState<HouseRules>(defaultOptions().house)
   const [target, setTarget] = useState(500)
@@ -44,12 +44,12 @@ export function Lobby({ onStart }: { onStart: (o: UnoOptions) => void }) {
   const activeHouse = Object.entries(house).filter(([, v]) => v).length
 
   return (
-    <div className="flex flex-col gap-5">
-      <h2 className="font-display text-3xl leading-none">
-        Main <Tape tone="electric">UNO</Tape> versi apa?
+    <div className="flex flex-col gap-4">
+      <h2 className="font-display text-2xl leading-none">
+        Main <Tape tone="electric">UNO</Tape> versi apa? <span className="text-base">· {players} pemain</span>
       </h2>
 
-      <div role="radiogroup" aria-label="Varian UNO" className="flex flex-col gap-5">
+      <div role="radiogroup" aria-label="Varian UNO" className="grid grid-cols-3 gap-4">
         {(Object.keys(VARIANT_INFO) as Variant[]).map((v) => {
           const on = v === variant
           const st = STYLE[v]
@@ -61,36 +61,36 @@ export function Lobby({ onStart }: { onStart: (o: UnoOptions) => void }) {
               aria-label={`${VARIANT_INFO[v].title}: ${VARIANT_INFO[v].line}`}
               onClick={() => setVariant(v)}
               className={cn(
-                'relative flex items-center gap-3 border-[3px] border-ink p-4 text-left transition-[transform,box-shadow] duration-200 ease-out',
+                'relative flex flex-col items-start gap-2 border-[3px] border-ink p-3 text-left transition-[transform,box-shadow] duration-200 ease-out',
                 st.cls,
                 st.tilt,
                 on ? 'shadow-lift -translate-y-1' : 'shadow-slab-sm',
               )}
               style={st.bg}
             >
-              <span className="flex-1">
-                <span className={cn('tape font-display text-2xl', v === 'flip' ? 'bg-petal text-ink' : 'bg-paper')}>
-                  {VARIANT_INFO[v].title}
-                </span>
-                <span
-                  className={cn(
-                    'mt-2 block max-w-[24ch] px-1 text-[13px] font-semibold leading-snug',
-                    v === 'flip' ? 'bg-ink/80' : 'bg-paper/85',
-                  )}
-                >
-                  {VARIANT_INFO[v].line}
-                </span>
-              </span>
-              <span className="relative mr-1 flex h-20 w-24 shrink-0 items-center" aria-hidden>
+              <span className="relative flex h-16 w-24 shrink-0 items-center self-end" aria-hidden>
                 {SHOWCASE[v].map((f, i) => (
                   <span
                     key={i}
                     className="absolute"
                     style={{ left: i * 22, transform: `rotate(${(i - 1) * 12}deg) translateY(${i === 1 ? -6 : 0}px)` }}
                   >
-                    <CardFace face={f} width={44} />
+                    <CardFace face={f} width={38} />
                   </span>
                 ))}
+              </span>
+              <span className="flex-1">
+                <span className={cn('tape font-display text-xl', v === 'flip' ? 'bg-petal text-ink' : 'bg-paper')}>
+                  {VARIANT_INFO[v].title}
+                </span>
+                <span
+                  className={cn(
+                    'mt-2 block px-1 text-[12px] font-semibold leading-snug',
+                    v === 'flip' ? 'bg-ink/80' : 'bg-paper/85',
+                  )}
+                >
+                  {VARIANT_INFO[v].line}
+                </span>
               </span>
               {on && (
                 <span className="absolute -right-3 -top-3 rotate-12 border-[3px] border-ink bg-paper px-2 font-display text-xs uppercase text-ink">
@@ -102,7 +102,7 @@ export function Lobby({ onStart }: { onStart: (o: UnoOptions) => void }) {
         })}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-stretch gap-4">
         <button
           onClick={() => setRulesOpen(true)}
           className="flex flex-1 items-center gap-2 border-[3px] border-ink bg-paper px-4 py-3 text-left text-sm font-semibold shadow-slab-sm active:translate-y-0.5 active:shadow-none"
@@ -115,21 +115,18 @@ export function Lobby({ onStart }: { onStart: (o: UnoOptions) => void }) {
             </span>
           </span>
         </button>
+        <Slab
+          tone="rose"
+          size="lg"
+          className="flex-1"
+          onClick={() => onStart({ variant, target, house: variant === 'classic' ? house : defaultOptions().house })}
+        >
+          Mulai main
+        </Slab>
       </div>
 
-      <Slab
-        tone="rose"
-        size="lg"
-        className="w-full"
-        onClick={() =>
-          onStart({ variant, target, house: variant === 'classic' ? house : defaultOptions().house })
-        }
-      >
-        Mulai main
-      </Slab>
-
       <Drawer open={rulesOpen} onOpenChange={setRulesOpen}>
-        <DrawerContent className="border-[3px] border-b-0 border-ink bg-paper">
+        <DrawerContent className="mx-auto max-w-xl border-[3px] border-b-0 border-ink bg-paper">
           <DrawerTitle className="px-5 pt-2 font-display text-2xl uppercase">Aturan rumah</DrawerTitle>
           <DrawerDescription className="px-5 text-sm text-ink/75">
             {variant === 'classic'

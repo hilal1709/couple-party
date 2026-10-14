@@ -1,5 +1,15 @@
 apply plugin: 'com.android.application'
 
+// Versi app diambil dari package.json supaya web & APK selalu sama.
+def appPkg = new groovy.json.JsonSlurper().parse(file('../../package.json'))
+def appVersion = appPkg.version as String
+def (vMajor, vMinor, vPatch) = appVersion.tokenize('.').collect { it as int }
+
+// Kunci tanda tangan rilis (tidak pernah di-commit), lihat D:/dev/couple-party-keystore/KEEP-SAFE.txt
+def keystoreProps = new Properties()
+def keystoreFile = rootProject.file('keystore.properties')
+if (keystoreFile.exists()) keystoreFile.withInputStream { keystoreProps.load(it) }
+
 android {
     namespace = "com.couple.party"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,8 +17,8 @@ android {
         applicationId "com.couple.party"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode vMajor * 10000 + vMinor * 100 + vPatch
+        versionName appVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,8 +26,19 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (keystoreFile.exists()) {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
+            signingConfig keystoreFile.exists() ? signingConfigs.release : signingConfigs.debug
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

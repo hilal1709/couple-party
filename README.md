@@ -1,6 +1,6 @@
 # 💞 Couple Party
 
-Kumpulan game berdua untuk Android — main dari HP masing-masing, online.
+Kumpulan game untuk 2–8 pemain di Android (landscape) — main dari HP masing-masing, online.
 
 ## Game
 - 🃏 **Warna Warni** — game kartu cocokkan warna/angka (aturan 2 pemain: Skip/Reverse/+2/+4 = main lagi).
@@ -25,3 +25,12 @@ Kirim `CoupleParty.apk` ke HP (WhatsApp/Drive) → buka → izinkan "Instal apli
 ## Struktur
 - `src/net/` — room online (Supabase Realtime) / lokal (BroadcastChannel). HP pembuat room = host yang menjalankan logika game.
 - `src/games/<game>/` — `rules.ts` (reducer murni + tes) dan tampilan React. Daftarkan game baru di `src/games/registry.ts`.
+
+## Rilis & update dari dalam aplikasi
+- `npm run release -- <patch|minor|major|x.y.z> "catatan rilis"` → naikkan versi, build APK bertanda tangan, unggah ke
+  https://github.com/hilal1709/couple-party-releases (repo publik khusus APK; kode sumber tidak ikut).
+- App mengecek rilis terbaru saat dibuka; kalau ada versi lebih baru, tombol "Unduh & pasang" mengunduh APK lalu membuka pemasang Android.
+- Kunci tanda tangan: `D:/dev/couple-party-keystore/release.jks` + `android/keystore.properties`. **Backup keduanya** — tanpa itu update tidak bisa menimpa versi lama.
+
+## Menambah game
+Daftarkan di `src/games/registry.ts` dengan kategori `kartu` / `board` / `lainnya` serta jumlah pemain minimum & maksimum.

@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 .env
 CoupleParty.apk
+CoupleParty-*.apk
+release-notes.md

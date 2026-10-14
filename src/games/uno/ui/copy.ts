@@ -4,7 +4,7 @@ import { faceOf } from '../engine'
 import type { UnoState } from '../types'
 
 /** Teks kejadian, nada santai & jahil. */
-export function eventText(st: UnoState, seat: Seat, names: [string, string]): string {
+export function eventText(st: UnoState, seat: Seat, names: string[]): string {
   const e = st.event
   if (!e) return st.round === 1 ? 'Kartu dibagi. Gas!' : `Ronde ${st.round} dimulai`
   const who = (s: Seat) => (s === seat ? 'Kamu' : names[s])
@@ -22,15 +22,19 @@ export function eventText(st: UnoState, seat: Seat, names: [string, string]): st
     case 'caught':
       return e.by === seat ? `Hayo lupa UNO! Kamu +${e.n}` : `${names[e.by]} ketahuan lupa UNO, +${e.n}`
     case 'challengeWin':
-      return e.by === seat ? 'Tuduhanmu benar! Dia yang ambil' : 'Ketahuan curang! Kamu yang ambil'
+      return e.by === seat ? 'Tuduhanmu benar! Dia yang ambil' : `${names[e.by]} benar, si curang yang ambil`
     case 'challengeLose':
       return e.by === seat ? `Salah tuduh! Kamu +${e.n}` : `${names[e.by]} salah tuduh, +${e.n}`
     case 'swap':
-      return 'Tukar tangan!'
+      return `${who(e.a)} tukar tangan dengan ${e.b === seat ? 'kamu' : names[e.b]}!`
+    case 'rotate':
+      return 'Semua kartu digeser ke pemain berikutnya!'
+    case 'reverse':
+      return 'Arah dibalik!'
     case 'flip':
       return e.side === 1 ? 'Dibalik ke sisi GELAP' : 'Balik lagi ke sisi terang'
     case 'mercy':
-      return e.by === seat ? 'Kartumu tembus 25. Tamat ronde ini!' : `${names[e.by]} tembus 25 kartu. Kamu menang!`
+      return e.by === seat ? 'Kartumu tembus 25. Kamu tersingkir!' : `${names[e.by]} tembus 25 kartu, tersingkir!`
     case 'pass':
       return `${who(e.by)} lewat`
     case 'round':
