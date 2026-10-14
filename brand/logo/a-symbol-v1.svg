@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- A "Bersandar": lingkaran & segitiga, dua bentuk beda yang saling bersandar -->
+  <circle cx="92" cy="160" r="64"/>
+  <path d="M150 220 L232 220 L171 46 Z" transform="rotate(-14 150 220)"/>
+</svg>

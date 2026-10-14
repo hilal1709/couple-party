@@ -1,0 +1,6 @@
+node_modules/
+android/
+dist/
+.impeccable/
+.claude/
+brand/logo/renders/

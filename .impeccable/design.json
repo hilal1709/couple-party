@@ -1,0 +1,484 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T17:35:25.666Z",
+  "title": "Design System: Couple Party",
+  "extensions": {
+    "colorMeta": {
+      "electric": {
+        "role": "secondary",
+        "displayName": "Electric Green",
+        "canonical": "oklch(85.9% 0.247 141.6)",
+        "tonalRamp": [
+          "oklch(15% 0.123 141.6)",
+          "oklch(25% 0.247 141.6)",
+          "oklch(35% 0.247 141.6)",
+          "oklch(48% 0.247 141.6)",
+          "oklch(60% 0.247 141.6)",
+          "oklch(72% 0.247 141.6)",
+          "oklch(84% 0.247 141.6)",
+          "oklch(95% 0.123 141.6)"
+        ]
+      },
+      "grass": {
+        "role": "secondary",
+        "displayName": "Radioactive Grass",
+        "canonical": "oklch(83.9% 0.205 136.3)",
+        "tonalRamp": [
+          "oklch(15% 0.103 136.3)",
+          "oklch(25% 0.205 136.3)",
+          "oklch(35% 0.205 136.3)",
+          "oklch(48% 0.205 136.3)",
+          "oklch(60% 0.205 136.3)",
+          "oklch(72% 0.205 136.3)",
+          "oklch(84% 0.205 136.3)",
+          "oklch(95% 0.103 136.3)"
+        ]
+      },
+      "fern": {
+        "role": "tertiary",
+        "displayName": "Bright Fern",
+        "canonical": "oklch(69.3% 0.206 140.6)",
+        "tonalRamp": [
+          "oklch(15% 0.103 140.6)",
+          "oklch(25% 0.206 140.6)",
+          "oklch(35% 0.206 140.6)",
+          "oklch(48% 0.206 140.6)",
+          "oklch(60% 0.206 140.6)",
+          "oklch(72% 0.206 140.6)",
+          "oklch(84% 0.206 140.6)",
+          "oklch(95% 0.103 140.6)"
+        ]
+      },
+      "petal": {
+        "role": "neutral",
+        "displayName": "Pastel Petal",
+        "canonical": "oklch(89.4% 0.072 342.7)",
+        "tonalRamp": [
+          "oklch(15% 0.036 342.7)",
+          "oklch(25% 0.072 342.7)",
+          "oklch(35% 0.072 342.7)",
+          "oklch(48% 0.072 342.7)",
+          "oklch(60% 0.072 342.7)",
+          "oklch(72% 0.072 342.7)",
+          "oklch(84% 0.072 342.7)",
+          "oklch(95% 0.036 342.7)"
+        ]
+      },
+      "rose": {
+        "role": "primary",
+        "displayName": "Brilliant Rose",
+        "canonical": "oklch(67.7% 0.248 352.4)",
+        "tonalRamp": [
+          "oklch(15% 0.124 352.4)",
+          "oklch(25% 0.248 352.4)",
+          "oklch(35% 0.248 352.4)",
+          "oklch(48% 0.248 352.4)",
+          "oklch(60% 0.248 352.4)",
+          "oklch(72% 0.248 352.4)",
+          "oklch(84% 0.248 352.4)",
+          "oklch(95% 0.124 352.4)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(18.2% 0.000 89.9)",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(25% 0.000 89.9)",
+          "oklch(35% 0.000 89.9)",
+          "oklch(48% 0.000 89.9)",
+          "oklch(60% 0.000 89.9)",
+          "oklch(72% 0.000 89.9)",
+          "oklch(84% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "oklch(97.7% 0.014 343.2)",
+        "tonalRamp": [
+          "oklch(15% 0.007 343.2)",
+          "oklch(25% 0.014 343.2)",
+          "oklch(35% 0.014 343.2)",
+          "oklch(48% 0.014 343.2)",
+          "oklch(60% 0.014 343.2)",
+          "oklch(72% 0.014 343.2)",
+          "oklch(84% 0.014 343.2)",
+          "oklch(95% 0.007 343.2)"
+        ]
+      },
+      "suit-red": {
+        "role": "suit",
+        "displayName": "Suit Red",
+        "canonical": "oklch(66.0% 0.229 17.5)",
+        "tonalRamp": [
+          "oklch(15% 0.114 17.5)",
+          "oklch(25% 0.229 17.5)",
+          "oklch(35% 0.229 17.5)",
+          "oklch(48% 0.229 17.5)",
+          "oklch(60% 0.229 17.5)",
+          "oklch(72% 0.229 17.5)",
+          "oklch(84% 0.229 17.5)",
+          "oklch(95% 0.114 17.5)"
+        ]
+      },
+      "suit-yellow": {
+        "role": "suit",
+        "displayName": "Suit Yellow",
+        "canonical": "oklch(86.6% 0.172 89.7)",
+        "tonalRamp": [
+          "oklch(15% 0.086 89.7)",
+          "oklch(25% 0.172 89.7)",
+          "oklch(35% 0.172 89.7)",
+          "oklch(48% 0.172 89.7)",
+          "oklch(60% 0.172 89.7)",
+          "oklch(72% 0.172 89.7)",
+          "oklch(84% 0.172 89.7)",
+          "oklch(95% 0.086 89.7)"
+        ]
+      },
+      "suit-green": {
+        "role": "suit",
+        "displayName": "Suit Green (= Bright Fern)",
+        "canonical": "oklch(69.3% 0.206 140.6)",
+        "tonalRamp": [
+          "oklch(15% 0.103 140.6)",
+          "oklch(25% 0.206 140.6)",
+          "oklch(35% 0.206 140.6)",
+          "oklch(48% 0.206 140.6)",
+          "oklch(60% 0.206 140.6)",
+          "oklch(72% 0.206 140.6)",
+          "oklch(84% 0.206 140.6)",
+          "oklch(95% 0.103 140.6)"
+        ]
+      },
+      "suit-blue": {
+        "role": "suit",
+        "displayName": "Suit Blue",
+        "canonical": "oklch(61.2% 0.210 260.7)",
+        "tonalRamp": [
+          "oklch(15% 0.105 260.7)",
+          "oklch(25% 0.210 260.7)",
+          "oklch(35% 0.210 260.7)",
+          "oklch(48% 0.210 260.7)",
+          "oklch(60% 0.210 260.7)",
+          "oklch(72% 0.210 260.7)",
+          "oklch(84% 0.210 260.7)",
+          "oklch(95% 0.105 260.7)"
+        ]
+      },
+      "suit-pink": {
+        "role": "suit",
+        "displayName": "Suit Pink (= Brilliant Rose)",
+        "canonical": "oklch(67.7% 0.248 352.4)",
+        "tonalRamp": [
+          "oklch(15% 0.124 352.4)",
+          "oklch(25% 0.248 352.4)",
+          "oklch(35% 0.248 352.4)",
+          "oklch(48% 0.248 352.4)",
+          "oklch(60% 0.248 352.4)",
+          "oklch(72% 0.248 352.4)",
+          "oklch(84% 0.248 352.4)",
+          "oklch(95% 0.124 352.4)"
+        ]
+      },
+      "suit-teal": {
+        "role": "suit",
+        "displayName": "Suit Teal",
+        "canonical": "oklch(72.4% 0.126 183.6)",
+        "tonalRamp": [
+          "oklch(15% 0.063 183.6)",
+          "oklch(25% 0.126 183.6)",
+          "oklch(35% 0.126 183.6)",
+          "oklch(48% 0.126 183.6)",
+          "oklch(60% 0.126 183.6)",
+          "oklch(72% 0.126 183.6)",
+          "oklch(84% 0.126 183.6)",
+          "oklch(95% 0.063 183.6)"
+        ]
+      },
+      "suit-orange": {
+        "role": "suit",
+        "displayName": "Suit Orange",
+        "canonical": "oklch(74.8% 0.176 55.7)",
+        "tonalRamp": [
+          "oklch(15% 0.088 55.7)",
+          "oklch(25% 0.176 55.7)",
+          "oklch(35% 0.176 55.7)",
+          "oklch(48% 0.176 55.7)",
+          "oklch(60% 0.176 55.7)",
+          "oklch(72% 0.176 55.7)",
+          "oklch(84% 0.176 55.7)",
+          "oklch(95% 0.088 55.7)"
+        ]
+      },
+      "suit-purple": {
+        "role": "suit",
+        "displayName": "Suit Purple",
+        "canonical": "oklch(60.2% 0.238 292.0)",
+        "tonalRamp": [
+          "oklch(15% 0.119 292.0)",
+          "oklch(25% 0.238 292.0)",
+          "oklch(35% 0.238 292.0)",
+          "oklch(48% 0.238 292.0)",
+          "oklch(60% 0.238 292.0)",
+          "oklch(72% 0.238 292.0)",
+          "oklch(84% 0.238 292.0)",
+          "oklch(95% 0.119 292.0)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Home wordmark only, one word per tape."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Screen questions; enlarged for the points counter (48px) and UNO! burst (60px)."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Variant names, turn tape, sheet titles, round-end headline; uppercase."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Sentences and status lines, 13-15px semibold, tabular figures, paper-backed over terrazzo."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Form labels, slab text, round meta, color tag; display face uppercase 11-14px."
+      }
+    },
+    "shadows": [
+      {
+        "name": "slab",
+        "value": "4px 5px 0 0 var(--ink)",
+        "purpose": "Resting buttons, code tiles, color tiles, focused inputs."
+      },
+      {
+        "name": "slab-sm",
+        "value": "2px 3px 0 0 var(--ink)",
+        "purpose": "Inputs at rest, icon buttons, unselected variant cards, pressed slabs."
+      },
+      {
+        "name": "lift",
+        "value": "6px 8px 0 0 var(--ink)",
+        "purpose": "Podium, selected variant card, round-end receipt."
+      }
+    ],
+    "motion": [
+      {
+        "name": "press",
+        "value": "150ms ease-out (transform, box-shadow)",
+        "purpose": "Slab press into shadow; card raise."
+      },
+      {
+        "name": "select",
+        "value": "200ms ease-out",
+        "purpose": "Variant card lift on selection."
+      },
+      {
+        "name": "card-play",
+        "value": "0.38s power3.out",
+        "purpose": "Card flies from hand/opponent to discard (FLIP)."
+      },
+      {
+        "name": "card-draw",
+        "value": "0.42s power2.out, 0.05s stagger",
+        "purpose": "New cards fly from the deck into the hand."
+      },
+      {
+        "name": "flip",
+        "value": "rotateY 90deg to 0, 0.45s back.out(1.6), 0.015s stagger",
+        "purpose": "UNO Flip side change."
+      },
+      {
+        "name": "pop",
+        "value": "0.45s back.out(1.7), 0.08s stagger",
+        "purpose": "Round-end panel entrance and point count-up."
+      },
+      {
+        "name": "caught",
+        "value": "0.5s elastic.out(1.2, 0.25)",
+        "purpose": "Hand shake when caught without UNO."
+      },
+      {
+        "name": "bob",
+        "value": "2.6s+ sine.inOut yoyo",
+        "purpose": "Ambient Home still-life shapes."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce, durations 0.01ms",
+        "purpose": "All CSS and GSAP motion disabled."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "column",
+        "value": "384px"
+      },
+      {
+        "name": "table",
+        "value": "560px"
+      }
+    ],
+    "patterns": [
+      {
+        "name": "terrazzo",
+        "purpose": "Floor and idle surfaces; seeded procedural chips in rose, fern, ink, electric, grass."
+      },
+      {
+        "name": "squiggles",
+        "purpose": "Active/selected state and laminate on podium, hand tray, No Mercy card."
+      },
+      {
+        "name": "hatch",
+        "purpose": "Disabled slabs, unplayable cards, discard ring with no color."
+      },
+      {
+        "name": "dots",
+        "purpose": "Classic variant card; red suit motif."
+      }
+    ],
+    "openItems": [
+      "The table podium stays a CSS skewed Electric slab (no Blender render); mascot illustrations are shipped."
+    ],
+    "illustrations": {
+      "source": "scripts/blender/scene.py (Blender 5.2.2, Eevee + Freestyle ink lines, hand-modeled, no generative AI)",
+      "characters": "Mochi (Brilliant Rose sphere) and Pip (Electric Green capsule with antenna), the C and P of the monogram",
+      "props": "terrazzo pedestal, ink/grass striped cylinder, cone, squiggle tube, yellow crown",
+      "files": {
+        "hero": "src/assets/illustrations/hero.webp (Home)",
+        "waiting": "src/assets/illustrations/waiting.webp (waiting room)",
+        "win": "src/assets/illustrations/win.webp (round end, winner)",
+        "lose": "src/assets/illustrations/lose.webp (round end, loser)"
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Slab",
+      "kind": "button",
+      "refersTo": "slab-primary",
+      "description": "Skewed Brilliant Rose block for the one main action per screen; sinks into its shadow on press.",
+      "html": "<button class=\"ds-slab ds-slab-rose\"><span>Buat room</span></button>",
+      "css": ".ds-slab{position:relative;display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 20px;border:3px solid var(--ink,#121212);color:var(--ink,#121212);font-family:'Dela Gothic One','Geist Variable',sans-serif;font-size:16px;letter-spacing:-0.01em;line-height:.95;text-transform:uppercase;transform:skewX(-6deg);box-shadow:4px 5px 0 0 var(--ink,#121212);cursor:pointer;transition:transform 150ms ease-out,box-shadow 150ms ease-out}.ds-slab>span{display:inline-flex;transform:skewX(6deg)}.ds-slab-rose{background:var(--rose,#ff37a6)}.ds-slab:active{transform:skewX(-6deg) translate(3px,4px);box-shadow:2px 3px 0 0 var(--ink,#121212)}.ds-slab:focus-visible{outline:3px solid var(--fern,#43b929);outline-offset:4px}"
+    },
+    {
+      "name": "Join Slab (Grass)",
+      "kind": "button",
+      "refersTo": "slab-secondary",
+      "description": "Secondary action slab in Radioactive Grass.",
+      "html": "<button class=\"ds-slab2\"><span>Gabung</span></button>",
+      "css": ".ds-slab2{display:inline-flex;align-items:center;height:48px;padding:0 20px;border:3px solid var(--ink,#121212);background:var(--grass,#87e752);color:var(--ink,#121212);font-family:'Dela Gothic One',sans-serif;font-size:16px;text-transform:uppercase;transform:skewX(-6deg);box-shadow:4px 5px 0 0 var(--ink,#121212);cursor:pointer;transition:transform 150ms ease-out,box-shadow 150ms ease-out}.ds-slab2>span{display:inline-flex;transform:skewX(6deg)}.ds-slab2:active{transform:skewX(-6deg) translate(3px,4px);box-shadow:2px 3px 0 0 var(--ink,#121212)}.ds-slab2:focus-visible{outline:3px solid var(--fern,#43b929);outline-offset:4px}"
+    },
+    {
+      "name": "Selected Slab (squiggle)",
+      "kind": "chip",
+      "refersTo": "slab-selected",
+      "description": "Small Electric slab whose selection is marked by an ink squiggle fill, beside a quiet Paper slab.",
+      "html": "<div class=\"ds-row\"><button class=\"ds-sm ds-on\" role=\"radio\" aria-checked=\"true\"><span>500</span></button><button class=\"ds-sm\" role=\"radio\" aria-checked=\"false\"><span>250</span></button></div>",
+      "css": ".ds-row{display:flex;gap:12px}.ds-sm{height:36px;padding:0 12px;border:3px solid var(--ink,#121212);background:var(--paper,#fff4fa);color:var(--ink,#121212);font-family:'Dela Gothic One',sans-serif;font-size:13px;transform:skewX(-6deg);box-shadow:4px 5px 0 0 var(--ink,#121212);cursor:pointer;transition:transform 150ms ease-out,box-shadow 150ms ease-out}.ds-sm>span{display:inline-block;transform:skewX(6deg)}.ds-on{background-color:var(--electric,#5cf64a);background-image:url(\"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cpath d='M4 10 q4 -6 8 0 t8 0' fill='none' stroke='%23121212' stroke-width='2.6' stroke-linecap='round'/%3E%3Cpath d='M28 17 q4 6 8 0 t8 0' fill='none' stroke='%23121212' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E\");background-size:44px 44px}.ds-sm:active{transform:skewX(-6deg) translate(3px,4px);box-shadow:2px 3px 0 0 var(--ink,#121212)}.ds-sm:focus-visible{outline:3px solid var(--fern,#43b929);outline-offset:4px}"
+    },
+    {
+      "name": "Name Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Square Paper field with a small hard shadow that grows on focus; Rose caret.",
+      "html": "<label class=\"ds-field\"><span>Nama kamu</span><input placeholder=\"mis. Andi\"></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:8px;color:var(--ink,#121212)}.ds-field>span{font-family:'Dela Gothic One',sans-serif;font-size:14px;text-transform:uppercase}.ds-field input{height:56px;padding:0 16px;border:3px solid var(--ink,#121212);background:var(--paper,#fff4fa);font-family:'Geist Variable',sans-serif;font-size:18px;font-weight:600;color:var(--ink,#121212);caret-color:var(--rose,#ff37a6);box-shadow:2px 3px 0 0 var(--ink,#121212);outline:none;transition:box-shadow 150ms ease-out}.ds-field input::placeholder{color:rgba(18,18,18,.65)}.ds-field input:focus{box-shadow:4px 5px 0 0 var(--ink,#121212)}"
+    },
+    {
+      "name": "Tape Title",
+      "kind": "custom",
+      "refersTo": "tape-title",
+      "description": "Display heading on a tilted strip of colored tape; used for names, titles and the turn indicator.",
+      "html": "<div class=\"ds-tapes\"><span class=\"ds-tape ds-t-rose\">Giliranmu</span><span class=\"ds-tape ds-t-grass ds-tr\">Sari</span></div>",
+      "css": ".ds-tapes{display:flex;flex-direction:column;align-items:flex-start;gap:12px}.ds-tape{display:inline-block;padding:.15em .45em .2em;transform:rotate(-2deg);font-family:'Dela Gothic One',sans-serif;font-size:24px;line-height:.95;letter-spacing:-.01em;text-transform:uppercase;color:var(--ink,#121212)}.ds-tr{transform:rotate(1.5deg)}.ds-t-rose{background:var(--rose,#ff37a6)}.ds-t-grass{background:var(--grass,#87e752)}"
+    },
+    {
+      "name": "Back Icon Button",
+      "kind": "nav",
+      "refersTo": "icon-button",
+      "description": "The only navigation: a 40px paper tile with a back arrow that sinks on press.",
+      "html": "<button class=\"ds-icon\" aria-label=\"Kembali\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#121212\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M15 6l-6 6 6 6\"/></svg></button>",
+      "css": ".ds-icon{display:grid;place-items:center;width:40px;height:40px;border:3px solid var(--ink,#121212);background:var(--paper,#fff4fa);box-shadow:2px 3px 0 0 var(--ink,#121212);cursor:pointer;transition:transform 150ms ease-out,box-shadow 150ms ease-out}.ds-icon:active{transform:translateY(2px);box-shadow:none}.ds-icon:focus-visible{outline:3px solid var(--fern,#43b929);outline-offset:3px}"
+    },
+    {
+      "name": "Round-end Receipt",
+      "kind": "card",
+      "refersTo": "sheet",
+      "description": "Paper card on the Lift shadow with a squiggled Rose tape stuck to its top edge and skewed score bars.",
+      "html": "<div class=\"ds-receipt\"><i class=\"ds-stuck\"></i><span class=\"ds-tape2\">Kamu menang ronde!</span><p>Poin dari kartu yang tersisa di tangan lawan.</p><b>+42</b><div class=\"ds-bar\"><div style=\"width:62%\"></div></div></div>",
+      "css": ".ds-receipt{position:relative;max-width:340px;padding:20px;border:3px solid var(--ink,#121212);background:var(--paper,#fff4fa);box-shadow:6px 8px 0 0 var(--ink,#121212);color:var(--ink,#121212);font-family:'Geist Variable',sans-serif}.ds-stuck{position:absolute;top:-16px;right:24px;width:96px;height:32px;border:3px solid var(--ink,#121212);background:var(--rose,#ff37a6);transform:rotate(6deg)}.ds-tape2{display:inline-block;padding:.15em .45em .2em;background:var(--electric,#5cf64a);transform:rotate(-2deg);font-family:'Dela Gothic One',sans-serif;font-size:24px;line-height:1.1;text-transform:uppercase}.ds-receipt p{margin:12px 0 0;font-size:14px;font-weight:500;color:rgba(18,18,18,.8)}.ds-receipt b{display:block;margin-top:16px;font-family:'Dela Gothic One',sans-serif;font-weight:400;font-size:48px}.ds-bar{margin-top:12px;height:20px;border:3px solid var(--ink,#121212);background:var(--petal,#ffcae9);transform:skewX(-12deg)}.ds-bar>div{height:100%;background:var(--rose,#ff37a6)}"
+    },
+    {
+      "name": "Playing Card",
+      "kind": "custom",
+      "refersTo": "playing-card",
+      "description": "Hand-drawn card stock: suit body with motif, 4px ink edge, tilted paper oval, Dela Gothic numeral; playable cards rise with an Electric underline.",
+      "html": "<div class=\"ds-card\"><svg viewBox=\"0 0 100 146\" width=\"84\" height=\"123\"><defs><pattern id=\"dsm\" width=\"16\" height=\"16\" patternUnits=\"userSpaceOnUse\"><circle cx=\"8\" cy=\"8\" r=\"2.6\" fill=\"rgba(255,255,255,.28)\"/></pattern></defs><rect x=\"2\" y=\"2\" width=\"96\" height=\"142\" rx=\"11\" fill=\"#ff3b5c\" stroke=\"#121212\" stroke-width=\"4\"/><rect x=\"2\" y=\"2\" width=\"96\" height=\"142\" rx=\"11\" fill=\"url(#dsm)\"/><ellipse cx=\"50\" cy=\"72\" rx=\"34\" ry=\"46\" transform=\"rotate(18 50 72)\" fill=\"#fff4fa\" stroke=\"#121212\" stroke-width=\"3.5\"/><text x=\"50\" y=\"90\" text-anchor=\"middle\" font-family=\"Dela Gothic One, sans-serif\" font-size=\"50\" fill=\"#121212\">7</text><text x=\"14\" y=\"26\" font-family=\"Dela Gothic One, sans-serif\" font-size=\"18\" fill=\"#121212\">7</text></svg><i></i></div>",
+      "css": ".ds-card{position:relative;display:inline-block;transform:translateY(-12px);transition:transform 150ms ease-out;cursor:pointer}.ds-card svg{display:block}.ds-card i{position:absolute;bottom:-10px;left:8px;right:8px;height:6px;border:2px solid var(--ink,#121212);background:var(--electric,#5cf64a);transform:skewX(-12deg)}.ds-card:active{transform:translateY(-4px)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Memphis Showroom",
+    "overview": "Couple Party is a toy showroom, not a card-game casino. Every control, pile, and panel is a flat geometric object cut from laminate, outlined in 3px ink, and set down on a Pastel Petal terrazzo floor with a hard ink shadow beneath it. Objects argue in color: Brilliant Rose against Electric Green, Radioactive Grass against Petal, all held together by one black ink that draws every outline, every letter, and every shadow. The reference the world rejects is the standard UNO app: green felt, glossy cards, soft drop shadows.\n\nDensity is phone-portrait and one-column. Personality concentrates at moments (the UNO! burst, the \"caught\" shake, the confetti at round end) while the table itself stays legible at a glance: whose turn, what color is live, which cards can be played. State is carried by pattern as well as color, so squiggles, terrazzo, hatching and dots are functional, not decoration.\n\nHeadings sit slightly tilted on strips of colored tape; controls are skewed parallelogram slabs that sink into their shadow when pressed. Nothing glows, nothing blurs, nothing is gradient.",
+    "keyCharacteristics": [
+      "Pastel Petal floor scattered with procedural terrazzo chips in Rose, Fern, Electric, Grass and ink.",
+      "3px ink outlines on every object; hard, zero-blur ink shadows offset down-right.",
+      "Dela Gothic One uppercase for every label, title and button; Geist semibold for running text.",
+      "Skewed (-6deg) slab buttons and tilted (-2deg / +1.5deg) tape titles.",
+      "State shown by fill pattern (squiggle = active, hatch = disabled/unplayable, terrazzo = idle) as well as by color.",
+      "Square corners everywhere except card stock, the discard ring, and presence dots."
+    ],
+    "rules": [
+      {
+        "name": "The One Ink Rule",
+        "body": "There is exactly one dark: `ink`. Outlines, type, shadows, and dark surfaces all use it. No greys, no secondary dark; lighter text is ink at reduced opacity (70-80%).",
+        "section": "colors"
+      },
+      {
+        "name": "The Suits Stay On The Cards Rule",
+        "body": "Suit colors appear only on card art, the color-pick sheet, and the discard ring that names the live color. UI chrome uses the five brand colors.",
+        "section": "colors"
+      },
+      {
+        "name": "The Display Is The Voice Rule",
+        "body": "Anything the player acts on or reads as a sign (buttons, names, turn state) is Dela Gothic One uppercase. Geist is only for sentences.",
+        "section": "typography"
+      },
+      {
+        "name": "The Press-Into-Shadow Rule",
+        "body": "On press a slab translates (3px, 4px) and drops from Slab to Slab-small; disabled slabs sit fully pressed with no shadow and an ink hatch overlay.",
+        "section": "elevation"
+      },
+      {
+        "name": "The No Blur Rule",
+        "body": "No blurred shadows, glows, gradients, or backdrop blur anywhere. The only translucency is the ink/70 scrim behind the round-end dialog and paper/90 behind copy.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do outline every object in 3px ink (`ink`) and seat it on a hard zero-blur ink shadow: Slab (4px 5px), Slab-small (2px 3px) or Lift (6px 8px).",
+      "Do use Brilliant Rose (`rose`) for the one main action on a screen, and Paper or Grass slabs for everything else.",
+      "Do signal state with pattern as well as color: squiggle for active/selected, ink hatch for disabled or unplayable, terrazzo for idle.",
+      "Do set every label, button, name and title in Dela Gothic One uppercase, and back body copy over terrazzo with paper at 90%.",
+      "Do keep all five mandated brand colors (electric, grass, fern, petal, rose) present across the app; they are a brand commitment.",
+      "Do hand-make every illustration and animation (manual SVG, Blender renders, generated Lottie); none may be AI-generated.",
+      "Do honor `prefers-reduced-motion` and the 3px Fern focus outline on every interactive element."
+    ],
+    "donts": [
+      "Don't reintroduce green felt, glossy cards, or soft blurred drop shadows; that is the standard UNO app this world rejects.",
+      "Don't use gradients, glows, or backdrop blur.",
+      "Don't round buttons, inputs, sheets or panels; corner radius belongs to card stock, the discard ring and dots.",
+      "Don't add greys or a second dark; lighten ink by opacity instead.",
+      "Don't use suit colors for UI chrome, or brand colors as stand-ins for suits outside Green/Fern and Pink/Rose.",
+      "Don't rotate the whole logo, straighten its -8deg P, change the wordmark font, or give the logo a shadow or gradient (brand/logo/GUIDELINES.md)."
+    ]
+  }
+}

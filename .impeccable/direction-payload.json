@@ -1,0 +1,122 @@
+{
+  "title": "Pilih dunia visual Couple Party",
+  "question": "Undian memilih \"Kedai Es Kekinian\". Ambil itu, pilih alternatif, atau undi ulang.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Kedai Es Kekinian",
+      "kicker": "THE ROLL",
+      "lineage": "Gerai boba / es teh kekinian: cup sealer, stiker cup, struk pesanan",
+      "thesis": "Meja main = meja kasir kedai es; setiap kartu yang dimainkan 'di-seal' ke tumpukan seperti cup ditutup mesin sealer.",
+      "palette": ["#5cf64a", "#87e752", "#43b929", "#ffcae9", "#ff37a6"],
+      "materials": ["plastik cup sealer film bermotif", "stiker label cup", "kertas struk thermal", "nampan melamin"],
+      "viewport": "Nampan hijau pandan memenuhi layar; tumpukan buang di tengah seperti cup yang baru di-seal, tangan kartu seperti deretan cup di rak, struk skor menggantung di atas.",
+      "risk": "Kalau motifnya setengah hati, jadi sekadar tema minuman tempelan; harus dibawa sampai ke tombol & status.",
+      "raised": [
+        {"from": "posters-covers-sleeves-noir-one-sheet-duotone", "raise": "Skor & riwayat jadi satu struk berbaris rapat yang terkunci di atas, bukan kartu-kartu lepas."},
+        {"from": "signals-instruments-phosphor-terminal-midnight", "raise": "Kejadian game (UNO!, ketahuan, +4) tercetak sebagai baris struk baru, bukan toast mengambang."},
+        {"from": "medium-native-ebru-floated-pigment", "raise": "Memainkan kartu adalah satu tekan final yang tidak bisa dibatalkan, dengan efek tekan-segel yang terasa."}
+      ]
+    },
+    {
+      "id": "model-pick",
+      "label": "Paket Stiker Chat",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "Stiker WhatsApp/LINE yang dipotong die-cut dengan outline putih tebal",
+      "thesis": "Semua elemen adalah stiker die-cut yang ditempel di layar chat kalian berdua.",
+      "palette": ["#ffcae9", "#ff37a6", "#5cf64a", "#87e752", "#43b929"],
+      "materials": ["stiker vinyl outline putih", "lembar stiker", "bayangan tempel"],
+      "viewport": "Latar pink pastel seperti lembar stiker; kartu & tombol berbentuk stiker yang sedikit miring dengan outline putih tebal.",
+      "risk": "Arah yang paling sering muncul untuk app 'lucu'; mudah terasa generik."
+    },
+    {
+      "id": "challenger-memphis",
+      "label": "Showroom Memphis",
+      "verdict": "competitive",
+      "lineage": "Memphis Milano 1980-an",
+      "thesis": "Pink berdebat dengan hijau di atas laminasi terrazzo; tiap kontrol adalah mainan berbentuk unik.",
+      "palette": ["#ff37a6", "#5cf64a", "#ffcae9", "#43b929", "#87e752"],
+      "materials": ["laminasi squiggle", "terrazzo", "bentuk geometris candy"],
+      "viewport": "Meja terrazzo pink, tumpukan kartu di atas podium geometris, tombol aksi berbentuk balok & silinder.",
+      "case": "Menyatu dengan palet (pink vs hijau) dan status lewat pola membantu keterbacaan; kalah tipis di keakraban untuk pasangan Indonesia.",
+      "risk": "Bisa terlalu ramai saat tangan kartu penuh.",
+      "hero": "https://impeccable.style/worlds/cards/design-canon-memphis-showroom-morning-hero.webp"
+    },
+    {
+      "id": "challenger-neon",
+      "label": "Neon Tekuk Tangan",
+      "verdict": "declined",
+      "lineage": "Papan neon kaca ditekuk tangan",
+      "thesis": "Kamar gelap, tulisan neon hijau & pink menyala sebagai satu sirkuit.",
+      "palette": ["#0b0b10", "#5cf64a", "#ff37a6"],
+      "materials": ["tabung kaca", "cahaya gas"],
+      "viewport": "Latar gelap dengan kartu bercahaya neon.",
+      "case": "Jatuh ke pola 'gelap + aksen neon' yang paling umum; tidak lucu.",
+      "risk": "Generik dan melelahkan mata.",
+      "kept": "Satu aliran kontinu: giliran berpindah seperti arus yang mengalir."
+    },
+    {
+      "id": "challenger-noir",
+      "label": "Poster Film Noir",
+      "verdict": "declined",
+      "lineage": "Poster film kriminal duotone",
+      "thesis": "Dua tinta, bayangan panjang, judul huruf kapital rapat.",
+      "palette": ["#111111", "#d9a23a", "#efe6d2"],
+      "materials": ["cetak duotone", "kertas krem"],
+      "viewport": "Sosok kecil dengan bayangan raksasa.",
+      "case": "Bertabrakan dengan palet & gaya lucu yang sudah dikunci.",
+      "risk": "Muram, tidak cocok untuk game pasangan.",
+      "kept": "Blok billing berbaris rapat dijadikan struk skor."
+    },
+    {
+      "id": "challenger-terminal",
+      "label": "Terminal Fosfor",
+      "verdict": "declined",
+      "lineage": "Terminal hijau tengah malam",
+      "thesis": "Transkrip teks yang hidup.",
+      "palette": ["#050a05", "#5cf64a"],
+      "materials": ["kaca CRT", "glow fosfor"],
+      "viewport": "Layar teks monospace.",
+      "case": "Bukan dunia mereka; tidak lucu.",
+      "risk": "Terasa seperti alat kerja.",
+      "kept": "Status yang 'tercetak' sebagai baris riwayat."
+    },
+    {
+      "id": "challenger-ebru",
+      "label": "Ebru Cat Air",
+      "verdict": "declined",
+      "lineage": "Seni marmer air",
+      "thesis": "Pigmen mengapung yang didorong sisir.",
+      "palette": ["#1d3557", "#e63946", "#f1faee"],
+      "materials": ["pigmen di air", "kertas"],
+      "viewport": "Bak cat penuh layar.",
+      "case": "Indah tapi tidak membantu kejelasan giliran.",
+      "risk": "Mengalihkan dari kartu.",
+      "kept": "Aksi tunggal yang final dan terasa."
+    },
+    {
+      "id": "challenger-daylight",
+      "label": "Potongan Cahaya Pagi",
+      "verdict": "declined",
+      "lineage": "Gambar potongan arsitektur",
+      "thesis": "Berkas matahari yang bergerak melintasi ruang.",
+      "palette": ["#f4f1ea", "#2b2b2b", "#e7b84a"],
+      "materials": ["dinding kapur", "bayangan"],
+      "viewport": "Potongan rumah dengan sinar.",
+      "case": "Tidak terhubung dengan dunia pasangan ini.",
+      "risk": "Terlalu tenang.",
+      "kept": "Satu tepi aktif yang bergerak menandai giliran."
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "canon": true,
+  "canonCard": {
+    "label": "Standar kategori",
+    "thesis": "Meja kartu hijau felt dan kartu UNO klasik, seperti app UNO resmi, dikerjakan rapi.",
+    "palette": ["#43b929", "#ffffff", "#ff37a6"],
+    "materials": ["kain felt", "kartu glossy"],
+    "viewport": "Meja felt hijau, kartu lawan di atas, tanganmu di bawah.",
+    "risk": "Tidak bisa dibedakan dari app UNO lain."
+  },
+  "steer": true
+}

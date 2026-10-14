@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- C "Pita X": dua pita miring bersilang = X (ciuman), pita atas memotong pita bawah dengan celah -->
+  <g transform="rotate(-30 128 128)">
+    <path d="M28 104 L228 104 L222 152 L22 152 Z"/>
+  </g>
+  <g transform="rotate(30 128 128)">
+    <path d="M34 104 L234 104 L228 152 L28 152 Z" stroke="#fff" stroke-width="14" stroke-linejoin="miter" paint-order="stroke"/>
+  </g>
+</svg>

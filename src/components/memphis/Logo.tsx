@@ -1,0 +1,9 @@
+/** Monogram Couple Party (dari brand/logo/build_logo.py). */
+export function LogoMark({ size = 56, className }: { size?: number; className?: string }) {
+  return (
+    <svg viewBox="0 0 256 256" width={size} height={size} className={className} role="img" aria-label="Couple Party">
+      <path fill="var(--rose)" d="M201.54 66.29 A96 96 0 1 0 201.54 189.71 L173.96 166.57 A60 60 0 1 1 173.96 89.43 Z" />
+      <path fill="var(--ink)" fillRule="evenodd" transform="rotate(-8 126 128)" d="M110 82 L142 82 A31 31 0 0 1 142 144 L142 174 L110 174 Z M142 102 A11 11 0 0 1 142 124 Z" />
+    </svg>
+  )
+}

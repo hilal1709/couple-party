@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- C "Dua kartu": dua kartu bersandar membentuk topi pesta / segitiga di antaranya -->
+  <rect x="58" y="44" width="74" height="168" rx="14" transform="rotate(-16 95 212)"/>
+  <rect x="124" y="44" width="74" height="168" rx="14" transform="rotate(16 161 212)"/>
+  <circle cx="128" cy="30" r="14"/>
+</svg>

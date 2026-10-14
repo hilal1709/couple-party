@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- A "Bersandar": lingkaran & segitiga miring, dua bentuk beda yang condong satu sama lain -->
+  <circle cx="84" cy="164" r="60"/>
+  <!-- segitiga dengan sisi kiri 75°, ujungnya condong ke arah lingkaran -->
+  <path d="M156 224 L236 224 L186 37.4 Z" transform="rotate(-15 156 224)"/>
+</svg>

@@ -1,0 +1,172 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+@import "@fontsource/dela-gothic-one/latin-400.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Couple Party — Showroom Memphis.
+ * Palet wajib: Electric Green, Radioactive Grass, Bright Fern, Pastel Petal, Brilliant Rose.
+ * Tinta #121212 dipakai untuk huruf, outline 3px, squiggle, dan bayangan keras khas Memphis.
+ */
+@theme inline {
+  --font-heading: 'Dela Gothic One', 'Geist Variable', sans-serif;
+  --font-display: 'Dela Gothic One', 'Geist Variable', sans-serif;
+  --font-sans: 'Geist Variable', sans-serif;
+
+  --color-electric: var(--electric);
+  --color-grass: var(--grass);
+  --color-fern: var(--fern);
+  --color-petal: var(--petal);
+  --color-rose: var(--rose);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+
+  --color-suit-red: var(--suit-red);
+  --color-suit-yellow: var(--suit-yellow);
+  --color-suit-green: var(--suit-green);
+  --color-suit-blue: var(--suit-blue);
+  --color-suit-pink: var(--suit-pink);
+  --color-suit-teal: var(--suit-teal);
+  --color-suit-orange: var(--suit-orange);
+  --color-suit-purple: var(--suit-purple);
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+
+  --shadow-slab: 4px 5px 0 0 var(--ink);
+  --shadow-slab-sm: 2px 3px 0 0 var(--ink);
+  --shadow-lift: 6px 8px 0 0 var(--ink);
+}
+
+:root {
+  --electric: #5cf64a;
+  --grass: #87e752;
+  --fern: #43b929;
+  --petal: #ffcae9;
+  --rose: #ff37a6;
+  --ink: #121212;
+  --paper: #fff4fa;
+
+  /* Warna kartu: 4 warna yang wajib mudah dibedakan, diselaraskan ke palet */
+  --suit-red: #ff3b5c;
+  --suit-yellow: #ffcc1f;
+  --suit-green: #43b929;
+  --suit-blue: #2f7bff;
+  --suit-pink: #ff37a6;
+  --suit-teal: #13bfae;
+  --suit-orange: #ff8a1c;
+  --suit-purple: #8a55ff;
+
+  --background: var(--petal);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--rose);
+  --primary-foreground: var(--ink);
+  --secondary: var(--grass);
+  --secondary-foreground: var(--ink);
+  --muted: #ffe3f2;
+  --muted-foreground: #5a3a4c;
+  --accent: var(--electric);
+  --accent-foreground: var(--ink);
+  --destructive: #e0142f;
+  --border: var(--ink);
+  --input: var(--ink);
+  --ring: var(--fern);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: var(--electric);
+    color: var(--ink);
+  }
+  input {
+    caret-color: var(--rose);
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  :focus-visible {
+    outline: 3px solid var(--fern);
+    outline-offset: 3px;
+  }
+  ::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--ink);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+  }
+  /* pita miring khas Memphis di belakang judul */
+  .tape {
+    display: inline-block;
+    padding: 0.15em 0.45em 0.2em;
+    transform: rotate(-2deg);
+  }
+  .tape-r {
+    transform: rotate(1.5deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

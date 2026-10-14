@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- B "Monogram CP": C = cincin tebal 3/4 terbuka ke kanan; P = batang + bulatan berlubang di bukaan -->
+  <path d="M190.2 65.8 A88 88 0 1 0 190.2 190.2 L161.9 161.9 A48 48 0 1 1 161.9 94.1 Z"/>
+  <path fill-rule="evenodd" d="M120 92 L160 92 A34 34 0 0 1 160 160 L148 160 L148 220 L120 220 Z M148 112 L158 112 A14 14 0 0 1 158 140 L148 140 Z"/>
+</svg>
