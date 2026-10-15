@@ -1,21 +1,23 @@
-"""Ekspor render Blender Ular Tangga (brand/illustrations/snakes/*.png) ke WebP untuk app.
+"""Ekspor render Blender per game (brand/illustrations/<game>/*.png) ke WebP untuk app.
 
-Jalankan:  python -I scripts/blender/export.py
+Jalankan:  python -I scripts/blender/export.py [snakes|draw]   (bawaan: snakes)
 Sprite dipangkas ke tepi gambar (kecuali kepala ular: titik tengahnya = pangkal leher) lalu diperkecil.
 """
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
-SRC = ROOT / 'brand' / 'illustrations' / 'snakes'
-OUT = ROOT / 'src' / 'assets' / 'snakes'
+GAME = sys.argv[1] if len(sys.argv) > 1 else 'snakes'
+SRC = ROOT / 'brand' / 'illustrations' / GAME
+OUT = ROOT / 'src' / 'assets' / GAME
 
 
 def size_for(name: str) -> int:
-    if name.startswith(('tile-', 'snakes-')):
+    if name.startswith(('tile-', 'snakes-', 'draw-')):
         return 720
     return 160
 
@@ -35,9 +37,9 @@ def main():
         dest = OUT / f'{name}.webp'
         im.save(dest, 'WEBP', quality=88, method=6)
         meta = {
-            'prompt': f'Origin: hand-modeled in Blender 5.2.2 (no generative AI). Source script scripts/blender/snakes.py, asset "{name}"; '
+            'prompt': f'Origin: hand-modeled in Blender 5.2.2 (no generative AI). Source script scripts/blender/{GAME}.py, asset "{name}"; '
                       f'Eevee render with Freestyle ink lines, transparent background; exported by scripts/blender/export.py. '
-                      f'Master PNG: brand/illustrations/snakes/{name}.png.\n',
+                      f'Master PNG: brand/illustrations/{GAME}/{name}.png.\n',
             'createdAt': datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'),
         }
         dest.with_suffix('.webp.json').write_text(json.dumps(meta, indent=2) + '\n', encoding='utf-8')

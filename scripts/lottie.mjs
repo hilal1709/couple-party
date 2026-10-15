@@ -1,4 +1,4 @@
-// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader & efek Ular Tangga.
+// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga & Tebak Gambar.
 // Jalankan: node scripts/lottie.mjs  → src/assets/lottie/*.json
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -492,6 +492,222 @@ function cardPop() {
   return doc('card-pop', S, S, OP, layers)
 }
 
+// ---------- efek Tebak Gambar ----------
+const poly = (pts, closed = true) => ({
+  ty: 'sh',
+  ks: st({ c: closed, v: pts, i: pts.map(() => [0, 0]), o: pts.map(() => [0, 0]) }),
+})
+/** garis yang "tergambar" dari awal ke akhir (trim path) */
+const trim = (t0, t1) => ({
+  ty: 'tm',
+  s: st(0),
+  e: anim([
+    [0, [0]],
+    [t0, [0]],
+    [t1, [100]],
+  ]),
+  o: st(0),
+  m: 1,
+})
+const popScale = (inAt, outFrom, op) =>
+  anim([
+    [0, [0, 0, 100]],
+    [inAt, [0, 0, 100]],
+    [inAt + 8, [115, 115, 100]],
+    [inAt + 14, [100, 100, 100]],
+    [outFrom, [100, 100, 100]],
+    [op - 1, [0, 0, 100]],
+  ])
+
+// Tebakan benar: lingkaran hijau + centang tergambar + percikan cat
+function drawCorrect() {
+  const S = 300
+  const OP = 60
+  const c = S / 2
+  const layers = []
+  layers.push(
+    layer(1, [poly([[-34, 2], [-10, 26], [36, -24]], false), stroke('#121212', 14), trim(8, 22)], { p: st([c, c, 0]), s: popScale(0, 46, OP) }, OP),
+  )
+  layers.push(layer(2, [{ ty: 'el', p: st([0, 0]), s: st([130, 130]) }, fill('#5cf64a'), stroke('#121212', 6)], { p: st([c, c, 0]), s: popScale(0, 46, OP) }, OP))
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2 + rand() * 0.4
+    const dist = 90 + rand() * 40
+    layers.push(
+      layer(
+        i + 3,
+        [{ ty: 'el', p: st([0, 0]), s: st([16 + rand() * 12, 12 + rand() * 8]) }, fill(PALETTE[i % 5]), stroke('#121212', 2.5)],
+        {
+          p: anim([
+            [6, [c, c, 0]],
+            [30, [c + Math.cos(a) * dist, c + Math.sin(a) * dist, 0]],
+          ]),
+          s: anim([
+            [0, [0, 0, 100]],
+            [8, [120, 120, 100]],
+            [OP - 1, [0, 0, 100]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('draw-correct', S, S, OP, layers)
+}
+
+// Nyaris benar: tanda seru kuning bergoyang + garis getar
+function drawClose() {
+  const S = 240
+  const OP = 50
+  const c = S / 2
+  const shake = anim([0, -14, 12, -10, 8, -4, 0].map((v, k) => [4 + k * 5, [v]]))
+  const layers = [
+    layer(
+      1,
+      [
+        { ty: 'rc', p: st([0, -16]), s: st([22, 58]), r: st(6) },
+        { ty: 'el', p: st([0, 34]), s: st([24, 24]) },
+        fill('#ffcc1f'),
+        stroke('#121212', 5),
+      ],
+      { p: st([c, c, 0]), r: shake, s: popScale(0, 40, OP) },
+      OP,
+    ),
+  ]
+  for (const side of [-1, 1]) {
+    for (let k = 0; k < 2; k++) {
+      const x = side * (52 + k * 18)
+      layers.push(
+        layer(
+          layers.length + 1,
+          [poly([[x, -24 + k * 6], [x, 20 - k * 6]], false), stroke(k ? '#ff37a6' : '#121212', 6)],
+          { p: st([c, c, 0]), o: fade(14 + k * 4, 34, OP) },
+          OP,
+        ),
+      )
+    }
+  }
+  return doc('draw-close', S, S, OP, layers)
+}
+
+// Waktu habis: jam weker berdering (goyang) + gelombang suara
+function drawTimeup() {
+  const S = 300
+  const OP = 72
+  const c = S / 2
+  const ringing = anim([...Array.from({ length: 10 }, (_, k) => [6 + k * 5, [k % 2 ? 9 : -9]]), [60, [0]]])
+  const grow = anim([
+    [0, [40, 40, 100]],
+    [8, [108, 108, 100]],
+    [14, [100, 100, 100]],
+  ])
+  const at = st([c, c + 10, 0])
+  const layers = [
+    layer(1, [poly([[0, 0], [0, -34]], false), poly([[0, 0], [24, 10]], false), stroke('#121212', 7)], { p: at, r: ringing, s: grow }, OP),
+    layer(2, [{ ty: 'el', p: st([0, 0]), s: st([140, 140]) }, fill('#fff4fa'), stroke('#121212', 7)], { p: at, r: ringing, s: grow }, OP),
+    layer(3, [{ ty: 'el', p: st([0, 0]), s: st([160, 160]) }, fill('#ff37a6'), stroke('#121212', 7)], { p: at, r: ringing, s: grow }, OP),
+    layer(
+      4,
+      [{ ty: 'el', p: st([-42, -70]), s: st([42, 42]) }, { ty: 'el', p: st([42, -70]), s: st([42, 42]) }, fill('#5cf64a'), stroke('#121212', 6)],
+      { p: at, r: ringing, s: grow },
+      OP,
+    ),
+  ]
+  for (let k = 0; k < 3; k++) {
+    for (const side of [-1, 1]) {
+      const r = 105 + k * 18
+      const arc = [-0.5, -0.25, 0, 0.25, 0.5].map((t) => [side * r * Math.cos(t), r * Math.sin(t)])
+      layers.push(
+        layer(
+          layers.length + 1,
+          [poly(arc, false), stroke(k === 1 ? '#ff37a6' : '#121212', 5)],
+          {
+            p: at,
+            o: anim([
+              [0, [0]],
+              [6 + k * 6, [0]],
+              [12 + k * 6, [100]],
+              [40 + k * 6, [100]],
+              [52 + k * 6, [0]],
+            ]),
+          },
+          OP,
+        ),
+      )
+    }
+  }
+  return doc('draw-timeup', S, S, OP, layers)
+}
+
+// Kata dibuka: coretan spiral melebar + bintang terlempar
+function drawReveal() {
+  const S = 320
+  const OP = 64
+  const c = S / 2
+  const spiral = Array.from({ length: 41 }, (_, k) => {
+    const t = k / 40
+    const a = t * Math.PI * 5
+    return [Math.cos(a) * (8 + 120 * t), Math.sin(a) * (8 + 120 * t)]
+  })
+  const layers = [layer(1, [poly(spiral, false), stroke('#ff37a6', 7), trim(0, 30)], { p: st([c, c, 0]), o: fade(36, 56, OP) }, OP)]
+  for (let i = 0; i < 7; i++) {
+    const a = (i / 7) * Math.PI * 2
+    layers.push(
+      layer(
+        i + 2,
+        star(18, 7, 5, pick(['#5cf64a', '#ffcc1f', '#ff37a6', '#87e752'])),
+        {
+          p: anim([
+            [10, [c, c, 0]],
+            [40, [c + Math.cos(a) * 130, c + Math.sin(a) * 130, 0]],
+          ]),
+          r: anim([
+            [10, [0]],
+            [OP - 1, [220]],
+          ]),
+          s: anim([
+            [0, [0, 0, 100]],
+            [10, [0, 0, 100]],
+            [18, [120, 120, 100]],
+            [OP - 1, [0, 0, 100]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('draw-reveal', S, S, OP, layers)
+}
+
+// Giliran baru: tiga kartu kata melayang masuk berurutan lalu mengipas
+function drawPick() {
+  const W = 360
+  const H = 260
+  const OP = 54
+  const colors = ['#ff37a6', '#fff4fa', '#5cf64a']
+  const layers = colors.map((color, k) => {
+    const i = 2 - k // kartu kanan digambar paling atas
+    const t0 = i * 6
+    const x = W / 2 + (i - 1) * 70
+    return layer(
+      k + 1,
+      [{ ty: 'rc', p: st([0, 0]), s: st([90, 120]), r: st(8) }, fill(colors[i]), stroke('#121212', 5)],
+      {
+        p: anim([
+          [t0, [W / 2, H + 100, 0]],
+          [t0 + 16, [x, H / 2, 0]],
+          [OP - 1, [x, H / 2 - 6, 0]],
+        ]),
+        r: anim([
+          [t0, [-40]],
+          [t0 + 16, [(i - 1) * 16]],
+        ]),
+      },
+      OP,
+    )
+  })
+  return doc('draw-pick', W, H, OP, layers)
+}
+
 mkdirSync('src/assets/lottie', { recursive: true })
 // urutan penting: confetti & burst duluan supaya hasil acaknya tetap sama seperti sebelumnya
 const out = {
@@ -503,6 +719,11 @@ const out = {
   'snake-bite': snakeBite(),
   'item-pop': itemPop(),
   'card-pop': cardPop(),
+  'draw-correct': drawCorrect(),
+  'draw-close': drawClose(),
+  'draw-timeup': drawTimeup(),
+  'draw-reveal': drawReveal(),
+  'draw-pick': drawPick(),
 }
 for (const [name, json] of Object.entries(out)) writeFileSync(`src/assets/lottie/${name}.json`, JSON.stringify(json))
 console.log('Lottie dibuat:', Object.keys(out).join(', '))
