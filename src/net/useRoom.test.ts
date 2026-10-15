@@ -45,6 +45,11 @@ describe('applyAction: pilih game dulu, room menyusul', () => {
     expect(applyAction(qiu, { kind: 'start' }, 'h').gameId).toBe('domino')
   })
 
+  it('Monopoli bisa dimulai dengan 2 pemain', () => {
+    const s: Session = { ...lobby(), pick: { gameId: 'monopoly', options: { end: 'rounds', rounds: 15 } } }
+    expect(applyAction(s, { kind: 'start' }, 'h').gameId).toBe('monopoly')
+  })
+
   it('host bisa ganti game; game tak dikenal ditolak', () => {
     const s = applyAction(lobby(), { kind: 'pick', gameId: 'uno', options: { variant: 'flip' } }, 'h')
     expect(s.pick).toEqual({ gameId: 'uno', options: { variant: 'flip' } })

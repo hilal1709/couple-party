@@ -22,7 +22,9 @@ export function eventText(st: UnoState, seat: Seat, names: string[]): string {
     case 'caught':
       return e.by === seat ? `Hayo lupa UNO! Kamu +${e.n}` : `${names[e.by]} ketahuan lupa UNO, +${e.n}`
     case 'challengeWin':
-      return e.by === seat ? 'Tuduhanmu benar! Dia yang ambil' : `${names[e.by]} benar, si curang yang ambil`
+      return e.by === seat
+        ? `Tuduhanmu benar! Dia masih punya warna aktif, jadi dia yang ambil +${e.n}`
+        : `${names[e.by]} benar: si pemberi masih punya warna aktif, dia yang ambil +${e.n}`
     case 'challengeLose':
       return e.by === seat ? `Salah tuduh! Kamu +${e.n}` : `${names[e.by]} salah tuduh, +${e.n}`
     case 'swap':

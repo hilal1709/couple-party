@@ -4,6 +4,7 @@ Jalankan:  python -I scripts/audio/build.py          (semua)
            python -I scripts/audio/build.py draw     (hanya musik & SFX Tebak Gambar)
            python -I scripts/audio/build.py remi     (hanya musik & SFX Kartu Remi)
            python -I scripts/audio/build.py domino   (hanya musik & SFX Domino)
+           python -I scripts/audio/build.py monopoly (hanya musik & SFX Monopoli)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
 import subprocess
@@ -126,6 +127,21 @@ def domino_music():
     raw.unlink()
 
 
+def monopoly_music():
+    # Monopoli: "Catchy Swing" oleh Doge — swing jazz (sax, walking bass, drum brush) ala taipan kota besar,
+    # beda dari funk, piano, bossa, lounge & reggae game lain. Sumbernya sudah loop pas 60 detik, jadi dipakai utuh.
+    m = SRC / 'music'
+    loop = load(m / 'catchyswing.ogg')
+    write_ogg(loop, OUT / 'music' / 'monopoly.ogg', 80, lufs=-20)
+    # momen genting (ada yang hampir bangkrut / putaran terakhir): loop yang sama ±6% lebih cepat
+    raw = OUT / 'music' / 'monopoly-loop.tmp.f32'
+    raw.write_bytes(loop.astype(np.float32).tobytes())
+    ff('-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', str(raw),
+       '-af', f'asetrate={int(SR * 1.06)},aresample={SR},atempo=1.06,loudnorm=I=-19:TP=-1.5:LRA=11',
+       '-ar', str(SR), '-c:a', 'libvorbis', '-b:a', '80k', str(OUT / 'music' / 'monopoly-tense.ogg'))
+    raw.unlink()
+
+
 SFX = {
     # kartu — Kenney "Casino Audio"
     'card-place-1': 'casino/x/Audio/card-place-1.ogg',
@@ -215,11 +231,36 @@ SFX = {
     'domino-lose': 'jingles/x/OGG/jingles_NES/jingles_NES01.ogg',
     'domino-blocked': 'jingles/x/OGG/jingles_NES/jingles_NES09.ogg',
     'domino-special': 'jingles/x/OGG/jingles_NES/jingles_NES05.ogg',
+    # Monopoli — dadu & tumpukan uang dari sisa Kenney "Casino Audio", "Interface Sounds", jingle pizzicato yang belum dipakai
+    'monopoly-dice-1': 'casino/x/Audio/dice-throw-1.ogg',
+    'monopoly-dice-2': 'casino/x/Audio/dice-throw-2.ogg',
+    'monopoly-shake': 'casino/x/Audio/dice-shake-2.ogg',
+    'monopoly-step': 'interface/x/Audio/tick_004.ogg',
+    'monopoly-buy': 'interface/x/Audio/confirmation_001.ogg',
+    'monopoly-cash': 'casino/x/Audio/chips-stack-4.ogg',
+    'monopoly-rent': 'casino/x/Audio/chips-handle-5.ogg',
+    'monopoly-bid': 'casino/x/Audio/chips-collide-4.ogg',
+    'monopoly-build': 'interface/x/Audio/drop_004.ogg',
+    'monopoly-card': 'casino/x/Audio/card-slide-7.ogg',
+    'monopoly-turn': 'interface/x/Audio/glass_005.ogg',
+    'monopoly-pass': 'interface/x/Audio/back_004.ogg',
+    'monopoly-mortgage': 'interface/x/Audio/switch_005.ogg',
+    'monopoly-trade': 'interface/x/Audio/maximize_005.ogg',
+    'monopoly-go': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA06.ogg',
+    'monopoly-doubles': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA03.ogg',
+    'monopoly-sold': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA14.ogg',
+    'monopoly-jail': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA09.ogg',
+    'monopoly-jackpot': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA16.ogg',
+    'monopoly-bankrupt': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA05.ogg',
+    'monopoly-champion': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA02.ogg',
+    'monopoly-lose': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA01.ogg',
 }
 
 LOUD = {'draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-reveal', 'draw-turn',
         'remi-win', 'remi-champion', 'remi-lose', 'remi-liar', 'remi-honest', 'remi-bust', 'remi-joker', 'remi-bomb', 'remi-blackjack',
-        'domino-score', 'domino-win', 'domino-champion', 'domino-lose', 'domino-blocked', 'domino-special'}
+        'domino-score', 'domino-win', 'domino-champion', 'domino-lose', 'domino-blocked', 'domino-special',
+        'monopoly-go', 'monopoly-doubles', 'monopoly-sold', 'monopoly-jail', 'monopoly-jackpot', 'monopoly-bankrupt',
+        'monopoly-champion', 'monopoly-lose'}
 
 
 def sfx(prefix=''):
@@ -245,11 +286,15 @@ if __name__ == '__main__':
     elif sys.argv[1:] == ['domino']:
         domino_music()
         sfx('domino-')
+    elif sys.argv[1:] == ['monopoly']:
+        monopoly_music()
+        sfx('monopoly-')
     else:
         music()
         draw_music()
         remi_music()
         domino_music()
+        monopoly_music()
         sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))
     print(f'Selesai: {len(list(OUT.rglob("*.ogg")))} file, {total / 1024 / 1024:.2f} MB di {OUT}')

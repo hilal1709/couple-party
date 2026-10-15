@@ -304,6 +304,11 @@ export function UnoTable({ state: s, seat, names, online, act, exit }: Props) {
                 UNO!
               </Slab>
             )}
+            {catchable !== null && (
+              <span className="text-center font-display text-xs uppercase text-ink">
+                {names[catchable]} lupa UNO! Tekan Tangkap sebelum kamu jalan (+2 buat dia)
+              </span>
+            )}
             {s.unoArmed[seat] && <span className="text-center font-display text-xs uppercase text-fern">UNO aman</span>}
           </div>
         </aside>

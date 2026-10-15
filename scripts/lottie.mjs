@@ -1,4 +1,4 @@
-// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi & Domino.
+// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi, Domino & Monopoli.
 // Jalankan: node scripts/lottie.mjs  → src/assets/lottie/*.json
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -1233,6 +1233,261 @@ function dominoSpecial() {
   return doc('domino-special', S, S, OP, layers)
 }
 
+// ---------- efek Monopoli ----------
+const banknote = (w, color = '#5cf64a') => [
+  grp([{ ty: 'el', p: st([0, 0]), s: st([w * 0.34, w * 0.34]) }, fill('#fff4fa'), stroke('#121212', 3)]),
+  grp([{ ty: 'rc', p: st([0, 0]), s: st([w * 0.8, w * 0.36]), r: st(0) }, stroke('#121212', 2.5)]),
+  { ty: 'rc', p: st([0, 0]), s: st([w, w * 0.5]), r: st(2) },
+  fill(color),
+  stroke('#121212', 4),
+]
+const coin = (size) => [
+  grp([{ ty: 'rc', p: st([0, 0]), s: st([size * 0.14, size * 0.5]), r: st(0) }, fill('#121212')]),
+  { ty: 'el', p: st([0, 0]), s: st([size, size]) },
+  fill('#ffcc1f'),
+  stroke('#121212', 4),
+]
+const houseShape = (w, color) => [
+  grp([{ ty: 'rc', p: st([0, w * 0.22]), s: st([w * 0.26, w * 0.4]), r: st(0) }, fill('#121212')]),
+  poly([[-w / 2, 0], [0, -w * 0.5], [w / 2, 0], [w / 2, w * 0.45], [-w / 2, w * 0.45]]),
+  fill(color),
+  stroke('#121212', 5),
+]
+
+// Beli / terjual: cap bercentang menghantam akta + gelombang
+function monopolySold() {
+  const S = 300
+  const OP = 66
+  const c = S / 2
+  const check = [poly([[-34, 2], [-8, 26], [38, -24]], false), stroke('#121212', 14)]
+  const layers = [
+    layer(
+      1,
+      [grp(check), grp([{ ty: 'rc', p: st([0, 0]), s: st([118, 118]), r: st(10) }, stroke('#121212', 6)]), { ty: 'rc', p: st([0, 0]), s: st([140, 140]), r: st(14) }, fill('#ff37a6'), stroke('#121212', 6)],
+      {
+        p: st([c, c, 0]),
+        r: anim([[0, [-40]], [10, [-14]]]),
+        s: anim([[0, [220, 220, 100]], [10, [92, 92, 100]], [14, [104, 104, 100]], [18, [100, 100, 100]], [50, [100, 100, 100]], [OP - 1, [0, 0, 100]]]),
+        o: anim([[0, [0]], [4, [100]]]),
+      },
+      OP,
+    ),
+    layer(2, ring(120, '#121212', 6), { p: st([c, c, 0]), s: anim([[0, [0, 0, 100]], [10, [60, 60, 100]], [34, [190, 190, 100]]]), o: fade(24, 36, OP) }, OP),
+  ]
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2 + 0.3
+    layers.push(
+      layer(
+        layers.length + 1,
+        [poly([[Math.cos(a) * 96, Math.sin(a) * 96], [Math.cos(a) * 126, Math.sin(a) * 126]], false), stroke(i % 2 ? '#5cf64a' : '#ffcc1f', 8)],
+        { p: st([c, c, 0]), o: anim([[0, [0]], [10, [0]], [12, [100]], [30, [100]], [40, [0]]]) },
+        OP,
+      ),
+    )
+  }
+  return doc('monopoly-sold', S, S, OP, layers)
+}
+
+// Bayar sewa / pajak: lembaran uang beterbangan keluar
+function monopolyRent() {
+  const S = 300
+  const OP = 64
+  const c = S / 2
+  const layers = []
+  for (let i = 0; i < 9; i++) {
+    const a = -Math.PI / 2 + (i - 4) * 0.34
+    const dist = 100 + rand() * 40
+    const t0 = i * 2
+    layers.push(
+      layer(
+        i + 1,
+        i % 3 === 2 ? coin(30) : banknote(56, i % 2 ? '#5cf64a' : '#87e752'),
+        {
+          p: anim([[t0, [c, c + 30, 0]], [t0 + 26, [c + Math.cos(a) * dist, c + 30 + Math.sin(a) * dist, 0]], [t0 + 46, [c + Math.cos(a) * dist * 1.1, c + 30 + Math.sin(a) * dist * 0.6 + 40, 0]]]),
+          r: anim([[t0, [0]], [t0 + 46, [(rand() - 0.5) * 300]]]),
+          s: anim([[0, [0, 0, 100]], [t0, [0, 0, 100]], [t0 + 6, [100, 100, 100]], [t0 + 40, [100, 100, 100]], [t0 + 48, [0, 0, 100]]]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('monopoly-rent', S, S, OP, layers)
+}
+
+// Bangun: rumah jatuh, memantul, debu di kanan-kiri
+function monopolyBuild() {
+  const S = 260
+  const OP = 60
+  const c = S / 2
+  const layers = [
+    layer(
+      1,
+      houseShape(96, '#5cf64a'),
+      {
+        p: anim([[0, [c, -80, 0]], [12, [c, c + 10, 0]]]),
+        s: anim([[0, [90, 110, 100]], [12, [100, 100, 100]], [15, [118, 82, 100]], [20, [94, 106, 100]], [25, [100, 100, 100]], [46, [100, 100, 100]], [OP - 1, [0, 0, 100]]]),
+      },
+      OP,
+    ),
+  ]
+  for (let i = 0; i < 6; i++) {
+    const dir = i % 2 ? 1 : -1
+    const vx = dir * (40 + rand() * 50)
+    layers.push(
+      layer(
+        layers.length + 1,
+        [{ ty: 'el', p: st([0, 0]), s: st([16, 16]) }, fill(i % 3 ? '#ffcae9' : '#fff4fa'), stroke('#121212', 3)],
+        {
+          p: anim([[12, [c + dir * 40, c + 62, 0]], [34, [c + dir * 40 + vx, c + 40 - rand() * 30, 0]]]),
+          s: anim([[0, [0, 0, 100]], [12, [0, 0, 100]], [15, [100, 100, 100]], [34, [0, 0, 100]]]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('monopoly-build', S, S, OP, layers)
+}
+
+// Masuk penjara: jeruji turun berderak, gembok mengunci
+function monopolyJail() {
+  const S = 280
+  const OP = 76
+  const c = S / 2
+  const bars = []
+  for (let k = -2; k <= 2; k++) bars.push(grp([{ ty: 'rc', p: st([k * 34, 0]), s: st([14, 180]), r: st(4) }, fill('#121212')]))
+  const frame = [grp([{ ty: 'rc', p: st([0, -92]), s: st([190, 18]), r: st(0) }, fill('#121212')]), grp([{ ty: 'rc', p: st([0, 92]), s: st([190, 18]), r: st(0) }, fill('#121212')]), ...bars]
+  const lock = [
+    grp([{ ty: 'el', p: st([0, 6]), s: st([12, 12]) }, fill('#121212')]),
+    grp([poly([[-16, -8], [-16, -26], [16, -26], [16, -8]], false), stroke('#121212', 8)]),
+    { ty: 'rc', p: st([0, 8]), s: st([50, 40]), r: st(6) },
+    fill('#ffcc1f'),
+    stroke('#121212', 5),
+  ]
+  const layers = [
+    layer(1, lock, { p: st([c, c + 30, 0]), s: anim([[0, [0, 0, 100]], [20, [0, 0, 100]], [28, [130, 130, 100]], [34, [100, 100, 100]], [60, [100, 100, 100]], [OP - 1, [0, 0, 100]]]), r: anim([[28, [-14]], [34, [10]], [40, [0]]]) }, OP),
+    layer(2, frame, { p: anim([[0, [c, -120, 0]], [14, [c, c, 0]], [18, [c, c - 10, 0]], [22, [c, c, 0]]]), o: fade(58, OP - 1, OP) }, OP),
+  ]
+  return doc('monopoly-jail', S, S, OP, layers)
+}
+
+// Tarik kartu: kartu berputar (balik) sambil membesar, kilau bintang
+function monopolyCard() {
+  const S = 300
+  const OP = 56
+  const c = S / 2
+  const face = [
+    grp([poly([[-10, -26], [10, -26], [10, 8], [-10, 8]]), fill('#121212')]),
+    grp([{ ty: 'el', p: st([0, 30]), s: st([16, 16]) }, fill('#121212')]),
+    { ty: 'rc', p: st([0, 0]), s: st([120, 170]), r: st(10) },
+    fill('#ffcae9'),
+    stroke('#121212', 6),
+  ]
+  const layers = [
+    layer(
+      1,
+      face,
+      {
+        p: anim([[0, [c, c + 60, 0]], [16, [c, c, 0]]]),
+        s: anim([[0, [10, 60, 100]], [8, [100, 80, 100]], [12, [-100, 100, 100]], [18, [100, 100, 100]], [40, [100, 100, 100]], [OP - 1, [0, 0, 100]]]),
+        r: anim([[0, [-20]], [18, [-6]]]),
+      },
+      OP,
+    ),
+  ]
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2
+    layers.push(
+      layer(layers.length + 1, star(16, 6, 4, i % 2 ? '#5cf64a' : '#ffcc1f'), { p: st([c + Math.cos(a) * 110, c + Math.sin(a) * 110, 0]), s: popScale(10 + i * 2, 36, OP), r: anim([[0, [0]], [OP - 1, [90]]]) }, OP),
+    )
+  }
+  return doc('monopoly-card', S, S, OP, layers)
+}
+
+// Bangkrut: celengan bergetar lalu pecah berkeping, koin terakhir terlempar
+function monopolyBankrupt() {
+  const S = 320
+  const OP = 84
+  const c = S / 2
+  const pig = [
+    grp([{ ty: 'el', p: st([52, -4]), s: st([30, 24]) }, fill('#ff8ec9'), stroke('#121212', 4)]),
+    grp([{ ty: 'el', p: st([20, -22]), s: st([10, 10]) }, fill('#121212')]),
+    grp([{ ty: 'rc', p: st([-6, -40]), s: st([30, 8]), r: st(2) }, fill('#121212')]),
+    grp([poly([[-30, -34], [-14, -60], [-4, -36]]), fill('#ff8ec9'), stroke('#121212', 4)]),
+    grp([{ ty: 'rc', p: st([-30, 42]), s: st([16, 20]), r: st(3) }, fill('#ff8ec9'), stroke('#121212', 4)]),
+    grp([{ ty: 'rc', p: st([24, 42]), s: st([16, 20]), r: st(3) }, fill('#ff8ec9'), stroke('#121212', 4)]),
+    { ty: 'el', p: st([0, 0]), s: st([130, 100]) },
+    fill('#ffcae9'),
+    stroke('#121212', 5),
+  ]
+  const layers = [
+    layer(
+      1,
+      pig,
+      {
+        p: anim([[0, [c, c, 0]], [4, [c - 6, c, 0]], [8, [c + 6, c, 0]], [12, [c - 6, c, 0]], [16, [c + 6, c, 0]], [20, [c, c, 0]]]),
+        s: anim([[0, [0, 0, 100]], [4, [100, 100, 100]], [22, [110, 92, 100]], [26, [0, 0, 100]]]),
+      },
+      OP,
+    ),
+  ]
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2
+    const d = 90 + rand() * 50
+    const shard = [poly([[-12, -10], [14, -6], [4, 14]]), fill(i % 2 ? '#ffcae9' : '#ff8ec9'), stroke('#121212', 3)]
+    layers.push(
+      layer(
+        layers.length + 1,
+        shard,
+        {
+          p: anim([[24, [c, c, 0]], [44, [c + Math.cos(a) * d, c + Math.sin(a) * d, 0]], [70, [c + Math.cos(a) * d * 1.2, c + Math.sin(a) * d + 80, 0]]]),
+          r: anim([[24, [0]], [70, [(rand() - 0.5) * 400]]]),
+          s: anim([[0, [0, 0, 100]], [24, [0, 0, 100]], [26, [100, 100, 100]], [62, [100, 100, 100]], [70, [0, 0, 100]]]),
+        },
+        OP,
+      ),
+    )
+  }
+  layers.push(
+    layer(
+      layers.length + 1,
+      coin(34),
+      {
+        p: anim([[24, [c, c, 0]], [44, [c + 30, c - 110, 0]], [70, [c + 60, S + 40, 0]]]),
+        r: anim([[24, [0]], [70, [540]]]),
+        s: anim([[0, [0, 0, 100]], [24, [0, 0, 100]], [27, [100, 100, 100]]]),
+      },
+      OP,
+    ),
+  )
+  return doc('monopoly-bankrupt', S, S, OP, layers)
+}
+
+// Jackpot Parkir Bebas: air mancur koin & uang dengan bintang besar
+function monopolyJackpot() {
+  const S = 320
+  const OP = 84
+  const c = S / 2
+  const layers = [layer(1, star(70, 34, 8, '#ffcc1f'), { p: st([c, c, 0]), r: anim([[0, [0]], [OP - 1, [90]]]), s: popScale(0, 64, OP) }, OP)]
+  for (let i = 0; i < 16; i++) {
+    const vx = (rand() - 0.5) * 260
+    const peak = 80 + rand() * 90
+    const t0 = Math.floor(rand() * 16)
+    layers.push(
+      layer(
+        layers.length + 1,
+        i % 2 ? coin(26 + rand() * 8) : banknote(48, i % 4 ? '#5cf64a' : '#87e752'),
+        {
+          p: anim([[t0, [c, c + 30, 0]], [t0 + 22, [c + vx * 0.6, c + 30 - peak, 0]], [t0 + 52, [c + vx, S + 40, 0]]]),
+          r: anim([[t0, [0]], [t0 + 52, [(rand() - 0.5) * 600]]]),
+          s: anim([[0, [0, 0, 100]], [t0, [0, 0, 100]], [t0 + 5, [100, 100, 100]]]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('monopoly-jackpot', S, S, OP, layers)
+}
+
 mkdirSync('src/assets/lottie', { recursive: true })
 // urutan penting: confetti & burst duluan supaya hasil acaknya tetap sama seperti sebelumnya
 const out = {
@@ -1262,6 +1517,14 @@ const out = {
   'domino-blocked': dominoBlocked(),
   'domino-chips': dominoChips(),
   'domino-special': dominoSpecial(),
+  // Monopoli paling akhir, supaya acakan efek lain tidak berubah
+  'monopoly-sold': monopolySold(),
+  'monopoly-rent': monopolyRent(),
+  'monopoly-build': monopolyBuild(),
+  'monopoly-jail': monopolyJail(),
+  'monopoly-card': monopolyCard(),
+  'monopoly-bankrupt': monopolyBankrupt(),
+  'monopoly-jackpot': monopolyJackpot(),
 }
 for (const [name, json] of Object.entries(out)) writeFileSync(`src/assets/lottie/${name}.json`, JSON.stringify(json))
 console.log('Lottie dibuat:', Object.keys(out).join(', '))
