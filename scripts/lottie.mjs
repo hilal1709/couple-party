@@ -1,4 +1,4 @@
-// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga & Tebak Gambar.
+// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar & Kartu Remi.
 // Jalankan: node scripts/lottie.mjs  → src/assets/lottie/*.json
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -708,6 +708,325 @@ function drawPick() {
   return doc('draw-pick', W, H, OP, layers)
 }
 
+// ---------- efek Kartu Remi ----------
+const cardBack = (w, h) => [
+  { ty: 'rc', p: st([0, 0]), s: st([w * 0.62, h * 0.18]), r: st(0) },
+  fill('#121212'),
+  { ty: 'rc', p: st([0, 0]), s: st([w, h]), r: st(8) },
+  fill('#ff37a6'),
+  stroke('#121212', 5),
+]
+const chipShape = (size, color) => [
+  { ty: 'el', p: st([0, 0]), s: st([size * 0.55, size * 0.55]) },
+  stroke('#fff4fa', 3),
+  ...[0, 1, 2, 3].map((k) => ({
+    ty: 'rc',
+    p: st([Math.cos((k * Math.PI) / 2) * size * 0.4, Math.sin((k * Math.PI) / 2) * size * 0.4]),
+    s: st([size * 0.16, size * 0.16]),
+    r: st(0),
+  })),
+  fill('#fff4fa'),
+  { ty: 'el', p: st([0, 0]), s: st([size, size]) },
+  fill(color),
+  stroke('#121212', 4),
+]
+
+// Bagi kartu: lima punggung kartu terbang dari bawah lalu mengipas
+function remiDeal() {
+  const W = 360
+  const H = 240
+  const OP = 56
+  const layers = []
+  for (let k = 0; k < 5; k++) {
+    const i = 4 - k
+    const t0 = i * 5
+    const x = W / 2 + (i - 2) * 46
+    layers.push(
+      layer(
+        k + 1,
+        cardBack(70, 100),
+        {
+          p: anim([
+            [t0, [W / 2, H + 90, 0]],
+            [t0 + 14, [x, H / 2 + Math.abs(i - 2) * 8, 0]],
+          ]),
+          r: anim([
+            [t0, [-160]],
+            [t0 + 14, [(i - 2) * 12]],
+          ]),
+          o: fade(44, OP - 1, OP),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('remi-deal', W, H, OP, layers)
+}
+
+// Menang pot: chip menyembur ke atas lalu jatuh
+function remiChips() {
+  const S = 320
+  const OP = 72
+  const c = S / 2
+  const colors = ['#ff37a6', '#5cf64a', '#ffcc1f', '#2f7bff']
+  const layers = []
+  for (let i = 0; i < 14; i++) {
+    const vx = (rand() - 0.5) * 220
+    const peak = 70 + rand() * 90
+    const t0 = Math.floor(rand() * 10)
+    layers.push(
+      layer(
+        i + 1,
+        chipShape(30 + rand() * 12, colors[i % 4]),
+        {
+          p: anim([
+            [t0, [c, c + 40, 0]],
+            [t0 + 22, [c + vx * 0.6, c + 40 - peak, 0]],
+            [t0 + 50, [c + vx, S + 40, 0]],
+          ]),
+          r: anim([
+            [t0, [0]],
+            [t0 + 50, [(rand() - 0.5) * 540]],
+          ]),
+          s: anim([
+            [0, [0, 0, 100]],
+            [t0, [0, 0, 100]],
+            [t0 + 6, [100, 100, 100]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('remi-chips', S, S, OP, layers)
+}
+
+// Lewat 21: kartu terbelah dua dengan percikan
+function remiBust() {
+  const S = 300
+  const OP = 64
+  const c = S / 2
+  const zig = [[0, -70], [-10, -40], [8, -10], [-8, 20], [6, 50], [0, 70]]
+  const layers = [-1, 1].map((side, k) =>
+    layer(
+      k + 1,
+      [poly([[side * 50, -70], ...zig, [side * 50, 70]]), fill('#fff4fa'), stroke('#121212', 5)],
+      {
+        p: anim([
+          [0, [c, c, 0]],
+          [14, [c, c, 0]],
+          [40, [c + side * 46, c + 30, 0]],
+        ]),
+        r: anim([
+          [0, [0]],
+          [6, [side * -6]],
+          [10, [side * 6]],
+          [14, [0]],
+          [40, [side * 24]],
+        ]),
+        s: popScale(0, 50, OP),
+      },
+      OP,
+    ),
+  )
+  for (let i = 0; i < 6; i++) {
+    const a = -Math.PI / 2 + (i - 2.5) * 0.45
+    layers.push(
+      layer(
+        layers.length + 1,
+        [poly([[0, 0], [0, -22]], false), stroke(i % 2 ? '#ff37a6' : '#121212', 6)],
+        {
+          p: anim([
+            [14, [c, c - 60, 0]],
+            [34, [c + Math.cos(a) * 90, c - 60 + Math.sin(a) * 60, 0]],
+          ]),
+          r: st([((a + Math.PI / 2) * 180) / Math.PI]),
+          o: anim([
+            [0, [0]],
+            [13, [0]],
+            [15, [100]],
+            [36, [100]],
+            [46, [0]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('remi-bust', S, S, OP, layers)
+}
+
+// "Bohong!": cap miring menghantam meja + garis kejut (teksnya ditimpa di UI)
+function remiLiar() {
+  const S = 340
+  const OP = 76
+  const c = S / 2
+  const slam = anim([
+    [0, [260, 260, 100]],
+    [9, [92, 92, 100]],
+    [14, [104, 104, 100]],
+    [18, [100, 100, 100]],
+    [58, [100, 100, 100]],
+    [OP - 1, [0, 0, 100]],
+  ])
+  const layers = [
+    layer(1, [{ ty: 'rc', p: st([0, 0]), s: st([236, 86]), r: st(0) }, stroke('#121212', 6)], { p: st([c, c, 0]), r: st(-10), s: slam }, OP),
+    layer(2, [{ ty: 'rc', p: st([0, 0]), s: st([260, 110]), r: st(0) }, fill('#ff37a6'), stroke('#121212', 7)], { p: st([c, c, 0]), r: st(-10), s: slam }, OP),
+  ]
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2
+    layers.push(
+      layer(
+        layers.length + 1,
+        [
+          poly(
+            [
+              [Math.cos(a) * 150, Math.sin(a) * 90],
+              [Math.cos(a) * 175, Math.sin(a) * 110],
+            ],
+            false,
+          ),
+          stroke(i % 2 ? '#5cf64a' : '#121212', 7),
+        ],
+        {
+          p: st([c, c, 0]),
+          o: anim([
+            [0, [0]],
+            [9, [0]],
+            [11, [100]],
+            [30, [100]],
+            [40, [0]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('remi-liar', S, S, OP, layers)
+}
+
+// Joker terungkap: bintang badut berputar + ketupat beterbangan
+function remiJoker() {
+  const S = 320
+  const OP = 76
+  const c = S / 2
+  const layers = [
+    layer(
+      1,
+      star(70, 30, 5, '#ffcc1f'),
+      {
+        p: st([c, c, 0]),
+        r: anim([
+          [0, [-90]],
+          [40, [20]],
+          [OP - 1, [40]],
+        ]),
+        s: popScale(0, 60, OP),
+      },
+      OP,
+    ),
+    layer(
+      2,
+      star(96, 54, 10, '#ff37a6'),
+      {
+        p: st([c, c, 0]),
+        r: anim([
+          [0, [0]],
+          [OP - 1, [-60]],
+        ]),
+        s: popScale(4, 60, OP),
+      },
+      OP,
+    ),
+  ]
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2
+    layers.push(
+      layer(
+        layers.length + 1,
+        [poly([[0, -14], [10, 0], [0, 14], [-10, 0]]), fill(['#5cf64a', '#ff37a6', '#ffcc1f', '#2f7bff'][i % 4]), stroke('#121212', 3)],
+        {
+          p: anim([
+            [8, [c, c, 0]],
+            [40, [c + Math.cos(a) * 140, c + Math.sin(a) * 140, 0]],
+          ]),
+          r: anim([
+            [8, [0]],
+            [OP - 1, [360]],
+          ]),
+          s: anim([
+            [0, [0, 0, 100]],
+            [8, [0, 0, 100]],
+            [14, [120, 120, 100]],
+            [OP - 1, [0, 0, 100]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('remi-joker', S, S, OP, layers)
+}
+
+// Bom (four of a kind / pas 41): ledakan bergerigi + gelombang kejut
+function remiBomb() {
+  const S = 340
+  const OP = 66
+  const c = S / 2
+  const layers = [
+    layer(
+      1,
+      star(90, 50, 12, '#ffcc1f'),
+      {
+        p: st([c, c, 0]),
+        r: anim([
+          [0, [0]],
+          [OP - 1, [30]],
+        ]),
+        s: popScale(0, 44, OP),
+      },
+      OP,
+    ),
+    layer(
+      2,
+      star(120, 70, 12, '#ff37a6'),
+      {
+        p: st([c, c, 0]),
+        r: anim([
+          [0, [10]],
+          [OP - 1, [-20]],
+        ]),
+        s: popScale(3, 44, OP),
+      },
+      OP,
+    ),
+  ]
+  for (let k = 0; k < 3; k++) {
+    layers.push(
+      layer(
+        layers.length + 1,
+        ring(60, k === 1 ? '#5cf64a' : '#121212', 6),
+        {
+          p: st([c, c, 0]),
+          s: anim([
+            [0, [0, 0, 100]],
+            [6 + k * 6, [60, 60, 100]],
+            [36 + k * 6, [520, 520, 100]],
+          ]),
+          o: anim([
+            [0, [100]],
+            [26 + k * 6, [100]],
+            [38 + k * 6, [0]],
+            [OP - 1, [0]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('remi-bomb', S, S, OP, layers)
+}
+
 mkdirSync('src/assets/lottie', { recursive: true })
 // urutan penting: confetti & burst duluan supaya hasil acaknya tetap sama seperti sebelumnya
 const out = {
@@ -724,6 +1043,12 @@ const out = {
   'draw-timeup': drawTimeup(),
   'draw-reveal': drawReveal(),
   'draw-pick': drawPick(),
+  'remi-deal': remiDeal(),
+  'remi-chips': remiChips(),
+  'remi-bust': remiBust(),
+  'remi-liar': remiLiar(),
+  'remi-joker': remiJoker(),
+  'remi-bomb': remiBomb(),
 }
 for (const [name, json] of Object.entries(out)) writeFileSync(`src/assets/lottie/${name}.json`, JSON.stringify(json))
 console.log('Lottie dibuat:', Object.keys(out).join(', '))

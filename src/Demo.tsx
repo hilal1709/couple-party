@@ -5,6 +5,10 @@ import { UnoTable } from './games/uno/ui/UnoTable'
 import * as drawEngine from './games/draw/engine'
 import type { DrawAction } from './games/draw/types'
 import { DrawBoard } from './games/draw/ui/DrawBoard'
+import { lcg, randomStep } from './games/remi/dev'
+import * as remiEngine from './games/remi/engine'
+import type { Mode, RemiAction } from './games/remi/types'
+import { RemiTable } from './games/remi/ui/RemiTable'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -12,8 +16,9 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' }) {
   if (variant === 'draw') return <DrawDemo />
+  if (variant === 'remi') return <RemiDemo />
   return <UnoDemo variant={variant} />
 }
 
@@ -37,6 +42,44 @@ function DrawDemo() {
       <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
         {NAMES.slice(0, n).map((nm, i) => (
           <button key={nm} onClick={() => setSeat(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>
+            {i}
+          </button>
+        ))}
+      </div>
+    </>
+  )
+}
+
+/**
+ * Kartu Remi lokal: ?demo=remi&mode=cangkulan|bigtwo|remi41|poker|joker|bohong|blackjack|seven &n=2..8 &seat=
+ * &auto=N memainkan N langkah acak dulu (untuk melihat kondisi tengah permainan); &auto=round sampai ronde pertama selesai.
+ * Kursi yang dilihat otomatis ikut giliran (kecuali &seat= diisi); tombol kursi di bawah untuk pindah sudut pandang.
+ */
+function RemiDemo() {
+  const q = new URLSearchParams(location.search)
+  const mode = (q.get('mode') ?? 'cangkulan') as Mode
+  const n = Math.min(8, Math.max(2, Number(q.get('n') ?? 3)))
+  const follow = !q.get('seat')
+  const [fixed, setFixed] = useState(() => Number(q.get('seat') ?? 0))
+  const [s, setS] = useState(() => {
+    let st = remiEngine.init(42, remiEngine.defaultOptions(mode, n))
+    const rnd = lcg(7)
+    const auto = q.get('auto')
+    // auto=round: main sampai ronde pertama selesai
+    for (let i = 0; i < (auto === 'round' ? 5000 : Number(auto ?? 0)) && !(auto === 'round' && st.phase !== 'play'); i++) st = randomStep(st, rnd) ?? st
+    return st
+  })
+  const players = s.scores.length
+  const m = s.m
+  const auto = m.kind === 'blackjack' ? (m.step === 'play' ? m.turn : null) : m.kind === 'poker' ? (m.result ? null : m.turn) : m.turn
+  const seat = follow && auto !== null && s.phase === 'play' ? auto : fixed
+  const act = (a: RemiAction) => setS((cur) => remiEngine.reduce(cur, a, seat))
+  return (
+    <>
+      <RemiTable state={s} seat={seat} names={NAMES.slice(0, players)} online={Array(players).fill(true)} act={act} exit={() => {}} />
+      <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
+        {NAMES.slice(0, players).map((nm, i) => (
+          <button key={nm} onClick={() => setFixed(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>
             {i}
           </button>
         ))}
