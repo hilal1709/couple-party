@@ -1,4 +1,4 @@
-// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar & Kartu Remi.
+// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi & Domino.
 // Jalankan: node scripts/lottie.mjs  → src/assets/lottie/*.json
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -1027,6 +1027,212 @@ function remiBomb() {
   return doc('remi-bomb', S, S, OP, layers)
 }
 
+// ---------- efek Domino ----------
+const DOTS = {
+  0: [],
+  1: [[0, 0]],
+  2: [[-1, -1], [1, 1]],
+  3: [[-1, -1], [0, 0], [1, 1]],
+  4: [[-1, -1], [1, -1], [-1, 1], [1, 1]],
+  5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]],
+  6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]],
+}
+const grp = (items) => ({ ty: 'gr', it: [...items, tr()], nm: 'g' })
+/** kartu domino tegak (w × 2w), angka a di atas, b di bawah; 1 & 4 merah seperti kartu gaple */
+const dominoTile = (w, a, b, back = false) => {
+  const h = w * 2
+  const g = w * 0.27
+  const half = (n, cy) => {
+    if (!DOTS[n].length) return []
+    const d = w * (n === 1 ? 0.24 : 0.17)
+    return [grp([...DOTS[n].map(([x, y]) => ({ ty: 'el', p: st([x * g, cy + y * g]), s: st([d, d]) })), fill(n === 1 || n === 4 ? '#ff3b5c' : '#121212')])]
+  }
+  const body = [{ ty: 'rc', p: st([0, 0]), s: st([w, h]), r: st(w * 0.16) }, fill(back ? '#ff37a6' : '#fff4fa'), stroke('#121212', 5)]
+  if (back) return [grp([{ ty: 'el', p: st([0, 0]), s: st([w * 0.5, w * 0.5]) }, fill('#121212')]), ...body]
+  return [...half(a, -h / 4), ...half(b, h / 4), grp([{ ty: 'rc', p: st([0, 0]), s: st([w * 0.78, 4]), r: st(0) }, fill('#121212')]), ...body]
+}
+const dominoChip = (size, color) => [
+  ...[0, 1, 2, 3, 4].map((k) => {
+    const a = (k * 2 * Math.PI) / 5
+    return grp([{ ty: 'el', p: st([Math.cos(a) * size * 0.3, Math.sin(a) * size * 0.3]), s: st([size * 0.14, size * 0.14]) }, fill('#fff4fa')])
+  }),
+  grp([{ ty: 'el', p: st([0, 0]), s: st([size * 0.2, size * 0.2]) }, fill('#121212')]),
+  { ty: 'el', p: st([0, 0]), s: st([size, size]) },
+  fill(color),
+  stroke('#121212', 4),
+]
+
+// Bagi kartu: tujuh punggung domino meluncur dari tumpukan tengah ke kiri-kanan
+function dominoDeal() {
+  const W = 380
+  const H = 220
+  const OP = 58
+  const layers = []
+  for (let i = 0; i < 7; i++) {
+    const t0 = i * 4
+    const x = W / 2 + (i - 3) * 46
+    layers.push(
+      layer(
+        i + 1,
+        dominoTile(34, 0, 0, true),
+        {
+          p: anim([
+            [t0, [W / 2, H / 2 + 6, 0]],
+            [t0 + 12, [x, H / 2 + (i % 2 ? -8 : 8), 0]],
+          ]),
+          r: anim([
+            [t0, [90]],
+            [t0 + 12, [(i - 3) * 5]],
+          ]),
+          s: anim([
+            [0, [0, 0, 100]],
+            [t0, [60, 60, 100]],
+            [t0 + 12, [100, 100, 100]],
+          ]),
+          o: fade(46, OP - 1, OP),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('domino-deal', W, H, OP, layers)
+}
+
+// Poin kelipatan 5: bintang kuning meledak dengan sinar berputar
+function dominoScore() {
+  const S = 300
+  const OP = 64
+  const c = S / 2
+  const layers = [
+    layer(1, star(78, 40, 5, '#ffcc1f'), { p: st([c, c, 0]), r: anim([[0, [-40]], [OP - 1, [10]]]), s: popScale(0, 46, OP) }, OP),
+    layer(2, ring(150, '#121212', 5), { p: st([c, c, 0]), s: anim([[0, [0, 0, 100]], [6, [40, 40, 100]], [30, [130, 130, 100]]]), o: fade(20, 32, OP) }, OP),
+  ]
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2
+    layers.push(
+      layer(
+        layers.length + 1,
+        [poly([[Math.cos(a) * 92, Math.sin(a) * 92], [Math.cos(a) * 128, Math.sin(a) * 128]], false), stroke(i % 2 ? '#5cf64a' : '#ff37a6', 8)],
+        { p: st([c, c, 0]), r: anim([[0, [0]], [OP - 1, [36]]]), o: anim([[0, [0]], [6, [0]], [8, [100]], [34, [100]], [44, [0]]]) },
+        OP,
+      ),
+    )
+  }
+  return doc('domino-score', S, S, OP, layers)
+}
+
+// DOMINO! (kartu terakhir): kartu dibanting ke meja + debu & gelombang
+function dominoSlam() {
+  const S = 340
+  const OP = 70
+  const c = S / 2
+  const layers = [
+    layer(
+      1,
+      dominoTile(70, 6, 6),
+      {
+        p: anim([[0, [c, -120, 0]], [10, [c, c, 0]]]),
+        r: anim([[0, [-30]], [10, [-8]], [14, [-4]]]),
+        s: anim([[0, [140, 140, 100]], [10, [100, 100, 100]], [13, [112, 90, 100]], [17, [100, 100, 100]], [54, [100, 100, 100]], [OP - 1, [0, 0, 100]]]),
+      },
+      OP,
+    ),
+  ]
+  for (let k = 0; k < 2; k++)
+    layers.push(
+      layer(
+        layers.length + 1,
+        ring(60, k ? '#5cf64a' : '#121212', 6),
+        {
+          p: st([c, c + 40, 0]),
+          s: anim([[0, [0, 0, 100]], [10 + k * 5, [40, 20, 100]], [40 + k * 5, [500, 200, 100]]]),
+          o: anim([[0, [100]], [30 + k * 5, [100]], [42 + k * 5, [0]], [OP - 1, [0]]]),
+        },
+        OP,
+      ),
+    )
+  for (let i = 0; i < 8; i++) {
+    const vx = (i % 2 ? 1 : -1) * (60 + rand() * 90)
+    const lift = rand() * 50
+    layers.push(
+      layer(
+        layers.length + 1,
+        [{ ty: 'el', p: st([0, 0]), s: st([18, 18]) }, fill(i % 3 ? '#ffcae9' : '#87e752'), stroke('#121212', 3)],
+        {
+          p: anim([[10, [c, c + 60, 0]], [24, [c + vx * 0.7, c + 20 - lift, 0]], [40, [c + vx, c + 70, 0]]]),
+          s: anim([[0, [0, 0, 100]], [10, [0, 0, 100]], [13, [100, 100, 100]], [40, [0, 0, 100]]]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('domino-slam', S, S, OP, layers)
+}
+
+// Buntu (Gaple tutup): dua kartu saling dorong lalu tanda silang menghantam
+function dominoBlocked() {
+  const S = 320
+  const OP = 70
+  const c = S / 2
+  const lines = () => [poly([[-60, -60], [60, 60]], false), poly([[60, -60], [-60, 60]], false)]
+  const cross = [grp([...lines(), stroke('#ff3b5c', 16)]), ...lines(), stroke('#121212', 28)]
+  const layers = [
+    layer(1, cross, { p: st([c, c, 0]), s: anim([[0, [0, 0, 100]], [16, [0, 0, 100]], [24, [130, 130, 100]], [30, [100, 100, 100]], [56, [100, 100, 100]], [OP - 1, [0, 0, 100]]]) }, OP),
+    layer(2, dominoTile(56, 3, 5), { p: anim([[0, [-60, c, 0]], [14, [c - 40, c, 0]], [18, [c - 52, c, 0]]]), r: anim([[0, [-60]], [14, [-12]]]), o: fade(54, OP - 1, OP) }, OP),
+    layer(3, dominoTile(56, 2, 4), { p: anim([[0, [S + 60, c, 0]], [14, [c + 40, c, 0]], [18, [c + 52, c, 0]]]), r: anim([[0, [60]], [14, [12]]]), o: fade(54, OP - 1, OP) }, OP),
+  ]
+  return doc('domino-blocked', S, S, OP, layers)
+}
+
+// Menang pot Qiu Qiu: chip domino menyembur
+function dominoChips() {
+  const S = 320
+  const OP = 72
+  const c = S / 2
+  const colors = ['#ff37a6', '#5cf64a', '#ffcc1f', '#2f7bff']
+  const layers = []
+  for (let i = 0; i < 12; i++) {
+    const vx = (rand() - 0.5) * 240
+    const peak = 60 + rand() * 100
+    const t0 = Math.floor(rand() * 10)
+    const size = 30 + rand() * 12
+    const spin = (rand() - 0.5) * 540
+    layers.push(
+      layer(
+        i + 1,
+        dominoChip(size, colors[i % 4]),
+        {
+          p: anim([[t0, [c, c + 40, 0]], [t0 + 22, [c + vx * 0.6, c + 40 - peak, 0]], [t0 + 50, [c + vx, S + 40, 0]]]),
+          r: anim([[t0, [0]], [t0 + 50, [spin]]]),
+          s: anim([[0, [0, 0, 100]], [t0, [0, 0, 100]], [t0 + 6, [100, 100, 100]]]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('domino-chips', S, S, OP, layers)
+}
+
+// Kartu sakti Qiu Qiu: empat balak berputar mengitari bintang
+function dominoSpecial() {
+  const S = 340
+  const OP = 84
+  const c = S / 2
+  const layers = []
+  ;[[0, 0], [3, 3], [5, 5], [6, 6]].forEach(([a, b], i) => {
+    const a0 = (i / 4) * 360
+    const pos = []
+    for (let k = 0; k <= 4; k++) {
+      const ang = ((a0 + k * 30) * Math.PI) / 180
+      pos.push([k * 12, [c + Math.cos(ang) * 104, c + Math.sin(ang) * 104, 0]])
+    }
+    layers.push(layer(i + 1, dominoTile(36, a, b), { p: anim(pos), r: anim([[0, [a0]], [48, [a0 + 120]]]), s: popScale(i * 3, 66, OP) }, OP))
+  })
+  layers.push(layer(layers.length + 1, star(64, 30, 6, '#ffcc1f'), { p: st([c, c, 0]), r: anim([[0, [0]], [OP - 1, [120]]]), s: popScale(6, 66, OP) }, OP))
+  layers.push(layer(layers.length + 1, star(92, 60, 12, '#ff37a6'), { p: st([c, c, 0]), r: anim([[0, [0]], [OP - 1, [-60]]]), s: popScale(10, 66, OP) }, OP))
+  return doc('domino-special', S, S, OP, layers)
+}
+
 mkdirSync('src/assets/lottie', { recursive: true })
 // urutan penting: confetti & burst duluan supaya hasil acaknya tetap sama seperti sebelumnya
 const out = {
@@ -1049,6 +1255,13 @@ const out = {
   'remi-liar': remiLiar(),
   'remi-joker': remiJoker(),
   'remi-bomb': remiBomb(),
+  // Domino ditaruh paling akhir supaya acakan efek lain tidak berubah
+  'domino-deal': dominoDeal(),
+  'domino-score': dominoScore(),
+  'domino-slam': dominoSlam(),
+  'domino-blocked': dominoBlocked(),
+  'domino-chips': dominoChips(),
+  'domino-special': dominoSpecial(),
 }
 for (const [name, json] of Object.entries(out)) writeFileSync(`src/assets/lottie/${name}.json`, JSON.stringify(json))
 console.log('Lottie dibuat:', Object.keys(out).join(', '))

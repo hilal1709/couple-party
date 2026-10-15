@@ -3,6 +3,7 @@
 Jalankan:  python -I scripts/audio/build.py          (semua)
            python -I scripts/audio/build.py draw     (hanya musik & SFX Tebak Gambar)
            python -I scripts/audio/build.py remi     (hanya musik & SFX Kartu Remi)
+           python -I scripts/audio/build.py domino   (hanya musik & SFX Domino)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
 import subprocess
@@ -107,6 +108,24 @@ def remi_music():
     raw.unlink()
 
 
+def domino_music():
+    # Domino: "Reggae" oleh Pro Sensory — reggae santai ala nongkrong di warung, beda dari jazz/bossa/funk game lain.
+    # Sumbernya berhenti mendadak lalu hening ±3 detik; heningnya dipotong lalu ekornya disambung ke kepala.
+    m = SRC / 'music'
+    x = load(m / 'regea.mp3')
+    loud = np.flatnonzero(np.abs(x).max(axis=1) > 0.02)
+    x = x[: loud[-1] - int(0.4 * SR)]
+    loop = seamless_loop(x, 1.2)
+    write_ogg(loop, OUT / 'music' / 'domino.ogg', 80, lufs=-20)
+    # momen genting (kartu terakhir, all-in): loop yang sama ±6% lebih cepat
+    raw = OUT / 'music' / 'domino-loop.tmp.f32'
+    raw.write_bytes(loop.astype(np.float32).tobytes())
+    ff('-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', str(raw),
+       '-af', f'asetrate={int(SR * 1.06)},aresample={SR},atempo=1.06,loudnorm=I=-19:TP=-1.5:LRA=11',
+       '-ar', str(SR), '-c:a', 'libvorbis', '-b:a', '80k', str(OUT / 'music' / 'domino-tense.ogg'))
+    raw.unlink()
+
+
 SFX = {
     # kartu — Kenney "Casino Audio"
     'card-place-1': 'casino/x/Audio/card-place-1.ogg',
@@ -175,10 +194,32 @@ SFX = {
     'remi-joker': 'jingles/x/OGG/jingles_HIT/jingles_HIT14.ogg',
     'remi-bomb': 'jingles/x/OGG/jingles_HIT/jingles_HIT04.ogg',
     'remi-blackjack': 'jingles/x/OGG/jingles_NES/jingles_NES04.ogg',
+    # Domino — bunyi "klak" chip & dadu dari Kenney "Casino Audio" (mirip kartu domino plastik), jingle NES & "Interface Sounds"
+    'domino-place-1': 'casino/x/Audio/chip-lay-1.ogg',
+    'domino-place-2': 'casino/x/Audio/chip-lay-3.ogg',
+    'domino-place-3': 'casino/x/Audio/chips-collide-1.ogg',
+    'domino-draw-1': 'casino/x/Audio/dice-grab-1.ogg',
+    'domino-draw-2': 'casino/x/Audio/dice-grab-2.ogg',
+    'domino-shuffle': 'casino/x/Audio/chips-handle-1.ogg',
+    'domino-deal': 'casino/x/Audio/chips-stack-2.ogg',
+    'domino-chip': 'casino/x/Audio/chips-collide-2.ogg',
+    'domino-chips': 'casino/x/Audio/chips-handle-3.ogg',
+    'domino-pot': 'casino/x/Audio/chips-stack-3.ogg',
+    'domino-check': 'interface/x/Audio/drop_003.ogg',
+    'domino-pass': 'interface/x/Audio/back_003.ogg',
+    'domino-turn': 'interface/x/Audio/glass_006.ogg',
+    'domino-fold': 'interface/x/Audio/minimize_004.ogg',
+    'domino-score': 'jingles/x/OGG/jingles_NES/jingles_NES06.ogg',
+    'domino-win': 'jingles/x/OGG/jingles_NES/jingles_NES10.ogg',
+    'domino-champion': 'jingles/x/OGG/jingles_NES/jingles_NES02.ogg',
+    'domino-lose': 'jingles/x/OGG/jingles_NES/jingles_NES01.ogg',
+    'domino-blocked': 'jingles/x/OGG/jingles_NES/jingles_NES09.ogg',
+    'domino-special': 'jingles/x/OGG/jingles_NES/jingles_NES05.ogg',
 }
 
 LOUD = {'draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-reveal', 'draw-turn',
-        'remi-win', 'remi-champion', 'remi-lose', 'remi-liar', 'remi-honest', 'remi-bust', 'remi-joker', 'remi-bomb', 'remi-blackjack'}
+        'remi-win', 'remi-champion', 'remi-lose', 'remi-liar', 'remi-honest', 'remi-bust', 'remi-joker', 'remi-bomb', 'remi-blackjack',
+        'domino-score', 'domino-win', 'domino-champion', 'domino-lose', 'domino-blocked', 'domino-special'}
 
 
 def sfx(prefix=''):
@@ -201,10 +242,14 @@ if __name__ == '__main__':
     elif sys.argv[1:] == ['remi']:
         remi_music()
         sfx('remi-')
+    elif sys.argv[1:] == ['domino']:
+        domino_music()
+        sfx('domino-')
     else:
         music()
         draw_music()
         remi_music()
+        domino_music()
         sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))
     print(f'Selesai: {len(list(OUT.rglob("*.ogg")))} file, {total / 1024 / 1024:.2f} MB di {OUT}')
