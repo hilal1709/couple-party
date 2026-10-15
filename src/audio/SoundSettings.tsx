@@ -14,9 +14,10 @@ const CREDITS = [
   { what: 'Musik Tebak Gambar', title: 'Cozy Puzzle In-Game 1', by: 'MintoDog', url: 'https://opengameart.org/content/cozy-puzzle-in-game-1' },
   { what: 'Musik Kartu Remi', title: 'Mocha Frapp', by: 'Pro Sensory (Alex McCulloch)', url: 'https://opengameart.org/content/mocha-frapp' },
   { what: 'Musik Domino', title: 'Reggae', by: 'Pro Sensory (Alex McCulloch)', url: 'https://opengameart.org/content/reggae' },
+  { what: 'Musik Monopoli', title: 'Catchy Swing', by: 'Doge', url: 'https://opengameart.org/content/catchy-swing' },
   { what: 'Suara kartu', title: 'Casino Audio', by: 'Kenney', url: 'https://opengameart.org/content/54-casino-sound-effects-cards-dice-chips' },
   { what: 'Suara tombol', title: 'Interface Sounds', by: 'Kenney', url: 'https://opengameart.org/content/interface-sounds' },
-  { what: 'Jingle saksofon, steel drum & hit', title: 'Music Jingles', by: 'Kenney', url: 'https://opengameart.org/content/85-short-music-jingles' },
+  { what: 'Jingle saksofon, steel drum, hit & pizzicato', title: 'Music Jingles', by: 'Kenney', url: 'https://opengameart.org/content/85-short-music-jingles' },
 ]
 
 /** Tombol speaker yang membuka pengaturan suara. */

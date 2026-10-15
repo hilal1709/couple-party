@@ -1,6 +1,7 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react'
 import dominoArt from '@/assets/domino/tile-domino.webp'
 import drawArt from '@/assets/draw/tile-draw.webp'
+import monopolyArt from '@/assets/monopoly/tile-monopoly.webp'
 import remiArt from '@/assets/remi/tile-remi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import unoArt from '@/assets/snakes/tile-uno.webp'
@@ -12,6 +13,9 @@ import { summary as dominoSummary } from './domino/ui/copy'
 import { draw } from './draw'
 import type { DrawOptions } from './draw/types'
 import { summary as drawSummary } from './draw/ui/copy'
+import { monopoly } from './monopoly'
+import type { MonopolyOptions } from './monopoly/types'
+import { summary as monopolySummary } from './monopoly/ui/copy'
 import { remi } from './remi'
 import { MODE_INFO } from './remi/modes'
 import type { RemiOptions } from './remi/types'
@@ -93,6 +97,16 @@ export const GAMES: GameEntry[] = [
       const on = [o.challenges && 'Truth/Dare', o.items && 'item', o.quiz && 'kuis', o.effects && 'efek'].filter(Boolean)
       return `${on.length ? on.join(', ') : 'Polos'} · tolak mundur ${o.penalty}`
     },
+  },
+  {
+    game: monopoly,
+    category: 'board',
+    blurb: 'Beli kota dunia, bangun hotel, bikin lawan bangkrut',
+    minPlayers: 2,
+    maxPlayers: 8,
+    art: monopolyArt,
+    Lobby: lazy(() => import('./monopoly/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: MonopolyOptions) => monopolySummary(o),
   },
   {
     game: draw,

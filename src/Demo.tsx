@@ -14,6 +14,10 @@ import * as dominoEngine from './games/domino/engine'
 import { turnOf as dominoTurn } from './games/domino/sounds'
 import type { DominoAction, Mode as DominoMode } from './games/domino/types'
 import { DominoTable } from './games/domino/ui/DominoTable'
+import { randomStep as monopolyStep } from './games/monopoly/dev'
+import * as monopolyEngine from './games/monopoly/engine'
+import type { MonopolyAction } from './games/monopoly/types'
+import { MonopolyBoard } from './games/monopoly/ui/MonopolyBoard'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -21,9 +25,10 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' }) {
   if (variant === 'draw') return <DrawDemo />
   if (variant === 'domino') return <DominoDemo />
+  if (variant === 'monopoly') return <MonopolyDemo />
   if (variant === 'remi') return <RemiDemo />
   return <UnoDemo variant={variant} />
 }
@@ -129,6 +134,38 @@ function DominoDemo() {
       <DominoTable state={s} seat={seat} names={NAMES.slice(0, players)} online={Array(players).fill(true)} act={act} exit={() => {}} />
       <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
         {NAMES.slice(0, players).map((nm, i) => (
+          <button key={nm} onClick={() => setFixed(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>
+            {i}
+          </button>
+        ))}
+      </div>
+    </>
+  )
+}
+
+/**
+ * Monopoli lokal: ?demo=monopoly &n=2..8 &seat= &auto=N|end &end=bankrupt (bot memainkan N langkah dulu).
+ */
+function MonopolyDemo() {
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(8, Math.max(2, Number(q.get('n') ?? 4)))
+  const follow = !q.get('seat')
+  const [fixed, setFixed] = useState(() => Number(q.get('seat') ?? 0))
+  const [s, setS] = useState(() => {
+    let st = monopolyEngine.init(42, { ...monopolyEngine.defaultOptions(n), end: q.get('end') === 'bankrupt' ? 'bankrupt' : 'rounds', rounds: 15 })
+    const rnd = lcg(7)
+    const auto = q.get('auto')
+    for (let i = 0; i < (auto === 'end' ? 20000 : Number(auto ?? 0)) && st.phase !== 'end'; i++) st = monopolyStep(st, rnd) ?? st
+    return st
+  })
+  const auto = monopolyEngine.actorOf(s)
+  const seat = follow && auto !== null ? auto : fixed
+  const act = (a: MonopolyAction) => setS((cur) => monopolyEngine.reduce(cur, a, seat))
+  return (
+    <>
+      <MonopolyBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} />
+      <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
+        {NAMES.slice(0, n).map((nm, i) => (
           <button key={nm} onClick={() => setFixed(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>
             {i}
           </button>
