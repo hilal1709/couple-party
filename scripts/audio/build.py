@@ -2,6 +2,7 @@
 
 Jalankan:  python -I scripts/audio/build.py          (semua)
            python -I scripts/audio/build.py draw     (hanya musik & SFX Tebak Gambar)
+           python -I scripts/audio/build.py remi     (hanya musik & SFX Kartu Remi)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
 import subprocess
@@ -90,6 +91,22 @@ def draw_music():
     raw.unlink()
 
 
+def remi_music():
+    # Kartu Remi: "Mocha Frapp" oleh Pro Sensory (Alex McCulloch) — jazz santai ala lounge kasino.
+    # Ekor sumbernya fade-out ±6 detik; dipotong dulu lalu disambung mulus ke kepalanya.
+    m = SRC / 'music'
+    x = load(m / 'mocha-frapp.mp3')
+    loop = seamless_loop(x[: -int(5.5 * SR)], 2.0)
+    write_ogg(loop, OUT / 'music' / 'remi.ogg', 80, lufs=-20)
+    # momen genting (all-in, kartu terakhir): loop yang sama ±6% lebih cepat
+    raw = OUT / 'music' / 'remi-loop.tmp.f32'
+    raw.write_bytes(loop.astype(np.float32).tobytes())
+    ff('-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', str(raw),
+       '-af', f'asetrate={int(SR * 1.06)},aresample={SR},atempo=1.06,loudnorm=I=-19:TP=-1.5:LRA=11',
+       '-ar', str(SR), '-c:a', 'libvorbis', '-b:a', '80k', str(OUT / 'music' / 'remi-tense.ogg'))
+    raw.unlink()
+
+
 SFX = {
     # kartu — Kenney "Casino Audio"
     'card-place-1': 'casino/x/Audio/card-place-1.ogg',
@@ -133,7 +150,35 @@ SFX = {
     'draw-guess': 'interface/x/Audio/pluck_001.ogg',
     'draw-scratch': 'interface/x/Audio/scratch_002.ogg',
     'draw-tick': 'interface/x/Audio/tick_002.ogg',
+    # Kartu Remi — sisa Kenney "Casino Audio", jingle versi HIT & NES, dan "Interface Sounds"
+    'remi-place-1': 'casino/x/Audio/card-place-4.ogg',
+    'remi-place-2': 'casino/x/Audio/card-shove-2.ogg',
+    'remi-place-3': 'casino/x/Audio/card-shove-3.ogg',
+    'remi-slide-1': 'casino/x/Audio/card-slide-4.ogg',
+    'remi-slide-2': 'casino/x/Audio/card-slide-6.ogg',
+    'remi-fan': 'casino/x/Audio/card-fan-2.ogg',
+    'remi-deal': 'casino/x/Audio/cards-pack-open-2.ogg',
+    'remi-fold': 'casino/x/Audio/card-shove-4.ogg',
+    'remi-chip': 'casino/x/Audio/chip-lay-2.ogg',
+    'remi-chips': 'casino/x/Audio/chips-collide-3.ogg',
+    'remi-pot': 'casino/x/Audio/chips-handle-4.ogg',
+    'remi-check': 'interface/x/Audio/drop_002.ogg',
+    'remi-pass': 'interface/x/Audio/back_002.ogg',
+    'remi-turn': 'interface/x/Audio/glass_004.ogg',
+    'remi-call': 'interface/x/Audio/error_004.ogg',
+    'remi-win': 'jingles/x/OGG/jingles_HIT/jingles_HIT10.ogg',
+    'remi-champion': 'jingles/x/OGG/jingles_HIT/jingles_HIT02.ogg',
+    'remi-lose': 'jingles/x/OGG/jingles_HIT/jingles_HIT01.ogg',
+    'remi-liar': 'jingles/x/OGG/jingles_HIT/jingles_HIT05.ogg',
+    'remi-honest': 'jingles/x/OGG/jingles_HIT/jingles_HIT16.ogg',
+    'remi-bust': 'jingles/x/OGG/jingles_HIT/jingles_HIT09.ogg',
+    'remi-joker': 'jingles/x/OGG/jingles_HIT/jingles_HIT14.ogg',
+    'remi-bomb': 'jingles/x/OGG/jingles_HIT/jingles_HIT04.ogg',
+    'remi-blackjack': 'jingles/x/OGG/jingles_NES/jingles_NES04.ogg',
 }
+
+LOUD = {'draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-reveal', 'draw-turn',
+        'remi-win', 'remi-champion', 'remi-lose', 'remi-liar', 'remi-honest', 'remi-bust', 'remi-joker', 'remi-bomb', 'remi-blackjack'}
 
 
 def sfx(prefix=''):
@@ -146,16 +191,20 @@ def sfx(prefix=''):
         # potong hening di awal supaya responsif
         level = np.abs(x).max(axis=1)
         start = int(np.argmax(level > 0.01))
-        write_ogg(x[start:], OUT / 'sfx' / f'{name}.ogg', 64, mono=True, lufs=-16 if name.startswith('jingle') or name in ('draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-reveal', 'draw-turn') else -18)
+        write_ogg(x[start:], OUT / 'sfx' / f'{name}.ogg', 64, mono=True, lufs=-16 if name.startswith('jingle') or name in LOUD else -18)
 
 
 if __name__ == '__main__':
     if sys.argv[1:] == ['draw']:
         draw_music()
         sfx('draw-')
+    elif sys.argv[1:] == ['remi']:
+        remi_music()
+        sfx('remi-')
     else:
         music()
         draw_music()
+        remi_music()
         sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))
     print(f'Selesai: {len(list(OUT.rglob("*.ogg")))} file, {total / 1024 / 1024:.2f} MB di {OUT}')

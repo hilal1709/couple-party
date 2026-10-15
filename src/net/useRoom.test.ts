@@ -29,6 +29,14 @@ describe('applyAction: pilih game dulu, room menyusul', () => {
     expect(applyAction(s, { kind: 'start' }, 'h')).toBe(s)
   })
 
+  it('Kartu Remi memakai batas pemain sesuai mode', () => {
+    const five = [host, guest, { id: 'a', name: 'A' }, { id: 'b', name: 'B' }, { id: 'c', name: 'C' }]
+    const capsa: Session = { ...lobby(five), pick: { gameId: 'remi', options: { mode: 'bigtwo' } } }
+    expect(applyAction(capsa, { kind: 'start' }, 'h')).toBe(capsa)
+    const poker: Session = { ...lobby(five), pick: { gameId: 'remi', options: { mode: 'poker' } } }
+    expect(applyAction(poker, { kind: 'start' }, 'h').gameId).toBe('remi')
+  })
+
   it('host bisa ganti game; game tak dikenal ditolak', () => {
     const s = applyAction(lobby(), { kind: 'pick', gameId: 'uno', options: { variant: 'flip' } }, 'h')
     expect(s.pick).toEqual({ gameId: 'uno', options: { variant: 'flip' } })

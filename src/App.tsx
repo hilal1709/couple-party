@@ -12,7 +12,7 @@ import { toast } from '@/components/feedback/toast'
 import heroArt from '@/assets/illustrations/hero.webp'
 import waitingArt from '@/assets/illustrations/waiting.webp'
 import { cn } from '@/lib/utils'
-import { CATEGORIES, GAMES, entryById, type Category, type GameEntry } from './games/registry'
+import { CATEGORIES, GAMES, entryById, playerRange, type Category, type GameEntry } from './games/registry'
 import { hasOnline, store, type NetStatus, type Peer } from './net/transport'
 import { MAX_ROOM, useRoom, type Pick } from './net/useRoom'
 import { UpdateBanner } from './update/UpdateBanner'
@@ -420,6 +420,7 @@ function Room({ me, room, onLeave }: { me: Peer; room: RoomInfo; onLeave: () => 
                   {isHost ? (
                     <HostControls
                       entry={picked}
+                      options={session.pick!.options}
                       players={players.length}
                       onStart={() => dispatch({ kind: 'start' })}
                       onChange={() => setChanging('menu')}
@@ -470,15 +471,16 @@ function PickedGame({ entry, options }: { entry: GameEntry; options: unknown }) 
         </Tape>
         <p className="mt-2 text-[13px] font-semibold">{entry.summary(options)}</p>
         <p className="text-xs font-semibold text-ink/70">
-          {entry.minPlayers}–{entry.maxPlayers} pemain
+          {playerRange(entry, options).join('–')} pemain
         </p>
       </div>
     </div>
   )
 }
 
-function HostControls({ entry, players, onStart, onChange }: { entry: GameEntry; players: number; onStart: () => void; onChange: () => void }) {
-  const fits = players >= entry.minPlayers && players <= entry.maxPlayers
+function HostControls({ entry, options, players, onStart, onChange }: { entry: GameEntry; options: unknown; players: number; onStart: () => void; onChange: () => void }) {
+  const [min, max] = playerRange(entry, options)
+  const fits = players >= min && players <= max
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-3">
@@ -491,9 +493,9 @@ function HostControls({ entry, players, onStart, onChange }: { entry: GameEntry;
       </div>
       {!fits && (
         <p className="text-[13px] font-semibold">
-          {players < entry.minPlayers
-            ? `Butuh minimal ${entry.minPlayers} pemain. Bagikan kode room di atas.`
-            : `${entry.game.title} maksimal ${entry.maxPlayers} pemain.`}
+          {players < min
+            ? `Butuh minimal ${min} pemain. Bagikan kode room di atas.`
+            : `${entry.game.title} maksimal ${max} pemain${entry.playersFor ? ' untuk mode ini. Ganti mode lewat Ganti game' : ''}.`}
         </p>
       )}
     </div>

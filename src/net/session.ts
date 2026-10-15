@@ -1,4 +1,4 @@
-import { entryById, gameById } from '../games/registry'
+import { entryById, gameById, playerRange } from '../games/registry'
 import type { Seat } from '../games/types'
 import type { Peer } from './transport'
 
@@ -33,7 +33,9 @@ export function applyAction(s: Session, a: SessionAction, byId: string, seed = M
   if (a.kind === 'start') {
     const entry = entryById(s.pick?.gameId ?? null)
     const n = s.players.length
-    if (seat !== 0 || s.gameId || !entry || n < entry.minPlayers || n > entry.maxPlayers) return s
+    if (seat !== 0 || s.gameId || !entry) return s
+    const [min, max] = playerRange(entry, s.pick!.options)
+    if (n < min || n > max) return s
     const options = { ...(s.pick!.options as object), players: n }
     return { ...s, gameId: entry.game.id, game: entry.game.init(seed, options), rev: s.rev + 1 }
   }

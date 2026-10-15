@@ -1,11 +1,16 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react'
 import drawArt from '@/assets/draw/tile-draw.webp'
+import remiArt from '@/assets/remi/tile-remi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import unoArt from '@/assets/snakes/tile-uno.webp'
 import type { AnyGame, LobbyProps } from './types'
 import { draw } from './draw'
 import type { DrawOptions } from './draw/types'
 import { summary as drawSummary } from './draw/ui/copy'
+import { remi } from './remi'
+import { MODE_INFO } from './remi/modes'
+import type { RemiOptions } from './remi/types'
+import { summary as remiSummary } from './remi/ui/copy'
 import { snakes } from './snakes'
 import type { SnakesOptions } from './snakes/types'
 import { uno } from './uno'
@@ -33,6 +38,9 @@ export type GameEntry = {
   /** ringkasan pengaturan satu baris, untuk kartu game di room */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   summary: (options: any) => string
+  /** batas pemain yang bergantung pada pengaturan (mis. mode Kartu Remi); kosong = min/max di atas */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  playersFor?: (options: any) => [number, number]
 }
 
 export const GAMES: GameEntry[] = [
@@ -45,6 +53,17 @@ export const GAMES: GameEntry[] = [
     art: unoArt,
     Lobby: lazy(() => import('./uno/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: UnoOptions) => `${VARIANT_INFO[o.variant].title} · target ${o.target} poin`,
+  },
+  {
+    game: remi,
+    category: 'kartu',
+    blurb: '8 mode: Cangkulan, Capsa, 41, Poker, Joker, Bohong, 21, Seven',
+    minPlayers: 2,
+    maxPlayers: 8,
+    art: remiArt,
+    Lobby: lazy(() => import('./remi/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: RemiOptions) => remiSummary(o),
+    playersFor: (o: RemiOptions) => [MODE_INFO[o.mode].min, MODE_INFO[o.mode].max],
   },
   {
     game: snakes,
@@ -73,3 +92,8 @@ export const GAMES: GameEntry[] = [
 
 export const entryById = (id: string | null) => GAMES.find((g) => g.game.id === id) ?? null
 export const gameById = (id: string | null) => entryById(id)?.game ?? null
+
+/** Batas pemain sebuah game untuk pengaturan tertentu. */
+export function playerRange(entry: GameEntry, options?: unknown): [number, number] {
+  return options && entry.playersFor ? entry.playersFor(options) : [entry.minPlayers, entry.maxPlayers]
+}
