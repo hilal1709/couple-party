@@ -13,6 +13,7 @@ const CREDITS = [
   { what: 'Musik Ular Tangga', title: 'Happy Clappy Loop', by: 'OwlishMedia', url: 'https://opengameart.org/content/happy-clappy-loop' },
   { what: 'Musik Tebak Gambar', title: 'Cozy Puzzle In-Game 1', by: 'MintoDog', url: 'https://opengameart.org/content/cozy-puzzle-in-game-1' },
   { what: 'Musik Kartu Remi', title: 'Mocha Frapp', by: 'Pro Sensory (Alex McCulloch)', url: 'https://opengameart.org/content/mocha-frapp' },
+  { what: 'Musik Domino', title: 'Reggae', by: 'Pro Sensory (Alex McCulloch)', url: 'https://opengameart.org/content/reggae' },
   { what: 'Suara kartu', title: 'Casino Audio', by: 'Kenney', url: 'https://opengameart.org/content/54-casino-sound-effects-cards-dice-chips' },
   { what: 'Suara tombol', title: 'Interface Sounds', by: 'Kenney', url: 'https://opengameart.org/content/interface-sounds' },
   { what: 'Jingle saksofon, steel drum & hit', title: 'Music Jingles', by: 'Kenney', url: 'https://opengameart.org/content/85-short-music-jingles' },

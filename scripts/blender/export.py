@@ -1,6 +1,6 @@
 """Ekspor render Blender per game (brand/illustrations/<game>/*.png) ke WebP untuk app.
 
-Jalankan:  python -I scripts/blender/export.py [snakes|draw|remi]   (bawaan: snakes)
+Jalankan:  python -I scripts/blender/export.py [snakes|draw|remi|domino]   (bawaan: snakes)
 Sprite dipangkas ke tepi gambar (kecuali kepala ular: titik tengahnya = pangkal leher) lalu diperkecil.
 """
 import json
@@ -17,7 +17,7 @@ OUT = ROOT / 'src' / 'assets' / GAME
 
 
 def size_for(name: str) -> int:
-    if name.startswith(('tile-', 'snakes-', 'draw-', 'remi-')):
+    if name.startswith(('tile-', 'snakes-', 'draw-', 'remi-', 'domino-')):
         return 720
     if name.startswith('mode-'):
         return 240

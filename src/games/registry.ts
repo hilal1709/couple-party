@@ -1,9 +1,14 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react'
+import dominoArt from '@/assets/domino/tile-domino.webp'
 import drawArt from '@/assets/draw/tile-draw.webp'
 import remiArt from '@/assets/remi/tile-remi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import unoArt from '@/assets/snakes/tile-uno.webp'
 import type { AnyGame, LobbyProps } from './types'
+import { domino } from './domino'
+import { MODE_INFO as DOMINO_MODES } from './domino/modes'
+import type { DominoOptions } from './domino/types'
+import { summary as dominoSummary } from './domino/ui/copy'
 import { draw } from './draw'
 import type { DrawOptions } from './draw/types'
 import { summary as drawSummary } from './draw/ui/copy'
@@ -64,6 +69,17 @@ export const GAMES: GameEntry[] = [
     Lobby: lazy(() => import('./remi/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: RemiOptions) => remiSummary(o),
     playersFor: (o: RemiOptions) => [MODE_INFO[o.mode].min, MODE_INFO[o.mode].max],
+  },
+  {
+    game: domino,
+    category: 'kartu',
+    blurb: 'Gaple, Cangkul, Domino Lima & Qiu Qiu',
+    minPlayers: 2,
+    maxPlayers: 6,
+    art: dominoArt,
+    Lobby: lazy(() => import('./domino/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: DominoOptions) => dominoSummary(o),
+    playersFor: (o: DominoOptions) => [DOMINO_MODES[o.mode].min, DOMINO_MODES[o.mode].max],
   },
   {
     game: snakes,

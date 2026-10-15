@@ -9,6 +9,11 @@ import { lcg, randomStep } from './games/remi/dev'
 import * as remiEngine from './games/remi/engine'
 import type { Mode, RemiAction } from './games/remi/types'
 import { RemiTable } from './games/remi/ui/RemiTable'
+import { randomStep as dominoStep } from './games/domino/dev'
+import * as dominoEngine from './games/domino/engine'
+import { turnOf as dominoTurn } from './games/domino/sounds'
+import type { DominoAction, Mode as DominoMode } from './games/domino/types'
+import { DominoTable } from './games/domino/ui/DominoTable'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -16,8 +21,9 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' }) {
   if (variant === 'draw') return <DrawDemo />
+  if (variant === 'domino') return <DominoDemo />
   if (variant === 'remi') return <RemiDemo />
   return <UnoDemo variant={variant} />
 }
@@ -96,4 +102,38 @@ function UnoDemo({ variant }: { variant: Variant }) {
   const act = (a: UnoAction) => setS((cur) => reduce(cur, a, cur.turn))
   const seat = viewOther ? (s.turn + 1) % n : s.turn
   return <UnoTable state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} />
+}
+
+/**
+ * Domino lokal: ?demo=domino&mode=gaple|cangkul|lima|qiuqiu &n=2..6 &seat= &auto=N|round (sama seperti Kartu Remi).
+ */
+function DominoDemo() {
+  const q = new URLSearchParams(location.search)
+  const mode = (q.get('mode') ?? 'gaple') as DominoMode
+  const n = Math.min(6, Math.max(2, Number(q.get('n') ?? 3)))
+  const follow = !q.get('seat')
+  const [fixed, setFixed] = useState(() => Number(q.get('seat') ?? 0))
+  const [s, setS] = useState(() => {
+    let st = dominoEngine.init(42, dominoEngine.defaultOptions(mode, n))
+    const rnd = lcg(7)
+    const auto = q.get('auto')
+    for (let i = 0; i < (auto === 'round' ? 5000 : Number(auto ?? 0)) && !(auto === 'round' && st.phase !== 'play'); i++) st = dominoStep(st, rnd) ?? st
+    return st
+  })
+  const players = s.scores.length
+  const auto = dominoTurn(s)
+  const seat = follow && auto !== null ? auto : fixed
+  const act = (a: DominoAction) => setS((cur) => dominoEngine.reduce(cur, a, seat))
+  return (
+    <>
+      <DominoTable state={s} seat={seat} names={NAMES.slice(0, players)} online={Array(players).fill(true)} act={act} exit={() => {}} />
+      <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
+        {NAMES.slice(0, players).map((nm, i) => (
+          <button key={nm} onClick={() => setFixed(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>
+            {i}
+          </button>
+        ))}
+      </div>
+    </>
+  )
 }
