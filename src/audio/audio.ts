@@ -2,7 +2,7 @@ import { Howl, Howler } from 'howler'
 import { useEffect, useSyncExternalStore } from 'react'
 import { store } from '@/net/transport'
 
-export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense'
+export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense'
 
 export type SfxName =
   | 'card-place-1'
@@ -109,6 +109,23 @@ export type SfxName =
   | 'monopoly-bankrupt'
   | 'monopoly-champion'
   | 'monopoly-lose'
+  | 'ludo-shake'
+  | 'ludo-throw-1'
+  | 'ludo-throw-2'
+  | 'ludo-step'
+  | 'ludo-out'
+  | 'ludo-safe'
+  | 'ludo-turn'
+  | 'ludo-nomove'
+  | 'ludo-boost'
+  | 'ludo-portal'
+  | 'ludo-slip'
+  | 'ludo-bomb'
+  | 'ludo-capture'
+  | 'ludo-six'
+  | 'ludo-home'
+  | 'ludo-champion'
+  | 'ludo-lose'
 
 export type AudioSettings = { music: number; sfx: number; muted: boolean }
 

@@ -5,6 +5,7 @@ Jalankan:  python -I scripts/audio/build.py          (semua)
            python -I scripts/audio/build.py remi     (hanya musik & SFX Kartu Remi)
            python -I scripts/audio/build.py domino   (hanya musik & SFX Domino)
            python -I scripts/audio/build.py monopoly (hanya musik & SFX Monopoli)
+           python -I scripts/audio/build.py ludo     (hanya musik & SFX Ludo)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
 import subprocess
@@ -141,6 +142,20 @@ def monopoly_music():
        '-ar', str(SR), '-c:a', 'libvorbis', '-b:a', '80k', str(OUT / 'music' / 'monopoly-tense.ogg'))
     raw.unlink()
 
+def ludo_music():
+    # Ludo: "Oldskool" oleh Of Far Different Nature — chiptune/retro riang ala game jadul,
+    # beda dari funk, piano, bossa, lounge, reggae & swing game lain. Loop 32 detik, disambung mulus.
+    m = SRC / 'music'
+    loop = seamless_loop(load(m / 'oldskool.mp3'), 0.8)
+    write_ogg(loop, OUT / 'music' / 'ludo.ogg', 80, lufs=-20)
+    # momen genting (ada yang tinggal satu bidak lagi finis): loop yang sama ±6% lebih cepat
+    raw = OUT / 'music' / 'ludo-loop.tmp.f32'
+    raw.write_bytes(loop.astype(np.float32).tobytes())
+    ff('-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', str(raw),
+       '-af', f'asetrate={int(SR * 1.06)},aresample={SR},atempo=1.06,loudnorm=I=-19:TP=-1.5:LRA=11',
+       '-ar', str(SR), '-c:a', 'libvorbis', '-b:a', '80k', str(OUT / 'music' / 'ludo-tense.ogg'))
+    raw.unlink()
+
 
 SFX = {
     # kartu — Kenney "Casino Audio"
@@ -254,13 +269,32 @@ SFX = {
     'monopoly-bankrupt': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA05.ogg',
     'monopoly-champion': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA02.ogg',
     'monopoly-lose': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA01.ogg',
+    # Ludo — dadu tunggal Kenney, tombol Interface Sounds, jingle steel drum & hit
+    'ludo-shake': 'casino/x/Audio/dice-shake-3.ogg',
+    'ludo-throw-1': 'casino/x/Audio/die-throw-1.ogg',
+    'ludo-throw-2': 'casino/x/Audio/die-throw-3.ogg',
+    'ludo-step': 'interface/x/Audio/pluck_002.ogg',
+    'ludo-out': 'interface/x/Audio/maximize_002.ogg',
+    'ludo-safe': 'interface/x/Audio/select_005.ogg',
+    'ludo-turn': 'interface/x/Audio/glass_003.ogg',
+    'ludo-nomove': 'interface/x/Audio/back_001.ogg',
+    'ludo-boost': 'interface/x/Audio/maximize_008.ogg',
+    'ludo-portal': 'interface/x/Audio/glitch_002.ogg',
+    'ludo-slip': 'interface/x/Audio/error_006.ogg',
+    'ludo-bomb': 'jingles/x/OGG/jingles_HIT/jingles_HIT08.ogg',
+    'ludo-capture': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL05.ogg',
+    'ludo-six': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL03.ogg',
+    'ludo-home': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL12.ogg',
+    'ludo-champion': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL13.ogg',
+    'ludo-lose': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL07.ogg',
 }
 
 LOUD = {'draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-reveal', 'draw-turn',
         'remi-win', 'remi-champion', 'remi-lose', 'remi-liar', 'remi-honest', 'remi-bust', 'remi-joker', 'remi-bomb', 'remi-blackjack',
         'domino-score', 'domino-win', 'domino-champion', 'domino-lose', 'domino-blocked', 'domino-special',
         'monopoly-go', 'monopoly-doubles', 'monopoly-sold', 'monopoly-jail', 'monopoly-jackpot', 'monopoly-bankrupt',
-        'monopoly-champion', 'monopoly-lose'}
+        'monopoly-champion', 'monopoly-lose',
+        'ludo-bomb', 'ludo-capture', 'ludo-six', 'ludo-home', 'ludo-champion', 'ludo-lose'}
 
 
 def sfx(prefix=''):
@@ -289,12 +323,16 @@ if __name__ == '__main__':
     elif sys.argv[1:] == ['monopoly']:
         monopoly_music()
         sfx('monopoly-')
+    elif sys.argv[1:] == ['ludo']:
+        ludo_music()
+        sfx('ludo-')
     else:
         music()
         draw_music()
         remi_music()
         domino_music()
         monopoly_music()
+        ludo_music()
         sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))
     print(f'Selesai: {len(list(OUT.rglob("*.ogg")))} file, {total / 1024 / 1024:.2f} MB di {OUT}')

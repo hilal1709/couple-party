@@ -1,6 +1,7 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react'
 import dominoArt from '@/assets/domino/tile-domino.webp'
 import drawArt from '@/assets/draw/tile-draw.webp'
+import ludoArt from '@/assets/ludo/tile-ludo.webp'
 import monopolyArt from '@/assets/monopoly/tile-monopoly.webp'
 import remiArt from '@/assets/remi/tile-remi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
@@ -13,6 +14,9 @@ import { summary as dominoSummary } from './domino/ui/copy'
 import { draw } from './draw'
 import type { DrawOptions } from './draw/types'
 import { summary as drawSummary } from './draw/ui/copy'
+import { ludo } from './ludo'
+import type { LudoOptions } from './ludo/types'
+import { summary as ludoSummary } from './ludo/ui/copy'
 import { monopoly } from './monopoly'
 import type { MonopolyOptions } from './monopoly/types'
 import { summary as monopolySummary } from './monopoly/ui/copy'
@@ -107,6 +111,16 @@ export const GAMES: GameEntry[] = [
     art: monopolyArt,
     Lobby: lazy(() => import('./monopoly/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: MonopolyOptions) => monopolySummary(o),
+  },
+  {
+    game: ludo,
+    category: 'board',
+    blurb: 'Saling makan bidak, mode tim & petak jahil, papan sampai 8 orang',
+    minPlayers: 2,
+    maxPlayers: 8,
+    art: ludoArt,
+    Lobby: lazy(() => import('./ludo/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: LudoOptions) => ludoSummary(o),
   },
   {
     game: draw,
