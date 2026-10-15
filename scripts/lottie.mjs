@@ -1,4 +1,4 @@
-// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi, Domino & Monopoli.
+// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi, Domino, Monopoli & Ludo.
 // Jalankan: node scripts/lottie.mjs  → src/assets/lottie/*.json
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -1488,6 +1488,210 @@ function monopolyJackpot() {
   return doc('monopoly-jackpot', S, S, OP, layers)
 }
 
+// ---------- efek Ludo ----------
+const pips6 = (w, color) => [
+  ...[[-1, -1], [-1, 0], [-1, 1], [1, -1], [1, 0], [1, 1]].map(([u, v]) => grp([{ ty: 'el', p: st([u * w * 0.24, v * w * 0.26]), s: st([w * 0.17, w * 0.17]) }, fill('#fff4fa'), stroke('#121212', 3)])),
+  { ty: 'rc', p: st([0, 0]), s: st([w, w]), r: st(w * 0.18) },
+  fill(color),
+  stroke('#121212', 6),
+]
+
+// Tangkap bidak: ledakan bintang "POW" + kepingan terlempar
+function ludoCapture() {
+  const S = 300
+  const OP = 60
+  const c = S / 2
+  const layers = [
+    layer(1, star(92, 48, 10, '#ffcc1f'), { p: st([c, c, 0]), r: anim([[0, [-20]], [OP - 1, [30]]]), s: popScale(0, 40, OP) }, OP),
+    layer(2, star(56, 30, 8, '#ff37a6'), { p: st([c, c, 0]), r: anim([[0, [10]], [OP - 1, [-40]]]), s: popScale(3, 40, OP) }, OP),
+    layer(3, ring(110, '#121212', 6), { p: st([c, c, 0]), s: anim([[0, [0, 0, 100]], [6, [80, 80, 100]], [26, [220, 220, 100]]]), o: fade(14, 26, OP) }, OP),
+  ]
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2 + rand() * 0.3
+    const d = 110 + rand() * 30
+    layers.push(
+      layer(
+        layers.length + 1,
+        shape(pick(['circle', 'tri', 'rect']), 16, pick(PALETTE.slice(0, 5))),
+        {
+          p: anim([[2, [c, c, 0]], [26, [c + Math.cos(a) * d, c + Math.sin(a) * d, 0]], [50, [c + Math.cos(a) * d * 1.1, c + Math.sin(a) * d + 50, 0]]]),
+          r: anim([[2, [0]], [50, [(rand() - 0.5) * 500]]]),
+          s: anim([[0, [0, 0, 100]], [2, [100, 100, 100]], [44, [100, 100, 100]], [52, [0, 0, 100]]]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('ludo-capture', S, S, OP, layers)
+}
+
+// Bidak masuk rumah: bintang berputar naik dari tengah + cincin
+function ludoHome() {
+  const S = 300
+  const OP = 72
+  const c = S / 2
+  const layers = [layer(1, ring(70, '#5cf64a', 10), { p: st([c, c, 0]), s: anim([[0, [0, 0, 100]], [20, [260, 260, 100]]]), o: fade(10, 24, OP) }, OP)]
+  for (let i = 0; i < 9; i++) {
+    const a = (i / 9) * Math.PI * 2
+    const t0 = i * 2
+    layers.push(
+      layer(
+        layers.length + 1,
+        star(20, 8, 5, i % 3 === 0 ? '#ff37a6' : i % 3 === 1 ? '#ffcc1f' : '#5cf64a'),
+        {
+          p: anim([[t0, [c, c, 0]], [t0 + 30, [c + Math.cos(a) * 100, c + Math.sin(a) * 70 - 40, 0]], [t0 + 50, [c + Math.cos(a) * 120, c + Math.sin(a) * 60 - 90, 0]]]),
+          r: anim([[t0, [0]], [t0 + 50, [360]]]),
+          s: anim([[0, [0, 0, 100]], [t0, [0, 0, 100]], [t0 + 6, [120, 120, 100]], [t0 + 40, [100, 100, 100]], [t0 + 52, [0, 0, 100]]]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('ludo-home', S, S, OP, layers)
+}
+
+// Angka 6: dadu enam menghantam + sinar
+function ludoSix() {
+  const S = 260
+  const OP = 56
+  const c = S / 2
+  const layers = [
+    layer(
+      1,
+      pips6(110, '#ff37a6'),
+      {
+        p: st([c, c, 0]),
+        r: anim([[0, [-60]], [12, [8]], [18, [0]]]),
+        s: anim([[0, [0, 0, 100]], [10, [125, 125, 100]], [16, [95, 95, 100]], [20, [100, 100, 100]], [42, [100, 100, 100]], [OP - 1, [0, 0, 100]]]),
+      },
+      OP,
+    ),
+  ]
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2
+    layers.push(
+      layer(
+        layers.length + 1,
+        [poly([[Math.cos(a) * 82, Math.sin(a) * 82], [Math.cos(a) * 112, Math.sin(a) * 112]], false), stroke(i % 2 ? '#5cf64a' : '#ffcc1f', 9)],
+        { p: st([c, c, 0]), o: anim([[0, [0]], [10, [0]], [12, [100]], [28, [100]], [36, [0]]]) },
+        OP,
+      ),
+    )
+  }
+  return doc('ludo-six', S, S, OP, layers)
+}
+
+// Roket: garis kecepatan melesat + kepulan api
+function ludoBoost() {
+  const S = 280
+  const OP = 50
+  const c = S / 2
+  const layers = []
+  for (let i = 0; i < 7; i++) {
+    const y = c - 60 + i * 20
+    const t0 = Math.floor(rand() * 8)
+    layers.push(
+      layer(
+        i + 1,
+        [poly([[-40 - rand() * 30, 0], [40, 0]], false), stroke(i % 2 ? '#ff37a6' : '#121212', 6)],
+        { p: anim([[t0, [-60, y, 0]], [t0 + 22, [S + 60, y, 0]]]), o: anim([[0, [0]], [t0, [100]], [t0 + 22, [100]], [t0 + 24, [0]]]) },
+        OP,
+      ),
+    )
+  }
+  for (let i = 0; i < 6; i++) {
+    layers.push(
+      layer(
+        layers.length + 1,
+        [{ ty: 'el', p: st([0, 0]), s: st([30, 30]) }, fill(i % 2 ? '#ffcc1f' : '#ff8a1c'), stroke('#121212', 3)],
+        {
+          p: anim([[i * 3, [c, c + 20, 0]], [i * 3 + 26, [c - 90 - rand() * 40, c + 30 + (rand() - 0.5) * 60, 0]]]),
+          s: anim([[0, [0, 0, 100]], [i * 3, [60, 60, 100]], [i * 3 + 10, [130, 130, 100]], [i * 3 + 28, [0, 0, 100]]]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('ludo-boost', S, S, OP, layers)
+}
+
+// Portal: cincin ungu-hijau berputar menyedot ke tengah
+function ludoPortal() {
+  const S = 280
+  const OP = 64
+  const c = S / 2
+  const layers = []
+  const cols = ['#8a55ff', '#5cf64a', '#ff37a6', '#8a55ff']
+  for (let i = 0; i < 4; i++) {
+    layers.push(
+      layer(
+        i + 1,
+        [{ ty: 'el', p: st([0, 0]), s: st([200 - i * 40, 150 - i * 30]) }, stroke(cols[i], 12 - i * 2), { ty: 'tm', s: st(0), e: st(78), o: st(0), m: 1 }],
+        {
+          p: st([c, c, 0]),
+          r: anim([[0, [i * 40]], [OP - 1, [i * 40 + (i % 2 ? -540 : 540)]]]),
+          s: anim([[0, [0, 0, 100]], [10, [110, 110, 100]], [44, [100, 100, 100]], [OP - 1, [0, 0, 100]]]),
+        },
+        OP,
+      ),
+    )
+  }
+  layers.push(layer(5, [{ ty: 'el', p: st([0, 0]), s: st([60, 46]) }, fill('#121212')], { p: st([c, c, 0]), s: popScale(4, 44, OP) }, OP))
+  return doc('ludo-portal', S, S, OP, layers)
+}
+
+// Bom: kilat, awan ledakan, pecahan
+function ludoBomb() {
+  const S = 320
+  const OP = 70
+  const c = S / 2
+  const layers = [layer(1, [{ ty: 'el', p: st([0, 0]), s: st([60, 60]) }, fill('#fff4fa')], { p: st([c, c, 0]), s: anim([[0, [0, 0, 100]], [4, [400, 400, 100]], [10, [0, 0, 100]]]) }, OP)]
+  for (let i = 0; i < 9; i++) {
+    const a = (i / 9) * Math.PI * 2
+    const r = 50 + rand() * 20
+    layers.push(
+      layer(
+        layers.length + 1,
+        [{ ty: 'el', p: st([0, 0]), s: st([70, 70]) }, fill(i % 3 === 0 ? '#ff8a1c' : i % 3 === 1 ? '#ffcc1f' : '#ff3b5c'), stroke('#121212', 4)],
+        {
+          p: anim([[4, [c, c, 0]], [20, [c + Math.cos(a) * r, c + Math.sin(a) * r, 0]], [50, [c + Math.cos(a) * r * 1.3, c + Math.sin(a) * r * 1.2 - 30, 0]]]),
+          s: anim([[0, [0, 0, 100]], [4, [0, 0, 100]], [14, [120, 120, 100]], [40, [90, 90, 100]], [56, [0, 0, 100]]]),
+        },
+        OP,
+      ),
+    )
+  }
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2 + 0.2
+    layers.push(
+      layer(
+        layers.length + 1,
+        [poly([[-10, -8], [12, -4], [2, 12]]), fill('#121212')],
+        { p: anim([[4, [c, c, 0]], [40, [c + Math.cos(a) * 150, c + Math.sin(a) * 150, 0]]]), r: anim([[4, [0]], [40, [400]]]), o: fade(30, 40, OP) },
+        OP,
+      ),
+    )
+  }
+  return doc('ludo-bomb', S, S, OP, layers)
+}
+
+// Kepleset: bintang pusing berputar mengelilingi kepala
+function ludoSlip() {
+  const S = 260
+  const OP = 80
+  const c = S / 2
+  const layers = [layer(1, [{ ty: 'el', p: st([0, 0]), s: st([150, 54]) }, stroke('#121212', 4)], { p: st([c, c, 0]), o: fade(60, 76, OP), s: popScale(0, 62, OP) }, OP)]
+  for (let i = 0; i < 4; i++) {
+    const pts = []
+    for (let k = 0; k <= 8; k++) {
+      const a = (k / 8) * Math.PI * 2 + (i / 4) * Math.PI * 2
+      pts.push([k * 9, [c + Math.cos(a) * 75, c + Math.sin(a) * 27, 0]])
+    }
+    layers.push(layer(i + 2, star(16, 7, 5, i % 2 ? '#ffcc1f' : '#ff37a6'), { p: anim(pts), r: anim([[0, [0]], [72, [360]]]), s: popScale(0, 62, OP) }, OP))
+  }
+  return doc('ludo-slip', S, S, OP, layers)
+}
+
 mkdirSync('src/assets/lottie', { recursive: true })
 // urutan penting: confetti & burst duluan supaya hasil acaknya tetap sama seperti sebelumnya
 const out = {
@@ -1525,6 +1729,14 @@ const out = {
   'monopoly-card': monopolyCard(),
   'monopoly-bankrupt': monopolyBankrupt(),
   'monopoly-jackpot': monopolyJackpot(),
+  // Ludo paling akhir, supaya acakan efek lain tidak berubah
+  'ludo-capture': ludoCapture(),
+  'ludo-home': ludoHome(),
+  'ludo-six': ludoSix(),
+  'ludo-boost': ludoBoost(),
+  'ludo-portal': ludoPortal(),
+  'ludo-bomb': ludoBomb(),
+  'ludo-slip': ludoSlip(),
 }
 for (const [name, json] of Object.entries(out)) writeFileSync(`src/assets/lottie/${name}.json`, JSON.stringify(json))
 console.log('Lottie dibuat:', Object.keys(out).join(', '))

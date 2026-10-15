@@ -18,6 +18,10 @@ import { randomStep as monopolyStep } from './games/monopoly/dev'
 import * as monopolyEngine from './games/monopoly/engine'
 import type { MonopolyAction } from './games/monopoly/types'
 import { MonopolyBoard } from './games/monopoly/ui/MonopolyBoard'
+import { randomStep as ludoStep } from './games/ludo/dev'
+import * as ludoEngine from './games/ludo/engine'
+import type { Arms, LudoAction } from './games/ludo/types'
+import { LudoBoard } from './games/ludo/ui/LudoBoard'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -25,10 +29,11 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' }) {
   if (variant === 'draw') return <DrawDemo />
   if (variant === 'domino') return <DominoDemo />
   if (variant === 'monopoly') return <MonopolyDemo />
+  if (variant === 'ludo') return <LudoDemo />
   if (variant === 'remi') return <RemiDemo />
   return <UnoDemo variant={variant} />
 }
@@ -164,6 +169,44 @@ function MonopolyDemo() {
   return (
     <>
       <MonopolyBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} />
+      <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
+        {NAMES.slice(0, n).map((nm, i) => (
+          <button key={nm} onClick={() => setFixed(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>
+            {i}
+          </button>
+        ))}
+      </div>
+    </>
+  )
+}
+
+/**
+ * Ludo lokal: ?demo=ludo &n=2..8 &arms=4|6|8 &seat= &auto=N|end &teams=1 &pieces=2..4 &plain=1 (tanpa petak jahil).
+ */
+function LudoDemo() {
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(8, Math.max(2, Number(q.get('n') ?? 4)))
+  const follow = !q.get('seat')
+  const [fixed, setFixed] = useState(() => Number(q.get('seat') ?? 0))
+  const [s, setS] = useState(() => {
+    const arms = Number(q.get('arms') ?? 0) as Arms
+    let st = ludoEngine.init(42, {
+      ...ludoEngine.defaultOptions(n),
+      ...(arms ? { arms } : {}),
+      teams: q.get('teams') === '1',
+      specials: q.get('plain') !== '1',
+      pieces: (Number(q.get('pieces') ?? 4) as 2 | 3 | 4) || 4,
+    })
+    const rnd = lcg(7)
+    const auto = q.get('auto')
+    for (let i = 0; i < (auto === 'end' ? 20000 : Number(auto ?? 0)) && st.phase !== 'end'; i++) st = ludoStep(st, rnd) ?? st
+    return st
+  })
+  const seat = follow ? s.turn : fixed
+  const act = (a: LudoAction) => setS((cur) => ludoEngine.reduce(cur, a, seat))
+  return (
+    <>
+      <LudoBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} />
       <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
         {NAMES.slice(0, n).map((nm, i) => (
           <button key={nm} onClick={() => setFixed(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>
