@@ -450,6 +450,18 @@ describe('Banyak pemain (3–8)', () => {
     expect(s.turn).toBe(2)
   })
 
+  it('No Mercy: kartu pemain yang tersingkir tetap dihitung sebagai poin pemenang', () => {
+    const w10 = c('wildDraw', null, 10)
+    const big = Array.from({ length: 16 }, () => c('num', 'blue', 3)) // 16 × 3 = 48, +10 = 58 saat tembus
+    let s = tableN([[w10, c('num', 'red', 1)], big], c('num', 'red', 5), { variant: 'noMercy' })
+    s = reduce(s, { type: 'play', cardId: w10.id, color: 'red' }, 0)
+    s = reduce(s, { type: 'accept' }, 1)
+    expect(s.out[1]).toBe(true)
+    expect(s.roundWinner).toBe(0)
+    expect(s.roundPoints).toBeGreaterThan(0)
+    expect(s.scores[0]).toBe(s.roundPoints)
+  })
+
   it('menang ronde: dapat poin dari semua pemain lain', () => {
     const last = c('num', 'red', 1)
     let s = tableN([[last], [c('num', 'blue', 9)], [c('skip', 'green')]], c('num', 'red', 5))

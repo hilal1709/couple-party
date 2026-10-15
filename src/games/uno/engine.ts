@@ -164,8 +164,14 @@ function checkMercy(st: UnoState): UnoState {
   for (let seat = 0; seat < s.players; seat++) {
     if (s.out[seat] || s.hands[seat].length < MERCY_LIMIT) continue
     const busted = s.hands[seat]
+    const bustedPoints = handPoints(s, seat)
     s = emit(
-      { ...withHand(s, seat, []), out: setAt(s.out, seat, true), discard: [...busted, ...s.discard] },
+      {
+        ...withHand(s, seat, []),
+        out: setAt(s.out, seat, true),
+        discard: [...busted, ...s.discard],
+        mercyPoints: s.mercyPoints + bustedPoints,
+      },
       { t: 'mercy', by: seat },
     )
     if (s.turn === seat) s = { ...s, turn: nextSeat(s, seat) }
@@ -177,7 +183,7 @@ function checkMercy(st: UnoState): UnoState {
 }
 
 function endRound(st: UnoState, winner: Seat): UnoState {
-  let points = 0
+  let points = st.mercyPoints
   for (let seat = 0; seat < st.players; seat++) if (seat !== winner) points += handPoints(st, seat)
   const scores = setAt(st.scores, winner, st.scores[winner] + points)
   return emit(
@@ -276,6 +282,7 @@ function deal(opts: UnoOptions, seed: number, round: number, dealer: Seat, score
     scores: scores.length === players ? scores : Array(players).fill(0),
     roundWinner: null,
     roundPoints: 0,
+    mercyPoints: 0,
     gameWinner: null,
     eventId: 0,
     event: null,

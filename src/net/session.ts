@@ -11,6 +11,8 @@ export type Session = {
   gameId: string | null
   game: unknown
   rev: number
+  /** id sesi dari host; berganti kalau host membuat sesi baru (rev mulai dari 0 lagi) */
+  epoch?: string
   /** nomor aksi terakhir yang sudah diterapkan per pemain (anti dobel saat kirim ulang) */
   acked?: Record<string, number>
 }

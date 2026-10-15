@@ -112,6 +112,8 @@ export type UnoState = {
   scores: number[]
   roundWinner: Seat | null
   roundPoints: number
+  /** No Mercy: poin kartu pemain yang tereliminasi ronde ini (tangannya sudah dikosongkan) */
+  mercyPoints: number
   gameWinner: Seat | null
   /** naik setiap ada event baru; UI memakai ini untuk animasi */
   eventId: number

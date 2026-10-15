@@ -1,5 +1,5 @@
 export type { Pick, Session, SessionAction } from './session'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { applyAction, type Pick, type Session, type SessionAction } from './session'
 import type { Seat } from '../games/types'
 import { openTransport, store, type NetStatus, type Peer, type Transport } from './transport'
@@ -22,7 +22,9 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
   const [session, setSession] = useState<Session | null>(() => {
     if (!isHost) return null
     const saved = store.getItem(storeKey(code))
-    return saved ? (JSON.parse(saved) as Session) : { players: [me], pick: initialPick, gameId: null, game: null, rev: 0 }
+    const s = saved ? (JSON.parse(saved) as Session) : null
+    if (s) return s.epoch ? s : { ...s, epoch: Math.random().toString(36).slice(2) }
+    return { players: [me], pick: initialPick, gameId: null, game: null, rev: 0, epoch: Math.random().toString(36).slice(2) }
   })
   const [online, setOnline] = useState<Peer[]>([])
   const [net, setNet] = useState<NetStatus>('connecting')
@@ -46,6 +48,52 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
   const flush = useCallback(() => {
     for (const m of outbox.current) tRef.current?.send({ t: 'act', from: me.id, n: m.n, action: m.action } satisfies Msg)
   }, [me.id])
+
+  // Jaga layar tetap menyala selama di room: layar redup/mati menidurkan koneksi realtime.
+  useEffect(() => {
+    let lock: WakeLockSentinel | null = null
+    let closed = false
+    const acquire = () => {
+      if (closed || lock || document.visibilityState !== 'visible') return
+      navigator.wakeLock
+        ?.request('screen')
+        .then((l) => {
+          if (closed) return void l.release()
+          lock = l
+          l.addEventListener('release', () => (lock = null))
+        })
+        .catch(() => {}) // tidak didukung / ditolak: abaikan, game tetap jalan
+    }
+    acquire()
+    document.addEventListener('visibilitychange', acquire)
+    return () => {
+      closed = true
+      document.removeEventListener('visibilitychange', acquire)
+      void lock?.release()
+    }
+  }, [])
+
+  /** naik setiap koneksi perlu dibangun ulang (kembali dari background / internet pulih) */
+  const [conn, setConn] = useState(0)
+  useEffect(() => {
+    // Android menidurkan WebSocket saat app di background: saluran mati diam-diam padahal
+    // status masih 'online', jadi aksi terkirim ke ruang kosong. Bangun ulang saat kembali.
+    let hiddenAt = 0
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') hiddenAt = Date.now()
+      else if (hiddenAt && Date.now() - hiddenAt > 2000) {
+        hiddenAt = 0
+        setConn((c) => c + 1)
+      }
+    }
+    const onNet = () => setConn((c) => c + 1)
+    document.addEventListener('visibilitychange', onVis)
+    window.addEventListener('online', onNet)
+    return () => {
+      document.removeEventListener('visibilitychange', onVis)
+      window.removeEventListener('online', onNet)
+    }
+  }, [])
 
   useEffect(() => {
     const t = openTransport(code, me)
@@ -92,10 +140,17 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
           const applied = applyAction(cur, m.action, m.from)
           commit({ ...applied, rev: cur.rev + 1, acked: { ...cur.acked, [m.from]: m.n } })
         }
-      } else if (m.t === 'sync' && m.session.rev >= (sessionRef.current?.rev ?? -1)) {
+      } else if (m.t === 'sync') {
+        const cur = sessionRef.current
+        // epoch berbeda = host membuat room/sesi baru (rev mulai dari 0 lagi); tanpa ini
+        // tamu menolak semua sync karena revnya "lebih lama" dan antrean macet selamanya
+        const fresh = cur !== null && m.session.epoch !== cur.epoch
+        if (cur && !fresh && m.session.rev < cur.rev) return
+        if (fresh) outbox.current = []
         sessionRef.current = m.session
         setSession(m.session)
         const done = m.session.acked?.[me.id] ?? 0
+        if (done > counter.current) counter.current = done // nomor aksi tidak boleh di bawah yang sudah diterima host
         outbox.current = outbox.current.filter((o) => o.n > done)
         setQueued(outbox.current.length)
       }
@@ -103,17 +158,21 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
 
     if (!isHost) {
       hello()
+      // aksi yang belum dikonfirmasi dikirim ulang cepat (paket broadcast bisa hilang);
+      // hello berkala menjemput state terbaru kalau 'sync' dari host sempat hilang
+      let tick = 0
       const id = setInterval(() => {
-        if (!sessionRef.current) hello()
+        tick++
         if (outbox.current.length) flush()
-      }, 2000)
+        if (!sessionRef.current || tick % 6 === 0) hello()
+      }, 500)
       return () => {
         clearInterval(id)
         t.close()
       }
     }
     return () => t.close()
-  }, [code, me, isHost, commit, flush])
+  }, [code, me, isHost, commit, flush, conn])
 
   const dispatch = useCallback(
     (action: SessionAction) => {
@@ -131,6 +190,19 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
     [isHost, me.id, commit, code],
   )
 
+  // Tamu: langsung tampilkan hasil aksinya sendiri (optimistis) selagi menunggu konfirmasi host;
+  // begitu 'sync' dari host tiba, state resmi menggantikannya.
+  const shown = useMemo(() => {
+    if (isHost || !session || !outbox.current.length) return session
+    const done = session.acked?.[me.id] ?? 0
+    let s = session
+    for (const o of outbox.current) {
+      if (o.n > done && o.action.kind === 'game') s = applyAction(s, o.action, me.id)
+    }
+    return s
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session, queued, isHost, me.id])
+
   const seat = (session?.players.findIndex((p) => p.id === me.id) ?? -1) as Seat | -1
-  return { session, online, dispatch, seat, net, queued }
+  return { session: shown, online, dispatch, seat, net, queued }
 }
