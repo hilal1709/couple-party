@@ -1,6 +1,7 @@
 """Olah audio CC0 (sumber di D:/dev/audio-src) menjadi aset app di public/audio/.
 
-Jalankan:  python -I scripts/audio/build.py
+Jalankan:  python -I scripts/audio/build.py          (semua)
+           python -I scripts/audio/build.py draw     (hanya musik & SFX Tebak Gambar)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
 import subprocess
@@ -75,6 +76,20 @@ def music():
     tense_raw.unlink()
 
 
+def draw_music():
+    # Tebak Gambar: "Cozy Puzzle In-Game 1" oleh MintoDog — bossa nova saksofon & mallet, santai buat menggambar.
+    m = SRC / 'music'
+    loop = seamless_loop(load(m / 'cozy-puzzle-1.mp3'), 1.5)
+    write_ogg(loop, OUT / 'music' / 'draw.ogg', 64, lufs=-20)
+    # 15 detik terakhir: loop yang sama, ±10% lebih cepat supaya terasa diburu waktu
+    raw = OUT / 'music' / 'draw-loop.tmp.f32'
+    raw.write_bytes(loop.astype(np.float32).tobytes())
+    ff('-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', str(raw),
+       '-af', f'asetrate={int(SR * 1.05)},aresample={SR},atempo=1.05,loudnorm=I=-19:TP=-1.5:LRA=11',
+       '-ar', str(SR), '-c:a', 'libvorbis', '-b:a', '64k', str(OUT / 'music' / 'draw-tense.ogg'))
+    raw.unlink()
+
+
 SFX = {
     # kartu — Kenney "Casino Audio"
     'card-place-1': 'casino/x/Audio/card-place-1.ogg',
@@ -107,23 +122,40 @@ SFX = {
     'jingle-challenge-win': 'jingles/x/OGG/jingles_SAX/jingles_SAX16.ogg',
     'jingle-challenge-lose': 'jingles/x/OGG/jingles_SAX/jingles_SAX09.ogg',
     'jingle-out': 'jingles/x/OGG/jingles_SAX/jingles_SAX14.ogg',
+    # Tebak Gambar — Kenney "Music Jingles" versi steel drum & pizzicato + "Interface Sounds"
+    'draw-correct': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL16.ogg',
+    'draw-champion': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL02.ogg',
+    'draw-lose': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL01.ogg',
+    'draw-timeup': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL09.ogg',
+    'draw-reveal': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA10.ogg',
+    'draw-turn': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA04.ogg',
+    'draw-close': 'interface/x/Audio/question_002.ogg',
+    'draw-guess': 'interface/x/Audio/pluck_001.ogg',
+    'draw-scratch': 'interface/x/Audio/scratch_002.ogg',
+    'draw-tick': 'interface/x/Audio/tick_002.ogg',
 }
 
 
-def sfx():
-    missing = [k for k, v in SFX.items() if not (SRC / v).exists()]
+def sfx(prefix=''):
+    todo = {k: v for k, v in SFX.items() if k.startswith(prefix)}
+    missing = [k for k, v in todo.items() if not (SRC / v).exists()]
     if missing:
         sys.exit('File SFX tidak ditemukan: ' + ', '.join(f'{k} ({SFX[k]})' for k in missing))
-    for name, rel in SFX.items():
+    for name, rel in todo.items():
         x = load(SRC / rel)
         # potong hening di awal supaya responsif
         level = np.abs(x).max(axis=1)
         start = int(np.argmax(level > 0.01))
-        write_ogg(x[start:], OUT / 'sfx' / f'{name}.ogg', 64, mono=True, lufs=-16 if name.startswith('jingle') else -18)
+        write_ogg(x[start:], OUT / 'sfx' / f'{name}.ogg', 64, mono=True, lufs=-16 if name.startswith('jingle') or name in ('draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-reveal', 'draw-turn') else -18)
 
 
 if __name__ == '__main__':
-    music()
-    sfx()
+    if sys.argv[1:] == ['draw']:
+        draw_music()
+        sfx('draw-')
+    else:
+        music()
+        draw_music()
+        sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))
     print(f'Selesai: {len(list(OUT.rglob("*.ogg")))} file, {total / 1024 / 1024:.2f} MB di {OUT}')

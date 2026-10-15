@@ -2,7 +2,7 @@ import { Howl, Howler } from 'howler'
 import { useEffect, useSyncExternalStore } from 'react'
 import { store } from '@/net/transport'
 
-export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense'
+export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense'
 
 export type SfxName =
   | 'card-place-1'
@@ -33,6 +33,16 @@ export type SfxName =
   | 'jingle-challenge-win'
   | 'jingle-challenge-lose'
   | 'jingle-out'
+  | 'draw-correct'
+  | 'draw-champion'
+  | 'draw-lose'
+  | 'draw-timeup'
+  | 'draw-reveal'
+  | 'draw-turn'
+  | 'draw-close'
+  | 'draw-guess'
+  | 'draw-scratch'
+  | 'draw-tick'
 
 export type AudioSettings = { music: number; sfx: number; muted: boolean }
 

@@ -1,7 +1,11 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react'
+import drawArt from '@/assets/draw/tile-draw.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import unoArt from '@/assets/snakes/tile-uno.webp'
 import type { AnyGame, LobbyProps } from './types'
+import { draw } from './draw'
+import type { DrawOptions } from './draw/types'
+import { summary as drawSummary } from './draw/ui/copy'
 import { snakes } from './snakes'
 import type { SnakesOptions } from './snakes/types'
 import { uno } from './uno'
@@ -54,6 +58,16 @@ export const GAMES: GameEntry[] = [
       const on = [o.challenges && 'Truth/Dare', o.items && 'item', o.quiz && 'kuis', o.effects && 'efek'].filter(Boolean)
       return `${on.length ? on.join(', ') : 'Polos'} · tolak mundur ${o.penalty}`
     },
+  },
+  {
+    game: draw,
+    category: 'lainnya',
+    blurb: 'Gambar ngasal, tebak sampai ngakak',
+    minPlayers: 2,
+    maxPlayers: 8,
+    art: drawArt,
+    Lobby: lazy(() => import('./draw/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: DrawOptions) => drawSummary(o),
   },
 ]
 

@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1792002182.9334035,
-    "seen": 1792002251.2269366,
-    "ast_hash": "76188cc0be4be980c568aa4904b9ca56",
+    "mtime": 1792021961.5277667,
+    "seen": 1792024606.0729659,
+    "ast_hash": "76553cb50f573e912029141fcdd619e9",
     "semantic_hash": ""
   },
   "scripts/apk.mjs": {
@@ -36,8 +36,8 @@
     "semantic_hash": ""
   },
   "scripts/blender/scene.py": {
-    "mtime": 1792019926.7411747,
-    "seen": 1792021579.4067996,
+    "mtime": 1792021870.8258579,
+    "seen": 1792024606.0730445,
     "ast_hash": "0f82d8e0593336ee87cbebdd9c9de682",
     "semantic_hash": ""
   },
@@ -48,21 +48,21 @@
     "semantic_hash": ""
   },
   "scripts/lottie.mjs": {
-    "mtime": 1792019864.3870616,
-    "seen": 1792021579.4068165,
-    "ast_hash": "773f1792233ed75421905785f036c2fb",
+    "mtime": 1792023739.615759,
+    "seen": 1792024606.073063,
+    "ast_hash": "c9e1a631afcf50f58a853b5cadbab82d",
     "semantic_hash": ""
   },
   "src/App.tsx": {
-    "mtime": 1792021510.8574228,
-    "seen": 1792021579.4068265,
-    "ast_hash": "0d314291923d37a91967cd62f4154bd9",
+    "mtime": 1792021870.8319056,
+    "seen": 1792024606.0730717,
+    "ast_hash": "1caf13c083a86b5b2599a1e87c886753",
     "semantic_hash": ""
   },
   "src/Demo.tsx": {
-    "mtime": 1792000495.4763143,
-    "seen": 1792001114.0484211,
-    "ast_hash": "b5af677a4109b6a54af57403583acba0",
+    "mtime": 1792024266.5747495,
+    "seen": 1792024606.0730755,
+    "ast_hash": "519c102ca05b77413998aad8a21fba7e",
     "semantic_hash": ""
   },
   "src/assets/illustrations/hero.webp.json": {
@@ -90,14 +90,14 @@
     "semantic_hash": ""
   },
   "src/assets/lottie/burst.json": {
-    "mtime": 1792019868.740538,
-    "seen": 1792021579.4068534,
+    "mtime": 1792023739.9142232,
+    "seen": 1792024606.0731552,
     "ast_hash": "621d67404f56be56c9aab0a5004951cb",
     "semantic_hash": ""
   },
   "src/assets/lottie/confetti.json": {
-    "mtime": 1792019868.7395294,
-    "seen": 1792021579.4068635,
+    "mtime": 1792023739.9142232,
+    "seen": 1792024606.0731637,
     "ast_hash": "6336f4f7f6292de753a7a6f3133ada45",
     "semantic_hash": ""
   },
@@ -114,8 +114,8 @@
     "semantic_hash": ""
   },
   "src/components/memphis/Slab.tsx": {
-    "mtime": 1792020368.6059227,
-    "seen": 1792021579.4070907,
+    "mtime": 1792021870.8991613,
+    "seen": 1792024606.073386,
     "ast_hash": "344c0842542410126e666a402c750771",
     "semantic_hash": ""
   },
@@ -150,9 +150,9 @@
     "semantic_hash": ""
   },
   "src/games/registry.ts": {
-    "mtime": 1792020430.6665368,
-    "seen": 1792021579.4071243,
-    "ast_hash": "017bef50d7536439455d86ed4c52d0c3",
+    "mtime": 1792024157.5393643,
+    "seen": 1792024606.073453,
+    "ast_hash": "df09da562188a930cf353fa0a9ef7b3e",
     "semantic_hash": ""
   },
   "src/games/rng.ts": {
@@ -162,8 +162,8 @@
     "semantic_hash": ""
   },
   "src/games/types.ts": {
-    "mtime": 1792020420.0690076,
-    "seen": 1792021579.407171,
+    "mtime": 1792021870.9049556,
+    "seen": 1792024606.0735095,
     "ast_hash": "5c22426fa9bda796c337a5497e2f0d10",
     "semantic_hash": ""
   },
@@ -192,8 +192,8 @@
     "semantic_hash": ""
   },
   "src/games/uno/index.ts": {
-    "mtime": 1792020420.106269,
-    "seen": 1792021579.407195,
+    "mtime": 1792021870.9049556,
+    "seen": 1792024606.0735319,
     "ast_hash": "455f31bfc772704235591017d7c74221",
     "semantic_hash": ""
   },
@@ -204,8 +204,8 @@
     "semantic_hash": ""
   },
   "src/games/uno/ui/Lobby.tsx": {
-    "mtime": 1792020420.3539734,
-    "seen": 1792021579.4072123,
+    "mtime": 1792021870.9074726,
+    "seen": 1792024606.0735517,
     "ast_hash": "833f850feb85685ed0a4a09a3182e4e9",
     "semantic_hash": ""
   },
@@ -216,8 +216,8 @@
     "semantic_hash": ""
   },
   "src/games/uno/ui/UnoTable.tsx": {
-    "mtime": 1792020595.734327,
-    "seen": 1792021579.4072213,
+    "mtime": 1792021870.9094899,
+    "seen": 1792024606.07356,
     "ast_hash": "126ef0c9562bc6d3fad984e60c2f4371",
     "semantic_hash": ""
   },
@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "src/main.tsx": {
-    "mtime": 1792020916.2136734,
-    "seen": 1792021579.4072342,
-    "ast_hash": "bf345355e845fb66dfd3c29b94cceaf2",
+    "mtime": 1792024266.5747495,
+    "seen": 1792024606.0735736,
+    "ast_hash": "44cd0a0d995ce0c75681d9a02913c4a9",
     "semantic_hash": ""
   },
   "src/net/transport.ts": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "src/net/useRoom.ts": {
-    "mtime": 1792020827.219929,
-    "seen": 1792021579.4072516,
-    "ast_hash": "07193a0c62db76fa33d503737b79585c",
+    "mtime": 1792021870.9115071,
+    "seen": 1792024606.0735908,
+    "ast_hash": "d7984b310c72351b10b613b04f0c5648",
     "semantic_hash": ""
   },
   "tsconfig.app.json": {
@@ -306,9 +306,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1792020742.7409692,
-    "seen": 1792021579.4073343,
-    "ast_hash": "149863e5a7bb042ebeaa21f322b83dcd",
+    "mtime": 1792021870.8121715,
+    "seen": 1792024606.0736523,
+    "ast_hash": "c2950af148b0a0bc0228373f133be5f8",
     "semantic_hash": ""
   },
   "assets/icon-background.png": {
@@ -528,21 +528,21 @@
     "semantic_hash": ""
   },
   "scripts/release.mjs": {
-    "mtime": 1792018952.985277,
-    "seen": 1792021579.4068215,
-    "ast_hash": "c0e91f393173775dd456401445763db8",
+    "mtime": 1792021870.82989,
+    "seen": 1792024606.0730672,
+    "ast_hash": "11140fca3e743e99c5679201bac5b54f",
     "semantic_hash": ""
   },
   "src/update/UpdateBanner.tsx": {
-    "mtime": 1792020637.0759637,
-    "seen": 1792021579.4072556,
-    "ast_hash": "cf737d92775b75b6eca49fce48f93408",
+    "mtime": 1792021870.9135194,
+    "seen": 1792024606.073596,
+    "ast_hash": "5daec1b7f82897245e1b6727995a8d19",
     "semantic_hash": ""
   },
   "src/update/updater.ts": {
-    "mtime": 1792018953.6111922,
-    "seen": 1792021579.40726,
-    "ast_hash": "4d7be6dfe95f13f9dcc8723efbdc7803",
+    "mtime": 1792021870.9135194,
+    "seen": 1792024606.0736005,
+    "ast_hash": "21ead542cd02d38eaa40e1bcc123a03e",
     "semantic_hash": ""
   },
   "src/vite-env.d.ts": {
@@ -552,21 +552,21 @@
     "semantic_hash": ""
   },
   "scripts/audio/build.py": {
-    "mtime": 1792019756.2342198,
-    "seen": 1792021579.4067812,
-    "ast_hash": "d5d3a0c8b29ad00f421fb3c010281d0f",
+    "mtime": 1792023864.073428,
+    "seen": 1792024606.0729785,
+    "ast_hash": "18bd8d26ca92b7d87950afdc1969d6b3",
     "semantic_hash": ""
   },
   "src/audio/SoundSettings.tsx": {
-    "mtime": 1792019756.2352247,
-    "seen": 1792021579.407039,
-    "ast_hash": "3437232f93daaa5e23db1322e825815a",
+    "mtime": 1792023914.7648225,
+    "seen": 1792024606.0733376,
+    "ast_hash": "c1649c6af1a525627fe617ab82ce7162",
     "semantic_hash": ""
   },
   "src/audio/audio.ts": {
-    "mtime": 1792019736.4214778,
-    "seen": 1792021579.4070437,
-    "ast_hash": "b4ef0db7b1de13f7fe6a5e53e3107429",
+    "mtime": 1792023904.7670033,
+    "seen": 1792024606.0733418,
+    "ast_hash": "e4ebc218a3496cac4be03aea462b2c4f",
     "semantic_hash": ""
   },
   "src/components/ui/slider.tsx": {
@@ -588,9 +588,9 @@
     "semantic_hash": ""
   },
   "public/audio/CREDITS.md": {
-    "mtime": 1792019736.3443706,
-    "seen": 1792021579.4073396,
-    "ast_hash": "f8a9fe6848ba17bd1715b613384afb03",
+    "mtime": 1792023904.7827334,
+    "seen": 1792024606.0736563,
+    "ast_hash": "1290fc6da3e0d93734abc0536a451523",
     "semantic_hash": ""
   },
   "public/audio/music/menu.ogg": {
@@ -780,297 +780,297 @@
     "semantic_hash": ""
   },
   "scripts/blender/common.py": {
-    "mtime": 1792019926.7411747,
-    "seen": 1792021579.4067893,
+    "mtime": 1792021870.8228254,
+    "seen": 1792024606.073025,
     "ast_hash": "bf67d8e7ec744992143880c42ed0333f",
     "semantic_hash": ""
   },
   "scripts/blender/export.py": {
-    "mtime": 1792020190.2914062,
-    "seen": 1792021579.4067943,
-    "ast_hash": "e011041ef2b0f5e9953c09560452b58f",
+    "mtime": 1792023623.5073895,
+    "seen": 1792024606.0730383,
+    "ast_hash": "af391087f101863a8ee8a31c294c9a99",
     "semantic_hash": ""
   },
   "scripts/blender/snakes.py": {
-    "mtime": 1792020190.1319506,
-    "seen": 1792021579.4068043,
+    "mtime": 1792021870.8258579,
+    "seen": 1792024606.0730515,
     "ast_hash": "51dd1000d29380200ed00c6778899475",
     "semantic_hash": ""
   },
   "src/assets/lottie/card-pop.json": {
-    "mtime": 1792019868.7455285,
-    "seen": 1792021579.406858,
+    "mtime": 1792023739.925565,
+    "seen": 1792024606.0731595,
     "ast_hash": "7365e8907221b80498c715e87138b993",
     "semantic_hash": ""
   },
   "src/assets/lottie/dice-roll.json": {
-    "mtime": 1792019868.7425306,
-    "seen": 1792021579.4068675,
+    "mtime": 1792023739.921533,
+    "seen": 1792024606.0731676,
     "ast_hash": "5199283406483bfeb72bfac59aec862c",
     "semantic_hash": ""
   },
   "src/assets/lottie/item-pop.json": {
-    "mtime": 1792019868.7445297,
-    "seen": 1792021579.406871,
+    "mtime": 1792023739.92355,
+    "seen": 1792024606.0731893,
     "ast_hash": "38ce31aa42f51909e2837997a95a9422",
     "semantic_hash": ""
   },
   "src/assets/lottie/ladder-up.json": {
-    "mtime": 1792019868.7435327,
-    "seen": 1792021579.4068747,
+    "mtime": 1792023739.92355,
+    "seen": 1792024606.0731936,
     "ast_hash": "e86fe255d21289b812683cda7a46ab35",
     "semantic_hash": ""
   },
   "src/assets/lottie/loader.json": {
-    "mtime": 1792019868.7415302,
-    "seen": 1792021579.406879,
+    "mtime": 1792023739.9142232,
+    "seen": 1792024606.0731978,
     "ast_hash": "8b0033d9935919ba594881918ef5f09d",
     "semantic_hash": ""
   },
   "src/assets/lottie/snake-bite.json": {
-    "mtime": 1792019868.7435327,
-    "seen": 1792021579.4068825,
+    "mtime": 1792023739.92355,
+    "seen": 1792024606.0732017,
     "ast_hash": "422a0f3ab47296ec2e638ce427328cb8",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-paper-1.webp.json": {
-    "mtime": 1792020230.796342,
-    "seen": 1792021579.4068863,
+    "mtime": 1792021870.833918,
+    "seen": 1792024606.0732052,
     "ast_hash": "9211e5376f1c78ae9ff4e76f9a0c1716",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-paper-2.webp.json": {
-    "mtime": 1792020231.9218464,
-    "seen": 1792021579.40689,
+    "mtime": 1792021870.833918,
+    "seen": 1792024606.0732095,
     "ast_hash": "8abef475a0880eddf5f2dd2b9111aacc",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-paper-3.webp.json": {
-    "mtime": 1792020232.8610091,
-    "seen": 1792021579.4068937,
+    "mtime": 1792021870.8417053,
+    "seen": 1792024606.0732136,
     "ast_hash": "9d83f0afcbd067edf5b681c4d99a5f5a",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-paper-4.webp.json": {
-    "mtime": 1792020233.798775,
-    "seen": 1792021579.4068973,
+    "mtime": 1792021870.8417053,
+    "seen": 1792024606.0732174,
     "ast_hash": "25e716becc97193006a610007bdb86d1",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-paper-5.webp.json": {
-    "mtime": 1792020234.751752,
-    "seen": 1792021579.4069014,
+    "mtime": 1792021870.8449817,
+    "seen": 1792024606.0732214,
     "ast_hash": "98380646e124de3758ad46a104728051",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-paper-6.webp.json": {
-    "mtime": 1792020235.7343018,
-    "seen": 1792021579.406905,
+    "mtime": 1792021870.8449817,
+    "seen": 1792024606.0732257,
     "ast_hash": "415b94aba975388d316629aeabb75387",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-rose-1.webp.json": {
-    "mtime": 1792020236.6992345,
-    "seen": 1792021579.4069088,
+    "mtime": 1792021870.848,
+    "seen": 1792024606.0732298,
     "ast_hash": "fb7354aabc5f261bd48ed3674d281493",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-rose-2.webp.json": {
-    "mtime": 1792020237.687186,
-    "seen": 1792021579.406912,
+    "mtime": 1792021870.848,
+    "seen": 1792024606.0732334,
     "ast_hash": "4bfe0cb4310b7bf1c574e0930e11ea6b",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-rose-3.webp.json": {
-    "mtime": 1792020238.6204736,
-    "seen": 1792021579.4069228,
+    "mtime": 1792021870.848,
+    "seen": 1792024606.0732372,
     "ast_hash": "1798426b2246cae9abcfd150ee0a87f1",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-rose-4.webp.json": {
-    "mtime": 1792020239.559868,
-    "seen": 1792021579.4069283,
+    "mtime": 1792021870.8534238,
+    "seen": 1792024606.073241,
     "ast_hash": "6d5a4b1445da932c8fac8f2538ab0957",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-rose-5.webp.json": {
-    "mtime": 1792020240.5092955,
-    "seen": 1792021579.4069326,
+    "mtime": 1792021870.85561,
+    "seen": 1792024606.0732446,
     "ast_hash": "4656627801e37abe70aff540a817385b",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-rose-6.webp.json": {
-    "mtime": 1792020241.4589646,
-    "seen": 1792021579.4069366,
+    "mtime": 1792021870.85561,
+    "seen": 1792024606.0732481,
     "ast_hash": "c85a62c0384c3e181d3994e5f1920c04",
     "semantic_hash": ""
   },
   "src/assets/snakes/gift.webp.json": {
-    "mtime": 1792020242.3142738,
-    "seen": 1792021579.4069405,
+    "mtime": 1792021870.8573475,
+    "seen": 1792024606.0732515,
     "ast_hash": "11b3ff9b4c1753a365f30f645d9b6af0",
     "semantic_hash": ""
   },
   "src/assets/snakes/item-double.webp.json": {
-    "mtime": 1792020243.3244932,
-    "seen": 1792021579.4069438,
+    "mtime": 1792021870.8593564,
+    "seen": 1792024606.0732555,
     "ast_hash": "a74cb2da2e084a953e0e39c1d86f38bc",
     "semantic_hash": ""
   },
   "src/assets/snakes/item-pass.webp.json": {
-    "mtime": 1792020243.8302338,
-    "seen": 1792021579.4069474,
+    "mtime": 1792021870.8593564,
+    "seen": 1792024606.0732594,
     "ast_hash": "ec8a6c5e92297c7179d89773e2280f07",
     "semantic_hash": ""
   },
   "src/assets/snakes/item-shield.webp.json": {
-    "mtime": 1792020244.7810276,
-    "seen": 1792021579.4069514,
+    "mtime": 1792021870.8618662,
+    "seen": 1792024606.073263,
     "ast_hash": "d26980e32ef271ac579e0d6e1f09731d",
     "semantic_hash": ""
   },
   "src/assets/snakes/item-trap.webp.json": {
-    "mtime": 1792020246.003742,
-    "seen": 1792021579.4069555,
+    "mtime": 1792021870.863451,
+    "seen": 1792024606.0732672,
     "ast_hash": "20b6f641c8e8787a4cb2757e4f010e66",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-0.webp.json": {
-    "mtime": 1792020246.8903365,
-    "seen": 1792021579.4069593,
+    "mtime": 1792021870.8654597,
+    "seen": 1792024606.0732713,
     "ast_hash": "2d27cf698e415fccb2ea18148f3c46d3",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-1.webp.json": {
-    "mtime": 1792020247.781152,
-    "seen": 1792021579.406963,
+    "mtime": 1792021870.8674684,
+    "seen": 1792024606.073276,
     "ast_hash": "f680ac2700539d32ca6f4af857531226",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-2.webp.json": {
-    "mtime": 1792020248.680734,
-    "seen": 1792021579.4069676,
+    "mtime": 1792021870.8674684,
+    "seen": 1792024606.07328,
     "ast_hash": "2ded3a6e6f11d832eca1e607ad8ae05f",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-3.webp.json": {
-    "mtime": 1792020249.5710678,
-    "seen": 1792021579.406971,
+    "mtime": 1792021870.869475,
+    "seen": 1792024606.0732837,
     "ast_hash": "e2c8d5208d42490f7f50c0583dc6fdd5",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-4.webp.json": {
-    "mtime": 1792020250.4705997,
-    "seen": 1792021579.4069748,
+    "mtime": 1792021870.869475,
+    "seen": 1792024606.0732877,
     "ast_hash": "707abb3e80e4bcbde121eefd77e7d547",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-5.webp.json": {
-    "mtime": 1792020251.3601074,
-    "seen": 1792021579.4069788,
+    "mtime": 1792021870.8714821,
+    "seen": 1792024606.0732918,
     "ast_hash": "cf6e221207c879112390762ef0780680",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-6.webp.json": {
-    "mtime": 1792020252.2477026,
-    "seen": 1792021579.4069827,
+    "mtime": 1792021870.8732333,
+    "seen": 1792024606.0732963,
     "ast_hash": "fbe59f61cdef562c09173535889e3cf3",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-7.webp.json": {
-    "mtime": 1792020253.1365397,
-    "seen": 1792021579.4069865,
+    "mtime": 1792021870.8752463,
+    "seen": 1792024606.0732996,
     "ast_hash": "3f12ccdd81dc2326af2b0bae45a4a363",
     "semantic_hash": ""
   },
   "src/assets/snakes/snake-head-0.webp.json": {
-    "mtime": 1792020253.9994621,
-    "seen": 1792021579.4069905,
+    "mtime": 1792021870.8772624,
+    "seen": 1792024606.0733037,
     "ast_hash": "4d89ee0cd1c38f869d1733b314a1d486",
     "semantic_hash": ""
   },
   "src/assets/snakes/snake-head-1.webp.json": {
-    "mtime": 1792020254.8913748,
-    "seen": 1792021579.4069946,
+    "mtime": 1792021870.879275,
+    "seen": 1792024606.0733085,
     "ast_hash": "b2efe5c780dfbf05c27603aedfadd0a6",
     "semantic_hash": ""
   },
   "src/assets/snakes/snake-head-2.webp.json": {
-    "mtime": 1792020255.7590008,
-    "seen": 1792021579.406999,
+    "mtime": 1792021870.879275,
+    "seen": 1792024606.0733116,
     "ast_hash": "2b84bb88ac03ed8a38361f3ce082aeea",
     "semantic_hash": ""
   },
   "src/assets/snakes/snake-head-3.webp.json": {
-    "mtime": 1792020256.618204,
-    "seen": 1792021579.4070032,
+    "mtime": 1792021870.8812885,
+    "seen": 1792024606.0733159,
     "ast_hash": "f34ca55669ea79fc0492b07c99ffaf7e",
     "semantic_hash": ""
   },
   "src/assets/snakes/snakes-lose.webp.json": {
-    "mtime": 1792020261.5947666,
-    "seen": 1792021579.4070072,
+    "mtime": 1792021870.883301,
+    "seen": 1792024606.07332,
     "ast_hash": "0420f06c8d9b1b817de4445114d65aca",
     "semantic_hash": ""
   },
   "src/assets/snakes/snakes-win.webp.json": {
-    "mtime": 1792020266.6589272,
-    "seen": 1792021579.407012,
+    "mtime": 1792021870.8853183,
+    "seen": 1792024606.0733244,
     "ast_hash": "a579d67c2b24d0ffb0267a77fc731e6d",
     "semantic_hash": ""
   },
   "src/assets/snakes/tile-snakes.webp.json": {
-    "mtime": 1792020272.5333965,
-    "seen": 1792021579.4070168,
+    "mtime": 1792021870.887335,
+    "seen": 1792024606.0733297,
     "ast_hash": "42d2cf350c01def08d2a9367dd4bfa2e",
     "semantic_hash": ""
   },
   "src/assets/snakes/tile-uno.webp.json": {
-    "mtime": 1792020278.0193605,
-    "seen": 1792021579.4070323,
+    "mtime": 1792021870.889084,
+    "seen": 1792024606.0733335,
     "ast_hash": "0092dbb13c755bd7c0cc26d2c6ff035f",
     "semantic_hash": ""
   },
   "src/components/feedback/Banner.tsx": {
-    "mtime": 1792020351.6364684,
-    "seen": 1792021579.4070477,
-    "ast_hash": "b1c5a8e928df0acb14f5a86e50235dc4",
+    "mtime": 1792021870.8931165,
+    "seen": 1792024606.073348,
+    "ast_hash": "cfd5a0414dbe2af4ab495cffaf2637b5",
     "semantic_hash": ""
   },
   "src/components/feedback/Loader.tsx": {
-    "mtime": 1792020347.4275599,
-    "seen": 1792021579.4070528,
-    "ast_hash": "f62191d030b02e33cd488d7a8eb1f64a",
+    "mtime": 1792021870.8931165,
+    "seen": 1792024606.0733523,
+    "ast_hash": "fa11e3a80fb095402dc50ee7219ea083",
     "semantic_hash": ""
   },
   "src/components/feedback/Modal.tsx": {
-    "mtime": 1792020348.3271112,
-    "seen": 1792021579.4070578,
-    "ast_hash": "837623381bf9765f04a23c23bbf5b149",
+    "mtime": 1792021870.895137,
+    "seen": 1792024606.0733566,
+    "ast_hash": "9405c0759e5483207dd794bd834d4122",
     "semantic_hash": ""
   },
   "src/components/feedback/Toaster.tsx": {
-    "mtime": 1792020350.847836,
-    "seen": 1792021579.4070613,
-    "ast_hash": "05df770adc1880595411c551b7a12905",
+    "mtime": 1792021870.895137,
+    "seen": 1792024606.0733607,
+    "ast_hash": "150f1310a594ace7b03fc0c1c5cffa95",
     "semantic_hash": ""
   },
   "src/components/feedback/toast.test.ts": {
-    "mtime": 1792020770.9190536,
-    "seen": 1792021579.4070654,
-    "ast_hash": "30e12b61b09d9f20de4fa8d1e741c6fb",
+    "mtime": 1792021870.89715,
+    "seen": 1792024606.0733645,
+    "ast_hash": "9881e8ec2b09d8f720e6de0adf942f58",
     "semantic_hash": ""
   },
   "src/components/feedback/toast.ts": {
-    "mtime": 1792020349.2424684,
-    "seen": 1792021579.4070697,
-    "ast_hash": "5638d1a6c552ed9a977451883908c372",
+    "mtime": 1792021870.89715,
+    "seen": 1792024606.0733678,
+    "ast_hash": "e2a4997172379f9903d3c3055569a888",
     "semantic_hash": ""
   },
   "src/components/feedback/tones.ts": {
-    "mtime": 1792020350.037611,
-    "seen": 1792021579.4070733,
-    "ast_hash": "0eaf7ea293260933204ea59a4e95af30",
+    "mtime": 1792021870.89715,
+    "seen": 1792024606.073372,
+    "ast_hash": "8667687009c5cd584b01bcac38151a8d",
     "semantic_hash": ""
   },
   "src/games/snakes/board.ts": {
@@ -1098,8 +1098,8 @@
     "semantic_hash": ""
   },
   "src/games/snakes/index.ts": {
-    "mtime": 1792020420.2463145,
-    "seen": 1792021579.407149,
+    "mtime": 1792021870.9011757,
+    "seen": 1792024606.0734816,
     "ast_hash": "1c15deb74a40248b83fd7edf8866eeff",
     "semantic_hash": ""
   },
@@ -1110,20 +1110,20 @@
     "semantic_hash": ""
   },
   "src/games/snakes/ui/Lobby.tsx": {
-    "mtime": 1792020420.4025297,
-    "seen": 1792021579.4071562,
+    "mtime": 1792021870.9011757,
+    "seen": 1792024606.0734897,
     "ast_hash": "3ee0fa4dd4025cec88850853093c846b",
     "semantic_hash": ""
   },
   "src/games/snakes/ui/SnakesBoard.tsx": {
-    "mtime": 1792020714.700831,
-    "seen": 1792021579.4071603,
+    "mtime": 1792021870.9031937,
+    "seen": 1792024606.0734944,
     "ast_hash": "aa22a1ab20b60f013b70fe2c0f3336a2",
     "semantic_hash": ""
   },
   "src/games/snakes/ui/art.tsx": {
-    "mtime": 1792020674.6520245,
-    "seen": 1792021579.4071639,
+    "mtime": 1792021870.9031937,
+    "seen": 1792024606.0734987,
     "ast_hash": "ec7244497b12b852daca6c7dd894a13f",
     "semantic_hash": ""
   },
@@ -1134,423 +1134,891 @@
     "semantic_hash": ""
   },
   "src/net/session.ts": {
-    "mtime": 1792020796.8395164,
-    "seen": 1792021579.4072385,
-    "ast_hash": "7bf851be837ce75bb1750cb873a30572",
+    "mtime": 1792021870.9094899,
+    "seen": 1792024606.073578,
+    "ast_hash": "446a89462b326342f7f302e42a99c3d3",
     "semantic_hash": ""
   },
   "src/net/useRoom.test.ts": {
-    "mtime": 1792020796.73394,
-    "seen": 1792021579.4072475,
-    "ast_hash": "05702fdcc703121eba01a7f6c27a59a9",
+    "mtime": 1792021870.9115071,
+    "seen": 1792024606.073587,
+    "ast_hash": "1d256416c6ec7fe4e7210af354c84899",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-paper-1.png": {
-    "mtime": 1792020208.4314377,
-    "seen": 1792021579.4073756,
+    "mtime": 1792021870.6848135,
+    "seen": 1792024606.0737615,
     "ast_hash": "33c828af5e6cca4a5ee5d096a2b70b5e",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-paper-2.png": {
-    "mtime": 1792020209.1204896,
-    "seen": 1792021579.4073796,
+    "mtime": 1792021870.6868265,
+    "seen": 1792024606.0737653,
     "ast_hash": "ec9c4115c1a0162f93fc30339dd3dd85",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-paper-3.png": {
-    "mtime": 1792020209.7981546,
-    "seen": 1792021579.4073834,
+    "mtime": 1792021870.688842,
+    "seen": 1792024606.0737705,
     "ast_hash": "e55cf7fe709c4b258d86eb88dcde19ca",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-paper-4.png": {
-    "mtime": 1792020210.5078173,
-    "seen": 1792021579.4073868,
+    "mtime": 1792021870.6893568,
+    "seen": 1792024606.0737758,
     "ast_hash": "d9cd8f91712a914d2b6655238297ae94",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-paper-5.png": {
-    "mtime": 1792020211.317719,
-    "seen": 1792021579.407391,
+    "mtime": 1792021870.6913667,
+    "seen": 1792024606.0737805,
     "ast_hash": "a5950863c7875189c4c1abc2a394d0ed",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-paper-6.png": {
-    "mtime": 1792020212.1836946,
-    "seen": 1792021579.407395,
+    "mtime": 1792021870.6933775,
+    "seen": 1792024606.073784,
     "ast_hash": "725c5fa99b7cb0eb0caca455eadcc681",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-rose-1.png": {
-    "mtime": 1792020212.920859,
-    "seen": 1792021579.4073985,
+    "mtime": 1792021870.6953917,
+    "seen": 1792024606.073788,
     "ast_hash": "30bd73675fe32f5188b6af745b6b3c1d",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-rose-2.png": {
-    "mtime": 1792020213.6437223,
-    "seen": 1792021579.4074023,
+    "mtime": 1792021870.6974072,
+    "seen": 1792024606.0737927,
     "ast_hash": "f47bd7e876d05626c0e2e4610b2158a3",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-rose-3.png": {
-    "mtime": 1792020214.3610556,
-    "seen": 1792021579.4074056,
+    "mtime": 1792021870.7009366,
+    "seen": 1792024606.0737972,
     "ast_hash": "ebeb2a451ea9003f7768ad4a44b76b3b",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-rose-4.png": {
-    "mtime": 1792020215.144423,
-    "seen": 1792021579.4074094,
+    "mtime": 1792021870.7029548,
+    "seen": 1792024606.073801,
     "ast_hash": "6ba562f6c3173ff2cf93b9763dacf156",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-rose-5.png": {
-    "mtime": 1792020215.910571,
-    "seen": 1792021579.407413,
+    "mtime": 1792021870.7049687,
+    "seen": 1792024606.0738049,
     "ast_hash": "515a55a0b4df40b1daacee11636e3bec",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-rose-6.png": {
-    "mtime": 1792020216.6737065,
-    "seen": 1792021579.4074163,
+    "mtime": 1792021870.7069826,
+    "seen": 1792024606.0738087,
     "ast_hash": "9f93b23acc5faf4eea3d168866663087",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/gift.png": {
-    "mtime": 1792020222.5735366,
-    "seen": 1792021579.40742,
+    "mtime": 1792021870.7090235,
+    "seen": 1792024606.0738132,
     "ast_hash": "3a0902e1d539c26506a58aa185fb6648",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/item-double.png": {
-    "mtime": 1792020221.8745441,
-    "seen": 1792021579.4074235,
+    "mtime": 1792021870.7090235,
+    "seen": 1792024606.0738175,
     "ast_hash": "17c24c2a3b3e1e36291ffbd9f728ebd5",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/item-pass.png": {
-    "mtime": 1792020220.432671,
-    "seen": 1792021579.407427,
+    "mtime": 1792021870.711042,
+    "seen": 1792024606.0738227,
     "ast_hash": "3abebbdabea1fef346ce3aad7d90e098",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/item-shield.png": {
-    "mtime": 1792020219.8072102,
-    "seen": 1792021579.4074306,
+    "mtime": 1792021870.7130592,
+    "seen": 1792024606.0738275,
     "ast_hash": "22aece3b25179570cc040cd4aec8993f",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/item-trap.png": {
-    "mtime": 1792020221.0913432,
-    "seen": 1792021579.4074345,
+    "mtime": 1792021870.7150733,
+    "seen": 1792024606.0738318,
     "ast_hash": "092dc275e8abf13470a3b8b87e2e4b6f",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/pawn-0.png": {
-    "mtime": 1792020202.4500978,
-    "seen": 1792021579.4074378,
+    "mtime": 1792021870.7160864,
+    "seen": 1792024606.0738356,
     "ast_hash": "34b592705c7cc53f61e727841db60d4d",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/pawn-1.png": {
-    "mtime": 1792020203.2529643,
-    "seen": 1792021579.4074414,
+    "mtime": 1792021870.718112,
+    "seen": 1792024606.07384,
     "ast_hash": "6cd1e5b839175d710b76a21af2454bee",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/pawn-2.png": {
-    "mtime": 1792020204.0150526,
-    "seen": 1792021579.4074447,
+    "mtime": 1792021870.718112,
+    "seen": 1792024606.0738444,
     "ast_hash": "9d395858ae87a89093a5873ee647ad62",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/pawn-3.png": {
-    "mtime": 1792020204.7810817,
-    "seen": 1792021579.4074483,
+    "mtime": 1792021870.718112,
+    "seen": 1792024606.0738492,
     "ast_hash": "62091a8715549eaa8843c25ef5b680b9",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/pawn-4.png": {
-    "mtime": 1792020205.5197985,
-    "seen": 1792021579.4074514,
+    "mtime": 1792021870.718112,
+    "seen": 1792024606.0738535,
     "ast_hash": "b26b3a05c64a3591244a6e46960be1c4",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/pawn-5.png": {
-    "mtime": 1792020206.2592614,
-    "seen": 1792021579.407455,
+    "mtime": 1792021870.718112,
+    "seen": 1792024606.0738573,
     "ast_hash": "f39a81b33b325bd88ca551e142509b51",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/pawn-6.png": {
-    "mtime": 1792020207.0047767,
-    "seen": 1792021579.4074583,
+    "mtime": 1792021870.718112,
+    "seen": 1792024606.0738611,
     "ast_hash": "4d210205c60739b8e14294b028cd735d",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/pawn-7.png": {
-    "mtime": 1792020207.7436826,
-    "seen": 1792021579.4074614,
+    "mtime": 1792021870.733922,
+    "seen": 1792024606.0738652,
     "ast_hash": "c7fb01b6015e870216ff33fcdc1be584",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/snake-head-0.png": {
-    "mtime": 1792020217.330007,
-    "seen": 1792021579.407465,
+    "mtime": 1792021870.7359383,
+    "seen": 1792024606.0738697,
     "ast_hash": "5c73398f37f3383fb5458a8025b66600",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/snake-head-1.png": {
-    "mtime": 1792020217.958379,
-    "seen": 1792021579.407468,
+    "mtime": 1792021870.7359383,
+    "seen": 1792024606.073874,
     "ast_hash": "71c7d29f9029374ba47e8294d6f39785",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/snake-head-2.png": {
-    "mtime": 1792020218.5689037,
-    "seen": 1792021579.4074714,
+    "mtime": 1792021870.7384517,
+    "seen": 1792024606.0738785,
     "ast_hash": "6de75bd4dadba6677aa5d7c998ba719d",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/snake-head-3.png": {
-    "mtime": 1792020219.17814,
-    "seen": 1792021579.4074748,
+    "mtime": 1792021870.7384517,
+    "seen": 1792024606.073882,
     "ast_hash": "bdf566e4770b3a0692dfea1e19c021a2",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/snakes-lose.png": {
-    "mtime": 1792020228.5896294,
-    "seen": 1792021579.4074783,
+    "mtime": 1792021870.747538,
+    "seen": 1792024606.073886,
     "ast_hash": "3ed48808360d559cf873966841bae08b",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/snakes-win.png": {
-    "mtime": 1792020226.998657,
-    "seen": 1792021579.4074814,
+    "mtime": 1792021870.7564454,
+    "seen": 1792024606.0738897,
     "ast_hash": "708cc06a98e56854ad4bc3a7558456d3",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/tile-snakes.png": {
-    "mtime": 1792020224.2432196,
-    "seen": 1792021579.4074848,
+    "mtime": 1792021870.764812,
+    "seen": 1792024606.073895,
     "ast_hash": "9ad3cc248faba0606406b9dcb322a461",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/tile-uno.png": {
-    "mtime": 1792020225.4652448,
-    "seen": 1792021579.407488,
+    "mtime": 1792021870.764812,
+    "seen": 1792024606.073899,
     "ast_hash": "60574441f1ca295e4dae0cef3f694a51",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-paper-1.webp": {
-    "mtime": 1792020230.796342,
-    "seen": 1792021579.407625,
+    "mtime": 1792021870.833918,
+    "seen": 1792024606.0741053,
     "ast_hash": "38dfca56132729b78083dd6b500034e6",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-paper-2.webp": {
-    "mtime": 1792020231.9208417,
-    "seen": 1792021579.4076293,
+    "mtime": 1792021870.833918,
+    "seen": 1792024606.0741098,
     "ast_hash": "d6e199965b27f0504c941c7cf213e24d",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-paper-3.webp": {
-    "mtime": 1792020232.8570044,
-    "seen": 1792021579.407633,
+    "mtime": 1792021870.8417053,
+    "seen": 1792024606.0741143,
     "ast_hash": "dc2e0495152f890dedddad0968b28f1d",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-paper-4.webp": {
-    "mtime": 1792020233.797765,
-    "seen": 1792021579.4076374,
+    "mtime": 1792021870.8417053,
+    "seen": 1792024606.0741189,
     "ast_hash": "ff3742f5c1a58b974d6a42d79300c51b",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-paper-5.webp": {
-    "mtime": 1792020234.751752,
-    "seen": 1792021579.4076405,
+    "mtime": 1792021870.8449817,
+    "seen": 1792024606.074123,
     "ast_hash": "f5f7fb73656a023675ada4793e5e03f7",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-paper-6.webp": {
-    "mtime": 1792020235.7333045,
-    "seen": 1792021579.4076438,
+    "mtime": 1792021870.8449817,
+    "seen": 1792024606.0741262,
     "ast_hash": "da86d34f7721e01b86ee4440f9f6a63c",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-rose-1.webp": {
-    "mtime": 1792020236.6982331,
-    "seen": 1792021579.4076474,
+    "mtime": 1792021870.848,
+    "seen": 1792024606.07413,
     "ast_hash": "61dd68c2c1fdcbed7011c62e9b18d91b",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-rose-2.webp": {
-    "mtime": 1792020237.6861813,
-    "seen": 1792021579.4076507,
+    "mtime": 1792021870.848,
+    "seen": 1792024606.0741348,
     "ast_hash": "80569b7590329c2a54ca7e01aac72f43",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-rose-3.webp": {
-    "mtime": 1792020238.6194696,
-    "seen": 1792021579.4076548,
+    "mtime": 1792021870.848,
+    "seen": 1792024606.0741389,
     "ast_hash": "9e18fe184136b187d94d2d661bf21485",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-rose-4.webp": {
-    "mtime": 1792020239.5588663,
-    "seen": 1792021579.407658,
+    "mtime": 1792021870.8534238,
+    "seen": 1792024606.0741427,
     "ast_hash": "ab819cfd5f646ece2a961bbc1bf3d57c",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-rose-5.webp": {
-    "mtime": 1792020240.5082877,
-    "seen": 1792021579.4076617,
+    "mtime": 1792021870.8534238,
+    "seen": 1792024606.0741465,
     "ast_hash": "a6205b643376b20024927b205927fb24",
     "semantic_hash": ""
   },
   "src/assets/snakes/die-rose-6.webp": {
-    "mtime": 1792020241.4579644,
-    "seen": 1792021579.407665,
+    "mtime": 1792021870.85561,
+    "seen": 1792024606.0741508,
     "ast_hash": "ff489ddc6f85141a9f0798770bb6678d",
     "semantic_hash": ""
   },
   "src/assets/snakes/gift.webp": {
-    "mtime": 1792020242.3132703,
-    "seen": 1792021579.407668,
+    "mtime": 1792021870.8573475,
+    "seen": 1792024606.0741549,
     "ast_hash": "aa90b90637fe7b816703c83a83131892",
     "semantic_hash": ""
   },
   "src/assets/snakes/item-double.webp": {
-    "mtime": 1792020243.323484,
-    "seen": 1792021579.4076715,
+    "mtime": 1792021870.8593564,
+    "seen": 1792024606.0741596,
     "ast_hash": "1397bc5bddedc7e5e516291adc0dc66a",
     "semantic_hash": ""
   },
   "src/assets/snakes/item-pass.webp": {
-    "mtime": 1792020243.8292348,
-    "seen": 1792021579.4076746,
+    "mtime": 1792021870.8593564,
+    "seen": 1792024606.0741644,
     "ast_hash": "b13cd389787a45321d0a88170a62c20e",
     "semantic_hash": ""
   },
   "src/assets/snakes/item-shield.webp": {
-    "mtime": 1792020244.7810276,
-    "seen": 1792021579.4076777,
+    "mtime": 1792021870.8618662,
+    "seen": 1792024606.0741692,
     "ast_hash": "4db5579ff87e14ebec169886efe40812",
     "semantic_hash": ""
   },
   "src/assets/snakes/item-trap.webp": {
-    "mtime": 1792020246.0027466,
-    "seen": 1792021579.4076817,
+    "mtime": 1792021870.863451,
+    "seen": 1792024606.0741737,
     "ast_hash": "85890b75a0ed63f8a5533cd90c858dd4",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-0.webp": {
-    "mtime": 1792020246.8893301,
-    "seen": 1792021579.407686,
+    "mtime": 1792021870.863451,
+    "seen": 1792024606.0741777,
     "ast_hash": "71cb44c11dacc257402da32018939844",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-1.webp": {
-    "mtime": 1792020247.7801533,
-    "seen": 1792021579.4076898,
+    "mtime": 1792021870.8654597,
+    "seen": 1792024606.0741818,
     "ast_hash": "483352e5951615829242fc3730369d64",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-2.webp": {
-    "mtime": 1792020248.6797361,
-    "seen": 1792021579.4076934,
+    "mtime": 1792021870.8674684,
+    "seen": 1792024606.0741856,
     "ast_hash": "2852cfe3a865a480f1227eddab6e7aeb",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-3.webp": {
-    "mtime": 1792020249.5710678,
-    "seen": 1792021579.4076967,
+    "mtime": 1792021870.8674684,
+    "seen": 1792024606.0741894,
     "ast_hash": "8ccdd5c4d6d96efbdf9d5e02d0ee9671",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-4.webp": {
-    "mtime": 1792020250.4705997,
-    "seen": 1792021579.4076998,
+    "mtime": 1792021870.869475,
+    "seen": 1792024606.0741937,
     "ast_hash": "e2fb8f0e8c4082feaf31ddd1139c9f80",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-5.webp": {
-    "mtime": 1792020251.3591073,
-    "seen": 1792021579.407703,
+    "mtime": 1792021870.8714821,
+    "seen": 1792024606.0741987,
     "ast_hash": "9e26536b45fd2fe306a3373f2bdf3fef",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-6.webp": {
-    "mtime": 1792020252.2466993,
-    "seen": 1792021579.4077063,
+    "mtime": 1792021870.8732333,
+    "seen": 1792024606.0742028,
     "ast_hash": "735b16ec40684eb07376967f332f4588",
     "semantic_hash": ""
   },
   "src/assets/snakes/pawn-7.webp": {
-    "mtime": 1792020253.1355336,
-    "seen": 1792021579.4077096,
+    "mtime": 1792021870.8732333,
+    "seen": 1792024606.0742073,
     "ast_hash": "a36c08810a40c3479bf75d1811458ba3",
     "semantic_hash": ""
   },
   "src/assets/snakes/snake-head-0.webp": {
-    "mtime": 1792020253.9954624,
-    "seen": 1792021579.4077132,
+    "mtime": 1792021870.8752463,
+    "seen": 1792024606.0742114,
     "ast_hash": "b898549580f4dec260b117b6fae2ffff",
     "semantic_hash": ""
   },
   "src/assets/snakes/snake-head-1.webp": {
-    "mtime": 1792020254.8913748,
-    "seen": 1792021579.4077172,
+    "mtime": 1792021870.8772624,
+    "seen": 1792024606.074215,
     "ast_hash": "7d427344dfb336172cee8dd218271485",
     "semantic_hash": ""
   },
   "src/assets/snakes/snake-head-2.webp": {
-    "mtime": 1792020255.7580006,
-    "seen": 1792021579.4077208,
+    "mtime": 1792021870.879275,
+    "seen": 1792024606.0742202,
     "ast_hash": "e2aa71056ba1190d986421d25e055762",
     "semantic_hash": ""
   },
   "src/assets/snakes/snake-head-3.webp": {
-    "mtime": 1792020256.617191,
-    "seen": 1792021579.4077241,
+    "mtime": 1792021870.8812885,
+    "seen": 1792024606.0742252,
     "ast_hash": "5d42e101ba1f7ae09ccada6e19088550",
     "semantic_hash": ""
   },
   "src/assets/snakes/snakes-lose.webp": {
-    "mtime": 1792020261.5947666,
-    "seen": 1792021579.4077277,
+    "mtime": 1792021870.883301,
+    "seen": 1792024606.0742295,
     "ast_hash": "0e979de523b021186dfe81f4e9a3fba6",
     "semantic_hash": ""
   },
   "src/assets/snakes/snakes-win.webp": {
-    "mtime": 1792020266.6589272,
-    "seen": 1792021579.4077306,
+    "mtime": 1792021870.8853183,
+    "seen": 1792024606.0742369,
     "ast_hash": "f8d9d3aa5f5a2db62f035aed3f9598c2",
     "semantic_hash": ""
   },
   "src/assets/snakes/tile-snakes.webp": {
-    "mtime": 1792020272.5323951,
-    "seen": 1792021579.407734,
+    "mtime": 1792021870.887335,
+    "seen": 1792024606.0742412,
     "ast_hash": "a20d770a3d92d7e9dd2170d7ae2a902d",
     "semantic_hash": ""
   },
   "src/assets/snakes/tile-uno.webp": {
-    "mtime": 1792020278.0183597,
-    "seen": 1792021579.4077375,
+    "mtime": 1792021870.889084,
+    "seen": 1792024606.0742452,
     "ast_hash": "09dc10ed6940aa34ba9c08f942b30a95",
     "semantic_hash": ""
   },
   "public/audio/music/snakes-tense.ogg": {
-    "mtime": 1792019773.37756,
-    "seen": 1792021579.4077451,
+    "mtime": 1792021870.8167748,
+    "seen": 1792024606.0742638,
     "ast_hash": "297578a69dc1cbb2ef1fcd4e03dd6b4b",
     "semantic_hash": ""
   },
   "public/audio/music/snakes.ogg": {
-    "mtime": 1792019771.7876432,
-    "seen": 1792021579.4077485,
+    "mtime": 1792021870.8208115,
+    "seen": 1792024606.0742693,
     "ast_hash": "0b5f45a07cb940b312ae2ed98246221d",
+    "semantic_hash": ""
+  },
+  "scripts/blender/draw.py": {
+    "mtime": 1792023609.6972027,
+    "seen": 1792024606.0730317,
+    "ast_hash": "c801b5d9c7192310ac6e2a8163ce82f5",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-0.webp.json": {
+    "mtime": 1792023625.3570614,
+    "seen": 1792024606.073079,
+    "ast_hash": "b16b1017f68d7b02e68cdb26c27a46d1",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-1.webp.json": {
+    "mtime": 1792023626.3979707,
+    "seen": 1792024606.0730827,
+    "ast_hash": "17f402205778b785ca8886304d876d67",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-2.webp.json": {
+    "mtime": 1792023627.3988025,
+    "seen": 1792024606.0730865,
+    "ast_hash": "cab65c45c02589cc21ddb57b3a5a9679",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-3.webp.json": {
+    "mtime": 1792023628.3900187,
+    "seen": 1792024606.0730903,
+    "ast_hash": "4e6bdde88a47b308143340fa9c735190",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-4.webp.json": {
+    "mtime": 1792023629.3741975,
+    "seen": 1792024606.0730937,
+    "ast_hash": "664a54c691616a8ad4ea3fb6c1e5516f",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-5.webp.json": {
+    "mtime": 1792023630.3425512,
+    "seen": 1792024606.0730977,
+    "ast_hash": "e5937f1893450f166999da8d006a2d3b",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-6.webp.json": {
+    "mtime": 1792023631.4117234,
+    "seen": 1792024606.0731013,
+    "ast_hash": "93f86c7445889218e79fca82ed46e3e9",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-7.webp.json": {
+    "mtime": 1792023632.4419465,
+    "seen": 1792024606.0731044,
+    "ast_hash": "e1a199e49562505b2d2c1ba1f77ded58",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/draw-lose.webp.json": {
+    "mtime": 1792023639.5064814,
+    "seen": 1792024606.0731077,
+    "ast_hash": "bff8eedbff6c0ea35b4db85d72a96e21",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/draw-win.webp.json": {
+    "mtime": 1792023647.4302144,
+    "seen": 1792024606.073111,
+    "ast_hash": "9f314f9d209bc3682ef06cef0c639407",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/stopwatch.webp.json": {
+    "mtime": 1792023648.8966413,
+    "seen": 1792024606.073114,
+    "ast_hash": "6d43511d7c72e246b673035665c5e3f5",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/tile-draw.webp.json": {
+    "mtime": 1792023656.0137496,
+    "seen": 1792024606.0731168,
+    "ast_hash": "6a35d7d5333c27f6230584ed7dbdba96",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/tool-bin.webp.json": {
+    "mtime": 1792023657.2647476,
+    "seen": 1792024606.0731194,
+    "ast_hash": "67bb4942f37eb348a0dbb72bf0a6cabc",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/tool-eraser.webp.json": {
+    "mtime": 1792023658.154322,
+    "seen": 1792024606.0731227,
+    "ast_hash": "23930d477199d57510d8f3ad1850b418",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/tool-pencil.webp.json": {
+    "mtime": 1792023659.035819,
+    "seen": 1792024606.073126,
+    "ast_hash": "78a91fc9a6efdeb4c20ac20ab29e43f6",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/tool-undo.webp.json": {
+    "mtime": 1792023660.5951457,
+    "seen": 1792024606.0731297,
+    "ast_hash": "6b8ecc008466c3187779b683cec9b9ac",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/wordcard.webp.json": {
+    "mtime": 1792023661.9194884,
+    "seen": 1792024606.0731328,
+    "ast_hash": "9e4521e9ed024f0a0242c9b53b13a18e",
+    "semantic_hash": ""
+  },
+  "src/assets/lottie/draw-close.json": {
+    "mtime": 1792023739.925565,
+    "seen": 1792024606.073171,
+    "ast_hash": "f4d7d0bff74790d9bea9bc983869aa48",
+    "semantic_hash": ""
+  },
+  "src/assets/lottie/draw-correct.json": {
+    "mtime": 1792023739.925565,
+    "seen": 1792024606.0731742,
+    "ast_hash": "044ff425923d7e98fcf3c33d1b21793a",
+    "semantic_hash": ""
+  },
+  "src/assets/lottie/draw-pick.json": {
+    "mtime": 1792023739.925565,
+    "seen": 1792024606.0731776,
+    "ast_hash": "3b8381d0fc0ee42ae8e64a3babd0f251",
+    "semantic_hash": ""
+  },
+  "src/assets/lottie/draw-reveal.json": {
+    "mtime": 1792023739.925565,
+    "seen": 1792024606.0731816,
+    "ast_hash": "2277d22927de980a9b60e0f927a216ed",
+    "semantic_hash": ""
+  },
+  "src/assets/lottie/draw-timeup.json": {
+    "mtime": 1792023739.925565,
+    "seen": 1792024606.073185,
+    "ast_hash": "9a9b0316b337c9a3622b65236368d226",
+    "semantic_hash": ""
+  },
+  "src/games/draw/engine.test.ts": {
+    "mtime": 1792023417.634081,
+    "seen": 1792024606.0734172,
+    "ast_hash": "fda8cd12df2c670ee501555c273d7b24",
+    "semantic_hash": ""
+  },
+  "src/games/draw/engine.ts": {
+    "mtime": 1792024185.1411424,
+    "seen": 1792024606.0734217,
+    "ast_hash": "460ec1b23883d084df05d22c918c7702",
+    "semantic_hash": ""
+  },
+  "src/games/draw/index.ts": {
+    "mtime": 1792023980.545756,
+    "seen": 1792024606.0734258,
+    "ast_hash": "326cdced4095c76b081dca62c0c93c47",
+    "semantic_hash": ""
+  },
+  "src/games/draw/types.ts": {
+    "mtime": 1792023315.1966944,
+    "seen": 1792024606.0734293,
+    "ast_hash": "840f51521893e383483fa2db78c0b9a0",
+    "semantic_hash": ""
+  },
+  "src/games/draw/ui/DrawBoard.tsx": {
+    "mtime": 1792024531.7406454,
+    "seen": 1792024606.0734332,
+    "ast_hash": "625f343a2edcf15f7a1c8c96c5e91fa3",
+    "semantic_hash": ""
+  },
+  "src/games/draw/ui/Lobby.tsx": {
+    "mtime": 1792024014.8308246,
+    "seen": 1792024606.0734375,
+    "ast_hash": "6618664a94ada87c841c6884effaf0aa",
+    "semantic_hash": ""
+  },
+  "src/games/draw/ui/art.ts": {
+    "mtime": 1792024015.6530118,
+    "seen": 1792024606.0734417,
+    "ast_hash": "0509c2f4f72ee95e81c16b1bcf6de3d6",
+    "semantic_hash": ""
+  },
+  "src/games/draw/ui/copy.ts": {
+    "mtime": 1792024001.1042728,
+    "seen": 1792024606.0734453,
+    "ast_hash": "2bbca9ec30e685c29b7655f3ede120f5",
+    "semantic_hash": ""
+  },
+  "src/games/draw/words.ts": {
+    "mtime": 1792023346.5670373,
+    "seen": 1792024606.0734487,
+    "ast_hash": "490acee068e57e07ee68aec6857d13e1",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/crayon-0.png": {
+    "mtime": 1792023567.4009824,
+    "seen": 1792024606.0736842,
+    "ast_hash": "dbbe7170ce9bf125a0e4f3f738df2644",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/crayon-1.png": {
+    "mtime": 1792023568.2824652,
+    "seen": 1792024606.073688,
+    "ast_hash": "8012706f85a74b7383e79ebc4c15c205",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/crayon-2.png": {
+    "mtime": 1792023569.1912475,
+    "seen": 1792024606.0736923,
+    "ast_hash": "a75a02b89e63050fe440cf661d9f6e23",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/crayon-3.png": {
+    "mtime": 1792023570.0549538,
+    "seen": 1792024606.0736973,
+    "ast_hash": "968b93810809840548029f0bdf3c91a4",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/crayon-4.png": {
+    "mtime": 1792023570.8407917,
+    "seen": 1792024606.0737014,
+    "ast_hash": "7580ccc40eeba6ced20ee6eebeab0f3f",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/crayon-5.png": {
+    "mtime": 1792023571.638371,
+    "seen": 1792024606.0737054,
+    "ast_hash": "1db4d3a4e46a1a040d5dbebe44d5ea0f",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/crayon-6.png": {
+    "mtime": 1792023572.45133,
+    "seen": 1792024606.0737092,
+    "ast_hash": "0c8f71b07c9976198aa38f3484869e3b",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/crayon-7.png": {
+    "mtime": 1792023573.4091856,
+    "seen": 1792024606.0737126,
+    "ast_hash": "2eab12c2db38f01fbb3e2848543c5931",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/draw-lose.png": {
+    "mtime": 1792023584.4842997,
+    "seen": 1792024606.0737162,
+    "ast_hash": "54b680242cf39679749c9c406ec02bde",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/draw-win.png": {
+    "mtime": 1792023582.888137,
+    "seen": 1792024606.0737193,
+    "ast_hash": "44e1842673fe394b33a41af627fdf650",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/stopwatch.png": {
+    "mtime": 1792023578.4232163,
+    "seen": 1792024606.0737228,
+    "ast_hash": "ef466a9fa90090f2740efe3f50e1073c",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/tile-draw.png": {
+    "mtime": 1792023579.950853,
+    "seen": 1792024606.0737264,
+    "ast_hash": "7b686276b9125b044755b5988fbd5380",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/tool-bin.png": {
+    "mtime": 1792023575.6326833,
+    "seen": 1792024606.0737307,
+    "ast_hash": "787ee607b3199ca9a317d713587a2842",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/tool-eraser.png": {
+    "mtime": 1792023622.6405666,
+    "seen": 1792024606.0737343,
+    "ast_hash": "d088acba88b8038e21858dd966f7e6be",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/tool-pencil.png": {
+    "mtime": 1792023574.1693199,
+    "seen": 1792024606.0737383,
+    "ast_hash": "3e46c8b6048cdcfe21af89cc2a7014ca",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/tool-undo.png": {
+    "mtime": 1792023576.6973045,
+    "seen": 1792024606.0737422,
+    "ast_hash": "2f0a362b2082f6b5e76bfae89039b119",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/draw/wordcard.png": {
+    "mtime": 1792023577.554448,
+    "seen": 1792024606.073746,
+    "ast_hash": "84556a554d6768c156173629929d440c",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-0.webp": {
+    "mtime": 1792023625.3570614,
+    "seen": 1792024606.0740216,
+    "ast_hash": "7a7b9e1f443ab13d726201232c249148",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-1.webp": {
+    "mtime": 1792023626.3979707,
+    "seen": 1792024606.0740259,
+    "ast_hash": "cc2b34fc39f438f2ed6434d282d628ee",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-2.webp": {
+    "mtime": 1792023627.3988025,
+    "seen": 1792024606.07403,
+    "ast_hash": "a25b6ba6573f8ef8871f882e3593e4d3",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-3.webp": {
+    "mtime": 1792023628.3900187,
+    "seen": 1792024606.0740328,
+    "ast_hash": "e5b297204f0be8896932d91255764533",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-4.webp": {
+    "mtime": 1792023629.3686063,
+    "seen": 1792024606.0740366,
+    "ast_hash": "41fc48be02ee395423e8431532f56d0f",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-5.webp": {
+    "mtime": 1792023630.3425512,
+    "seen": 1792024606.0740397,
+    "ast_hash": "33cef9011abdb779b2e01a4976e3e18b",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-6.webp": {
+    "mtime": 1792023631.4097075,
+    "seen": 1792024606.0740428,
+    "ast_hash": "ebf5db0e004182aaf904b3ab18628100",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/crayon-7.webp": {
+    "mtime": 1792023632.4419465,
+    "seen": 1792024606.0740476,
+    "ast_hash": "6ca22ab2e901249cf65d5f7c1e51a963",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/draw-lose.webp": {
+    "mtime": 1792023639.5064814,
+    "seen": 1792024606.0740519,
+    "ast_hash": "13861c782454e45e3b3c39d960316cb7",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/draw-win.webp": {
+    "mtime": 1792023647.4302144,
+    "seen": 1792024606.0740557,
+    "ast_hash": "63a201188fe2f8f7445e3a6d817e0c4b",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/stopwatch.webp": {
+    "mtime": 1792023648.8966413,
+    "seen": 1792024606.0740592,
+    "ast_hash": "7ace6b61be584754583ef05ec88f2535",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/tile-draw.webp": {
+    "mtime": 1792023656.0137496,
+    "seen": 1792024606.0740626,
+    "ast_hash": "c33451d797529175ad3ac487a72cc61a",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/tool-bin.webp": {
+    "mtime": 1792023657.2637372,
+    "seen": 1792024606.0740664,
+    "ast_hash": "c397c9762067e17862274be368d63a29",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/tool-eraser.webp": {
+    "mtime": 1792023658.152309,
+    "seen": 1792024606.0740702,
+    "ast_hash": "7fa7a4a8da421c055f910c32afe36ce0",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/tool-pencil.webp": {
+    "mtime": 1792023659.0291991,
+    "seen": 1792024606.0740743,
+    "ast_hash": "4803994aa75dff058d38e6134de8a1c3",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/tool-undo.webp": {
+    "mtime": 1792023660.5951457,
+    "seen": 1792024606.0740786,
+    "ast_hash": "490b2509c17950c1585ff6ef345eb07b",
+    "semantic_hash": ""
+  },
+  "src/assets/draw/wordcard.webp": {
+    "mtime": 1792023661.9194884,
+    "seen": 1792024606.0740824,
+    "ast_hash": "b3d3ceb14ca262a7ced1f2f3745cb7c1",
+    "semantic_hash": ""
+  },
+  "public/audio/music/draw-tense.ogg": {
+    "mtime": 1792023891.2074945,
+    "seen": 1792024606.0742493,
+    "ast_hash": "ad963e68f299d179745dfc902ed8d339",
+    "semantic_hash": ""
+  },
+  "public/audio/music/draw.ogg": {
+    "mtime": 1792023878.633296,
+    "seen": 1792024606.0742538,
+    "ast_hash": "92ab0056a1d2e5d1d2a94f9aeb5199b9",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/draw-champion.ogg": {
+    "mtime": 1792023891.913752,
+    "seen": 1792024606.0743856,
+    "ast_hash": "f1ad7247fc406d8029e6e158c8f6ce98",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/draw-close.ogg": {
+    "mtime": 1792023893.5097475,
+    "seen": 1792024606.0743895,
+    "ast_hash": "64156b2931b9e0aa3b736d33b6faac83",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/draw-correct.ogg": {
+    "mtime": 1792023891.577941,
+    "seen": 1792024606.0743926,
+    "ast_hash": "1b39d7b6b50a16a192bfebd680fcac48",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/draw-guess.ogg": {
+    "mtime": 1792023893.7726624,
+    "seen": 1792024606.0743966,
+    "ast_hash": "73f84c624dc53223daa4eaceb59c1f77",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/draw-lose.ogg": {
+    "mtime": 1792023892.2412293,
+    "seen": 1792024606.0744007,
+    "ast_hash": "d173e4d2dbcfe0df607dd72acbbc3084",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/draw-reveal.ogg": {
+    "mtime": 1792023892.9583192,
+    "seen": 1792024606.0744054,
+    "ast_hash": "f5f5cd15dfeb6d0e401c1de3f6329066",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/draw-scratch.ogg": {
+    "mtime": 1792023894.0352213,
+    "seen": 1792024606.0744097,
+    "ast_hash": "68966ac6a1a35fa5e182cb244594a7a3",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/draw-tick.ogg": {
+    "mtime": 1792023894.2670355,
+    "seen": 1792024606.0744135,
+    "ast_hash": "61f7a548f733e7aa9fcf5c46f587d57a",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/draw-timeup.ogg": {
+    "mtime": 1792023892.5717647,
+    "seen": 1792024606.0744169,
+    "ast_hash": "a7e19c621dc75446807973b7311dd91d",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/draw-turn.ogg": {
+    "mtime": 1792023893.2521517,
+    "seen": 1792024606.0744205,
+    "ast_hash": "b225236ff4324bc99b18580975b9a9ec",
     "semantic_hash": ""
   }
 }
