@@ -22,6 +22,10 @@ import { randomStep as ludoStep } from './games/ludo/dev'
 import * as ludoEngine from './games/ludo/engine'
 import type { Arms, LudoAction } from './games/ludo/types'
 import { LudoBoard } from './games/ludo/ui/LudoBoard'
+import { randomStep as spyStep } from './games/spy/dev'
+import * as spyEngine from './games/spy/engine'
+import type { SpyAction, SpyMode } from './games/spy/types'
+import { SpyBoard } from './games/spy/ui/SpyBoard'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -29,11 +33,12 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' }) {
   if (variant === 'draw') return <DrawDemo />
   if (variant === 'domino') return <DominoDemo />
   if (variant === 'monopoly') return <MonopolyDemo />
   if (variant === 'ludo') return <LudoDemo />
+  if (variant === 'spy') return <SpyDemo />
   if (variant === 'remi') return <RemiDemo />
   return <UnoDemo variant={variant} />
 }
@@ -207,6 +212,37 @@ function LudoDemo() {
   return (
     <>
       <LudoBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} />
+      <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
+        {NAMES.slice(0, n).map((nm, i) => (
+          <button key={nm} onClick={() => setFixed(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>
+            {i}
+          </button>
+        ))}
+      </div>
+    </>
+  )
+}
+
+/**
+ * Siapa Mata-mata lokal: ?demo=spy &n=3..8 &mode=kata|lokasi &seat= (tanpa seat: ikut giliran) &auto=N|end &mw=0 (tanpa Mr. White).
+ */
+function SpyDemo() {
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(8, Math.max(3, Number(q.get('n') ?? 5)))
+  const follow = !q.get('seat')
+  const [fixed, setFixed] = useState(() => Number(q.get('seat') ?? 0))
+  const [s, setS] = useState(() => {
+    let st = spyEngine.init(42, { ...spyEngine.defaultOptions(n), mode: (q.get('mode') as SpyMode) || 'kata', mrWhite: q.get('mw') !== '0' })
+    const rnd = lcg(7)
+    const auto = q.get('auto')
+    for (let i = 0; i < (auto === 'end' ? 20000 : Number(auto ?? 0)) && st.phase !== 'end'; i++) st = spyStep(st, rnd) ?? st
+    return st
+  })
+  const seat = follow ? (s.phase === 'guess' ? s.lastOut! : s.phase === 'clue' ? s.turn : fixed) : fixed
+  const act = (a: SpyAction) => setS((cur) => spyEngine.reduce(cur, a, a.type === 'timeUp' || a.type === 'next' ? 0 : seat))
+  return (
+    <>
+      <SpyBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} />
       <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
         {NAMES.slice(0, n).map((nm, i) => (
           <button key={nm} onClick={() => setFixed(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>
