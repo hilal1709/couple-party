@@ -6,6 +6,7 @@ Jalankan:  python -I scripts/audio/build.py          (semua)
            python -I scripts/audio/build.py domino   (hanya musik & SFX Domino)
            python -I scripts/audio/build.py monopoly (hanya musik & SFX Monopoli)
            python -I scripts/audio/build.py ludo     (hanya musik & SFX Ludo)
+           python -I scripts/audio/build.py spy      (hanya musik & SFX Siapa Mata-mata)
            python -I scripts/audio/build.py bom      (hanya musik & SFX Bom Waktu)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
@@ -158,6 +159,21 @@ def ludo_music():
     raw.unlink()
 
 
+def spy_music():
+    # Siapa Mata-mata: "Sneaking Around" oleh Umplix — bass & brass mengendap-endap ala film spy,
+    # beda dari funk, piano, bossa, lounge, reggae, swing & chiptune game lain. 88 detik, disambung mulus.
+    m = SRC / 'music'
+    loop = seamless_loop(load(m / 'sneaking-around.wav'), 1.5)
+    write_ogg(loop, OUT / 'music' / 'spy.ogg', 80, lufs=-20)
+    # voting / tebakan terakhir: loop yang sama ±6% lebih cepat
+    raw = OUT / 'music' / 'spy-loop.tmp.f32'
+    raw.write_bytes(loop.astype(np.float32).tobytes())
+    ff('-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', str(raw),
+       '-af', f'asetrate={int(SR * 1.06)},aresample={SR},atempo=1.06,loudnorm=I=-19:TP=-1.5:LRA=11',
+       '-ar', str(SR), '-c:a', 'libvorbis', '-b:a', '80k', str(OUT / 'music' / 'spy-tense.ogg'))
+    raw.unlink()
+
+
 def bom_music():
     # Bom Waktu: "Catch me if you can!" oleh poinl — loop kejar-kejaran quirky 158 BPM,
     # beda dari funk, piano, bossa, lounge, reggae, swing & chiptune game lain. 152 detik, disambung mulus.
@@ -303,6 +319,21 @@ SFX = {
     'ludo-home': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL12.ogg',
     'ludo-champion': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL13.ogg',
     'ludo-lose': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL07.ogg',
+    # Siapa Mata-mata — tombol Interface Sounds, hantaman HIT & jingle saksofon
+    'spy-reveal': 'interface/x/Audio/maximize_006.ogg',
+    'spy-ready': 'interface/x/Audio/confirmation_002.ogg',
+    'spy-turn': 'interface/x/Audio/question_001.ogg',
+    'spy-clue': 'interface/x/Audio/drop_001.ogg',
+    'spy-vote': 'interface/x/Audio/click_004.ogg',
+    'spy-tick': 'interface/x/Audio/tick_001.ogg',
+    'spy-innocent': 'interface/x/Audio/error_005.ogg',
+    'spy-guess-wrong': 'interface/x/Audio/error_007.ogg',
+    'spy-stamp': 'jingles/x/OGG/jingles_HIT/jingles_HIT11.ogg',
+    'spy-caught': 'jingles/x/OGG/jingles_SAX/jingles_SAX03.ogg',
+    'spy-escape': 'jingles/x/OGG/jingles_SAX/jingles_SAX12.ogg',
+    'spy-guess-right': 'jingles/x/OGG/jingles_SAX/jingles_SAX13.ogg',
+    'spy-champion': 'jingles/x/OGG/jingles_SAX/jingles_SAX07.ogg',
+    'spy-lose': 'jingles/x/OGG/jingles_SAX/jingles_SAX15.ogg',
     # Bom Waktu — tombol Interface Sounds, hantaman HIT & jingle pizzicato
     'bom-light': 'interface/x/Audio/maximize_003.ogg',
     'bom-tick': 'interface/x/Audio/tick_002.ogg',
@@ -326,6 +357,7 @@ LOUD = {'draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-revea
         'monopoly-go', 'monopoly-doubles', 'monopoly-sold', 'monopoly-jail', 'monopoly-jackpot', 'monopoly-bankrupt',
         'monopoly-champion', 'monopoly-lose',
         'ludo-bomb', 'ludo-capture', 'ludo-six', 'ludo-home', 'ludo-champion', 'ludo-lose',
+        'spy-stamp', 'spy-caught', 'spy-escape', 'spy-guess-right', 'spy-champion', 'spy-lose',
         'bom-boom', 'bom-out', 'bom-champion', 'bom-lose'}
 
 
@@ -358,6 +390,9 @@ if __name__ == '__main__':
     elif sys.argv[1:] == ['ludo']:
         ludo_music()
         sfx('ludo-')
+    elif sys.argv[1:] == ['spy']:
+        spy_music()
+        sfx('spy-')
     elif sys.argv[1:] == ['bom']:
         bom_music()
         sfx('bom-')
@@ -368,6 +403,7 @@ if __name__ == '__main__':
         domino_music()
         monopoly_music()
         ludo_music()
+        spy_music()
         bom_music()
         sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))

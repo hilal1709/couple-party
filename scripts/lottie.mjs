@@ -1,4 +1,4 @@
-// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi, Domino, Monopoli, Ludo & Bom Waktu.
+// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi, Domino, Monopoli, Ludo, Siapa Mata-mata & Bom Waktu.
 // Jalankan: node scripts/lottie.mjs  → src/assets/lottie/*.json
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -1692,6 +1692,216 @@ function ludoSlip() {
   return doc('ludo-slip', S, S, OP, layers)
 }
 
+// ---------- efek Siapa Mata-mata ----------
+// Kartu peran dibalik: kartu memipih lalu melebar lagi (flip) + kilau bintang
+function spyReveal() {
+  const S = 320
+  const OP = 64
+  const c = S / 2
+  const flip = anim([
+    [0, [0, 60, 100]],
+    [8, [100, 100, 100]],
+    [16, [4, 104, 100]],
+    [24, [108, 100, 100]],
+    [30, [100, 100, 100]],
+    [50, [100, 100, 100]],
+    [OP - 1, [0, 0, 100]],
+  ])
+  const layers = [
+    layer(1, [poly([[-10, 6], [0, -16], [10, 6], [0, 2]], true), fill('#121212')], { p: st([c, c - 6, 0]), s: flip }, OP),
+    layer(2, [{ ty: 'rc', p: st([0, 0]), s: st([86, 118]), r: st(8) }, fill('#ff37a6'), stroke('#121212', 6)], { p: st([c, c, 0]), s: flip }, OP),
+  ]
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2 + rand() * 0.3
+    const d = 100 + rand() * 30
+    layers.push(
+      layer(
+        layers.length + 1,
+        star(13, 5, 4, i % 2 ? '#5cf64a' : '#ffcc1f'),
+        {
+          p: anim([
+            [14, [c, c, 0]],
+            [40, [c + Math.cos(a) * d, c + Math.sin(a) * d, 0]],
+          ]),
+          r: anim([[0, [0]], [OP, [180]]]),
+          s: popScale(14, 46, OP),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('spy-reveal', S, S, OP, layers)
+}
+
+// Dicap keluar: stempel menghantam + tanda silang + cipratan tinta
+function spyStamp() {
+  const S = 320
+  const OP = 70
+  const c = S / 2
+  const slam = anim([
+    [0, [240, 240, 100]],
+    [8, [90, 90, 100]],
+    [13, [104, 104, 100]],
+    [17, [100, 100, 100]],
+    [54, [100, 100, 100]],
+    [OP - 1, [0, 0, 100]],
+  ])
+  const layers = [
+    layer(1, [poly([[-46, -46], [46, 46]], false), poly([[46, -46], [-46, 46]], false), stroke('#fff4fa', 18)], { p: st([c, c, 0]), r: st(-12), s: slam }, OP),
+    layer(2, [{ ty: 'el', p: st([0, 0]), s: st([170, 170]) }, fill('#ff37a6'), stroke('#121212', 8)], { p: st([c, c, 0]), r: st(-12), s: slam }, OP),
+  ]
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2 + rand() * 0.4
+    const d = 110 + rand() * 35
+    const sz = 10 + rand() * 14
+    layers.push(
+      layer(
+        layers.length + 1,
+        [{ ty: 'el', p: st([0, 0]), s: st([sz, sz]) }, fill(i % 3 ? '#121212' : '#ff37a6')],
+        {
+          p: anim([
+            [8, [c + Math.cos(a) * 70, c + Math.sin(a) * 70, 0]],
+            [24, [c + Math.cos(a) * d, c + Math.sin(a) * d, 0]],
+          ]),
+          s: popScale(8, 50, OP),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('spy-stamp', S, S, OP, layers)
+}
+
+// Ketahuan: kaca pembesar meluncur masuk + cincin bintang hijau meledak
+function spyCaught() {
+  const S = 340
+  const OP = 80
+  const c = S / 2
+  const swoop = anim([
+    [0, [c - 150, c + 120, 0]],
+    [16, [c + 8, c - 6, 0]],
+    [22, [c, c, 0]],
+  ])
+  const pop = popScale(0, 62, OP)
+  const layers = [
+    layer(1, [{ ty: 'el', p: st([-6, -6]), s: st([30, 18]) }, fill('#fff4fa')], { p: swoop, s: pop, r: st(-30) }, OP),
+    layer(2, [{ ty: 'el', p: st([0, 0]), s: st([110, 110]) }, fill('#bfe6ff'), stroke('#ff37a6', 16)], { p: swoop, s: pop }, OP),
+    layer(3, [poly([[40, 40], [92, 92]], false), stroke('#121212', 22)], { p: swoop, s: pop }, OP),
+  ]
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2
+    layers.push(
+      layer(
+        layers.length + 1,
+        star(15, 6, 5, i % 2 ? '#5cf64a' : '#43b929'),
+        {
+          p: anim([
+            [18, [c, c, 0]],
+            [44, [c + Math.cos(a) * 140, c + Math.sin(a) * 140, 0]],
+          ]),
+          r: anim([[18, [0]], [OP, [240]]]),
+          s: popScale(18, 64, OP),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('spy-caught', S, S, OP, layers)
+}
+
+// Penyusup lolos: kepulan asap + garis kecepatan kabur ke kanan
+function spyEscape() {
+  const S = 340
+  const OP = 80
+  const c = S / 2
+  const layers = []
+  for (let i = 0; i < 7; i++) {
+    const x = c - 70 + i * 22 + rand() * 10
+    const y = c + (rand() - 0.5) * 50
+    const sz = 50 + rand() * 40
+    layers.push(
+      layer(
+        layers.length + 1,
+        [{ ty: 'el', p: st([0, 0]), s: st([sz, sz]) }, fill(i % 2 ? '#fff4fa' : '#ffcae9'), stroke('#121212', 4)],
+        {
+          p: anim([
+            [i * 3, [x, y, 0]],
+            [40 + i * 3, [x - 30, y - 30, 0]],
+          ]),
+          s: anim([
+            [0, [0, 0, 100]],
+            [i * 3, [0, 0, 100]],
+            [i * 3 + 10, [110, 110, 100]],
+            [50, [90, 90, 100]],
+            [OP - 1, [0, 0, 100]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  for (let i = 0; i < 5; i++) {
+    const y = c - 60 + i * 30
+    layers.push(
+      layer(
+        layers.length + 1,
+        [poly([[0, 0], [70 + rand() * 40, 0]], false), stroke(i % 2 ? '#ff37a6' : '#121212', 8), trim(10 + i * 2, 26 + i * 2)],
+        {
+          p: anim([
+            [10, [c - 20, y, 0]],
+            [50, [c + 110, y, 0]],
+          ]),
+          o: anim([
+            [0, [100]],
+            [52, [100]],
+            [64, [0]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('spy-escape', S, S, OP, layers)
+}
+
+// Tebakan terakhir: tanda tanya memantul + titik-titik berputar
+function spyGuess() {
+  const S = 260
+  const OP = 72
+  const c = S / 2
+  const q = {
+    ty: 'sh',
+    ks: st({
+      c: false,
+      v: [[-26, -30], [0, -52], [26, -30], [0, -2], [0, 14]],
+      i: [[0, 10], [-18, 0], [0, -14], [8, -8], [0, -6]],
+      o: [[0, -10], [18, 0], [0, 14], [-8, 8], [0, 6]],
+    }),
+  }
+  const bounce = anim([
+    [0, [c, c - 60, 0]],
+    [12, [c, c + 6, 0]],
+    [18, [c, c - 10, 0]],
+    [24, [c, c, 0]],
+  ])
+  const layers = [
+    layer(1, [q, stroke('#ff37a6', 16)], { p: bounce, s: popScale(0, 56, OP), r: anim([[24, [0]], [34, [-10]], [44, [8]], [54, [0]]]) }, OP),
+    layer(2, [{ ty: 'el', p: st([0, 38]), s: st([20, 20]) }, fill('#ff37a6'), stroke('#121212', 4)], { p: bounce, s: popScale(0, 56, OP) }, OP),
+  ]
+  for (let i = 0; i < 6; i++) {
+    const a0 = (i / 6) * 360
+    layers.push(
+      layer(
+        layers.length + 1,
+        [{ ty: 'el', p: st([92, 0]), s: st([16, 16]) }, fill(PALETTE[i % 5]), stroke('#121212', 3)],
+        { p: st([c, c, 0]), r: anim([[0, [a0]], [OP, [a0 + 300]]]), s: popScale(6, 56, OP) },
+        OP,
+      ),
+    )
+  }
+  return doc('spy-guess', S, S, OP, layers)
+}
+
 // ---------- efek Bom Waktu ----------
 // Percikan sumbu (loop mulus): nyala bintang berdenyut + bunga api kecil terlempar
 function bomSpark() {
@@ -1931,6 +2141,12 @@ const out = {
   'ludo-portal': ludoPortal(),
   'ludo-bomb': ludoBomb(),
   'ludo-slip': ludoSlip(),
+  // Siapa Mata-mata paling akhir, supaya acakan efek lain tidak berubah
+  'spy-reveal': spyReveal(),
+  'spy-stamp': spyStamp(),
+  'spy-caught': spyCaught(),
+  'spy-escape': spyEscape(),
+  'spy-guess': spyGuess(),
   // Bom Waktu paling akhir, supaya acakan efek lain tidak berubah
   'bom-spark': bomSpark(),
   'bom-boom': bomBoom(),

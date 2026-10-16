@@ -6,6 +6,7 @@ import ludoArt from '@/assets/ludo/tile-ludo.webp'
 import monopolyArt from '@/assets/monopoly/tile-monopoly.webp'
 import remiArt from '@/assets/remi/tile-remi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
+import spyArt from '@/assets/spy/tile-spy.webp'
 import unoArt from '@/assets/snakes/tile-uno.webp'
 import type { AnyGame, LobbyProps } from './types'
 import { bom } from './bom'
@@ -30,6 +31,9 @@ import type { RemiOptions } from './remi/types'
 import { summary as remiSummary } from './remi/ui/copy'
 import { snakes } from './snakes'
 import type { SnakesOptions } from './snakes/types'
+import { spy } from './spy'
+import type { SpyOptions } from './spy/types'
+import { summary as spySummary } from './spy/ui/copy'
 import { uno } from './uno'
 import type { UnoOptions } from './uno/types'
 import { VARIANT_INFO } from './uno/ui/copy'
@@ -135,6 +139,16 @@ export const GAMES: GameEntry[] = [
     art: drawArt,
     Lobby: lazy(() => import('./draw/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: DrawOptions) => drawSummary(o),
+  },
+  {
+    game: spy,
+    category: 'lainnya',
+    blurb: 'Kata kembar & lokasi rahasia: cari penyusup, tipu semua orang',
+    minPlayers: 3,
+    maxPlayers: 8,
+    art: spyArt,
+    Lobby: lazy(() => import('./spy/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: SpyOptions) => spySummary(o),
   },
   {
     game: bom,
