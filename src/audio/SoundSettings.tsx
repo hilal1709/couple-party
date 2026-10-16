@@ -17,6 +17,7 @@ const CREDITS = [
   { what: 'Musik Monopoli', title: 'Catchy Swing', by: 'Doge', url: 'https://opengameart.org/content/catchy-swing' },
   { what: 'Musik Ludo', title: 'Oldskool', by: 'Of Far Different Nature', url: 'https://opengameart.org/content/oldskool' },
   { what: 'Musik Siapa Mata-mata', title: 'Sneaking Around', by: 'Umplix', url: 'https://opengameart.org/content/sneaking-around' },
+  { what: 'Musik Bom Waktu', title: 'Catch me if you can!', by: 'poinl', url: 'https://opengameart.org/content/catch-me-if-you-can' },
   { what: 'Suara kartu', title: 'Casino Audio', by: 'Kenney', url: 'https://opengameart.org/content/54-casino-sound-effects-cards-dice-chips' },
   { what: 'Suara tombol', title: 'Interface Sounds', by: 'Kenney', url: 'https://opengameart.org/content/interface-sounds' },
   { what: 'Jingle saksofon, steel drum, hit & pizzicato', title: 'Music Jingles', by: 'Kenney', url: 'https://opengameart.org/content/85-short-music-jingles' },

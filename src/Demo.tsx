@@ -26,6 +26,10 @@ import { randomStep as spyStep } from './games/spy/dev'
 import * as spyEngine from './games/spy/engine'
 import type { SpyAction, SpyMode } from './games/spy/types'
 import { SpyBoard } from './games/spy/ui/SpyBoard'
+import { randomStep as bomStep } from './games/bom/dev'
+import * as bomEngine from './games/bom/engine'
+import type { BomAction, BomMode } from './games/bom/types'
+import { BomBoard } from './games/bom/ui/BomBoard'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -33,12 +37,13 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' }) {
   if (variant === 'draw') return <DrawDemo />
   if (variant === 'domino') return <DominoDemo />
   if (variant === 'monopoly') return <MonopolyDemo />
   if (variant === 'ludo') return <LudoDemo />
   if (variant === 'spy') return <SpyDemo />
+  if (variant === 'bom') return <BomDemo />
   if (variant === 'remi') return <RemiDemo />
   return <UnoDemo variant={variant} />
 }
@@ -243,6 +248,45 @@ function SpyDemo() {
   return (
     <>
       <SpyBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} />
+      <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
+        {NAMES.slice(0, n).map((nm, i) => (
+          <button key={nm} onClick={() => setFixed(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>
+            {i}
+          </button>
+        ))}
+      </div>
+    </>
+  )
+}
+
+/**
+ * Bom Waktu lokal: ?demo=bom &n=2..8 &mode=kategori|bebas|suku|sambung &seat= (tanpa seat: ikut pemegang bom)
+ * &auto=N|boom|end &aim=1 &lives=1..5. Jam host hanya jalan saat yang dilihat kursi 0.
+ */
+function BomDemo() {
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(8, Math.max(2, Number(q.get('n') ?? 5)))
+  const follow = !q.get('seat')
+  const [fixed, setFixed] = useState(() => Number(q.get('seat') ?? 0))
+  const [s, setS] = useState(() => {
+    let st = bomEngine.init(42, {
+      ...bomEngine.defaultOptions(n),
+      mode: (q.get('mode') as BomMode) || 'kategori',
+      aim: q.get('aim') === '1',
+      lives: (Number(q.get('lives') ?? 3) as 1 | 2 | 3 | 4 | 5) || 3,
+    })
+    const rnd = lcg(7)
+    const auto = q.get('auto')
+    const stop = auto === 'boom' ? 'boom' : 'end'
+    for (let i = 0; i < (auto === 'end' || auto === 'boom' ? 20000 : Number(auto ?? 0)) && st.phase !== stop && st.phase !== 'end'; i++) st = bomStep(st, rnd) ?? st
+    return st
+  })
+  const seat = follow && s.phase === 'live' ? s.holder : fixed
+  const host = (a: BomAction) => a.type === 'boom' || a.type === 'next' || a.type === 'closeReview'
+  const act = (a: BomAction) => setS((cur) => bomEngine.reduce(cur, a, host(a) ? 0 : seat))
+  return (
+    <>
+      <BomBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} />
       <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
         {NAMES.slice(0, n).map((nm, i) => (
           <button key={nm} onClick={() => setFixed(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>

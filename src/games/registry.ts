@@ -1,5 +1,6 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react'
 import dominoArt from '@/assets/domino/tile-domino.webp'
+import bomArt from '@/assets/bom/tile-bom.webp'
 import drawArt from '@/assets/draw/tile-draw.webp'
 import ludoArt from '@/assets/ludo/tile-ludo.webp'
 import monopolyArt from '@/assets/monopoly/tile-monopoly.webp'
@@ -8,6 +9,9 @@ import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import spyArt from '@/assets/spy/tile-spy.webp'
 import unoArt from '@/assets/snakes/tile-uno.webp'
 import type { AnyGame, LobbyProps } from './types'
+import { bom } from './bom'
+import type { BomOptions } from './bom/types'
+import { summary as bomSummary } from './bom/ui/copy'
 import { domino } from './domino'
 import { MODE_INFO as DOMINO_MODES } from './domino/modes'
 import type { DominoOptions } from './domino/types'
@@ -145,6 +149,16 @@ export const GAMES: GameEntry[] = [
     art: spyArt,
     Lobby: lazy(() => import('./spy/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: SpyOptions) => spySummary(o),
+  },
+  {
+    game: bom,
+    category: 'lainnya',
+    blurb: 'Oper bom sambil ngetik kata, jangan sampai DUAR di tanganmu',
+    minPlayers: 2,
+    maxPlayers: 8,
+    art: bomArt,
+    Lobby: lazy(() => import('./bom/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: BomOptions) => bomSummary(o),
   },
 ]
 

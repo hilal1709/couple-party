@@ -1,4 +1,4 @@
-// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi, Domino, Monopoli, Ludo & Siapa Mata-mata.
+// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi, Domino, Monopoli, Ludo, Siapa Mata-mata & Bom Waktu.
 // Jalankan: node scripts/lottie.mjs  → src/assets/lottie/*.json
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -1902,6 +1902,200 @@ function spyGuess() {
   return doc('spy-guess', S, S, OP, layers)
 }
 
+// ---------- efek Bom Waktu ----------
+// Percikan sumbu (loop mulus): nyala bintang berdenyut + bunga api kecil terlempar
+function bomSpark() {
+  const S = 120
+  const OP = 40
+  const c = S / 2
+  const layers = [
+    layer(1, star(20, 9, 6, '#ffcc1f'), { p: st([c, c, 0]), r: anim([[0, [0]], [OP, [120]]]), s: anim([[0, [90, 90, 100]], [10, [120, 120, 100]], [20, [80, 80, 100]], [30, [115, 115, 100]], [OP, [90, 90, 100]]]) }, OP),
+    layer(2, [{ ty: 'el', p: st([0, 0]), s: st([14, 14]) }, fill('#fff4fa')], { p: st([c, c, 0]) }, OP),
+  ]
+  for (let i = 0; i < 7; i++) {
+    const a = (i / 7) * Math.PI * 2 + rand() * 0.5
+    const d = 34 + rand() * 18
+    // tiap bunga api terbang dari tengah ke luar sekali per putaran, mulai di fase berbeda
+    const t0 = Math.floor((i / 7) * OP)
+    const at = (k) => [c + Math.cos(a) * d * k, c + Math.sin(a) * d * k, 0]
+    const frames = t0 === 0 ? [[0, at(0)], [OP, at(1)]] : [[0, at((OP - t0) / OP)], [t0 - 1, at(1)], [t0, at(0)], [OP, at((OP - t0) / OP)]]
+    layers.push(layer(layers.length + 1, [{ ty: 'el', p: st([0, 0]), s: st([7, 7]) }, fill(i % 2 ? '#ff37a6' : '#ffcc1f'), stroke('#121212', 1.5)], { p: anim(frames) }, OP))
+  }
+  return doc('bom-spark', S, S, OP, layers)
+}
+
+// DUAR: kilatan bintang bergerigi + asap mengepul + serpihan Memphis terlempar
+function bomBoom() {
+  const S = 420
+  const OP = 84
+  const c = S / 2
+  const flash = (size, color, at) =>
+    layer(
+      0,
+      star(size, size * 0.55, 12, color),
+      {
+        p: st([c, c, 0]),
+        r: anim([[0, [0]], [OP, [25]]]),
+        s: anim([
+          [0, [0, 0, 100]],
+          [at, [0, 0, 100]],
+          [at + 6, [125, 125, 100]],
+          [at + 14, [100, 100, 100]],
+          [40, [100, 100, 100]],
+          [56, [0, 0, 100]],
+          [OP - 1, [0, 0, 100]],
+        ]),
+      },
+      OP,
+    )
+  const under = [flash(170, '#ff37a6', 0), flash(120, '#ffcc1f', 1), flash(70, '#fff4fa', 3)]
+  const smoke = []
+  for (let i = 0; i < 9; i++) {
+    const a = (i / 9) * Math.PI * 2 + rand() * 0.4
+    const d = 90 + rand() * 50
+    const sz = 60 + rand() * 50
+    smoke.push(
+      layer(
+        0,
+        [{ ty: 'el', p: st([0, 0]), s: st([sz, sz]) }, fill(i % 3 ? '#e9e1e6' : '#b8adb4'), stroke('#121212', 4)],
+        {
+          p: anim([
+            [10, [c + Math.cos(a) * 30, c + Math.sin(a) * 30, 0]],
+            [60, [c + Math.cos(a) * d, c + Math.sin(a) * d - 40, 0]],
+          ]),
+          s: anim([
+            [0, [0, 0, 100]],
+            [10, [0, 0, 100]],
+            [22, [100, 100, 100]],
+            [60, [80, 80, 100]],
+            [OP - 1, [0, 0, 100]],
+          ]),
+        },
+        OP,
+      ),
+    )
+  }
+  const debris = []
+  for (let i = 0; i < 16; i++) {
+    const a = (i / 16) * Math.PI * 2 + rand() * 0.3
+    const d = 160 + rand() * 40
+    debris.push(
+      layer(
+        0,
+        shape(pick(['circle', 'tri', 'rect', 'squiggle']), 14 + rand() * 10, pick(PALETTE.slice(0, 5))),
+        {
+          p: anim([
+            [2, [c, c, 0]],
+            [34, [c + Math.cos(a) * d, c + Math.sin(a) * d, 0]],
+          ]),
+          r: anim([[2, [0]], [OP, [(rand() - 0.5) * 720]]]),
+          s: popScale(2, 50, OP),
+        },
+        OP,
+      ),
+    )
+  }
+  // lapisan pertama = paling atas: serpihan, lalu asap, kilatan paling bawah
+  const layers = [...debris, ...smoke, ...under.reverse()]
+  layers.forEach((l, k) => {
+    l.ind = k + 1
+    l.nm = `p${k + 1}`
+  })
+  return doc('bom-boom', S, S, OP, layers)
+}
+
+// Oper: busur lemparan tergambar + garis kecepatan + bom mini meluncur
+function bomPass() {
+  const S = 300
+  const OP = 46
+  const c = S / 2
+  const arc = {
+    ty: 'sh',
+    ks: st({ c: false, v: [[-110, 40], [110, 40]], i: [[0, 0], [-60, -130]], o: [[60, -130], [0, 0]] }),
+  }
+  const fly = anim([
+    [0, [c - 110, c + 40, 0]],
+    [12, [c - 45, c - 38, 0]],
+    [22, [c + 45, c - 38, 0]],
+    [34, [c + 110, c + 40, 0]],
+  ])
+  const layers = [
+    layer(1, [{ ty: 'el', p: st([0, 0]), s: st([30, 30]) }, fill('#121212'), stroke('#ff37a6', 4)], { p: fly, s: popScale(0, 34, OP) }, OP),
+    layer(2, [arc, stroke('#121212', 5), trim(0, 30)], { p: st([c, c, 0]), o: fade(32, 44, OP) }, OP),
+  ]
+  for (let i = 0; i < 3; i++) {
+    layers.push(
+      layer(
+        layers.length + 1,
+        [poly([[0, 0], [40, 0]], false), stroke('#ff37a6', 6)],
+        { p: anim([[i * 4, [c - 120, c - 10 + i * 18, 0]], [30 + i * 4, [c + 40, c - 30 + i * 18, 0]]]), o: fade(20 + i * 4, 36 + i * 4, OP) },
+        OP,
+      ),
+    )
+  }
+  return doc('bom-pass', S, S, OP, layers)
+}
+
+// Ngawur! dibatalkan: dua coretan silang tergambar di atas cap persegi miring
+function bomCancel() {
+  const S = 300
+  const OP = 64
+  const c = S / 2
+  const stampIn = anim([
+    [0, [190, 190, 100]],
+    [8, [92, 92, 100]],
+    [13, [104, 104, 100]],
+    [17, [100, 100, 100]],
+    [48, [100, 100, 100]],
+    [OP - 1, [0, 0, 100]],
+  ])
+  const layers = [
+    layer(1, [poly([[-60, -60], [60, 60]], false), stroke('#121212', 20), trim(10, 18)], { p: st([c, c, 0]), s: stampIn }, OP),
+    layer(2, [poly([[60, -60], [-60, 60]], false), stroke('#121212', 20), trim(16, 24)], { p: st([c, c, 0]), s: stampIn }, OP),
+    layer(3, slabRect(170, 170, '#ff37a6'), { p: st([c, c, 0]), r: st(-10), s: stampIn }, OP),
+  ]
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2 + rand() * 0.4
+    layers.push(
+      layer(
+        layers.length + 1,
+        shape(pick(['tri', 'rect']), 12 + rand() * 8, pick(['#ffcc1f', '#5cf64a', '#ffcae9'])),
+        {
+          p: anim([[8, [c + Math.cos(a) * 80, c + Math.sin(a) * 80, 0]], [26, [c + Math.cos(a) * 130, c + Math.sin(a) * 130, 0]]]),
+          r: anim([[8, [0]], [OP, [200]]]),
+          s: popScale(8, 46, OP),
+        },
+        OP,
+      ),
+    )
+  }
+  return doc('bom-cancel', S, S, OP, layers)
+}
+
+// Power-up dipakai: petir memantul + cincin melebar + bintang mengorbit
+function bomPower() {
+  const S = 280
+  const OP = 60
+  const c = S / 2
+  const bolt = poly([[-14, -60], [26, -60], [6, -12], [34, -12], [-22, 64], [-6, 6], [-34, 6]])
+  const layers = [
+    layer(1, [bolt, fill('#ffcc1f'), stroke('#121212', 6)], { p: st([c, c, 0]), r: anim([[0, [-20]], [14, [8]], [22, [0]]]), s: popScale(0, 44, OP) }, OP),
+    layer(2, ring(150, '#ff37a6', 10), { p: st([c, c, 0]), s: anim([[0, [20, 20, 100]], [20, [110, 110, 100]], [OP - 1, [140, 140, 100]]]), o: fade(24, 44, OP) }, OP),
+  ]
+  for (let i = 0; i < 6; i++) {
+    const a0 = (i / 6) * 360
+    layers.push(
+      layer(
+        layers.length + 1,
+        [{ ty: 'gr', it: [...star(12, 5, 5, PALETTE[i % 5]), { ...tr(), p: st([96, 0]) }], nm: 'g' }],
+        { p: st([c, c, 0]), r: anim([[0, [a0]], [OP, [a0 + 200]]]), s: popScale(4, 44, OP) },
+        OP,
+      ),
+    )
+  }
+  return doc('bom-power', S, S, OP, layers)
+}
+
 mkdirSync('src/assets/lottie', { recursive: true })
 // urutan penting: confetti & burst duluan supaya hasil acaknya tetap sama seperti sebelumnya
 const out = {
@@ -1953,6 +2147,12 @@ const out = {
   'spy-caught': spyCaught(),
   'spy-escape': spyEscape(),
   'spy-guess': spyGuess(),
+  // Bom Waktu paling akhir, supaya acakan efek lain tidak berubah
+  'bom-spark': bomSpark(),
+  'bom-boom': bomBoom(),
+  'bom-pass': bomPass(),
+  'bom-cancel': bomCancel(),
+  'bom-power': bomPower(),
 }
 for (const [name, json] of Object.entries(out)) writeFileSync(`src/assets/lottie/${name}.json`, JSON.stringify(json))
 console.log('Lottie dibuat:', Object.keys(out).join(', '))
