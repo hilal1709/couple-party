@@ -6,6 +6,7 @@ Jalankan:  python -I scripts/audio/build.py          (semua)
            python -I scripts/audio/build.py domino   (hanya musik & SFX Domino)
            python -I scripts/audio/build.py monopoly (hanya musik & SFX Monopoli)
            python -I scripts/audio/build.py ludo     (hanya musik & SFX Ludo)
+           python -I scripts/audio/build.py bom      (hanya musik & SFX Bom Waktu)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
 import subprocess
@@ -157,6 +158,21 @@ def ludo_music():
     raw.unlink()
 
 
+def bom_music():
+    # Bom Waktu: "Catch me if you can!" oleh poinl — loop kejar-kejaran quirky 158 BPM,
+    # beda dari funk, piano, bossa, lounge, reggae, swing & chiptune game lain. 152 detik, disambung mulus.
+    m = SRC / 'music'
+    loop = seamless_loop(load(m / 'catchme.mp3'), 1.0)
+    write_ogg(loop, OUT / 'music' / 'bom.ogg', 80, lufs=-20)
+    # sumbu sudah lama menyala: loop yang sama ±8% lebih cepat biar makin panik
+    raw = OUT / 'music' / 'bom-loop.tmp.f32'
+    raw.write_bytes(loop.astype(np.float32).tobytes())
+    ff('-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', str(raw),
+       '-af', f'asetrate={int(SR * 1.08)},aresample={SR},atempo=1.0,loudnorm=I=-19:TP=-1.5:LRA=11',
+       '-ar', str(SR), '-c:a', 'libvorbis', '-b:a', '80k', str(OUT / 'music' / 'bom-tense.ogg'))
+    raw.unlink()
+
+
 SFX = {
     # kartu — Kenney "Casino Audio"
     'card-place-1': 'casino/x/Audio/card-place-1.ogg',
@@ -287,6 +303,21 @@ SFX = {
     'ludo-home': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL12.ogg',
     'ludo-champion': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL13.ogg',
     'ludo-lose': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL07.ogg',
+    # Bom Waktu — tombol Interface Sounds, hantaman HIT & jingle pizzicato
+    'bom-light': 'interface/x/Audio/maximize_003.ogg',
+    'bom-tick': 'interface/x/Audio/tick_002.ogg',
+    'bom-turn': 'interface/x/Audio/question_002.ogg',
+    'bom-pass': 'interface/x/Audio/minimize_005.ogg',
+    'bom-accept': 'interface/x/Audio/confirmation_001.ogg',
+    'bom-reject': 'interface/x/Audio/error_004.ogg',
+    'bom-protest': 'interface/x/Audio/bong_001.ogg',
+    'bom-cancel': 'interface/x/Audio/glitch_002.ogg',
+    'bom-power': 'interface/x/Audio/pluck_002.ogg',
+    'bom-cut': 'interface/x/Audio/scratch_003.ogg',
+    'bom-boom': 'jingles/x/OGG/jingles_HIT/jingles_HIT03.ogg',
+    'bom-out': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA07.ogg',
+    'bom-champion': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA12.ogg',
+    'bom-lose': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA15.ogg',
 }
 
 LOUD = {'draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-reveal', 'draw-turn',
@@ -294,7 +325,8 @@ LOUD = {'draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-revea
         'domino-score', 'domino-win', 'domino-champion', 'domino-lose', 'domino-blocked', 'domino-special',
         'monopoly-go', 'monopoly-doubles', 'monopoly-sold', 'monopoly-jail', 'monopoly-jackpot', 'monopoly-bankrupt',
         'monopoly-champion', 'monopoly-lose',
-        'ludo-bomb', 'ludo-capture', 'ludo-six', 'ludo-home', 'ludo-champion', 'ludo-lose'}
+        'ludo-bomb', 'ludo-capture', 'ludo-six', 'ludo-home', 'ludo-champion', 'ludo-lose',
+        'bom-boom', 'bom-out', 'bom-champion', 'bom-lose'}
 
 
 def sfx(prefix=''):
@@ -326,6 +358,9 @@ if __name__ == '__main__':
     elif sys.argv[1:] == ['ludo']:
         ludo_music()
         sfx('ludo-')
+    elif sys.argv[1:] == ['bom']:
+        bom_music()
+        sfx('bom-')
     else:
         music()
         draw_music()
@@ -333,6 +368,7 @@ if __name__ == '__main__':
         domino_music()
         monopoly_music()
         ludo_music()
+        bom_music()
         sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))
     print(f'Selesai: {len(list(OUT.rglob("*.ogg")))} file, {total / 1024 / 1024:.2f} MB di {OUT}')
