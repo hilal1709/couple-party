@@ -8,7 +8,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import type { LiveChannel, Seat } from '../types'
 import { CHARACTERS, LEVEL_INFO, statsFor, type Stats } from './data'
 import { COUNTDOWN, FINISH_GRACE, humansDone } from './engine'
-import { loadModels, makeKart, geometry, withVariants, type KartRig } from './render/models'
+import { loadModels, makeKart, placed, withVariants, type KartRig } from './render/models'
 import { DRIFT_COLORS, DUST, Particles } from './render/particles'
 import { initialTier, TIERS, type Quality, type Tier } from './render/quality'
 import { Skids } from './render/skids'
@@ -59,6 +59,24 @@ type Pose = [number, number, number, number, number, number, number, number, num
 const F_DRIFT = 1, F_BOOST = 2, F_SPIN = 4, F_SHIELD = 8, F_AIR = 16, F_SLOW = 32, F_OFF = 64, F_BRAKE = 128
 
 const r2 = (v: number) => Math.round(v * 100) / 100
+/** perisai gelembung: tepi berkilau pelangi (fresnel), tengah bening, pola heksagon tipis */
+const SHIELD_MAT = new THREE.ShaderMaterial({
+  transparent: true,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+  uniforms: { time: { value: 0 } },
+  vertexShader: `varying vec3 vN; varying vec3 vV; varying vec3 vP;
+    void main(){ vec4 w = modelMatrix * vec4(position,1.0); vP = position; vN = normalize(mat3(modelMatrix) * normal); vV = normalize(cameraPosition - w.xyz); gl_Position = projectionMatrix * viewMatrix * w; }`,
+  fragmentShader: `uniform float time; varying vec3 vN; varying vec3 vV; varying vec3 vP;
+    vec3 hue(float h){ return clamp(abs(mod(h*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0, 1.0); }
+    void main(){
+      float f = pow(1.0 - abs(dot(vN, vV)), 2.2);
+      float hex = smoothstep(0.92, 1.0, abs(sin(vP.x*4.0 + time) * sin(vP.y*4.0) * sin(vP.z*4.0 - time)));
+      vec3 c = hue(f * 0.8 + time * 0.15 + vP.y * 0.1) * (f * 1.3 + hex * 0.4) + vec3(0.25, 0.55, 1.0) * 0.08;
+      gl_FragColor = vec4(c, 1.0);
+    }`,
+})
+
 /** sumbu kolom setir (setir dimiringkan 60° di model) */
 const STEER_AXIS = new THREE.Vector3(0, 0.5, 0.866).normalize()
 
@@ -186,6 +204,14 @@ export class Race {
       if (r.seat === null) this.brains.set(i, newBrain(i * 7919 + 13))
     })
     this.stopLive = o.live?.on((d) => this.onLive(d))
+    // dev: taruh kart sendiri di jarak tertentu (?at=meter) untuk memotret bagian lintasan
+    const at = import.meta.env.DEV ? Number(new URLSearchParams(location.search).get('at')) : 0
+    if (at && this.mine >= 0) {
+      const k = this.karts[this.mine]
+      const p = pointAt(this.t, at, 0)
+      Object.assign(k, { x: p.x, z: p.z, y: p.y, yaw: p.yaw, i: Math.round(at / 2) % this.t.n, s: at })
+      this.crossed[this.mine] = 1
+    }
   }
 
   /** muat model lalu mulai loop render */
@@ -197,12 +223,17 @@ export class Race {
       ...(th.landmarks ?? []).map((l) => l.model),
       'camar',
       ...th.hazards.flatMap((h) => ('model' in h ? [h.model] : [])),
-      'jamur-pantul', 'batu-jatuh', 'pisang', 'roket', 'petasan',
+      'jamur-pantul', 'batu-jatuh', 'pisang', 'roket', 'petasan', 'item-box', 'awan',
       ...this.state.racers.flatMap((r) => [`kart-${r.body}`, `char-${CHARACTERS[r.char].id}`, `kart-${r.body}-lod`, `char-${CHARACTERS[r.char].id}-lod`]),
     ])
     if (this.disposed) return
     this.world = await buildWorld(this.t, this.tier, this.renderer)
     if (this.disposed) return
+    if (import.meta.env.DEV) {
+      const w = window as unknown as { __race: Race; __races?: Race[] }
+      w.__race = this
+      ;(w.__races ??= []).push(this)
+    }
     this.particles = new Particles(this.tier.particles)
     this.skids = new Skids()
     this.world.scene.add(this.fxGroup, this.particles.group, this.skids.mesh)
@@ -494,6 +525,7 @@ export class Race {
         if (now < b.hiddenUntil) continue
         if ((b.x - k.x) ** 2 + (b.z - k.z) ** 2 > 2.6 ** 2 || Math.abs(b.y - k.y - 1.4) > 3) continue
         b.hiddenUntil = now + BOX_RESPAWN * 1000
+        this.boxBurst(b.x, b.y, b.z)
         if (!s.items[i] && !this.rolling.has(i) && s.times[i] === null) {
           this.rolling.set(i, now)
           this.o.act({ type: 'box', racer: i, rank: ranks.indexOf(i) })
@@ -633,8 +665,9 @@ export class Race {
       this.o.live.send({ p: poses })
     }
 
-    this.renderEntities(now)
-    this.updateClouds(now)
+    this.renderEntities(now, frame)
+    this.updateClouds(now, frame)
+    SHIELD_MAT.uniforms.time.value = now / 1000
     this.placeCamera(false, frame)
     this.followSun()
     if (this.composer) this.composer.render(frame)
@@ -858,8 +891,10 @@ export class Race {
     }
   }
 
-  private renderEntities(now: number) {
+  /** benda item di lintasan: model detail + jejak api roket, percikan sumbu & ledakan petasan */
+  private renderEntities(now: number, dt: number) {
     const alive = new Set<number>()
+    const p0 = this.particles
     for (const e of this.state.entities) {
       const age = (now - (this.born.get(e.id) ?? now)) / 1000
       const p = entityPose(this.t, e, age)
@@ -867,22 +902,44 @@ export class Race {
       alive.add(e.id)
       let m = this.entityMeshes.get(e.id)
       if (!m) {
-        m = new THREE.Mesh(geometry(e.kind), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.5 }))
+        m = placed(e.kind)
+        m.scale.setScalar(e.kind === 'pisang' ? 1.25 : 1.1)
         this.fxGroup.add(m)
         this.entityMeshes.set(e.id, m)
       }
       m.position.set(p.x, p.y, p.z)
-      if (e.kind === 'roket') {
+      if (e.kind === 'pisang') {
+        m.position.y = p.y - 0.25
+        m.rotation.y = e.id * 1.7
+      } else if (e.kind === 'roket') {
         const q = pointAt(this.t, e.s + age * 62, e.lane)
-        m.rotation.y = q.yaw
+        m.rotation.set(0, q.yaw, Math.sin(age * 9) * 0.25)
+        m.position.y = p.y - 0.6 + Math.sin(age * 7) * 0.2
+        // jejak api & asap dari nosel belakang (depan model = +Z)
+        const bx = p.x - Math.sin(q.yaw) * 1.2
+        const bz = p.z - Math.cos(q.yaw) * 1.2
+        if (Math.random() < dt * 90) p0.emit('fire', bx, p.y - 0.1, bz, (Math.random() - 0.5) * 2, 0.5, (Math.random() - 0.5) * 2, Math.random() < 0.5 ? '#ff8a1c' : '#ffcc1f', 1.1)
+        if (Math.random() < dt * 30) p0.emit('smoke', bx, p.y, bz, 0, 1, 0, '#f0eef4', 0.8)
       } else if (e.kind === 'petasan') {
-        m.rotation.z = age * 8
         const blast = p.live
-        m.scale.setScalar(blast ? 1 + (age - 0.8) * 10 : 1)
-        ;(m as THREE.Mesh).visible = age < 1.3
+        m.visible = age < 0.8
+        m.rotation.set(age * 6, age * 4, 0)
+        // percikan sumbu saat melayang
+        if (!blast && age < 0.8 && Math.random() < dt * 50) p0.emit('spark', p.x, p.y + 1.2, p.z, (Math.random() - 0.5) * 4, 3, (Math.random() - 0.5) * 4, '#ffcc1f', 0.8)
         if (blast && !this.handled.has(`snd${e.id}`)) {
           this.handled.add(`snd${e.id}`)
           this.o.onSound('blast', { volume: 0.6 })
+          p0.burst('fire', 40, p.x, p.y + 1, p.z, 0, 4, 0, 22, ['#ff8a1c', '#ffcc1f', '#ff3b5c'], 2.2)
+          p0.burst('smoke', 22, p.x, p.y + 1.5, p.z, 0, 3, 0, 10, ['#8a8090', '#c8c0d0'], 2.4)
+          p0.burst('spark', 30, p.x, p.y + 1, p.z, 0, 8, 0, 26, ['#ffffff', '#ffcc1f', '#ff37a6'])
+          const ring = new THREE.Mesh(new THREE.TorusGeometry(1, 0.25, 8, 32), new THREE.MeshBasicMaterial({ color: '#ffcc1f', transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending }))
+          ring.rotation.x = Math.PI / 2
+          ring.position.set(p.x, p.y + 0.5, p.z)
+          ring.userData.born = now
+          this.fxGroup.add(ring)
+          this.rings.push(ring)
+          const mine = this.karts[Math.max(0, this.mine)]
+          if ((mine.x - p.x) ** 2 + (mine.z - p.z) ** 2 < 40 ** 2) this.shake = Math.max(this.shake, 0.6)
         }
       }
     }
@@ -891,23 +948,39 @@ export class Race {
       this.fxGroup.remove(m)
       this.entityMeshes.delete(id)
     }
+    // gelombang kejut petasan melebar & memudar
+    this.rings = this.rings.filter((r) => {
+      const a = (now - (r.userData.born as number)) / 1000
+      if (a > 0.5) {
+        this.fxGroup.remove(r)
+        return false
+      }
+      r.scale.setScalar(1 + a * 16)
+      ;(r.material as THREE.MeshBasicMaterial).opacity = 0.9 * (1 - a / 0.5)
+      return true
+    })
+  }
+  private rings: THREE.Mesh[] = []
+
+  /** pecahan kotak item saat diambil */
+  private boxBurst(x: number, y: number, z: number) {
+    this.particles?.burst('star', 14, x, y, z, 0, 3, 0, 9, ['#ff3b5c', '#ffcc1f', '#5cf64a', '#2f7bff', '#ff37a6', '#fff4fa'], 1.1)
+    this.particles?.burst('spark', 18, x, y, z, 0, 4, 0, 12, ['#ffffff', '#bfe9ff'])
   }
 
   private showCloud(i: number) {
     if (this.clouds.has(i)) return
     const g = new THREE.Group()
-    const mat = new THREE.MeshStandardMaterial({ color: '#8a9ab8', roughness: 1, emissive: new THREE.Color('#5a6a8a'), emissiveIntensity: 0.6 })
-    for (const [x, y, s] of [[0, 0, 1.2], [1, 0.2, 0.9], [-1, 0.1, 0.9]]) {
-      const b = new THREE.Mesh(new THREE.SphereGeometry(s, 8, 6), mat)
-      b.position.set(x, y, 0)
-      g.add(b)
-    }
+    const c = placed('awan')
+    c.scale.setScalar(1.5)
+    c.rotation.y = Math.PI
+    g.add(c)
     g.userData.until = performance.now() + 4000
     this.fxGroup.add(g)
     this.clouds.set(i, g)
   }
 
-  private updateClouds(now: number) {
+  private updateClouds(now: number, dt: number) {
     for (const [i, c] of this.clouds) {
       if (now > (c.userData.until as number)) {
         this.fxGroup.remove(c)
@@ -915,19 +988,27 @@ export class Race {
         continue
       }
       const m = this.meshes[i]
-      c.position.set(m.position.x, m.position.y + 6.5, m.position.z)
+      c.position.set(m.position.x, m.position.y + 6.8 + Math.sin(now / 300) * 0.2, m.position.z)
+      c.rotation.y = m.rotation.y
+      // hujan menetes ke pembalap
+      for (let k = 0; k < 2; k++) {
+        if (Math.random() < dt * 40) this.particles.emit('splash', c.position.x + (Math.random() - 0.5) * 2.4, c.position.y - 0.8, c.position.z + (Math.random() - 0.5) * 2.4, 0, -10, 0, '#4a9aff', 0.5)
+      }
     }
   }
 
   private shieldFx(i: number, m: THREE.Group, on: boolean) {
     let s = this.shieldMeshes.get(i)
     if (on && !s) {
-      s = new THREE.Mesh(new THREE.SphereGeometry(2.4, 14, 10), new THREE.MeshLambertMaterial({ color: '#7fd0ff', transparent: true, opacity: 0.35, emissive: new THREE.Color('#2f7bff'), emissiveIntensity: 0.4 }))
-      s.position.y = 1.6
+      s = new THREE.Mesh(new THREE.IcosahedronGeometry(2.5, 3), SHIELD_MAT)
+      s.position.y = 1.7
       m.add(s)
       this.shieldMeshes.set(i, s)
     }
-    if (s) s.visible = on
+    if (s) {
+      s.visible = on
+      if (on) s.rotation.y += 0.02
+    }
   }
 
   /** turunkan resolusi kalau HP kewalahan */

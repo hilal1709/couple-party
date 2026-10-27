@@ -94,47 +94,64 @@ export function variants(name: string): string[] {
 /** semua nama GLB yang perlu dimuat untuk prop `name` (termasuk variannya) */
 export const withVariants = (names: string[]) => names.flatMap((n) => (variants(n).length ? variants(n) : [n]))
 
-const isTextured = (root: THREE.Object3D) => {
-  let t = false
-  root.traverse((o) => {
-    const m = o as THREE.Mesh
-    if (m.isMesh && ((m.material as THREE.MeshStandardMaterial).map || (m.material as THREE.MeshStandardMaterial).normalMap)) t = true
-  })
-  return t
-}
-
 /** bahan standar (PBR) untuk model berwarna verteks: kena cahaya & pantulan langit */
 export const vertexMaterial = () => new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.72, metalness: 0 })
 
+/** gabungkan semua bagian GLB yang memakai material sama (koordinat adegan), supaya draw call sedikit */
+const mergedCache = new Map<string, { geo: THREE.BufferGeometry; mat: THREE.Material }[]>()
+function mergedParts(name: string, sc: THREE.Object3D) {
+  let parts = mergedCache.get(name)
+  if (parts) return parts
+  sc.updateMatrixWorld(true)
+  const byMat = new Map<THREE.Material, THREE.BufferGeometry[]>()
+  sc.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (!m.isMesh) return
+    let geo = m.geometry.clone().applyMatrix4(m.matrixWorld)
+    geo = geo.index ? geo.toNonIndexed() : geo
+    const mat = m.material as THREE.Material
+    const list = byMat.get(mat) ?? []
+    list.push(geo)
+    byMat.set(mat, list)
+  })
+  parts = [...byMat].map(([mat0, geos]) => {
+    // samakan atribut supaya bisa digabung
+    const keepUv = geos.every((g) => g.getAttribute('uv'))
+    for (const g of geos) {
+      for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal' && !(k === 'uv' && keepUv)) g.deleteAttribute(k)
+      if (!g.getAttribute('normal')) g.computeVertexNormals()
+    }
+    const mat = (mat0 as THREE.MeshStandardMaterial).clone()
+    // daun & rumput bertekstur alfa (bidang dua sisi / transparan): potong, jangan transparan
+    // (lebih murah & tanpa salah urutan); kaca polos tetap transparan
+    if (mat.map && (mat.transparent || mat.side === THREE.DoubleSide)) {
+      mat.transparent = false
+      mat.alphaTest = 0.45
+      mat.side = THREE.DoubleSide
+    }
+    return { geo: mergeGeometries(geos) ?? geos[0], mat }
+  })
+  mergedCache.set(name, parts)
+  return parts
+}
+
 /**
- * Banyak salinan satu model dalam satu InstancedMesh per bagian (per material).
- * Model bertekstur memakai material aslinya; model polos memakai geometri rata berwarna verteks.
+ * Banyak salinan satu model: satu InstancedMesh per material, dengan material asli GLB
+ * (tekstur, emisi, transparansi). Tanpa GLB: bentuk bawaan berwarna verteks.
  */
 export function instanced(name: string, matrices: THREE.Matrix4[], shadow = true): THREE.Group {
   const g = new THREE.Group()
   if (!matrices.length) return g
   const sc = scenes.get(name)
-  if (sc && isTextured(sc)) {
-    sc.updateMatrixWorld(true)
-    sc.traverse((o) => {
-      const m = o as THREE.Mesh
-      if (!m.isMesh) return
-      const geo = m.geometry.clone().applyMatrix4(m.matrixWorld)
-      const mat = (m.material as THREE.MeshStandardMaterial).clone()
-      // daun & rumput bertekstur alfa (bidang dua sisi / transparan): potong, jangan transparan
-      // (lebih murah & tanpa salah urutan)
-      if (mat.map && (mat.transparent || mat.side === THREE.DoubleSide)) {
-        mat.transparent = false
-        mat.alphaTest = 0.45
-        mat.side = THREE.DoubleSide
-      }
+  if (sc) {
+    for (const { geo, mat } of mergedParts(name, sc)) {
       const im = new THREE.InstancedMesh(geo, mat, matrices.length)
       matrices.forEach((mx, i) => im.setMatrixAt(i, mx))
-      im.castShadow = shadow
+      im.castShadow = shadow && !(mat as THREE.MeshStandardMaterial).transparent
       im.receiveShadow = true
       im.computeBoundingSphere()
       g.add(im)
-    })
+    }
     return g
   }
   const im = new THREE.InstancedMesh(geometry(name), vertexMaterial(), matrices.length)

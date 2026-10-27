@@ -5760,129 +5760,129 @@
     "semantic_hash": ""
   },
   "src/assets/kart/char-bubu.webp.json": {
-    "mtime": 1793091388.500291,
-    "seen": 1793092614.3596795,
-    "ast_hash": "8498e8c159c37a3886a0a9e8f223ac5f",
+    "mtime": 1793093476.322695,
+    "seen": 1793094897.3764598,
+    "ast_hash": "b59af914db92b8ec56e3c1c9b07f6af7",
     "semantic_hash": ""
   },
   "src/assets/kart/char-ciko.webp.json": {
-    "mtime": 1793091389.9843938,
-    "seen": 1793092614.3596828,
-    "ast_hash": "4884c86e2ac8a981576dba924f639ed8",
+    "mtime": 1793093478.32753,
+    "seen": 1793094897.3764641,
+    "ast_hash": "a854c76952149bdbc35ce3bfc92e8a7b",
     "semantic_hash": ""
   },
   "src/assets/kart/char-embek.webp.json": {
-    "mtime": 1793091391.9198506,
-    "seen": 1793092614.3596864,
-    "ast_hash": "76df951c8b1a888a1196c70b969744b2",
+    "mtime": 1793093480.9372027,
+    "seen": 1793094897.3764684,
+    "ast_hash": "47c63c31d777adc18c711cf337608fb6",
     "semantic_hash": ""
   },
   "src/assets/kart/char-gurit.webp.json": {
-    "mtime": 1793091393.3473668,
-    "seen": 1793092614.3596895,
-    "ast_hash": "035cf83b3382046759302cf846390a0a",
+    "mtime": 1793093482.8003788,
+    "seen": 1793094897.3764741,
+    "ast_hash": "b0f47187e54e8ac18b39fc8ee684434d",
     "semantic_hash": ""
   },
   "src/assets/kart/char-komo.webp.json": {
-    "mtime": 1793091394.8235776,
-    "seen": 1793092614.3596926,
-    "ast_hash": "31b3121aa31498ba235bacaf3240a9ba",
+    "mtime": 1793093484.8731318,
+    "seen": 1793094897.3764791,
+    "ast_hash": "21a3ad536875626a23e94d6c37abf1dd",
     "semantic_hash": ""
   },
   "src/assets/kart/char-kroak.webp.json": {
-    "mtime": 1793091396.434233,
-    "seen": 1793092614.3596957,
-    "ast_hash": "cc8c3b3b17140f696021037937fc5094",
+    "mtime": 1793093487.1615498,
+    "seen": 1793094897.3764844,
+    "ast_hash": "7e0501d7d609ce753f8e19fed3cd41d8",
     "semantic_hash": ""
   },
   "src/assets/kart/char-loreng.webp.json": {
-    "mtime": 1793091397.9819403,
-    "seen": 1793092614.3596988,
-    "ast_hash": "f740d97dc11790364c51bb3c7cf2b049",
+    "mtime": 1793093489.1258702,
+    "seen": 1793094897.376489,
+    "ast_hash": "523a6fd0c3b9d6beba439b93f5d5cbc0",
     "semantic_hash": ""
   },
   "src/assets/kart/char-moci.webp.json": {
-    "mtime": 1793091399.5527887,
-    "seen": 1793092614.3597023,
-    "ast_hash": "56e73fff9d21ddaf770a858bf9be833c",
+    "mtime": 1793093491.2337437,
+    "seen": 1793094897.376494,
+    "ast_hash": "605870c0c2d65e9f5a6b8e53ca37a225",
     "semantic_hash": ""
   },
   "src/assets/kart/item-awan.webp.json": {
-    "mtime": 1793091400.7352552,
-    "seen": 1793092614.3597054,
-    "ast_hash": "dbc59d2f9d5992018133d775290666f3",
+    "mtime": 1793093492.8470562,
+    "seen": 1793094897.3764987,
+    "ast_hash": "7d92f8d6091923137feecaa64785236d",
     "semantic_hash": ""
   },
   "src/assets/kart/item-magnet.webp.json": {
-    "mtime": 1793091401.8095517,
-    "seen": 1793092614.359709,
-    "ast_hash": "05c6679bb95b743a558a0974718b7bab",
+    "mtime": 1793093494.1876736,
+    "seen": 1793094897.376503,
+    "ast_hash": "519cfbcf02e322a5890560355bfe0bc8",
     "semantic_hash": ""
   },
   "src/assets/kart/item-perisai.webp.json": {
-    "mtime": 1793091403.871814,
-    "seen": 1793092614.3597128,
-    "ast_hash": "8eca4be4d0c20e9c5b1ad5897eec5981",
+    "mtime": 1793093496.038582,
+    "seen": 1793094897.3765078,
+    "ast_hash": "002fe09a9c638935b9319616ffd712cd",
     "semantic_hash": ""
   },
   "src/assets/kart/item-petasan.webp.json": {
-    "mtime": 1793091404.4803288,
-    "seen": 1793092614.3597164,
-    "ast_hash": "236ad2910dfedeffa528e71446763ffa",
+    "mtime": 1793093497.181764,
+    "seen": 1793094897.376512,
+    "ast_hash": "9c84298231312a2ea92504f36cf7e239",
     "semantic_hash": ""
   },
   "src/assets/kart/item-pisang.webp.json": {
-    "mtime": 1793091405.286282,
-    "seen": 1793092614.3597198,
-    "ast_hash": "dd6c358f38d618b7e38528b60c0d0ae2",
+    "mtime": 1793093498.566612,
+    "seen": 1793094897.3765166,
+    "ast_hash": "9a0aa8aedfc5ae16e94a273acf3bba0b",
     "semantic_hash": ""
   },
   "src/assets/kart/item-pisang3.webp.json": {
-    "mtime": 1793091406.099593,
-    "seen": 1793092614.3597229,
-    "ast_hash": "fbe65e7ab516eab089fb1b018ccaa9c7",
+    "mtime": 1793093499.8883412,
+    "seen": 1793094897.3765209,
+    "ast_hash": "a41a1c8b6e628e27b664e46177348032",
     "semantic_hash": ""
   },
   "src/assets/kart/item-roket.webp.json": {
-    "mtime": 1793091407.0916283,
-    "seen": 1793092614.3597262,
-    "ast_hash": "3a69e6add38e3a58c84e66321503141e",
+    "mtime": 1793093501.4291599,
+    "seen": 1793094897.3765254,
+    "ast_hash": "4b3b5bf31da97f93e47e2afe01a5f0bd",
     "semantic_hash": ""
   },
   "src/assets/kart/item-sambal.webp.json": {
-    "mtime": 1793091408.0714417,
-    "seen": 1793092614.35973,
-    "ast_hash": "a8a41c659a4797783f7e42b589ac338f",
+    "mtime": 1793093502.4851787,
+    "seen": 1793094897.37653,
+    "ast_hash": "7f4d5576d2a07c0cc1804d1b19404cf6",
     "semantic_hash": ""
   },
   "src/assets/kart/item-sambal3.webp.json": {
-    "mtime": 1793091409.5123193,
-    "seen": 1793092614.3597336,
-    "ast_hash": "24b07d86f76c1af048442566f8b18ce0",
+    "mtime": 1793093504.1863647,
+    "seen": 1793094897.376534,
+    "ast_hash": "c86147a1314e11ac11b30648832f6154",
     "semantic_hash": ""
   },
   "src/assets/kart/kart-bajaj.webp.json": {
-    "mtime": 1793091411.8052728,
-    "seen": 1793092614.3597372,
-    "ast_hash": "ed0959764238f81710086840e822504f",
+    "mtime": 1793093507.1293917,
+    "seen": 1793094897.3765376,
+    "ast_hash": "108efa7cb67699f187adb345ddded0cf",
     "semantic_hash": ""
   },
   "src/assets/kart/kart-bebek.webp.json": {
-    "mtime": 1793091413.9726229,
-    "seen": 1793092614.3597407,
-    "ast_hash": "2b4c94d1bc2f89eca7ca873fee5538f9",
+    "mtime": 1793093509.9991972,
+    "seen": 1793094897.3765411,
+    "ast_hash": "e151587adf4e9f8a7701837f19e25a96",
     "semantic_hash": ""
   },
   "src/assets/kart/kart-gerobak.webp.json": {
-    "mtime": 1793091416.2453554,
-    "seen": 1793092614.3597443,
-    "ast_hash": "0e91eff8daeda655ea57db87604a46f8",
+    "mtime": 1793093513.0615108,
+    "seen": 1793094897.3765454,
+    "ast_hash": "1f841ec2ac2ab258672042c3681416bb",
     "semantic_hash": ""
   },
   "src/assets/kart/tile-kart.webp.json": {
-    "mtime": 1793091420.6421087,
-    "seen": 1793092614.3597484,
-    "ast_hash": "33499be15fead3ca1522f6b1eaef7202",
+    "mtime": 1793093519.553013,
+    "seen": 1793094897.3765495,
+    "ast_hash": "aa52cd9231e1f45e9a921abdfca11765",
     "semantic_hash": ""
   },
   "src/assets/lottie/kart-boost.json": {
@@ -5940,21 +5940,21 @@
     "semantic_hash": ""
   },
   "src/games/kart/race.ts": {
-    "mtime": 1793092424.7566154,
-    "seen": 1793092614.3606591,
-    "ast_hash": "e4b887c82add31de8c67357a9b798419",
+    "mtime": 1793094254.1325364,
+    "seen": 1793094897.3777287,
+    "ast_hash": "f2b012a65f7e5a4f1a7ac84b3877b04f",
     "semantic_hash": ""
   },
   "src/games/kart/render/models.ts": {
-    "mtime": 1793091727.6241717,
-    "seen": 1793092614.3606634,
-    "ast_hash": "aae932ab55c862c5562e932f1120ed96",
+    "mtime": 1793093281.6356826,
+    "seen": 1793094897.3777344,
+    "ast_hash": "245b885367f224940d84008d09ac0c5f",
     "semantic_hash": ""
   },
   "src/games/kart/render/world.ts": {
-    "mtime": 1793092195.5652847,
-    "seen": 1793092614.3606803,
-    "ast_hash": "64be66f96ae1ab535129a7eff610375c",
+    "mtime": 1793093901.355486,
+    "seen": 1793094897.3777611,
+    "ast_hash": "979a4e4237b001c71be8a9ae4136fd78",
     "semantic_hash": ""
   },
   "src/games/kart/sim/bots.ts": {
@@ -5994,9 +5994,9 @@
     "semantic_hash": ""
   },
   "src/games/kart/tracks.ts": {
-    "mtime": 1793091908.4752238,
-    "seen": 1793092614.3607087,
-    "ast_hash": "21823d05af140604fef8678bdcaa1ba6",
+    "mtime": 1793093904.6048276,
+    "seen": 1793094897.3777943,
+    "ast_hash": "03ba0f782ac0045d2c29e2eb7029f67d",
     "semantic_hash": ""
   },
   "src/games/kart/types.ts": {
@@ -6078,57 +6078,57 @@
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-awan.png": {
-    "mtime": 1793087154.0856042,
-    "seen": 1793089435.215824,
-    "ast_hash": "1dafdb66657abbb6d776d5954547dda6",
+    "mtime": 1793093107.326686,
+    "seen": 1793094897.3787003,
+    "ast_hash": "edea0f346b79afb0037933fad612c81e",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-magnet.png": {
-    "mtime": 1793087154.7157378,
-    "seen": 1793089435.215828,
-    "ast_hash": "7d446608a9b47374c25e29265f58b5a9",
+    "mtime": 1793093108.209038,
+    "seen": 1793094897.3787055,
+    "ast_hash": "167570d202368764fa481463f066fdf9",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-perisai.png": {
-    "mtime": 1793087151.1418653,
-    "seen": 1793089435.2158318,
-    "ast_hash": "6fb0d7a1cac09c1d87bf2f3f0260e73d",
+    "mtime": 1793093098.6244898,
+    "seen": 1793094897.3787105,
+    "ast_hash": "968d2e3d8cfc018db498f8fa43eac14b",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-petasan.png": {
-    "mtime": 1793087155.389874,
-    "seen": 1793089435.2158368,
-    "ast_hash": "c9d5e4902bb6a0aa3442d9f048c7950d",
+    "mtime": 1793093109.3585188,
+    "seen": 1793094897.3787148,
+    "ast_hash": "a3c004eca45da1429e52410fc5f051cd",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-pisang.png": {
-    "mtime": 1793087148.8236256,
-    "seen": 1793089435.2158403,
-    "ast_hash": "d8764e6489c505ba763b1959a519bca2",
+    "mtime": 1793093213.6073573,
+    "seen": 1793094897.3787208,
+    "ast_hash": "d532a55320bdad183e227c07eb49b5a2",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-pisang3.png": {
-    "mtime": 1793087149.8351383,
-    "seen": 1793089435.2158422,
-    "ast_hash": "df06e7ffe4790384576e11b654de414d",
+    "mtime": 1793093222.7373917,
+    "seen": 1793094897.3787253,
+    "ast_hash": "4d69d33c047d15b415e03f391af3af6a",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-roket.png": {
-    "mtime": 1793087148.1295836,
-    "seen": 1793089435.2158444,
-    "ast_hash": "84f659e3bd798589740278b3e0855e6d",
+    "mtime": 1793093082.0514445,
+    "seen": 1793094897.37873,
+    "ast_hash": "4b68c4c7f29d2993d9c0d8a845aa5331",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-sambal.png": {
-    "mtime": 1793087151.7862732,
-    "seen": 1793089435.2158463,
-    "ast_hash": "19cef14477d5c73ef771f3578ded8b56",
+    "mtime": 1793093100.4767258,
+    "seen": 1793094897.3787346,
+    "ast_hash": "151ead29b055447a2d2d82e633751275",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-sambal3.png": {
-    "mtime": 1793087153.120424,
-    "seen": 1793089435.2158487,
-    "ast_hash": "bc2ef6b4391d1a2705e930ac47d30079",
+    "mtime": 1793093104.853687,
+    "seen": 1793094897.3787386,
+    "ast_hash": "cb155bd70f209cbbbd8692a3fd90fb0d",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/kart-bajaj.png": {
@@ -6156,128 +6156,128 @@
     "semantic_hash": ""
   },
   "src/assets/kart/char-bubu.webp": {
-    "mtime": 1793091388.49949,
-    "seen": 1793092614.3621197,
+    "mtime": 1793093476.3208725,
+    "seen": 1793094897.3797195,
     "ast_hash": "20f3cadd022f61aef187d355df6aba73",
     "semantic_hash": ""
   },
   "src/assets/kart/char-ciko.webp": {
-    "mtime": 1793091389.9843938,
-    "seen": 1793092614.3621235,
+    "mtime": 1793093478.32753,
+    "seen": 1793094897.3797243,
     "ast_hash": "22f593c50aec7cfd0ec402609aa69790",
     "semantic_hash": ""
   },
   "src/assets/kart/char-embek.webp": {
-    "mtime": 1793091391.9198506,
-    "seen": 1793092614.362127,
+    "mtime": 1793093480.9372027,
+    "seen": 1793094897.3797293,
     "ast_hash": "6eb6e2ea36aaa691aaece2c4a35747d9",
     "semantic_hash": ""
   },
   "src/assets/kart/char-gurit.webp": {
-    "mtime": 1793091393.3473668,
-    "seen": 1793092614.3621304,
+    "mtime": 1793093482.8003788,
+    "seen": 1793094897.3797336,
     "ast_hash": "0476f9c9005b0faf52fc586f08364c3b",
     "semantic_hash": ""
   },
   "src/assets/kart/char-komo.webp": {
-    "mtime": 1793091394.8235776,
-    "seen": 1793092614.3621335,
+    "mtime": 1793093484.8731318,
+    "seen": 1793094897.3797374,
     "ast_hash": "68dcdf7b06b3fde2f8925735fab84dce",
     "semantic_hash": ""
   },
   "src/assets/kart/char-kroak.webp": {
-    "mtime": 1793091396.434233,
-    "seen": 1793092614.3621368,
+    "mtime": 1793093487.1615498,
+    "seen": 1793094897.3797412,
     "ast_hash": "4b08afa3a0ceae58e627512d2d9ae5a5",
     "semantic_hash": ""
   },
   "src/assets/kart/char-loreng.webp": {
-    "mtime": 1793091397.9819403,
-    "seen": 1793092614.3621402,
+    "mtime": 1793093489.1258702,
+    "seen": 1793094897.3797452,
     "ast_hash": "6e9f889ce966f0703ee785788a6f0b61",
     "semantic_hash": ""
   },
   "src/assets/kart/char-moci.webp": {
-    "mtime": 1793091399.5527887,
-    "seen": 1793092614.3621433,
+    "mtime": 1793093491.2337437,
+    "seen": 1793094897.3797493,
     "ast_hash": "805213f17b181cd496aa7ef27fedcae5",
     "semantic_hash": ""
   },
   "src/assets/kart/item-awan.webp": {
-    "mtime": 1793091400.7352552,
-    "seen": 1793092614.362147,
-    "ast_hash": "122249dcc963281d5e27fa6672e48037",
+    "mtime": 1793093492.840638,
+    "seen": 1793094897.379754,
+    "ast_hash": "db79d70e657891fb67b3c4cf67cab064",
     "semantic_hash": ""
   },
   "src/assets/kart/item-magnet.webp": {
-    "mtime": 1793091401.8095517,
-    "seen": 1793092614.3621504,
-    "ast_hash": "b150648bbabfef6a4365a801d6468c51",
+    "mtime": 1793093494.1876736,
+    "seen": 1793094897.3797584,
+    "ast_hash": "0b49ff9262b924bc7909def323b3c5c8",
     "semantic_hash": ""
   },
   "src/assets/kart/item-perisai.webp": {
-    "mtime": 1793091403.871814,
-    "seen": 1793092614.362154,
-    "ast_hash": "dc3c01545d62c808e6e173b843b737eb",
+    "mtime": 1793093496.027728,
+    "seen": 1793094897.3797624,
+    "ast_hash": "28f3f5a5f6cb182dca8a1971437f00c1",
     "semantic_hash": ""
   },
   "src/assets/kart/item-petasan.webp": {
-    "mtime": 1793091404.4803288,
-    "seen": 1793092614.3621573,
-    "ast_hash": "3db37dd7d843d1e72682c7f194ca0738",
+    "mtime": 1793093497.181764,
+    "seen": 1793094897.3797684,
+    "ast_hash": "95ba184a10a595c8c3392107161d2745",
     "semantic_hash": ""
   },
   "src/assets/kart/item-pisang.webp": {
-    "mtime": 1793091405.286282,
-    "seen": 1793092614.362161,
-    "ast_hash": "b0aac837cb2fbb02fefea8498c54eed3",
+    "mtime": 1793093498.566612,
+    "seen": 1793094897.379773,
+    "ast_hash": "1bdd796b295b80c2f15d403104681ef1",
     "semantic_hash": ""
   },
   "src/assets/kart/item-pisang3.webp": {
-    "mtime": 1793091406.099593,
-    "seen": 1793092614.3621643,
-    "ast_hash": "660d92ee4ba0021ce43b67db29c934d1",
+    "mtime": 1793093499.8883412,
+    "seen": 1793094897.379778,
+    "ast_hash": "9b6b0195294c2eb804276696a181ea86",
     "semantic_hash": ""
   },
   "src/assets/kart/item-roket.webp": {
-    "mtime": 1793091407.0916283,
-    "seen": 1793092614.3621674,
-    "ast_hash": "cad6fb0f22909177889afb6ca16014bb",
+    "mtime": 1793093501.4271474,
+    "seen": 1793094897.3797827,
+    "ast_hash": "b26812980d1a75581f9aed737fe7d28b",
     "semantic_hash": ""
   },
   "src/assets/kart/item-sambal.webp": {
-    "mtime": 1793091408.0714417,
-    "seen": 1793092614.362171,
-    "ast_hash": "b6c59be657f4c5a895bd43aebe3eda30",
+    "mtime": 1793093502.4851787,
+    "seen": 1793094897.3797874,
+    "ast_hash": "3b80eafbf7a91a9a6625fb3cf4475c28",
     "semantic_hash": ""
   },
   "src/assets/kart/item-sambal3.webp": {
-    "mtime": 1793091409.5123193,
-    "seen": 1793092614.3621743,
-    "ast_hash": "8b3328b38f4f938a488c8beae27c7e82",
+    "mtime": 1793093504.1863647,
+    "seen": 1793094897.3797925,
+    "ast_hash": "2ef2f9ab59d3205667011d49bcc5d919",
     "semantic_hash": ""
   },
   "src/assets/kart/kart-bajaj.webp": {
-    "mtime": 1793091411.8052728,
-    "seen": 1793092614.3621783,
+    "mtime": 1793093507.1273775,
+    "seen": 1793094897.3797975,
     "ast_hash": "8069309e5c19e8b20770ceb98cd392db",
     "semantic_hash": ""
   },
   "src/assets/kart/kart-bebek.webp": {
-    "mtime": 1793091413.9726229,
-    "seen": 1793092614.3621817,
+    "mtime": 1793093509.9991972,
+    "seen": 1793094897.3798022,
     "ast_hash": "a15b8e54eecdf9c1cf13408479a3c3d8",
     "semantic_hash": ""
   },
   "src/assets/kart/kart-gerobak.webp": {
-    "mtime": 1793091416.2453554,
-    "seen": 1793092614.3621848,
+    "mtime": 1793093513.0531476,
+    "seen": 1793094897.3798068,
     "ast_hash": "993d7029a8872c1cbf5e24fc04c1489e",
     "semantic_hash": ""
   },
   "src/assets/kart/tile-kart.webp": {
-    "mtime": 1793091420.6421087,
-    "seen": 1793092614.362236,
+    "mtime": 1793093519.551,
+    "seen": 1793094897.3798902,
     "ast_hash": "b859415a702fad883f95de90a4910ac3",
     "semantic_hash": ""
   },
@@ -6561,6 +6561,12 @@
     "mtime": 1793090330.114149,
     "seen": 1793092614.362232,
     "ast_hash": "b48911d0ccf45ff0f481c50e32323416",
+    "semantic_hash": ""
+  },
+  "scripts/blender/kart_items.py": {
+    "mtime": 1793093194.5907118,
+    "seen": 1793094897.3761554,
+    "ast_hash": "f756169f0279bface6a8f593df6fc50b",
     "semantic_hash": ""
   }
 }

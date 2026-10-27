@@ -692,11 +692,33 @@ function markings(t: Track, theme: Theme) {
 
 // ---------------------------------------------------------------------------
 
+/** perbesaran tampilan rintangan supaya terbaca di jalan selebar 30 m */
+const HAZARD_SCALE: Record<string, number> = { kepiting: 1.5, kerang: 1.6, 'kelapa-ayun': 1.4 }
+
+/** kepiting jalan menyamping menghadap kart yang datang: kaki bergantian, capit mengatup, mata bergoyang */
+function animateCrab(hz: World['hazards'][number], t: Track, at: number, sec: number) {
+  hz.mesh.rotation.y = pointAt(t, at * t.length, 0).yaw + Math.PI
+  for (let k = 1; k <= 3; k++) {
+    for (const [side, s] of [['L', 1], ['R', -1]] as const) {
+      const leg = hz.parts[`leg_${side}${k}`]
+      if (leg) leg.rotation.z = s * Math.sin(sec * 14 + k * 2.1 + (side === 'L' ? 0 : Math.PI)) * 0.35
+    }
+  }
+  for (const [side, s] of [['L', 1], ['R', -1]] as const) {
+    const claw = hz.parts[`claw_${side}`]
+    if (claw) claw.rotation.x = Math.sin(sec * 3 + s) * 0.25 - 0.1
+    const pin = hz.parts[`pincer_${side}`]
+    if (pin) pin.rotation.x = Math.max(0, Math.sin(sec * 6 + s)) * 0.6
+  }
+  const eyes = hz.parts.eyes
+  if (eyes) eyes.rotation.z = Math.sin(sec * 2.3) * 0.25
+}
+
 export type World = {
   scene: THREE.Scene
   sun: THREE.DirectionalLight
-  boxes: { id: number; x: number; y: number; z: number; mesh: THREE.Object3D; hiddenUntil: number }[]
-  hazards: { mesh: THREE.Object3D; shadow?: THREE.Mesh; index: number }[]
+  boxes: { id: number; x: number; y: number; z: number; hiddenUntil: number }[]
+  hazards: { mesh: THREE.Object3D; shadow?: THREE.Mesh; index: number; parts: Record<string, THREE.Object3D> }[]
   /** 0..5 lampu merah menyala, 6 = hijau (GO) */
   setLights: (n: number) => void
   update: (time: number, now: number) => void
@@ -759,32 +781,17 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
   const flock = variants('camar').length ? birds(t, 'camar', 7) : null
   if (flock) scene.add(flock.group)
 
-  // kotak item: kubus kaca berkilau pelangi + "?" di dalam
-  const q = canvasTex(128, 128, (c) => {
-    c.clearRect(0, 0, 128, 128)
-    c.fillStyle = '#fff4fa'
-    c.strokeStyle = '#121212'
-    c.lineWidth = 8
-    c.font = '900 100px "Dela Gothic One", sans-serif'
-    c.textAlign = 'center'
-    c.textBaseline = 'middle'
-    c.strokeText('?', 64, 70)
-    c.fillText('?', 64, 70)
-  }, false)
-  const glass = new THREE.MeshStandardMaterial({ color: '#ffffff', transparent: true, opacity: 0.55, roughness: 0.05, metalness: 0.3, emissive: new THREE.Color('#ff37a6'), emissiveIntensity: 0.6 })
-  const qMat = new THREE.SpriteMaterial({ map: q, depthWrite: false })
-  const boxGeo = new THREE.BoxGeometry(2.3, 2.3, 2.3)
-  const boxes = boxSpots(t).map((b) => {
-    const mesh = new THREE.Group()
-    const cube = new THREE.Mesh(boxGeo, glass)
-    cube.castShadow = true
-    const s = new THREE.Sprite(qMat)
-    s.scale.setScalar(1.7)
-    mesh.add(cube, s)
-    mesh.position.set(b.x, b.y, b.z)
-    scene.add(mesh)
-    return { ...b, mesh, hiddenUntil: 0 }
-  })
+  // kotak item: kubus kaca berbingkai pelangi + "?" 3D (scripts/blender/kart_items.py),
+  // semua kotak dalam satu set InstancedMesh; matriksnya diperbarui tiap bingkai (putar, melayang, muncul lagi)
+  const spots = boxSpots(t)
+  const boxGroup = instanced('item-box', spots.map(() => new THREE.Matrix4()), false)
+  scene.add(boxGroup)
+  const boxes = spots.map((b) => ({ ...b, hiddenUntil: 0 }))
+  const boxMx = new THREE.Matrix4()
+  const boxQ = new THREE.Quaternion()
+  const boxE = new THREE.Euler()
+  const boxPos = new THREE.Vector3()
+  const boxScale = new THREE.Vector3()
 
   // rintangan
   const shadowMat = new THREE.MeshBasicMaterial({ color: '#121212', transparent: true, opacity: 0.4, depthWrite: false })
@@ -793,6 +800,7 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
     if (h.kind === 'grip') return
     const name = h.kind === 'bounce' ? 'jamur-pantul' : h.kind === 'drop' ? 'batu-jatuh' : h.model
     const mesh = placed(name)
+    mesh.scale.setScalar(HAZARD_SCALE[name] ?? 1)
     if (h.kind === 'swing') {
       const rope = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 14, 6), new THREE.MeshStandardMaterial({ color: '#5a3e24', roughness: 0.9 }))
       rope.position.y = 7
@@ -819,7 +827,12 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
       shadow.rotation.x = -Math.PI / 2
       scene.add(shadow)
     }
-    hazards.push({ mesh, shadow, index })
+    // bagian bernama untuk animasi (kaki & capit kepiting, dsb.)
+    const parts: Record<string, THREE.Object3D> = {}
+    mesh.traverse((o) => {
+      if (/^(leg_|claw_|pincer_|eyes)/.test(o.name)) parts[o.name] = o
+    })
+    hazards.push({ mesh, shadow, index, parts })
   })
 
   const setLights = (n: number) => {
@@ -851,15 +864,15 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
       })
     }
     mk.pad.offset.y = -sec * 1.6
-    glass.emissive.setHSL((sec * 0.25) % 1, 0.9, 0.55)
-    for (const b of boxes) {
-      const show = now >= b.hiddenUntil
-      b.mesh.visible = show
-      if (show) {
-        b.mesh.children[0].rotation.set(Math.sin(sec * 1.1 + b.id) * 0.4, sec * 1.4 + b.id, 0)
-        b.mesh.position.y = b.y + Math.sin(sec * 2 + b.id) * 0.3
-      }
-    }
+    boxes.forEach((b, k) => {
+      // tumbuh lagi dengan efek "pop" setelah diambil
+      const back = (now - b.hiddenUntil) / 350
+      const s = now < b.hiddenUntil ? 0 : back >= 1 ? 1 : Math.sin(back * Math.PI * 0.75) * 1.25
+      boxE.set(Math.sin(sec * 1.1 + b.id) * 0.35, sec * 1.4 + b.id, Math.cos(sec * 0.9 + b.id) * 0.2)
+      boxMx.compose(boxPos.set(b.x, b.y + Math.sin(sec * 2 + b.id) * 0.3, b.z), boxQ.setFromEuler(boxE), boxScale.setScalar(Math.max(0.0001, s)))
+      for (const im of boxGroup.children as THREE.InstancedMesh[]) im.setMatrixAt(k, boxMx)
+    })
+    for (const im of boxGroup.children as THREE.InstancedMesh[]) im.instanceMatrix.needsUpdate = true
     for (const hz of hazards) {
       const h = t.def.hazards[hz.index]
       const p = hazardPose(t, h, time)
@@ -884,6 +897,7 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
         hz.mesh.position.set(p.x, p.y, p.z)
         hz.mesh.rotation.y = p.yaw
         if (h.kind === 'roller' && (h.model.startsWith('bola') || h.model === 'gulungan-semak')) hz.mesh.rotation.z = time * 3
+        if (h.kind === 'roller' && h.model === 'kepiting') animateCrab(hz, t, h.at, sec)
       }
     }
   }
