@@ -19,7 +19,7 @@ OUT = ROOT / 'src' / 'assets' / GAME
 def size_for(name: str) -> int:
     if name.startswith(('tile-', 'snakes-', 'draw-', 'remi-', 'domino-', 'monopoly-', 'ludo-', 'spy-', 'bom-')):
         return 720
-    if name.startswith(('mode-', 'landmark-', 'corner-', 'role-', 'mascot-')) or name == 'bomb':
+    if name.startswith(('mode-', 'landmark-', 'corner-', 'role-', 'mascot-', 'char-', 'kart-')) or name == 'bomb':
         return 240
     return 160
 

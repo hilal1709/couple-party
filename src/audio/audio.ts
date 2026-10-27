@@ -2,7 +2,7 @@ import { Howl, Howler } from 'howler'
 import { useEffect, useSyncExternalStore } from 'react'
 import { store } from '@/net/transport'
 
-export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense'
+export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense'
 
 export type SfxName =
   | 'card-place-1'
@@ -154,6 +154,26 @@ export type SfxName =
   | 'bom-out'
   | 'bom-champion'
   | 'bom-lose'
+  | 'kart-go'
+  | 'kart-count'
+  | 'kart-lap'
+  | 'kart-final'
+  | 'kart-boost'
+  | 'kart-drift'
+  | 'kart-hit'
+  | 'kart-bump'
+  | 'kart-box'
+  | 'kart-item'
+  | 'kart-jump'
+  | 'kart-land'
+  | 'kart-finish'
+  | 'kart-fall'
+  | 'kart-shield'
+  | 'kart-rain'
+  | 'kart-blast'
+  | 'kart-throw'
+  | 'kart-champion'
+  | 'kart-lose'
 
 export type AudioSettings = { music: number; sfx: number; muted: boolean }
 

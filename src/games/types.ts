@@ -12,6 +12,15 @@ export type GameProps<S, A> = {
   act: (action: A) => void
   /** kembali ke lobby */
   exit: () => void
+  /** saluran real-time tanpa jaminan sampai (hanya dipakai game real-time seperti balap kart) */
+  live?: LiveChannel
+}
+
+/** Pesan cepat antar HP: tidak disimpan & tidak dikirim ulang. Pengirim tidak menerima pesannya sendiri. */
+export type LiveChannel = {
+  send: (d: unknown) => void
+  /** `from` = kursi pengirim; mengembalikan fungsi untuk berhenti mendengar */
+  on: (cb: (d: unknown, from: Seat) => void) => () => void
 }
 
 /**

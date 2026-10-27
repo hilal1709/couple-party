@@ -30,6 +30,9 @@ import { randomStep as bomStep } from './games/bom/dev'
 import * as bomEngine from './games/bom/engine'
 import type { BomAction, BomMode } from './games/bom/types'
 import { BomBoard } from './games/bom/ui/BomBoard'
+import * as kartEngine from './games/kart/engine'
+import type { KartAction, KartOptions, KartState } from './games/kart/types'
+import { KartBoard } from './games/kart/ui/KartBoard'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -37,13 +40,14 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' }) {
   if (variant === 'draw') return <DrawDemo />
   if (variant === 'domino') return <DominoDemo />
   if (variant === 'monopoly') return <MonopolyDemo />
   if (variant === 'ludo') return <LudoDemo />
   if (variant === 'spy') return <SpyDemo />
   if (variant === 'bom') return <BomDemo />
+  if (variant === 'kart') return <KartDemo />
   if (variant === 'remi') return <RemiDemo />
   return <UnoDemo variant={variant} />
 }
@@ -296,4 +300,22 @@ function BomDemo() {
       </div>
     </>
   )
+}
+
+/**
+ * Kart Kacau lokal: ?demo=kart &track=pantai|…|lava atau &cup=daun|bintang &n=1..8 pemain &laps=1|3|5
+ * &bots=0 &phase=pick (default langsung balapan) &end=1 (langsung layar hasil). Kursi 0 = host (menjalankan bot).
+ */
+function KartDemo() {
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(8, Math.max(1, Number(q.get('n') ?? 1)))
+  const [s, setS] = useState<KartState>(() => {
+    const course = (q.get('track') || q.get('cup') || 'pantai') as KartOptions['course']
+    let st = kartEngine.init(42, { players: n, course, laps: (Number(q.get('laps') ?? 1) as 1 | 3 | 5) || 1, bots: q.get('bots') !== '0', level: 'normal' })
+    if (q.get('phase') !== 'pick') for (let i = 0; i < n; i++) st = kartEngine.reduce(st, { type: 'ready' }, i)
+    if (q.get('end')) st = kartEngine.reduce(kartEngine.reduce(st, { type: 'finish', racer: 0, time: 251300 }, 0), { type: 'end', rest: [] }, 0)
+    return st
+  })
+  const act = (a: KartAction) => setS((cur) => kartEngine.reduce(cur, a, 0))
+  return <KartBoard state={s} seat={0} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} />
 }

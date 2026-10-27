@@ -1,4 +1,4 @@
-// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi, Domino, Monopoli, Ludo, Siapa Mata-mata & Bom Waktu.
+// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi, Domino, Monopoli, Ludo, Siapa Mata-mata, Bom Waktu & Kart Kacau.
 // Jalankan: node scripts/lottie.mjs  → src/assets/lottie/*.json
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -2096,6 +2096,127 @@ function bomPower() {
   return doc('bom-power', S, S, OP, layers)
 }
 
+// ---------- efek Kart Kacau ----------
+// Turbo: chevron bertumpuk melesat ke atas + kepulan api di bawah
+function kartBoost() {
+  const S = 280
+  const OP = 46
+  const c = S / 2
+  const layers = []
+  const chevron = poly([[-46, 18], [0, -22], [46, 18], [30, 18], [0, -6], [-30, 18]])
+  for (let i = 0; i < 4; i++) {
+    const t0 = i * 4
+    layers.push(
+      layer(
+        i + 1,
+        [chevron, fill(['#ffcc1f', '#ff8a1c', '#ff37a6', '#5cf64a'][i]), stroke('#121212', 4)],
+        { p: anim([[t0, [c, c + 70, 0]], [t0 + 26, [c, c - 110, 0]]]), o: anim([[0, [0]], [t0, [100]], [t0 + 20, [100]], [t0 + 26, [0]]]) },
+        OP,
+      ),
+    )
+  }
+  for (let i = 0; i < 6; i++) {
+    const x = c + (rand() - 0.5) * 120
+    layers.push(
+      layer(
+        layers.length + 1,
+        [{ ty: 'el', p: st([0, 0]), s: st([26, 26]) }, fill(i % 2 ? '#ffcc1f' : '#ff3b5c'), stroke('#121212', 3)],
+        { p: anim([[i * 2, [x, c + 90, 0]], [i * 2 + 24, [x + (rand() - 0.5) * 60, c + 130, 0]]]), s: anim([[0, [0, 0, 100]], [i * 2, [80, 80, 100]], [i * 2 + 24, [0, 0, 100]]]) },
+        OP,
+      ),
+    )
+  }
+  return doc('kart-boost', S, S, OP, layers)
+}
+
+// Kena item: bintang "POW" bergerigi + bintang kecil berputar (pusing)
+function kartHit() {
+  const S = 280
+  const OP = 64
+  const c = S / 2
+  const layers = [layer(1, star(80, 44, 10, '#ffcc1f'), { p: st([c, c, 0]), r: anim([[0, [-12]], [12, [6]], [20, [0]]]), s: popScale(0, 36, OP) }, OP)]
+  for (let i = 0; i < 5; i++) {
+    const a0 = (i / 5) * 360
+    layers.push(
+      layer(
+        layers.length + 1,
+        [{ ty: 'gr', it: [...star(14, 6, 5, PALETTE[i % 5]), { ...tr(), p: st([100, 0]) }], nm: 'g' }],
+        { p: st([c, c - 30, 0]), r: anim([[0, [a0]], [OP, [a0 + 420]]]), s: anim([[0, [0, 0, 100]], [6, [100, 60, 100]], [OP - 10, [100, 60, 100]], [OP - 1, [0, 0, 100]]]) },
+        OP,
+      ),
+    )
+  }
+  return doc('kart-hit', S, S, OP, layers)
+}
+
+// Putaran baru: cincin melebar + dua bendera kotak-kotak mengibas
+function kartLap() {
+  const S = 280
+  const OP = 56
+  const c = S / 2
+  const layers = [layer(1, ring(140, '#5cf64a', 12), { p: st([c, c, 0]), s: anim([[0, [10, 10, 100]], [20, [110, 110, 100]], [OP - 1, [150, 150, 100]]]), o: fade(24, 50, OP) }, OP)]
+  for (const side of [-1, 1]) {
+    const cells = []
+    for (let x = 0; x < 4; x++)
+      for (let y = 0; y < 3; y++) cells.push({ ty: 'gr', it: [{ ty: 'rc', p: st([x * 16, y * 16]), s: st([16, 16]), r: st(0) }, fill((x + y) % 2 ? '#121212' : '#fff4fa'), tr()], nm: 'c' })
+    layers.push(
+      layer(
+        layers.length + 1,
+        [...cells, { ty: 'rc', p: st([-12, 40]), s: st([6, 110]), r: st(0) }, fill('#121212')],
+        { p: st([c + side * 70, c - 30, 0]), r: anim([[0, [side * -30]], [12, [side * 14]], [24, [side * -8]], [36, [side * 6]], [48, [0]]]), s: popScale(0, 44, OP) },
+        OP,
+      ),
+    )
+  }
+  return doc('kart-lap', S, S, OP, layers)
+}
+
+// Kotak item: kotak meletus jadi kilau bintang yang terlempar
+function kartBox() {
+  const S = 240
+  const OP = 40
+  const c = S / 2
+  const layers = [layer(1, slabRect(60, 60, '#ff37a6'), { p: st([c, c, 0]), r: anim([[0, [0]], [OP, [180]]]), s: anim([[0, [100, 100, 100]], [8, [130, 130, 100]], [16, [0, 0, 100]], [OP - 1, [0, 0, 100]]]) }, OP)]
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2
+    layers.push(
+      layer(
+        layers.length + 1,
+        star(12, 5, 4, PALETTE[i % 5]),
+        { p: anim([[6, [c, c, 0]], [OP - 4, [c + Math.cos(a) * 95, c + Math.sin(a) * 95, 0]]]), s: anim([[0, [0, 0, 100]], [8, [110, 110, 100]], [OP - 1, [0, 0, 100]]]) },
+        OP,
+      ),
+    )
+  }
+  return doc('kart-box', S, S, OP, layers)
+}
+
+// Finish: bendera kotak-kotak besar berkibar + hujan bintang
+function kartFinish() {
+  const S = 360
+  const OP = 110
+  const c = S / 2
+  const cells = []
+  for (let x = 0; x < 6; x++)
+    for (let y = 0; y < 4; y++) cells.push({ ty: 'gr', it: [{ ty: 'rc', p: st([x * 26 - 65, y * 26 - 39]), s: st([26, 26]), r: st(0) }, fill((x + y) % 2 ? '#121212' : '#fff4fa'), tr()], nm: 'c' })
+  const layers = [
+    layer(1, [...cells, { ty: 'rc', p: st([-85, 50]), s: st([8, 200]), r: st(0) }, fill('#121212')], { p: st([c, c - 20, 0]), r: anim([[0, [-20]], [14, [10]], [28, [-8]], [42, [6]], [56, [-4]], [70, [0]]]), s: popScale(0, 96, OP) }, OP),
+  ]
+  for (let i = 0; i < 16; i++) {
+    const x = rand() * S
+    const t0 = Math.floor(rand() * 40)
+    layers.push(
+      layer(
+        layers.length + 1,
+        star(10 + rand() * 8, 5, 5, PALETTE[i % 5]),
+        { p: anim([[t0, [x, -20, 0]], [t0 + 60, [x + (rand() - 0.5) * 80, S + 20, 0]]]), r: anim([[t0, [0]], [t0 + 60, [360]]]) },
+        OP,
+      ),
+    )
+  }
+  return doc('kart-finish', S, S, OP, layers)
+}
+
 mkdirSync('src/assets/lottie', { recursive: true })
 // urutan penting: confetti & burst duluan supaya hasil acaknya tetap sama seperti sebelumnya
 const out = {
@@ -2153,6 +2274,12 @@ const out = {
   'bom-pass': bomPass(),
   'bom-cancel': bomCancel(),
   'bom-power': bomPower(),
+  // Kart Kacau paling akhir, supaya acakan efek lain tidak berubah
+  'kart-boost': kartBoost(),
+  'kart-hit': kartHit(),
+  'kart-lap': kartLap(),
+  'kart-box': kartBox(),
+  'kart-finish': kartFinish(),
 }
 for (const [name, json] of Object.entries(out)) writeFileSync(`src/assets/lottie/${name}.json`, JSON.stringify(json))
 console.log('Lottie dibuat:', Object.keys(out).join(', '))

@@ -296,7 +296,7 @@ function useRoomToasts(players: Peer[], meId: string, pick: Pick | null | undefi
 }
 
 function Room({ me, room, onLeave }: { me: Peer; room: RoomInfo; onLeave: () => void }) {
-  const { session, online, dispatch, seat, net, queued } = useRoom(room.code, me, room.host, room.pick ?? null)
+  const { session, online, dispatch, seat, net, queued, live } = useRoom(room.code, me, room.host, room.pick ?? null)
   const players = session?.players ?? []
   const onlineBySeat = players.map((p) => online.some((o) => o.id === p.id))
   const game = entryById(session?.gameId ?? null)?.game ?? null
@@ -328,6 +328,7 @@ function Room({ me, room, onLeave }: { me: Peer; room: RoomInfo; onLeave: () => 
             online={onlineBySeat}
             act={(action: unknown) => dispatch({ kind: 'game', action })}
             exit={() => dispatch({ kind: 'exit' })}
+            live={live}
           />
         </Suspense>
       </>
