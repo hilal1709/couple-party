@@ -8,6 +8,7 @@ Jalankan:  python -I scripts/audio/build.py          (semua)
            python -I scripts/audio/build.py ludo     (hanya musik & SFX Ludo)
            python -I scripts/audio/build.py spy      (hanya musik & SFX Siapa Mata-mata)
            python -I scripts/audio/build.py bom      (hanya musik & SFX Bom Waktu)
+           python -I scripts/audio/build.py kart     (hanya musik & SFX Kart Kacau)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
 import subprocess
@@ -189,6 +190,67 @@ def bom_music():
     raw.unlink()
 
 
+def kart_music():
+    # Kart Kacau: "TechnoByte" oleh Yueki (CC0, itch.io) — loop techno/dance 8-bit,
+    # beda dari funk, piano, bossa, lounge, reggae, swing, chiptune, spy & quirky game lain.
+    # Loop 1 (paling ringan) untuk balapan, loop 5 (paling padat) untuk putaran terakhir.
+    m = SRC / 'music' / 'technobyte' / 'x' / 'Deliverables'
+    write_ogg(load(m / 'TechnoByte_1.wav'), OUT / 'music' / 'kart.ogg', 80, lufs=-20)
+    write_ogg(load(m / 'TechnoByte_5.wav'), OUT / 'music' / 'kart-tense.ogg', 80, lufs=-19)
+
+
+def _env(n, a=0.005, r=0.2):
+    """Amplop attack/release sederhana untuk n sampel."""
+    t = np.arange(n) / SR
+    e = np.minimum(1, t / a) * np.exp(-np.maximum(0, t - a) / max(1e-3, r))
+    return e.astype(np.float32)
+
+
+def _st(x):
+    return np.stack([x, x], axis=1).astype(np.float32)
+
+
+def kart_synth():
+    """SFX Kart Kacau yang disintesis sendiri (bukan sampel): mesin, turbo, lompat, hujan, hitung mundur."""
+    rng = np.random.default_rng(7)
+    out = OUT / 'sfx'
+    # mesin: dengung gergaji 70 Hz + harmonik, dibuat tepat 2 detik supaya loop mulus (frekuensi bulat)
+    n = SR * 2
+    t = np.arange(n) / SR
+    f = 70.0
+    saw = sum(((-1) ** (k + 1)) * np.sin(2 * np.pi * f * k * t) / k for k in range(1, 9))
+    rumble = 0.6 * saw * (0.85 + 0.15 * np.sin(2 * np.pi * 15 * t)) + 0.15 * np.sin(2 * np.pi * 35 * t)
+    write_ogg(_st(rumble * 0.4), out / 'kart-engine.ogg', 64, mono=True, lufs=-20)
+    # turbo: desis naik (noise disaring kasar + sweep)
+    n = int(SR * 0.9)
+    t = np.arange(n) / SR
+    noise = rng.standard_normal(n)
+    noise = np.convolve(noise, np.ones(6) / 6, 'same')
+    sweep = np.sin(2 * np.pi * (200 * t + 900 * t ** 2))
+    write_ogg(_st((noise * 0.6 + sweep * 0.4) * _env(n, 0.04, 0.35)), out / 'kart-boost.ogg', 64, mono=True, lufs=-16)
+    # drift: decit ban (sinus bergetar 1.4 kHz + noise)
+    n = int(SR * 0.5)
+    t = np.arange(n) / SR
+    sq = np.sin(2 * np.pi * (1400 + 120 * np.sin(2 * np.pi * 30 * t)) * t) * 0.5 + rng.standard_normal(n) * 0.15
+    write_ogg(_st(sq * _env(n, 0.02, 0.25)), out / 'kart-drift.ogg', 64, mono=True, lufs=-20)
+    # lompat: siulan naik
+    n = int(SR * 0.35)
+    t = np.arange(n) / SR
+    write_ogg(_st(np.sin(2 * np.pi * (300 * t + 1400 * t ** 2)) * _env(n, 0.01, 0.2)), out / 'kart-jump.ogg', 64, mono=True, lufs=-18)
+    # hitung mundur: bip 660 Hz, GO 990 Hz lebih panjang (sinus + oktaf)
+    for name, freq, dur in (('kart-count', 660, 0.22), ('kart-go', 990, 0.6)):
+        n = int(SR * dur)
+        t = np.arange(n) / SR
+        tone = np.sin(2 * np.pi * freq * t) + 0.35 * np.sin(2 * np.pi * freq * 2 * t)
+        write_ogg(_st(tone * _env(n, 0.005, dur * 0.6)), out / f'{name}.ogg', 64, mono=True, lufs=-16)
+    # hujan: noise lembut berbintik
+    n = int(SR * 1.6)
+    drops = (rng.random(n) > 0.997).astype(np.float32) * rng.random(n)
+    drops = np.convolve(drops, np.exp(-np.arange(300) / 40), 'same')
+    rain = np.convolve(rng.standard_normal(n), np.ones(20) / 20, 'same') * 0.5 + drops
+    write_ogg(_st(rain * _env(n, 0.2, 0.8)), out / 'kart-rain.ogg', 64, mono=True, lufs=-20)
+
+
 SFX = {
     # kartu — Kenney "Casino Audio"
     'card-place-1': 'casino/x/Audio/card-place-1.ogg',
@@ -349,6 +411,21 @@ SFX = {
     'bom-out': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA07.ogg',
     'bom-champion': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA12.ogg',
     'bom-lose': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA15.ogg',
+    # Kart Kacau — Kenney "Interface Sounds" & "Music Jingles" (sisanya disintesis di kart_synth)
+    'kart-lap': 'interface/x/Audio/maximize_006.ogg',
+    'kart-final': 'jingles/x/OGG/jingles_NES/jingles_NES12.ogg',
+    'kart-hit': 'interface/x/Audio/glitch_003.ogg',
+    'kart-bump': 'interface/x/Audio/drop_002.ogg',
+    'kart-box': 'interface/x/Audio/pluck_001.ogg',
+    'kart-item': 'interface/x/Audio/confirmation_003.ogg',
+    'kart-land': 'interface/x/Audio/drop_003.ogg',
+    'kart-finish': 'jingles/x/OGG/jingles_NES/jingles_NES08.ogg',
+    'kart-fall': 'interface/x/Audio/error_006.ogg',
+    'kart-shield': 'interface/x/Audio/glass_003.ogg',
+    'kart-blast': 'jingles/x/OGG/jingles_HIT/jingles_HIT07.ogg',
+    'kart-throw': 'interface/x/Audio/minimize_003.ogg',
+    'kart-champion': 'jingles/x/OGG/jingles_NES/jingles_NES13.ogg',
+    'kart-lose': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA08.ogg',
 }
 
 LOUD = {'draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-reveal', 'draw-turn',
@@ -358,7 +435,8 @@ LOUD = {'draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-revea
         'monopoly-champion', 'monopoly-lose',
         'ludo-bomb', 'ludo-capture', 'ludo-six', 'ludo-home', 'ludo-champion', 'ludo-lose',
         'spy-stamp', 'spy-caught', 'spy-escape', 'spy-guess-right', 'spy-champion', 'spy-lose',
-        'bom-boom', 'bom-out', 'bom-champion', 'bom-lose'}
+        'bom-boom', 'bom-out', 'bom-champion', 'bom-lose',
+        'kart-final', 'kart-finish', 'kart-blast', 'kart-champion', 'kart-lose'}
 
 
 def sfx(prefix=''):
@@ -396,6 +474,10 @@ if __name__ == '__main__':
     elif sys.argv[1:] == ['bom']:
         bom_music()
         sfx('bom-')
+    elif sys.argv[1:] == ['kart']:
+        kart_music()
+        kart_synth()
+        sfx('kart-')
     else:
         music()
         draw_music()
@@ -405,6 +487,8 @@ if __name__ == '__main__':
         ludo_music()
         spy_music()
         bom_music()
+        kart_music()
+        kart_synth()
         sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))
     print(f'Selesai: {len(list(OUT.rglob("*.ogg")))} file, {total / 1024 / 1024:.2f} MB di {OUT}')

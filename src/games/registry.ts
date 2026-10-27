@@ -34,6 +34,10 @@ import type { SnakesOptions } from './snakes/types'
 import { spy } from './spy'
 import type { SpyOptions } from './spy/types'
 import { summary as spySummary } from './spy/ui/copy'
+import { kart } from './kart'
+import type { KartOptions } from './kart/types'
+import { summary as kartSummary } from './kart/ui/copy'
+import { sprite as kartSprite } from './kart/ui/art'
 import { uno } from './uno'
 import type { UnoOptions } from './uno/types'
 import { VARIANT_INFO } from './uno/ui/copy'
@@ -159,6 +163,16 @@ export const GAMES: GameEntry[] = [
     art: bomArt,
     Lobby: lazy(() => import('./bom/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: BomOptions) => bomSummary(o),
+  },
+  {
+    game: kart,
+    category: 'lainnya',
+    blurb: 'Balap kart 3D di 8 lintasan raksasa, drift, item jahil & Grand Prix',
+    minPlayers: 1,
+    maxPlayers: 8,
+    art: kartSprite('tile-kart') ?? bomArt,
+    Lobby: lazy(() => import('./kart/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: KartOptions) => kartSummary(o),
   },
 ]
 

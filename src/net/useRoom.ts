@@ -1,13 +1,15 @@
 export type { Pick, Session, SessionAction } from './session'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { applyAction, type Pick, type Session, type SessionAction } from './session'
-import type { Seat } from '../games/types'
+import type { LiveChannel, Seat } from '../games/types'
 import { openTransport, store, type NetStatus, type Peer, type Transport } from './transport'
 
 type Msg =
   | { t: 'hello'; from: Peer }
   | { t: 'sync'; session: Session }
   | { t: 'act'; from: string; n: number; action: SessionAction }
+  /** pesan game real-time (mis. posisi kart): tidak disimpan, tidak di-ack, tidak dikirim ulang */
+  | { t: 'live'; from: string; d: unknown }
 
 /** jumlah kursi maksimum dalam satu room */
 export const MAX_ROOM = 8
@@ -34,6 +36,7 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
   /** aksi tamu yang belum dikonfirmasi host; dikirim ulang sampai masuk */
   const outbox = useRef<{ n: number; action: SessionAction }[]>([])
   const counter = useRef(Number(store.getItem(`couple-party:actn:${code}`) ?? 0))
+  const liveCbs = useRef(new Set<(d: unknown, from: string) => void>())
 
   const commit = useCallback(
     (next: Session) => {
@@ -129,6 +132,10 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
 
     t.onMessage((raw) => {
       const m = raw as Msg
+      if (m.t === 'live') {
+        liveCbs.current.forEach((cb) => cb(m.d, m.from))
+        return
+      }
       if (isHost) {
         if (m.t === 'hello') t.send({ t: 'sync', session: sessionRef.current! } satisfies Msg)
         if (m.t === 'act') {
@@ -203,6 +210,22 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, queued, isHost, me.id])
 
+  const live = useMemo<LiveChannel>(
+    () => ({
+      send: (d) => tRef.current?.send({ t: 'live', from: me.id, d } satisfies Msg),
+      on: (cb) => {
+        const players = () => sessionRef.current?.players ?? []
+        const wrapped = (d: unknown, from: string) => {
+          const seat = players().findIndex((p) => p.id === from)
+          if (seat !== -1) cb(d, seat)
+        }
+        liveCbs.current.add(wrapped)
+        return () => void liveCbs.current.delete(wrapped)
+      },
+    }),
+    [me.id],
+  )
+
   const seat = (session?.players.findIndex((p) => p.id === me.id) ?? -1) as Seat | -1
-  return { session: shown, online, dispatch, seat, net, queued }
+  return { session: shown, online, dispatch, seat, net, queued, live }
 }
