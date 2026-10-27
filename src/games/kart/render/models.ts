@@ -61,7 +61,7 @@ export async function loadModels(names: string[]): Promise<void> {
         try {
           const gltf = await loader.loadAsync(url)
           scenes.set(name, gltf.scene)
-          cache.set(name, flatten(gltf.scene))
+          // geometri rata dibuat saat dibutuhkan saja (lihat geometry())
           return
         } catch {
           // jatuh ke bentuk bawaan
@@ -75,13 +75,96 @@ export async function loadModels(names: string[]): Promise<void> {
 export function geometry(name: string): THREE.BufferGeometry {
   let g = cache.get(name)
   if (!g) {
-    g = fallback(name)
+    const sc = scenes.get(name)
+    g = sc ? flatten(sc) : fallback(name)
     cache.set(name, g)
   }
   return g
 }
 
 export const hasGlb = (name: string) => scenes.has(name)
+
+/** nama varian GLB yang tersedia: `pohon`, `pohon-2`, `pohon-3`, … */
+export function variants(name: string): string[] {
+  const out = glbUrl(name) ? [name] : []
+  for (let i = 2; glbUrl(`${name}-${i}`); i++) out.push(`${name}-${i}`)
+  return out
+}
+
+/** semua nama GLB yang perlu dimuat untuk prop `name` (termasuk variannya) */
+export const withVariants = (names: string[]) => names.flatMap((n) => (variants(n).length ? variants(n) : [n]))
+
+const isTextured = (root: THREE.Object3D) => {
+  let t = false
+  root.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (m.isMesh && ((m.material as THREE.MeshStandardMaterial).map || (m.material as THREE.MeshStandardMaterial).normalMap)) t = true
+  })
+  return t
+}
+
+/** bahan standar (PBR) untuk model berwarna verteks: kena cahaya & pantulan langit */
+export const vertexMaterial = () => new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.72, metalness: 0 })
+
+/**
+ * Banyak salinan satu model dalam satu InstancedMesh per bagian (per material).
+ * Model bertekstur memakai material aslinya; model polos memakai geometri rata berwarna verteks.
+ */
+export function instanced(name: string, matrices: THREE.Matrix4[], shadow = true): THREE.Group {
+  const g = new THREE.Group()
+  if (!matrices.length) return g
+  const sc = scenes.get(name)
+  if (sc && isTextured(sc)) {
+    sc.updateMatrixWorld(true)
+    sc.traverse((o) => {
+      const m = o as THREE.Mesh
+      if (!m.isMesh) return
+      const geo = m.geometry.clone().applyMatrix4(m.matrixWorld)
+      const mat = (m.material as THREE.MeshStandardMaterial).clone()
+      // daun & rumput bertekstur alfa (bidang dua sisi / transparan): potong, jangan transparan
+      // (lebih murah & tanpa salah urutan)
+      if (mat.map && (mat.transparent || mat.side === THREE.DoubleSide)) {
+        mat.transparent = false
+        mat.alphaTest = 0.45
+        mat.side = THREE.DoubleSide
+      }
+      const im = new THREE.InstancedMesh(geo, mat, matrices.length)
+      matrices.forEach((mx, i) => im.setMatrixAt(i, mx))
+      im.castShadow = shadow
+      im.receiveShadow = true
+      im.computeBoundingSphere()
+      g.add(im)
+    })
+    return g
+  }
+  const im = new THREE.InstancedMesh(geometry(name), vertexMaterial(), matrices.length)
+  matrices.forEach((mx, i) => im.setMatrixAt(i, mx))
+  im.castShadow = shadow
+  im.receiveShadow = true
+  im.computeBoundingSphere()
+  g.add(im)
+  return g
+}
+
+/** salinan utuh satu model (untuk landmark tunggal) */
+export function placed(name: string): THREE.Object3D {
+  const sc = scenes.get(name)
+  if (sc) {
+    const c = sc.clone(true)
+    c.traverse((o) => {
+      const m = o as THREE.Mesh
+      if (m.isMesh) {
+        m.castShadow = true
+        m.receiveShadow = true
+      }
+    })
+    return c
+  }
+  const m = new THREE.Mesh(geometry(name), vertexMaterial())
+  m.castShadow = true
+  m.receiveShadow = true
+  return m
+}
 
 /** geometri GLB dengan bagian "tint" diwarnai `color` */
 export function tinted(name: string, color: string): THREE.BufferGeometry {
@@ -222,32 +305,106 @@ const HEAD_FALLBACK: Record<string, (c: string) => Part[]> = {
   komo: (c) => [[ball(0.7, 9), c, [0, 0, 0.15], [0, 0, 0], [0.9, 0.75, 1.4]], [ball(0.18, 6), '#ffcc1f', [0.3, 0.3, 0.5]], [ball(0.18, 6), '#ffcc1f', [-0.3, 0.3, 0.5]]],
 }
 
-/** kart lengkap: bodi + roda + pembalap bertopi pesta. Roda & bodi bisa dianimasikan lewat userData. */
-export function makeKart(charId: string, color: string, body: string): THREE.Group {
+/** bagian kart & pembalap yang dianimasikan race.ts (gabungan semua tingkat LOD) */
+export type KartRig = {
+  tilt: THREE.Group
+  wheels: THREE.Object3D[]
+  front: THREE.Object3D[]
+  steer: THREE.Object3D[]
+  body: THREE.Object3D[]
+  head: THREE.Object3D[]
+  armL: THREE.Object3D[]
+  armR: THREE.Object3D[]
+  /** titik knalpot (koordinat lokal kart) untuk api turbo */
+  exhaust: THREE.Vector3[]
+}
+
+/** salinan adegan GLB dengan material "tint" diganti warna pembalap */
+function tintedClone(name: string, color: string): THREE.Object3D {
+  const c = scenes.get(name)!.clone(true)
+  const paint = new Map<THREE.Material, THREE.Material>()
+  c.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (!m.isMesh) return
+    m.castShadow = true
+    m.receiveShadow = true
+    const mt = m.material as THREE.MeshStandardMaterial
+    if (!mt.name.startsWith('tint')) return
+    let t = paint.get(mt)
+    if (!t) {
+      const n = mt.clone()
+      n.color.set(color)
+      paint.set(mt, n)
+      t = n
+    }
+    m.material = t
+  })
+  return c
+}
+
+/**
+ * Kart lengkap: bodi + roda + pembalap. Dari GLB detail (scripts/blender/kart_hd.py) bila ada,
+ * dengan LOD ringan untuk jarak jauh; kalau belum ada, bentuk primitif bawaan.
+ */
+export function makeKart(charId: string, color: string, body: string, lite = false): THREE.Group {
   const g = new THREE.Group()
-  const mat = new THREE.MeshLambertMaterial({ vertexColors: true })
-  const bodyGeo = hasGlb(`kart-${body}`) ? tinted(`kart-${body}`, color) : build((BODY_FALLBACK[body] ?? BODY_FALLBACK.bajaj)(color))
   const tilt = new THREE.Group()
-  tilt.add(new THREE.Mesh(bodyGeo, mat))
-  const wheels: THREE.Mesh[] = []
+  g.add(tilt)
+  const rig: KartRig = { tilt, wheels: [], front: [], steer: [], body: [], head: [], armL: [], armR: [], exhaust: [] }
+  const kartName = `kart-${body}`
+  const charName = `char-${charId}`
+  if (scenes.has(kartName) && scenes.has(charName)) {
+    const levels: [string, number][] = lite || !scenes.has(`${kartName}`) ? [['-lod', 0]] : [['', 0], ['-lod', 42]]
+    const lod = new THREE.LOD()
+    for (const [suffix, dist] of levels) {
+      const kn = scenes.has(kartName + suffix) ? kartName + suffix : kartName
+      const cn = scenes.has(charName + suffix) ? charName + suffix : charName
+      const level = new THREE.Group()
+      const k = tintedClone(kn, color)
+      const c = tintedClone(cn, color)
+      level.add(k, c)
+      level.traverse((o) => {
+        const n = o.name
+        if (/^wheel_/.test(n)) {
+          o.rotation.order = 'YXZ'
+          rig.wheels.push(o)
+          if (/^wheel_F/.test(n)) rig.front.push(o)
+        } else if (n === 'steer') rig.steer.push(o)
+        else if (n === 'body') rig.body.push(o)
+        else if (n === 'head') rig.head.push(o)
+        else if (n === 'arm_L') rig.armL.push(o)
+        else if (n === 'arm_R') rig.armR.push(o)
+        else if (/^exhaust/.test(n) && suffix === levels[0][0]) rig.exhaust.push(o.position.clone())
+      })
+      lod.addLevel(level, dist)
+    }
+    tilt.add(lod)
+    g.userData = rig
+    return g
+  }
+  // bentuk primitif bawaan
+  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.45, metalness: 0.05 })
+  tilt.add(new THREE.Mesh(build((BODY_FALLBACK[body] ?? BODY_FALLBACK.bajaj)(color)), mat))
   const wheelGeo = build([[cyl(0.48, 0.48, 0.45, 10), '#121212', [0, 0, 0], [0, 0, Math.PI / 2]], [cyl(0.24, 0.24, 0.48, 8), '#fff4fa', [0, 0, 0], [0, 0, Math.PI / 2]]])
   for (const [x, z] of [[1.05, 1.1], [-1.05, 1.1], [1.05, -1.1], [-1.05, -1.1]]) {
     const w = new THREE.Mesh(wheelGeo, mat)
     w.position.set(x, 0.48, z)
+    w.rotation.order = 'YXZ'
     tilt.add(w)
-    wheels.push(w)
+    rig.wheels.push(w)
+    if (z < 0) rig.front.push(w)
   }
-  const driverGeo = hasGlb(`char-${charId}`)
-    ? geometry(`char-${charId}`)
-    : build([
-        [cyl(0.55, 0.65, 1, 8), color, [0, 1.75, -0.25]],
-        ...(HEAD_FALLBACK[charId] ?? HEAD_FALLBACK.moci)(color).map(([geo, c, p, r, s]): Part => [geo, c, [(p?.[0] ?? 0), (p?.[1] ?? 0) + 2.75, (p?.[2] ?? 0) - 0.2], r, s]),
-        [cone(0.4, 0.9, 8), '#ffcc1f', [0, 3.75, -0.2]],
-        [ball(0.12, 5), '#ff37a6', [0, 4.25, -0.2]],
-      ])
-  const driver = new THREE.Mesh(driverGeo, mat)
+  const driver = new THREE.Mesh(
+    build([
+      [cyl(0.55, 0.65, 1, 8), color, [0, 1.75, -0.25]],
+      ...(HEAD_FALLBACK[charId] ?? HEAD_FALLBACK.moci)(color).map(([geo, c, p, r, s]): Part => [geo, c, [(p?.[0] ?? 0), (p?.[1] ?? 0) + 2.75, (p?.[2] ?? 0) - 0.2], r, s]),
+      [cone(0.4, 0.9, 8), '#ffcc1f', [0, 3.75, -0.2]],
+      [ball(0.12, 5), '#ff37a6', [0, 4.25, -0.2]],
+    ]),
+    mat,
+  )
   tilt.add(driver)
-  g.add(tilt)
-  g.userData = { tilt, wheels, driver }
+  rig.exhaust.push(new THREE.Vector3(0, 0.9, -2))
+  g.userData = rig
   return g
 }

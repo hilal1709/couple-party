@@ -1,15 +1,16 @@
 // Tangkapan layar review: emulasi perangkat lewat Chrome DevTools Protocol, tunggu font siap.
-// Pakai: node scripts/capture.mjs <url> <out.png> [width] [height] [scale]
+// Pakai: node scripts/capture.mjs <url> <out.png> [width] [height] [scale] [tunggu-ms]
+// (tunggu-ms untuk adegan 3D yang perlu memuat model dulu, mis. Kart Kacau)
 import { spawn } from 'node:child_process'
 import { writeFileSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-const [url, out, w = '390', h = '844', scale = '2'] = process.argv.slice(2)
+const [url, out, w = '390', h = '844', scale = '2', wait = '0'] = process.argv.slice(2)
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
 const port = 9300 + Math.floor(Math.random() * 500)
 const profile = mkdtempSync(join(tmpdir(), 'cap-'))
-const chrome = spawn(CHROME, ['--headless=new', '--disable-gpu', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'])
+const chrome = spawn(CHROME, ['--headless=new', ...(+wait ? ['--use-angle=d3d11', '--enable-unsafe-swiftshader'] : ['--disable-gpu']), `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'])
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 let target
@@ -48,6 +49,7 @@ const ready = `new Promise(async (res) => {
   res([...document.fonts].filter(f => f.status === 'loaded').map(f => f.family).join(','))
 })`
 const fonts = await send('Runtime.evaluate', { expression: ready, awaitPromise: true, returnByValue: true })
+if (+wait) await sleep(+wait)
 const shot = await send('Page.captureScreenshot', { format: 'png' })
 writeFileSync(out, Buffer.from(shot.result.data, 'base64'))
 console.log(out, 'fonts:', fonts.result?.result?.value)

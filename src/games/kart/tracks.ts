@@ -18,7 +18,24 @@ export type Hazard =
   /** bandul / palu yang mengayun melintasi jalan */
   | { kind: 'swing'; at: number; model: string; period: number }
 
+export type Ground = 'pasir' | 'rumput' | 'salju' | 'batu' | 'kerikil' | 'cobble'
+
+/** tampilan premium: langit HDRI, tekstur tanah & jalan, warna celup */
+export type Look = {
+  sky: 'siang' | 'senja' | 'malam'
+  ground: Ground
+  /** warna pengali tekstur tanah (boleh > terang dari tekstur aslinya) */
+  tint: string
+  /** warna pengali aspal (tekstur aslinya gelap) */
+  road: string
+  /** tanah di luar bahu jalan (runoff) */
+  runoff: Ground
+  /** air di sekitar (laut / sungai cokelat) */
+  water?: string
+}
+
 export type Theme = {
+  look: Look
   sky: [string, string]
   fog: string
   fogNear: number
@@ -38,6 +55,10 @@ export type Theme = {
   props: [string, number][]
 }
 
+/** bangunan / benda khas tema di posisi tetap: `at` 0..1 sepanjang lintasan, `side` -1 kiri / 1 kanan,
+ *  `dist` meter dari tepi jalan, `turn` putaran tambahan (radian), `float` = mengapung di air */
+export type Landmark = { model: string; at: number; side: -1 | 1; dist: number; turn?: number; scale?: number; float?: boolean }
+
 export type TrackDef = {
   id: TrackId
   title: string
@@ -52,6 +73,7 @@ export type TrackDef = {
   /** tanjakan lompat: posisi */
   ramps: number[]
   hazards: Hazard[]
+  landmarks?: Landmark[]
   theme: Theme
 }
 
@@ -144,11 +166,28 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { kind: 'block', at: 0.88, lane: 0.55, model: 'istana-pasir', radius: 2.6 },
       { kind: 'swing', at: 0.7, model: 'kelapa-ayun', period: 3.2 },
     ],
+    landmarks: [
+      { model: 'mercusuar', at: 0.34, side: -1, dist: 120, scale: 1.4 },
+      { model: 'dermaga', at: 0.62, side: 1, dist: 45, turn: Math.PI / 2 },
+      { model: 'perahu', at: 0.6, side: 1, dist: 95, turn: 0.4, float: true },
+      { model: 'perahu', at: 0.66, side: 1, dist: 120, turn: -0.8, float: true },
+      { model: 'perahu', at: 0.15, side: -1, dist: 160, turn: 1.2, float: true },
+      { model: 'perahu', at: 0.88, side: 1, dist: 140, turn: 2.2, float: true },
+      { model: 'pondok', at: 0.04, side: -1, dist: 40 },
+      { model: 'pondok', at: 0.47, side: 1, dist: 38 },
+      { model: 'pondok', at: 0.8, side: -1, dist: 45 },
+      { model: 'selancar', at: 0.05, side: -1, dist: 34 },
+      { model: 'selancar', at: 0.81, side: -1, dist: 38 },
+      { model: 'pelampung', at: 0.25, side: 1, dist: 110, float: true },
+      { model: 'pelampung', at: 0.4, side: 1, dist: 130, float: true },
+      { model: 'pelampung', at: 0.72, side: -1, dist: 120, float: true },
+    ],
     theme: {
+      look: { sky: 'siang', ground: 'pasir', tint: '#fff0c8', road: '#9a98a8', runoff: 'pasir', water: '#2fb8ff' },
       sky: ['#5ac8ff', '#fff4fa'], fog: '#bfe9ff', fogNear: 120, fogFar: 520,
       ground: '#f6dc9a', ground2: '#e9c77a', road: '#5a5a66', roadLine: '#fff4fa', curb: ['#ff37a6', '#fff4fa'], wall: '#43b929',
       sun: '#fff1d6', sunPower: 2.4, ambient: '#bfe4ff', night: false, offroad: 'pasir',
-      props: [['kelapa', 5], ['payung', 2], ['batu', 1], ['kerang', 1]],
+      props: [['kelapa', 6], ['payung', 3], ['batu', 1], ['semak', 1], ['kerang', 1]],
     },
   },
   sawah: {
@@ -175,6 +214,7 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { kind: 'swing', at: 0.96, model: 'orang-orangan-ayun', period: 3.6 },
     ],
     theme: {
+      look: { sky: 'siang', ground: 'rumput', tint: '#b8ff7a', road: '#b89a7a', runoff: 'kerikil', water: '#5fc8d8' },
       sky: ['#7fd0ff', '#f3ffe9'], fog: '#d6f5d0', fogNear: 110, fogFar: 500,
       ground: '#7ad35a', ground2: '#5cb845', road: '#8a6a4a', roadLine: '#f6dc9a', curb: ['#ffcc1f', '#43b929'], wall: '#5a3e24',
       sun: '#fff6e0', sunPower: 2.2, ambient: '#d6ffd0', night: false, offroad: 'rumput',
@@ -206,6 +246,7 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { kind: 'roller', at: 0.88, model: 'kumbang', period: 5, radius: 1.8 },
     ],
     theme: {
+      look: { sky: 'senja', ground: 'rumput', tint: '#8ff08a', road: '#a08070', runoff: 'kerikil' },
       sky: ['#2b8a6a', '#d7ffe0'], fog: '#9fd8b4', fogNear: 80, fogFar: 400,
       ground: '#3f9b4a', ground2: '#2f7f3c', road: '#6a4a3a', roadLine: '#ffcae9', curb: ['#ff37a6', '#fff4fa'], wall: '#5a3a2a',
       sun: '#fff0c0', sunPower: 1.8, ambient: '#b8ffd8', night: false, offroad: 'rumput',
@@ -236,6 +277,7 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { kind: 'drop', at: 0.8, lane: 0.2, period: 4.5 },
     ],
     theme: {
+      look: { sky: 'senja', ground: 'pasir', tint: '#ffd08a', road: '#c09a78', runoff: 'cobble' },
       sky: ['#ffb85a', '#fff1d0'], fog: '#ffd9a0', fogNear: 90, fogFar: 450,
       ground: '#efc277', ground2: '#d9a75a', road: '#a0754a', roadLine: '#fff4fa', curb: ['#ff8a1c', '#fff4fa'], wall: '#b9844a',
       sun: '#fff0d0', sunPower: 2.6, ambient: '#ffe0b0', night: false, offroad: 'pasir',
@@ -266,6 +308,7 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { kind: 'swing', at: 0.36, model: 'palang-parkir', period: 2.8 },
     ],
     theme: {
+      look: { sky: 'malam', ground: 'cobble', tint: '#6a6090', road: '#8a8aa0', runoff: 'cobble' },
       sky: ['#120a33', '#3a1a66'], fog: '#24104a', fogNear: 90, fogFar: 460,
       ground: '#2a2440', ground2: '#221d36', road: '#2c2c3a', roadLine: '#5cf64a', curb: ['#ff37a6', '#2f7bff'], wall: '#8a55ff',
       sun: '#c0b0ff', sunPower: 1.5, ambient: '#9a8ae0', night: true, offroad: 'kota',
@@ -296,6 +339,7 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { kind: 'roller', at: 0.97, model: 'bola-permen', period: 5, radius: 2 },
     ],
     theme: {
+      look: { sky: 'siang', ground: 'pasir', tint: '#ffc4ea', road: '#c89ab8', runoff: 'kerikil', water: '#7a3a1a' },
       sky: ['#ffb0e0', '#fff4fa'], fog: '#ffd6ef', fogNear: 90, fogFar: 430,
       ground: '#ffcae9', ground2: '#ffb0dc', road: '#8a5a7a', roadLine: '#fff4fa', curb: ['#ff37a6', '#fff4fa'], wall: '#ff37a6',
       sun: '#fff0f8', sunPower: 2.2, ambient: '#ffe0f4', night: false, offroad: 'permen',
@@ -326,6 +370,7 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { kind: 'swing', at: 0.58, model: 'es-ayun', period: 3.2 },
     ],
     theme: {
+      look: { sky: 'siang', ground: 'salju', tint: '#ffffff', road: '#a8b4c4', runoff: 'salju' },
       sky: ['#8fc4ff', '#f4fbff'], fog: '#e4f2ff', fogNear: 80, fogFar: 420,
       ground: '#f4fbff', ground2: '#dcebfa', road: '#6a7a8a', roadLine: '#ff37a6', curb: ['#2f7bff', '#fff4fa'], wall: '#9ab8d8',
       sun: '#ffffff', sunPower: 2.4, ambient: '#d0e6ff', night: false, offroad: 'salju',
@@ -357,6 +402,7 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { kind: 'roller', at: 0.96, model: 'bola-api', period: 5, radius: 2.2 },
     ],
     theme: {
+      look: { sky: 'malam', ground: 'batu', tint: '#5a4040', road: '#8a7070', runoff: 'batu' },
       sky: ['#3a0a12', '#ff6a2a'], fog: '#5a1a14', fogNear: 70, fogFar: 380,
       ground: '#ff5a1a', ground2: '#ffa21a', road: '#3a2a2a', roadLine: '#ffcc1f', curb: ['#121212', '#ff8a1c'], wall: '#2a1a1a',
       sun: '#ffb070', sunPower: 1.6, ambient: '#ff8060', night: true, offroad: 'lava',

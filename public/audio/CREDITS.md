@@ -22,6 +22,14 @@ Semua audio berlisensi **CC0 1.0 (domain publik)** — bebas dipakai tanpa syara
 
 `kart-engine`, `kart-boost`, `kart-drift`, `kart-jump`, `kart-count`, `kart-go` dan `kart-rain` disintesis sendiri di `scripts/audio/build.py` (bukan sampel).
 
-Model 3D prop Kart Kacau (pohon, palem, cemara, batu, kaktus, padi, batang kayu, lumbung, kincir, mobil, lampu jalan) dari paket CC0 **Quaternius** di itch.io: Ultimate Nature Pack, Farm Buildings, LowPoly Cars, Modular Street Pack — diolah oleh `scripts/blender/kart_props.py`.
+Model 3D prop Kart Kacau (palem, cemara salju, kaktus, padi, lumbung, kincir) dari paket CC0 **Quaternius** di itch.io: Ultimate Nature Pack, Farm Buildings, LowPoly Cars, Modular Street Pack — diolah oleh `scripts/blender/kart_props.py`.
+
+Prop bertekstur Kart Kacau, semua CC0 dari itch.io, diolah (ukuran, batas poligon, tekstur WebP 512 px) oleh `scripts/blender/kart_props_hd.py`:
+- **Quaternius — Stylized Nature MegaKit**: pohon, pinus, semak, rumput, bunga, pakis, kerikil, batu, jamur raksasa.
+- **Kay Lousberg — KayKit Platformer Pack, City Builder Bits, Holiday Bits**: papan panah tikungan, bendera, kerucut, gedung, mobil, lampu jalan, manusia salju, permen tongkat, rumah jahe, kue.
+
+Tekstur tanah/jalan (asphalt_track, coast_sand_01, sparse_grass, snow_02, gravel_floor, rock_05, brown_planks_05, cobblestone_floor_01) dan langit HDRI (kloofendal_43d_clear_puresky, belfast_sunset_puresky, kloppenheim_02_puresky) dari **Poly Haven** (CC0), diolah oleh `scripts/blender/kart_textures.py`.
+
+Pembalap, kart, item, dan landmark (mercusuar, dermaga, perahu, pondok, payung, rak selancar, camar, pelampung) dimodel sendiri di Blender: `scripts/blender/kart_hd.py`, `kart.py`, `kart_world.py`.
 
 Pengolahan (potong, loop mulus, normalisasi loudness, OGG) dilakukan dengan `scripts/audio/build.py`.

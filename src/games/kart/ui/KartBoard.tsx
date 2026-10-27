@@ -14,6 +14,8 @@ import type { GameProps, Seat } from '../../types'
 import { BODIES, BODY_IDS, CHARACTERS, ITEM_INFO, POINTS, statsFor } from '../data'
 import { racerOf, standings } from '../engine'
 import { Race, type Hud, type Sound } from '../race'
+import { Podium } from '../render/podium'
+import { QUALITY_INFO, detectQuality, saveQuality, savedQuality, type Quality } from '../render/quality'
 import confetti from '@/assets/lottie/confetti.json'
 import fxBoost from '@/assets/lottie/kart-boost.json'
 import fxBox from '@/assets/lottie/kart-box.json'
@@ -349,6 +351,8 @@ function RaceScreen({ s, seat, act, live, back }: { s: KartState; seat: Seat; ac
   const [path, setPath] = useState('')
   const [prefs, setPrefs] = useState(loadPrefs)
   const [settings, setSettings] = useState(false)
+  const [quality, setQuality] = useState<Quality | 'auto'>(savedQuality)
+  const [autoTier, setAutoTier] = useState<Quality>(detectQuality)
   const [fx, setFx] = useState<Fx[]>([])
   const actRef = useRef(act)
   useEffect(() => {
@@ -364,6 +368,7 @@ function RaceScreen({ s, seat, act, live, back }: { s: KartState; seat: Seat; ac
       live,
       act: (a) => actRef.current(a),
       onHud: setHud,
+      onQuality: (q) => setAutoTier(q),
       onSound: (snd, info) => {
         playSound(snd, info)
         const f = SOUND_FX[snd]
@@ -421,6 +426,19 @@ function RaceScreen({ s, seat, act, live, back }: { s: KartState; seat: Seat; ac
   return (
     <div className="absolute inset-0">
       <canvas ref={canvas} className="absolute inset-0 size-full touch-none" />
+      {hud?.intro && (
+        <button
+          className="absolute inset-0 z-10 flex flex-col items-center justify-end gap-2 pb-[max(18px,env(safe-area-inset-bottom))] text-center"
+          onClick={() => race.current?.skipIntro()}
+          aria-label="Lewati intro lintasan"
+        >
+          <span className="animate-in slide-in-from-left-10 -rotate-2 font-display text-4xl uppercase drop-shadow-[4px_4px_0_#121212]">
+            <Tape tone="electric">{track.title}</Tape>
+          </span>
+          <span className="border-2 border-ink bg-paper px-2 py-0.5 text-sm font-bold">{track.line}</span>
+          <span className="text-[12px] font-bold text-paper drop-shadow-[1px_1px_0_#121212]">Ketuk untuk lewati</span>
+        </button>
+      )}
       {!hud && (
         <div className="absolute inset-0 grid place-items-center bg-petal" style={{ backgroundImage: dots('#12121222', 18, 1.4) }}>
           <div className="text-center">
@@ -476,6 +494,30 @@ function RaceScreen({ s, seat, act, live, back }: { s: KartState; seat: Seat; ac
             <Switch checked={prefs.autoGas} onCheckedChange={(v) => setPrefs({ ...prefs, autoGas: v })} className={SWITCH} />
           </label>
           <p className="text-[11px] leading-snug text-ink/70">Mode miring: pegang HP lurus saat menyalakan, lalu putar seperti setir.</p>
+          <div>
+            <span className="text-sm font-bold">Grafis</span>
+            <div className="mt-1 grid grid-cols-4 gap-1" role="radiogroup" aria-label="Kualitas grafis">
+              {(['auto', 'low', 'med', 'high'] as const).map((q) => (
+                <button
+                  key={q}
+                  role="radio"
+                  aria-checked={quality === q}
+                  onClick={() => {
+                    setQuality(q)
+                    saveQuality(q)
+                    race.current?.setQuality(q === 'auto' ? detectQuality() : q)
+                  }}
+                  className={cn('border-2 border-ink px-1 py-1 text-[11px] font-bold leading-tight', quality === q ? 'bg-electric' : 'bg-paper')}
+                >
+                  {q === 'auto' ? 'Otomatis' : QUALITY_INFO[q].title}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1 text-[11px] leading-snug text-ink/70">
+              {quality === 'auto' ? `Sekarang: ${QUALITY_INFO[autoTier].title}. ` : ''}
+              {QUALITY_INFO[quality === 'auto' ? autoTier : quality].line}
+            </p>
+          </div>
           <Slab tone="ink" size="sm" onClick={() => setSettings(false)}>
             Oke
           </Slab>
@@ -513,7 +555,7 @@ function RaceScreen({ s, seat, act, live, back }: { s: KartState; seat: Seat; ac
       )}
 
       {/* ---- kontrol bawah ---- */}
-      {hud && !hud.finished && (
+      {hud && !hud.finished && !hud.intro && (
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 px-[max(12px,env(safe-area-inset-left))] pb-[max(10px,env(safe-area-inset-bottom))] pr-[max(12px,env(safe-area-inset-right))]">
           <div className="flex items-end gap-2">
             {!prefs.tilt && (
@@ -577,6 +619,24 @@ function Minimap({ path, hud }: { path: string; hud: Hud }) {
 // ---------------------------------------------------------------------------
 // Hasil balapan, klasemen, akhir
 
+/** podium 3D juara Grand Prix (kanvas sendiri) */
+function PodiumView({ champs }: { champs: { id: string; color: string }[] }) {
+  const ref = useRef<HTMLCanvasElement>(null)
+  const key = champs.map((c) => c.id).join()
+  useEffect(() => {
+    const p = new Podium(ref.current!)
+    void p.show(champs)
+    const onResize = () => p.resize()
+    window.addEventListener('resize', onResize)
+    return () => {
+      window.removeEventListener('resize', onResize)
+      p.dispose()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+  return <canvas ref={ref} className="h-[200px] w-full border-[3px] border-ink bg-gradient-to-b from-[#7fd0ff] to-petal shadow-slab" aria-label="Podium juara" />
+}
+
 function ResultScreen({ s, seat, names, act, back }: { s: KartState; seat: Seat; names: string[]; act: Act; back: ReactNode }) {
   const me = racerOf(s, seat)
   const host = seat === 0
@@ -621,7 +681,8 @@ function ResultScreen({ s, seat, names, act, back }: { s: KartState; seat: Seat;
         </ol>
       </section>
       <aside className="flex min-w-[220px] flex-1 flex-col justify-center gap-3">
-        {me >= 0 && (
+        {s.phase === 'end' && <PodiumView champs={rows.slice(0, 3).map((r) => CHARACTERS[s.racers[r].char])} />}
+        {me >= 0 && s.phase !== 'end' && (
           <div className="border-[3px] border-ink bg-paper p-3 shadow-slab">
             <Portrait char={s.racers[me].char} size={72} />
             <p className="mt-2 font-display text-2xl uppercase leading-none">Posisi {pos + 1}</p>
