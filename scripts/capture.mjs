@@ -2,7 +2,7 @@
 // Pakai: node scripts/capture.mjs <url> <out.png> [width] [height] [scale] [tunggu-ms]
 // (tunggu-ms untuk adegan 3D yang perlu memuat model dulu, mis. Kart Kacau)
 import { spawn } from 'node:child_process'
-import { writeFileSync, mkdtempSync } from 'node:fs'
+import { writeFileSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -55,3 +55,6 @@ writeFileSync(out, Buffer.from(shot.result.data, 'base64'))
 console.log(out, 'fonts:', fonts.result?.result?.value)
 ws.close()
 chrome.kill()
+// profil sementara bisa ratusan MB per jalan: hapus supaya drive C tidak penuh
+await sleep(800)
+try { rmSync(profile, { recursive: true, force: true }) } catch {}

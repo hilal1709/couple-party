@@ -80,6 +80,18 @@ const SHIELD_MAT = new THREE.ShaderMaterial({
 /** sumbu kolom setir (setir dimiringkan 60° di model) */
 const STEER_AXIS = new THREE.Vector3(0, 0.5, 0.866).normalize()
 
+/** penyaring sebelum bloom: NaN/inf → 0, warna HDR dibatasi */
+const SANITIZE = {
+  uniforms: { tDiffuse: { value: null } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+  fragmentShader: `uniform sampler2D tDiffuse; varying vec2 vUv;
+    void main(){
+      vec4 c = texture2D(tDiffuse, vUv);
+      if (any(isnan(c)) || any(isinf(c))) c = vec4(0.0, 0.0, 0.0, 1.0);
+      gl_FragColor = clamp(c, 0.0, 4.0);
+    }`,
+}
+
 /** color grading akhir: saturasi & kontras naik sedikit supaya warna kartun lebih tegas */
 const GRADE = {
   uniforms: { tDiffuse: { value: null }, sat: { value: 1.22 }, contrast: { value: 1.08 } },
@@ -269,7 +281,11 @@ export class Race {
     const night = this.t.def.theme.night
     const c = new EffectComposer(this.renderer)
     c.addPass(new RenderPass(this.world.scene, this.camera))
-    c.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), night ? 0.6 : 0.16, 0.4, night ? 0.75 : 0.97))
+    // buang piksel NaN & batasi kecerahan sebelum bloom; satu piksel rusak bisa memutihkan seluruh layar
+    c.addPass(new ShaderPass(SANITIZE))
+    // lava: tanah luas menyala, bloom harus jauh lebih selektif supaya tidak jadi kabut putih
+    const lava = this.t.def.theme.offroad === 'lava'
+    c.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), lava ? 0.18 : night ? 0.6 : 0.16, lava ? 0.25 : 0.4, lava ? 1.6 : night ? 0.75 : 0.97))
     c.addPass(new OutputPass())
     c.addPass(new ShaderPass(GRADE))
     c.addPass(new FXAAPass())
@@ -655,6 +671,7 @@ export class Race {
       } else m.scale.set(1, 1, 1)
       this.effects(i, x, y, z, yaw, speed, flags, frame)
     })
+    this.ambient(frame)
     this.particles.update(frame)
     this.skids.update(frame)
 
@@ -831,6 +848,59 @@ export class Race {
           a.rotation.z = 0
         }
       }
+    }
+  }
+
+  /**
+   * Partikel suasana di sekitar kamera sesuai tema (salju turun, debu gurun, kunang-kunang, bara, kelopak)
+   * plus asap dari cerobong / kawah landmark. Jumlahnya mengikuti tingkat grafis.
+   */
+  private ambient(dt: number) {
+    const p = this.particles
+    const c = this.camPos
+    const k = Math.min(1, this.tier.particles / 420)
+    // cincin di sekitar kamera, tidak terlalu dekat lensa (partikel dekat kamera jadi raksasa & menutup layar)
+    const around = (r: number, y0: number, y1: number) => {
+      const a = Math.random() * Math.PI * 2
+      const d = 14 + Math.random() * (r / 2 - 14)
+      return [c.x + Math.cos(a) * d, c.y + y0 + Math.random() * (y1 - y0), c.z + Math.sin(a) * d] as const
+    }
+    const rate = (n: number) => Math.random() < dt * n * k
+    switch (this.t.def.id) {
+      case 'salju':
+        for (let j = 0; j < 3; j++) if (rate(40)) {
+          const [x, y, z] = around(90, 6, 30)
+          p.emit('snow', x, y, z, 1.5, -2, 0.5, '#ffffff', 0.45)
+        }
+        break
+      case 'candi':
+        if (rate(25)) {
+          const [x, y, z] = around(80, 0, 6)
+          p.emit('dust', x, y, z, 9, 0.4, 3, '#f2d79a', 2.2)
+        }
+        break
+      case 'jamur':
+        if (rate(18)) {
+          const [x, y, z] = around(70, 1, 10)
+          p.emit('star', x, y, z, (Math.random() - 0.5) * 1.5, 0.6, (Math.random() - 0.5) * 1.5, Math.random() < 0.5 ? '#c8ff5a' : '#5cf6ff', 0.35)
+        }
+        break
+      case 'lava':
+        for (let j = 0; j < 2; j++) if (rate(30)) {
+          const [x, y, z] = around(90, -2, 4)
+          p.emit('fire', x, y, z, (Math.random() - 0.5) * 2, 3 + Math.random() * 4, (Math.random() - 0.5) * 2, Math.random() < 0.6 ? '#ff8a1c' : '#ffcc1f', 0.3)
+        }
+        break
+      case 'permen':
+        if (rate(14)) {
+          const [x, y, z] = around(80, 8, 26)
+          p.emit('confetti', x, y, z, 0.5, -1, 0.3, ['#ff37a6', '#ffcae9', '#13bfae', '#ffcc1f'][Math.floor(Math.random() * 4)], 1.2)
+        }
+        break
+    }
+    for (const s of this.world.smoke) {
+      if ((s.x - c.x) ** 2 + (s.z - c.z) ** 2 > 700 ** 2) continue
+      if (rate(12)) p.emit('smoke', s.x + (Math.random() - 0.5) * 3, s.y, s.z + (Math.random() - 0.5) * 3, 1.5, 4, 0.5, this.t.def.id === 'lava' ? '#5a4a50' : '#fff4fa', 6)
     }
   }
 

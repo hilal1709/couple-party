@@ -188,7 +188,7 @@ export function heightAt(t: Track, theme: Theme, x: number, z: number): number {
     }
   }
   const lava = theme.offroad === 'lava'
-  const sea = Boolean(theme.look.water) && t.def.id === 'pantai'
+  const sea = Boolean(theme.look.water)
   const off = Math.max(0, Math.sqrt(bd) - (t.half + (lava ? 3 : 9)))
   let h: number
   if (lava) h = -Math.min(off, 1.5) * 4
@@ -204,8 +204,17 @@ function landmarks(t: Track, theme: Theme) {
   const g = new THREE.Group()
   const floating: THREE.Object3D[] = []
   for (const l of t.def.landmarks ?? []) {
-    const p = pointAt(t, l.at * t.length, l.side * (t.half + l.dist))
     const o = placed(l.model)
+    if (l.arch) {
+      // gerbang / terowongan melintang di atas jalan (model membentang sumbu X)
+      const c = pointAt(t, l.at * t.length, 0)
+      o.position.set(c.x, c.y, c.z)
+      o.rotation.y = c.yaw + (l.turn ?? 0)
+      o.scale.setScalar(l.scale ?? 1)
+      g.add(o)
+      continue
+    }
+    const p = pointAt(t, l.at * t.length, l.side * (t.half + l.dist))
     const y = l.float ? WATER_Y + 0.2 : heightAt(t, theme, p.x, p.z)
     o.position.set(p.x, y, p.z)
     // menghadap ke jalan (depan model = +Z)
@@ -217,7 +226,23 @@ function landmarks(t: Track, theme: Theme) {
     }
     g.add(o)
   }
-  return { group: g, floating }
+  // bagian yang bergerak & titik asap
+  const spin: THREE.Object3D[] = []
+  const blink: THREE.Object3D[] = []
+  const screens: THREE.Mesh[] = []
+  const smoke: THREE.Vector3[] = []
+  g.updateMatrixWorld(true)
+  g.traverse((o) => {
+    if (o.name === 'blades') spin.push(o)
+    else if (o.name === 'light') blink.push(o)
+    else if (o.name === 'screen') screens.push(o as THREE.Mesh)
+    else if (/^smoke_/.test(o.name)) smoke.push(o.getWorldPosition(new THREE.Vector3()))
+    else if (o.name === 'gunung') {
+      const b = new THREE.Box3().setFromObject(o)
+      smoke.push(new THREE.Vector3((b.min.x + b.max.x) / 2, b.max.y, (b.min.z + b.max.z) / 2))
+    }
+  })
+  return { group: g, floating, spin, blink, screens, smoke }
 }
 
 /** kawanan burung berputar di langit dekat garis start */
@@ -266,31 +291,65 @@ function terrain(t: Track, theme: Theme, tier: Tier) {
   g.computeVertexNormals()
   const mat = groundMat(look.ground, look.tint, tier, {
     vertexColors: true,
-    emissive: lava ? new THREE.Color('#ff3a0a') : new THREE.Color('#000000'),
-    emissiveIntensity: lava ? 0.9 : 0,
+    emissive: lava ? new THREE.Color('#ff5a1a') : new THREE.Color('#000000'),
+    emissiveMap: lava ? lavaTex() : null,
+    emissiveIntensity: lava ? 1.3 : 0,
   })
   const m = new THREE.Mesh(g, mat)
   m.receiveShadow = true
   return m
 }
 
+/** retakan lava bercabang (Voronoi kasar) untuk peta emisi tanah Kawah Berapi; offset-nya digeser pelan */
+let lavaTexture: THREE.CanvasTexture | null = null
+function lavaTex() {
+  lavaTexture ??= canvasTex(256, 256, (c) => {
+    const r = seeded(31)
+    const pts = Array.from({ length: 26 }, () => [r() * 256, r() * 256])
+    const img = c.createImageData(256, 256)
+    for (let y = 0; y < 256; y++)
+      for (let x = 0; x < 256; x++) {
+        let d1 = 1e9
+        let d2 = 1e9
+        for (const [px, py] of pts)
+          for (const ox of [-256, 0, 256])
+            for (const oy of [-256, 0, 256]) {
+              const d = (x - px - ox) ** 2 + (y - py - oy) ** 2
+              if (d < d1) {
+                d2 = d1
+                d1 = d
+              } else if (d < d2) d2 = d
+            }
+        const v = Math.max(0, 1 - (Math.sqrt(d2) - Math.sqrt(d1)) / 9)
+        const i = (y * 256 + x) * 4
+        img.data[i] = 40 + v * 215
+        img.data[i + 1] = 10 + v * v * 160
+        img.data[i + 2] = v * v * v * 40
+        img.data[i + 3] = 255
+      }
+    c.putImageData(img, 0, 0)
+  })
+  return lavaTexture
+}
+
 /** laut / sungai: gelombang di shader + pantulan langit (fresnel) + kilau */
-function water(color: string, y: number, size: number) {
+function water(color: string, y: number, size: number, skyTint = '#e8f8ff', waveK = 1) {
   const mat = new THREE.ShaderMaterial({
     transparent: true,
     uniforms: {
       time: { value: 0 },
       deep: { value: new THREE.Color(color).multiplyScalar(0.55) },
       shallow: { value: new THREE.Color(color).lerp(new THREE.Color('#bff6ff'), 0.45) },
-      sky: { value: new THREE.Color('#e8f8ff') },
+      sky: { value: new THREE.Color(skyTint) },
+      waveK: { value: waveK },
     },
     vertexShader: `
-      uniform float time; varying vec3 wp; varying float wave;
+      uniform float time; uniform float waveK; varying vec3 wp; varying float wave;
       void main(){
         vec3 p = position;
         vec4 w = modelMatrix * vec4(p,1.0);
         wave = sin(w.x*0.06 + time*1.3)*0.5 + sin(w.z*0.05 - time*1.1)*0.5;
-        w.y += wave * 0.6;
+        w.y += wave * 0.6 * waveK;
         wp = w.xyz;
         gl_Position = projectionMatrix * viewMatrix * w;
       }`,
@@ -579,7 +638,7 @@ function grandstands(t: Track, theme: Theme, tier: Tier) {
 function props(t: Track, theme: Theme, tier: Tier) {
   const r = seeded(t.def.id.length * 97 + t.n)
   const group = new THREE.Group()
-  const total = Math.round((t.length / 7) * (0.55 + tier.detail * 0.45))
+  const total = Math.round((t.length / 3.5) * (0.45 + tier.detail * 0.55))
   const weights = theme.props
   const sum = weights.reduce((a, [, w]) => a + w, 0)
   const CH = 8
@@ -589,7 +648,7 @@ function props(t: Track, theme: Theme, tier: Tier) {
   for (let k = 0; k < total; k++) {
     const i = Math.floor(r() * t.n)
     const side = r() > 0.5 ? 1 : -1
-    const lat = side * (t.half + 20 + r() ** 1.6 * 160)
+    const lat = side * (t.half + 18 + r() ** 1.9 * 150)
     const p = pointAt(t, i * STEP, lat)
     let ok = true
     for (let j = 0; j < t.n && ok; j += 4) ok = (t.px[j] - p.x) ** 2 + (t.pz[j] - p.z) ** 2 >= minGap
@@ -692,6 +751,15 @@ function markings(t: Track, theme: Theme) {
 
 // ---------------------------------------------------------------------------
 
+/** hewan berkaki empat berjalan menyeberang: kaki melangkah bergantian, kepala mengangguk, ekor berkibas */
+function animateWalker(hz: World['hazards'][number], sec: number) {
+  const step = sec * 6
+  const legs: [string, number][] = [['leg_F_L', 0], ['leg_B_R', 0], ['leg_F_R', Math.PI], ['leg_B_L', Math.PI]]
+  for (const [n, ph] of legs) if (hz.parts[n]) hz.parts[n].rotation.x = Math.sin(step + ph) * 0.45
+  if (hz.parts.head) hz.parts.head.rotation.x = Math.sin(step * 2) * 0.06
+  if (hz.parts.tail) hz.parts.tail.rotation.z = Math.sin(sec * 5) * 0.5
+}
+
 /** perbesaran tampilan rintangan supaya terbaca di jalan selebar 30 m */
 const HAZARD_SCALE: Record<string, number> = { kepiting: 1.5, kerang: 1.6, 'kelapa-ayun': 1.4 }
 
@@ -722,6 +790,8 @@ export type World = {
   /** 0..5 lampu merah menyala, 6 = hijau (GO) */
   setLights: (n: number) => void
   update: (time: number, now: number) => void
+  /** titik asap landmark (cerobong pabrik, kawah gunung) */
+  smoke: THREE.Vector3[]
 }
 
 const hdrLoader = new HDRLoader()
@@ -771,8 +841,8 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
   scene.add(stands.group)
 
   let waterMat: THREE.ShaderMaterial | null = null
-  if (look.water && t.def.id === 'pantai') {
-    const w = water(look.water, WATER_Y, 9000)
+  if (look.water) {
+    const w = water(look.water, WATER_Y, 9000, t.def.id === 'permen' ? '#ffd0a0' : '#e8f8ff', t.def.id === 'permen' ? 0.35 : 1)
     waterMat = w.mat
     scene.add(w.mesh)
   }
@@ -830,7 +900,7 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
     // bagian bernama untuk animasi (kaki & capit kepiting, dsb.)
     const parts: Record<string, THREE.Object3D> = {}
     mesh.traverse((o) => {
-      if (/^(leg_|claw_|pincer_|eyes)/.test(o.name)) parts[o.name] = o
+      if (/^(leg_|claw_|pincer_|eyes|tail|head|wing_)/.test(o.name)) parts[o.name] = o
     })
     hazards.push({ mesh, shadow, index, parts })
   })
@@ -851,6 +921,10 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
     const sec = now / 1000
     stands.time.value = sec
     if (waterMat) waterMat.uniforms.time.value = sec
+    if (lavaTexture) lavaTexture.offset.set(Math.sin(sec * 0.05) * 0.2, sec * 0.01)
+    for (const b of marks.spin) b.rotation.y = sec * 2.5
+    for (const b of marks.blink) b.visible = Math.sin(sec * 4) > 0
+    marks.screens.forEach((m, k) => (m.material as THREE.MeshStandardMaterial).emissive?.setHSL((sec * 0.12 + k * 0.3) % 1, 0.9, 0.5))
     for (const [k, o] of marks.floating.entries()) {
       o.position.y = (o.userData.baseY as number) + Math.sin(sec * 1.3 + k) * 0.35
       o.rotation.z = Math.sin(sec * 0.9 + k * 2) * 0.05
@@ -898,8 +972,10 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
         hz.mesh.rotation.y = p.yaw
         if (h.kind === 'roller' && (h.model.startsWith('bola') || h.model === 'gulungan-semak')) hz.mesh.rotation.z = time * 3
         if (h.kind === 'roller' && h.model === 'kepiting') animateCrab(hz, t, h.at, sec)
+        if (h.kind === 'roller' && h.model === 'kerbau') animateWalker(hz, sec)
+        if (h.kind === 'roller' && h.model === 'kumbang') for (const w of ['wing_L', 'wing_R']) if (hz.parts[w]) hz.parts[w].rotation.y = Math.sin(sec * 40) * 0.5 * (w === 'wing_L' ? 1 : -1)
       }
     }
   }
-  return { scene, sun, boxes, hazards, setLights, update }
+  return { scene, sun, boxes, hazards, setLights, update, smoke: marks.smoke }
 }
