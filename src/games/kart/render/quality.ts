@@ -13,6 +13,8 @@ export type Tier = {
   post: boolean
   /** kerapatan rumput/bunga/kerikil kecil (0..1) */
   detail: number
+  /** kerapatan prop di luar jalan (0..1) */
+  props: number
   /** jumlah partikel maksimum per jenis */
   particles: number
   /** jarak pandang (kabut) dikalikan ini */
@@ -22,9 +24,9 @@ export type Tier = {
 }
 
 export const TIERS: Record<Quality, Tier> = {
-  low: { q: 'low', ratio: 1, shadow: 0, post: false, detail: 0.25, particles: 120, far: 0.75, pbr: false },
-  med: { q: 'med', ratio: 1.25, shadow: 1024, post: true, detail: 0.6, particles: 260, far: 1, pbr: true },
-  high: { q: 'high', ratio: 1.75, shadow: 2048, post: true, detail: 1, particles: 420, far: 1.25, pbr: true },
+  low: { q: 'low', ratio: 1, shadow: 0, post: false, detail: 0.25, props: 0.35, particles: 120, far: 0.75, pbr: false },
+  med: { q: 'med', ratio: 1.25, shadow: 1024, post: true, detail: 0.6, props: 0.8, particles: 260, far: 1, pbr: true },
+  high: { q: 'high', ratio: 1.75, shadow: 2048, post: true, detail: 1, props: 1, particles: 420, far: 1.25, pbr: true },
 }
 
 export const QUALITY_INFO: Record<Quality, { title: string; line: string }> = {
@@ -35,13 +37,21 @@ export const QUALITY_INFO: Record<Quality, { title: string; line: string }> = {
 
 const KEY = 'couple-party:kart-quality'
 
-/** tebakan awal dari GPU, memori, dan jumlah inti CPU */
+let detected: Quality | null = null
+
+/** tebakan awal dari GPU, memori, dan jumlah inti CPU; dihitung sekali karena butuh context WebGL */
 export function detectQuality(): Quality {
+  return (detected ??= probeQuality())
+}
+
+function probeQuality(): Quality {
   try {
-    const gl = document.createElement('canvas').getContext('webgl2') ?? document.createElement('canvas').getContext('webgl')
+    const canvas = document.createElement('canvas')
+    const gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl')
     if (!gl) return 'low'
     const ext = gl.getExtension('WEBGL_debug_renderer_info')
     const gpu = String(ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)).toLowerCase()
+    gl.getExtension('WEBGL_lose_context')?.loseContext()
     const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4
     const cores = navigator.hardwareConcurrency ?? 4
     // GPU HP lama / kelas bawah

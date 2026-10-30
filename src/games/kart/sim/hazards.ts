@@ -13,6 +13,15 @@ export const PETASAN_R = 7.5
 export const BOX_RESPAWN = 2.5
 /** batu jatuh: bayangan muncul dulu, lalu kena di fase DROP_HIT */
 export const DROP_HIT: [number, number] = [0.72, 0.86]
+/** pisang & roket baru bisa mengenai pemiliknya setelah sekian detik */
+const OWNER_GRACE = 1.2
+/** kart setinggi ini di atas jalan lolos dari rintangan yang menggelinding/mendarat di tanah */
+const CLEAR_Y = 3.5
+
+/** pelempar tidak pernah kena ledakan petasannya sendiri; benda lain hanya aman sebentar */
+export function ownerSafe(e: Entity, racer: number, age: number): boolean {
+  return e.by === racer && (e.kind === 'petasan' || age < OWNER_GRACE)
+}
 
 const TAU = Math.PI * 2
 
@@ -62,12 +71,17 @@ export function hazardContact(t: Track, time: number, x: number, z: number, y: n
     if (d > p.r + 1.3) continue
     if (h.kind === 'bounce') return 'bounce'
     if (h.kind === 'block') return 'wall'
+    if (h.kind === 'swing') {
+      // bandul lewat di atas atau di bawah kart = tidak kena
+      if (Math.abs(y - (p.y + p.lift)) > 3) continue
+      return 'hit'
+    }
+    if (y > p.y + CLEAR_Y) continue
     if (h.kind === 'drop') {
       const ph = (time % h.period) / h.period
       if (ph >= DROP_HIT[0] && ph < DROP_HIT[1]) return 'hit'
       continue
     }
-    if (h.kind === 'swing' && y > p.y + p.lift + 3) continue
     return 'hit'
   }
   return null

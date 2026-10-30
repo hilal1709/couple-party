@@ -242,6 +242,21 @@ export function hitKart(k: Kart, seconds = 1.1): boolean {
   return true
 }
 
+/** magnet menarik kart ke lawan di depannya dalam jarak ini (meter) */
+export const MAGNET_RANGE = 140
+const MAGNET_PULL = 11
+
+/** tarik kart ke `target`; true kalau tarikan bekerja */
+export function magnetPull(k: Kart, target: { x: number; z: number }, dt: number): boolean {
+  const dx = target.x - k.x
+  const dz = target.z - k.z
+  const d = Math.hypot(dx, dz)
+  if (d < KART_RADIUS * 2 || d > MAGNET_RANGE) return false
+  k.x += (dx / d) * MAGNET_PULL * dt
+  k.z += (dz / d) * MAGNET_PULL * dt
+  return true
+}
+
 /** tolak dua kart yang bertumpuk; berat menentukan siapa yang terdorong lebih jauh */
 export function collide(a: Kart, wa: number, b: { x: number; z: number; y: number }, wb: number): boolean {
   const dx = a.x - b.x

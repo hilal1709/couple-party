@@ -22,6 +22,7 @@ import fxBox from '@/assets/lottie/kart-box.json'
 import fxFinish from '@/assets/lottie/kart-finish.json'
 import fxHit from '@/assets/lottie/kart-hit.json'
 import fxLap from '@/assets/lottie/kart-lap.json'
+import { clearModels } from '../render/models'
 import { Engine, playSound } from '../sounds'
 import { TRACKS } from '../tracks'
 import type { ItemKind, KartAction, KartState } from '../types'
@@ -74,13 +75,15 @@ const nameOf = (s: KartState, i: number, names: string[]) => {
 }
 
 export function KartBoard({ state: s, seat, names, online, act, exit, live }: Props) {
+  useEffect(() => clearModels, [])
   const [confirmExit, setConfirmExit] = useState(false)
   const racing = s.phase === 'race'
   // saat balapan, lagu diatur RaceScreen (putaran terakhir lebih tegang)
   useMusic(racing ? null : 'kart')
 
   const floor = { backgroundImage: terrazzo(14, ['#ff37a6', '#43b929', '#121212', '#5cf64a', '#87e752'], 180, 30) }
-  const back = (
+  // hanya host yang bisa mengakhiri game; keluar dari tamu akan memulangkan semua orang ke room
+  const back = seat === 0 && (
     <button
       onClick={() => setConfirmExit(true)}
       aria-label="Kembali ke menu"
@@ -99,7 +102,7 @@ export function KartBoard({ state: s, seat, names, online, act, exit, live }: Pr
         open={confirmExit}
         onOpenChange={setConfirmExit}
         title="Keluar dari balapan?"
-        description={seat === 0 ? 'Semua pemain kembali ke room.' : 'Kamu kembali ke room; balapan jalan terus untuk yang lain.'}
+        description="Semua pemain kembali ke room."
         confirmLabel="Keluar"
         onConfirm={exit}
       />
@@ -322,7 +325,7 @@ function ItemSlot({ item, uses, rolling, onUse }: { item: ItemKind | null; uses:
   const src = show ? sprite(ITEM_SPRITE[show]) : null
   return (
     <button
-      aria-label={item ? `Pakai ${ITEM_INFO[item].title}` : 'Belum punya item'}
+      aria-label={item ? `Pakai ${ITEM_INFO[item].title}: ${ITEM_INFO[item].line}` : 'Belum punya item'}
       disabled={!item}
       onPointerDown={(e) => {
         e.preventDefault()
@@ -340,6 +343,13 @@ function ItemSlot({ item, uses, rolling, onUse }: { item: ItemKind | null; uses:
         <span className="font-display text-2xl text-ink/30">?</span>
       )}
       {item && uses > 1 && <span className="absolute -right-2 -top-2 grid size-6 place-items-center border-2 border-ink bg-rose font-display text-xs">×{uses}</span>}
+      {item && (
+        <span key={item} className="pointer-events-none absolute bottom-full right-0 mb-2 flex w-max max-w-[210px] flex-col items-end">
+          <span className="border-2 border-ink bg-paper px-1.5 font-display text-[13px] uppercase leading-snug">{ITEM_INFO[item].title}</span>
+          {/* penjelasan singkat saat item baru didapat, lalu memudar */}
+          <span className="-mt-0.5 border-2 border-ink bg-electric px-1.5 text-right text-[11px] font-bold leading-snug animate-out fade-out fill-mode-forwards delay-[2800ms] duration-500">{ITEM_INFO[item].line}</span>
+        </span>
+      )}
     </button>
   )
 }
@@ -372,7 +382,7 @@ function RaceScreen({ s, seat, act, live, back }: { s: KartState; seat: Seat; ac
       onSound: (snd, info) => {
         playSound(snd, info)
         const f = SOUND_FX[snd]
-        if (f && !reduceMotion()) setFx((cur) => [...cur.slice(-3), { ...f, id: ++fxSeq }])
+        if (f && !info?.noFx && !reduceMotion()) setFx((cur) => [...cur.slice(-3), { ...f, id: ++fxSeq }])
       },
     })
     race.current = r
@@ -547,7 +557,7 @@ function RaceScreen({ s, seat, act, live, back }: { s: KartState; seat: Seat; ac
       {hud?.finished && (
         <div className="pointer-events-none absolute inset-x-0 top-[30%] text-center">
           <p className="inline-block -rotate-2 border-[3px] border-ink bg-electric px-5 py-2 font-display text-4xl uppercase shadow-slab">Finish! Posisi {hud.rank}</p>
-          <p className="mt-2 text-sm font-bold text-paper drop-shadow-[2px_2px_0_#121212]">Nunggu yang lain sampai garis finish…</p>
+          <p className="mt-2 text-sm font-bold text-paper drop-shadow-[2px_2px_0_#121212]">Nunggu semua sampai garis finish… {s.times.filter((t) => t !== null).length}/{s.racers.length}</p>
         </div>
       )}
       {hud && (hud.slow || hud.shield) && (

@@ -103,11 +103,12 @@ def torus(loc, R, r, mat, rot=(0, 0, 0), seg=32):
     return smooth(o, 0)
 
 
-def tube(points, r, mat, res=3):
+def tube(points, r, mat, res=3, steps=12):
     cu = bpy.data.curves.new('tube', 'CURVE')
     cu.dimensions = '3D'
     cu.bevel_depth = r
     cu.bevel_resolution = res
+    cu.resolution_u = steps
     cu.use_fill_caps = True
     sp = cu.splines.new('BEZIER')
     sp.bezier_points.add(len(points) - 1)

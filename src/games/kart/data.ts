@@ -42,7 +42,7 @@ export const ITEM_INFO: Record<ItemKind, { title: string; line: string; uses: nu
   sambal: { title: 'Turbo Sambal', line: 'Pedasnya bikin ngebut', uses: 1 },
   sambal3: { title: 'Turbo Sambal ×3', line: 'Tiga semburan turbo', uses: 3 },
   awan: { title: 'Awan Hujan', line: 'Semua yang di depanmu kehujanan & melambat', uses: 1 },
-  magnet: { title: 'Magnet', line: 'Tarik dirimu ke kart di depan', uses: 1 },
+  magnet: { title: 'Magnet', line: 'Nempel & ngebut ke kart di depanmu', uses: 1 },
   petasan: { title: 'Bom Petasan', line: 'Lempar ke depan, DOR!', uses: 1 },
 }
 
