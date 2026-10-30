@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import type { GameDef } from '../types'
+import { monopolyBot } from './bot'
 import { init, reduce } from './engine'
 import type { MonopolyAction, MonopolyOptions, MonopolyState } from './types'
 
@@ -8,6 +9,7 @@ export const monopoly: GameDef<MonopolyState, MonopolyAction, MonopolyOptions> =
   title: 'Monopoli',
   init,
   reduce,
+  bot: monopolyBot,
   // dimuat saat game dimulai saja, supaya menu terbuka cepat
   View: lazy(() => import('./ui/MonopolyBoard').then((m) => ({ default: m.MonopolyBoard }))),
 }

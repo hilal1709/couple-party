@@ -1,8 +1,11 @@
 export type { Pick, Session, SessionAction } from './session'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { applyAction, type Pick, type Session, type SessionAction } from './session'
+import { applyAction, MAX_ROOM, type Pick, type Session, type SessionAction } from './session'
 import type { LiveChannel, Seat } from '../games/types'
 import { openTransport, store, type NetStatus, type Peer, type Transport } from './transport'
+import { useBots } from './useBots'
+
+export { MAX_ROOM }
 
 type Msg =
   | { t: 'hello'; from: Peer }
@@ -10,9 +13,6 @@ type Msg =
   | { t: 'act'; from: string; n: number; action: SessionAction }
   /** pesan game real-time (mis. posisi kart): tidak disimpan, tidak di-ack, tidak dikirim ulang */
   | { t: 'live'; from: string; d: unknown }
-
-/** jumlah kursi maksimum dalam satu room */
-export const MAX_ROOM = 8
 
 const storeKey = (code: string) => `couple-party:session:${code}`
 
@@ -43,9 +43,10 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
       sessionRef.current = next
       setSession(next)
       store.setItem(storeKey(code), JSON.stringify(next))
-      tRef.current?.send({ t: 'sync', session: next } satisfies Msg)
+      // main sendirian lawan bot tidak butuh jaringan; tamu baru tetap dibalas lewat hello/onPeers
+      if (next.players.some((p) => !p.bot && p.id !== me.id)) tRef.current?.send({ t: 'sync', session: next } satisfies Msg)
     },
-    [code],
+    [code, me.id],
   )
 
   const flush = useCallback(() => {
@@ -118,10 +119,12 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
       const s = sessionRef.current!
       const guests = peers.filter((p) => p.id !== me.id)
       if (!s.gameId) {
-        // di lobby: daftar pemain = host + tamu yang sedang online (urutan bergabung), maks 8
+        // di lobby: daftar pemain = host + tamu yang sedang online (urutan bergabung) + bot, maks 8;
+        // kalau penuh, bot yang mengalah
         const kept = s.players.slice(1).filter((p) => guests.some((g) => g.id === p.id))
         const fresh = guests.filter((g) => !kept.some((p) => p.id === g.id))
-        const players = [s.players[0], ...kept, ...fresh].slice(0, MAX_ROOM)
+        const bots = s.players.filter((p) => p.bot)
+        const players = [s.players[0], ...kept, ...fresh, ...bots].slice(0, MAX_ROOM)
         const changed =
           players.length !== s.players.length || players.some((p, i) => p.id !== s.players[i]?.id || p.name !== s.players[i]?.name)
         if (changed) return commit({ ...s, players, rev: s.rev + 1 })
@@ -225,6 +228,19 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
     }),
     [me.id],
   )
+
+  const hostSession = useCallback(() => (isHost ? sessionRef.current : null), [isHost])
+  const actAsBot = useCallback(
+    (id: string, action: SessionAction) => {
+      const cur = sessionRef.current
+      const next = cur && applyAction(cur, action, id)
+      if (!next || next === cur) return false
+      commit(next)
+      return true
+    },
+    [commit],
+  )
+  useBots(session, hostSession, actAsBot)
 
   const seat = (session?.players.findIndex((p) => p.id === me.id) ?? -1) as Seat | -1
   return { session: shown, online, dispatch, seat, net, queued, live }

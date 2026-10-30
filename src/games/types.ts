@@ -23,6 +23,26 @@ export type LiveChannel = {
   on: (cb: (d: unknown, from: Seat) => void) => () => void
 }
 
+/** 1 = gampang, 2 = sedang, 3 = susah */
+export type BotLevel = 1 | 2 | 3
+
+export type BotContext<S> = {
+  state: S
+  seat: Seat
+  level: BotLevel
+  rnd: () => number
+  /** catatan bot per kursi selama satu game; tidak ikut disinkronkan */
+  mem: Record<string, unknown>
+  /** waktu sekarang (ms), supaya simulasi tes bisa memakai jam sendiri */
+  now: number
+}
+
+/** `delay` = jeda "mikir" sebelum aksi dikirim (ms) */
+export type BotMove<A> = { action: A; delay: number }
+
+/** Apa yang dilakukan kursi bot pada state ini; null = tidak ada yang perlu dilakukan. */
+export type BotPolicy<S, A> = (ctx: BotContext<S>) => BotMove<A> | null
+
 /**
  * Satu game = reducer murni + tampilan.
  * Reducer hanya dijalankan di HP host; HP lain cuma menerima state.
@@ -33,6 +53,8 @@ export type GameDef<S, A, O = unknown> = {
   init: (seed: number, options?: O) => S
   reduce: (state: S, action: A, by: Seat) => S
   View: ComponentType<GameProps<S, A>>
+  /** otak bot; kosong = game ini tidak memakai kursi bot */
+  bot?: BotPolicy<S, A>
 }
 
 /** Layar pengaturan game sebelum mulai (dipakai di Home sebelum room ada, dan di room saat ganti game). */

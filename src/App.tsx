@@ -1,4 +1,4 @@
-import { ArrowLeft01Icon, Copy01Icon, Crown02Icon, Tick02Icon, WifiDisconnected01Icon } from '@hugeicons/core-free-icons'
+import { ArrowLeft01Icon, Copy01Icon, Crown02Icon, RoboticIcon, Tick02Icon, WifiDisconnected01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Slab, Tape } from '@/components/memphis/Slab'
@@ -13,8 +13,9 @@ import heroArt from '@/assets/illustrations/hero.webp'
 import waitingArt from '@/assets/illustrations/waiting.webp'
 import { cn } from '@/lib/utils'
 import { CATEGORIES, GAMES, entryById, playerRange, type Category, type GameEntry } from './games/registry'
+import type { BotLevel } from './games/types'
 import { hasOnline, store, type NetStatus, type Peer } from './net/transport'
-import { MAX_ROOM, useRoom, type Pick } from './net/useRoom'
+import { MAX_ROOM, useRoom, type Pick, type SessionAction } from './net/useRoom'
 import { UpdateBanner } from './update/UpdateBanner'
 import { useMusic } from './audio/audio'
 import { SoundButton } from './audio/SoundSettings'
@@ -276,8 +277,8 @@ function useRoomToasts(players: Peer[], meId: string, pick: Pick | null | undefi
     const prev = prevPlayers.current
     prevPlayers.current = players
     if (!prev || players.length === 0) return
-    for (const p of players) if (p.id !== meId && !prev.some((q) => q.id === p.id)) toast(`${p.name} masuk room`, { tone: 'success' })
-    for (const p of prev) if (p.id !== meId && !players.some((q) => q.id === p.id)) toast(`${p.name} keluar dari room`)
+    for (const p of players) if (!p.bot && p.id !== meId && !prev.some((q) => q.id === p.id)) toast(`${p.name} masuk room`, { tone: 'success' })
+    for (const p of prev) if (!p.bot && p.id !== meId && !players.some((q) => q.id === p.id)) toast(`${p.name} keluar dari room`)
   }, [players, meId])
 
   const prevPick = useRef(pick?.gameId)
@@ -298,11 +299,15 @@ function useRoomToasts(players: Peer[], meId: string, pick: Pick | null | undefi
 function Room({ me, room, onLeave }: { me: Peer; room: RoomInfo; onLeave: () => void }) {
   const { session, online, dispatch, seat, net, queued, live } = useRoom(room.code, me, room.host, room.pick ?? null)
   const players = session?.players ?? []
-  const onlineBySeat = players.map((p) => online.some((o) => o.id === p.id))
+  const onlineBySeat = players.map((p) => p.bot || online.some((o) => o.id === p.id))
   const game = entryById(session?.gameId ?? null)?.game ?? null
   const picked = entryById(session?.pick?.gameId ?? null)
   const inGame = Boolean(session && seat !== -1 && game)
   const isHost = seat === 0
+  const humans = players.filter((p) => !p.bot).length
+  const bots = players.length - humans
+  // sendirian lawan bot: game jalan di HP ini, status sinyal tidak penting
+  const solo = isHost && humans === 1 && (inGame || bots > 0)
   const [confirmLeave, setConfirmLeave] = useState(false)
   const [changing, setChanging] = useState<GameEntry | 'menu' | null>(null)
   const [lost, setLost] = useState(false)
@@ -319,7 +324,7 @@ function Room({ me, room, onLeave }: { me: Peer; room: RoomInfo; onLeave: () => 
   if (session && seat !== -1 && game) {
     return (
       <>
-        <NetBanner net={net} queued={queued} />
+        {!solo && <NetBanner net={net} queued={queued} />}
         <Suspense fallback={<LoadingScreen label={`Menyiapkan ${game.title}…`} />}>
           <game.View
             state={session.game}
@@ -335,7 +340,7 @@ function Room({ me, room, onLeave }: { me: Peer; room: RoomInfo; onLeave: () => 
     )
   }
 
-  const leave = () => (isHost && players.length > 1 ? setConfirmLeave(true) : onLeave())
+  const leave = () => (isHost && humans > 1 ? setConfirmLeave(true) : onLeave())
   const menu = isHost && (changing !== null || !picked)
 
   return (
@@ -343,7 +348,7 @@ function Room({ me, room, onLeave }: { me: Peer; room: RoomInfo; onLeave: () => 
       className="relative min-h-dvh bg-petal px-[max(16px,env(safe-area-inset-left))] pb-4 pr-[max(16px,env(safe-area-inset-right))] pt-[max(10px,env(safe-area-inset-top))]"
       style={floor}
     >
-      <NetBanner net={net} queued={queued} />
+      {!solo && <NetBanner net={net} queued={queued} />}
       <div className="relative mx-auto grid h-[calc(100dvh-24px)] max-w-5xl grid-cols-[minmax(200px,250px)_1fr] grid-rows-[auto_1fr] gap-x-6 gap-y-3">
         <header className="col-span-2 flex items-center gap-3">
           <BackButton onClick={leave} label="Keluar dari room" />
@@ -419,13 +424,25 @@ function Room({ me, room, onLeave }: { me: Peer; room: RoomInfo; onLeave: () => 
                 <div className="flex flex-col gap-4">
                   <PickedGame entry={picked} options={session.pick!.options} />
                   {isHost ? (
-                    <HostControls
-                      entry={picked}
-                      options={session.pick!.options}
-                      players={players.length}
-                      onStart={() => dispatch({ kind: 'start' })}
-                      onChange={() => setChanging('menu')}
-                    />
+                    <>
+                      {picked.game.bot && (
+                        <BotPanel
+                          entry={picked}
+                          options={session.pick!.options}
+                          players={players.length}
+                          bots={bots}
+                          level={session.botLevel ?? 2}
+                          dispatch={dispatch}
+                        />
+                      )}
+                      <HostControls
+                        entry={picked}
+                        options={session.pick!.options}
+                        players={players.length}
+                        onStart={() => dispatch({ kind: 'start' })}
+                        onChange={() => setChanging('menu')}
+                      />
+                    </>
                   ) : (
                     <div className="flex items-center gap-3">
                       <Loader size={80} />
@@ -479,6 +496,57 @@ function PickedGame({ entry, options }: { entry: GameEntry; options: unknown }) 
   )
 }
 
+const BOT_LEVELS: { level: BotLevel; title: string }[] = [
+  { level: 1, title: 'Gampang' },
+  { level: 2, title: 'Sedang' },
+  { level: 3, title: 'Susah' },
+]
+
+/** Host mengisi kursi kosong dengan bot; tanpa bot, game jalan seperti biasa. */
+function BotPanel({
+  entry,
+  options,
+  players,
+  bots,
+  level,
+  dispatch,
+}: {
+  entry: GameEntry
+  options: unknown
+  players: number
+  bots: number
+  level: BotLevel
+  dispatch: (a: SessionAction) => void
+}) {
+  const max = Math.min(MAX_ROOM, playerRange(entry, options)[1])
+  return (
+    <section aria-label="Lawan bot" className="flex flex-wrap items-center gap-x-4 gap-y-2 border-[3px] border-ink bg-paper p-2 shadow-slab-sm">
+      <div className="flex items-center gap-2">
+        <HugeiconsIcon icon={RoboticIcon} size={22} strokeWidth={2.2} />
+        <span className="font-display text-sm uppercase">Bot</span>
+        <Slab tone="paper" size="sm" disabled={bots === 0} aria-label="Kurangi bot" onClick={() => dispatch({ kind: 'removeBot' })}>
+          −
+        </Slab>
+        <span className="w-5 text-center font-display text-lg" aria-live="polite">
+          {bots}
+        </span>
+        <Slab tone="paper" size="sm" disabled={players >= max} aria-label="Tambah bot" onClick={() => dispatch({ kind: 'addBot' })}>
+          +
+        </Slab>
+      </div>
+      {bots > 0 && (
+        <div role="radiogroup" aria-label="Tingkat bot" className="flex flex-wrap gap-2">
+          {BOT_LEVELS.map((l) => (
+            <Slab key={l.level} tone={level === l.level ? 'electric' : 'paper'} active={level === l.level} size="sm" role="radio" aria-checked={level === l.level} onClick={() => dispatch({ kind: 'botLevel', level: l.level })}>
+              {l.title}
+            </Slab>
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
 function HostControls({ entry, options, players, onStart, onChange }: { entry: GameEntry; options: unknown; players: number; onStart: () => void; onChange: () => void }) {
   const [min, max] = playerRange(entry, options)
   const fits = players >= min && players <= max
@@ -495,7 +563,7 @@ function HostControls({ entry, options, players, onStart, onChange }: { entry: G
       {!fits && (
         <p className="text-[13px] font-semibold">
           {players < min
-            ? `Butuh minimal ${min} pemain. Bagikan kode room di atas.`
+            ? `Butuh minimal ${min} pemain. Bagikan kode room di atas${entry.game.bot ? ', atau tambah bot' : ''}.`
             : `${entry.game.title} maksimal ${max} pemain${entry.playersFor ? ' untuk mode ini. Ganti mode lewat Ganti game' : ''}.`}
         </p>
       )}
@@ -546,6 +614,7 @@ function PlayerList({ players, online, meSeat }: { players: Peer[]; online: bool
           <span className={cn('size-3 shrink-0 rounded-full border-2 border-ink', online[i] ? 'bg-electric' : 'bg-paper')} />
           <span className="truncate font-display text-sm uppercase">{p.name}</span>
           {i === meSeat && <span className="text-xs font-semibold">(kamu)</span>}
+          {p.bot && <HugeiconsIcon icon={RoboticIcon} size={16} strokeWidth={2.4} className="ml-auto shrink-0" aria-label="bot" />}
           {i === 0 && <HugeiconsIcon icon={Crown02Icon} size={16} strokeWidth={2.4} className="ml-auto shrink-0" aria-label="host" />}
         </li>
       ))}
@@ -623,7 +692,7 @@ function Waiting({ code }: { code: string }) {
       <img src={waitingArt} alt="Maskot hijau menunggu sendirian di atas alas terrazzo" className="h-32 w-auto" draggable={false} />
       <div className="flex flex-col gap-3">
         <h2 className="font-display text-2xl leading-tight">Ajak teman gabung</h2>
-        <p className="max-w-[30ch] text-sm font-semibold">Bagikan kode ini. Bisa sampai 8 orang dalam satu room.</p>
+        <p className="max-w-[30ch] text-sm font-semibold">Bagikan kode ini, sampai 8 orang satu room. Lagi sendirian? Tambah bot.</p>
         <div className="flex gap-2" aria-label={`Kode room ${code.split('').join(' ')}`}>
           {code.split('').map((ch, i) => (
             <span
