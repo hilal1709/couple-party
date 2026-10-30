@@ -66,6 +66,8 @@ export type GameEntry = {
   /** batas pemain yang bergantung pada pengaturan (mis. mode Kartu Remi); kosong = min/max di atas */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   playersFor?: (options: any) => [number, number]
+  /** game mengatur botnya sendiri, jadi tidak memakai kursi bot di room */
+  nativeBots?: boolean
 }
 
 export const GAMES: GameEntry[] = [
@@ -173,6 +175,7 @@ export const GAMES: GameEntry[] = [
     art: kartSprite('tile-kart') ?? bomArt,
     Lobby: lazy(() => import('./kart/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: KartOptions) => kartSummary(o),
+    nativeBots: true,
   },
 ]
 

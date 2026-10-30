@@ -1,5 +1,6 @@
 import { nextRand, shuffle } from '../rng'
 import type { Seat } from '../types'
+import { SKETCH_WORDS } from './sketches'
 import { PACK_WORDS, type WordEntry } from './words'
 import type { DrawAction, DrawOptions, DrawState, FeedItem, Level, Stroke } from './types'
 
@@ -148,6 +149,16 @@ function push(st: DrawState, item: NewFeed) {
   st.feed = [...st.feed, { ...item, id: st.feedId } as FeedItem].slice(-MAX_FEED)
 }
 
+/** bot hanya bisa menggambar kata yang punya sketsa; yang sudah dipakai menunggu semua keluar */
+function sketchChoices(st: DrawState): { word: string; level: Level }[] {
+  const left = SKETCH_WORDS.filter((w) => !st.sketched?.includes(w.word))
+  const [order, s] = shuffle(left.length >= 3 ? left : SKETCH_WORDS, st.rng)
+  st.rng = s
+  const choices = order.slice(0, 3)
+  st.sketched = [...(left.length >= 3 ? (st.sketched ?? []) : []), ...choices.map((c) => c.word)]
+  return choices
+}
+
 /** mulai giliran baru untuk st.drawer: siapkan 3 pilihan kata */
 function deal(st: DrawState): DrawState {
   st.deck = [...st.deck]
@@ -160,7 +171,7 @@ function deal(st: DrawState): DrawState {
     used.add(normalize(w.word))
     choices.push(w)
   }
-  st.choices = choices
+  st.choices = st.opts.botSeats?.includes(st.drawer) ? sketchChoices(st) : choices
   st.phase = 'choose'
   st.word = ''
   st.strokes = []

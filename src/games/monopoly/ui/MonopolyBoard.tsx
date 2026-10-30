@@ -267,6 +267,7 @@ export function MonopolyBoard({ state: s, seat, names, online, act, exit }: Prop
             {s.pos.map((pos, i) => (
               <li
                 key={i}
+                data-seat={i}
                 className={cn(
                   'flex items-center gap-1.5 border-[3px] border-ink px-1.5 py-0.5',
                   s.bankrupt[i] ? 'bg-paper/60 opacity-60' : i === actor ? 'bg-rose shadow-slab-sm' : 'bg-paper/90',
@@ -306,7 +307,7 @@ export function MonopolyBoard({ state: s, seat, names, online, act, exit }: Prop
             <div ref={diceRef} className="relative flex gap-1">
               {diceFx > 0 && (
                 <Lottie
-                  key={diceFx}
+                  key={`fx-${diceFx}`}
                   src={diceRoll}
                   autoplay
                   loop={false}

@@ -1,6 +1,7 @@
 import { createClient, type RealtimeChannel } from '@supabase/supabase-js'
 
-export type Peer = { id: string; name: string }
+/** `bot` = kursi yang dikendalikan HP host */
+export type Peer = { id: string; name: string; bot?: boolean }
 
 /** Pipa pesan antar 2 HP. Semua pesan dikirim ke semua anggota room kecuali pengirim. */
 export interface Transport {
@@ -56,7 +57,7 @@ function supabaseTransport(code: string, me: Peer): Transport {
   window.addEventListener('offline', goOffline)
 
   return {
-    send: (msg) => void ch.send({ type: 'broadcast', event: 'msg', payload: msg }),
+    send: (msg) => void ch.send({ type: 'broadcast', event: 'msg', payload: msg }).catch(() => {}), // offline: pesan hilang, sync berikutnya menyusul
     onMessage: (cb) => (msgCb = cb),
     onPeers: (cb) => (peerCb = cb),
     onStatus: (cb) => {

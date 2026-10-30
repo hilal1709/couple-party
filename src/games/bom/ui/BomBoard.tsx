@@ -271,6 +271,7 @@ function SeatCard({ s, i, seat, name, online, act, elapsed }: { s: BomState; i: 
   return (
     <li
       ref={card}
+      data-seat={i}
       className={cn(
         'relative flex min-h-0 flex-col overflow-hidden border-[3px] border-ink bg-paper [container-type:size]',
         holding ? 'shadow-[4px_5px_0_#ff37a6]' : 'shadow-slab-sm',

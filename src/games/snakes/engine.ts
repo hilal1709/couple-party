@@ -318,8 +318,9 @@ export function reduce(s: SnakesState, a: SnakesAction, by: Seat): SnakesState {
     }
 
     case 'judge': {
-      // yang menilai harus lawan; suara pertama yang sampai di host dipakai
-      if (by === s.turn || p?.kind !== 'judge') return s
+      // yang menilai harus lawan; suara pertama yang sampai di host dipakai.
+      // Bot tidak bisa benar-benar menjalankan tantangan, jadi ia boleh menutup gilirannya sendiri.
+      if (p?.kind !== 'judge' || (by === s.turn && !s.opts.botSeats?.includes(by))) return s
       const d = draft(s)
       const who = s.turn
       d.pending = null

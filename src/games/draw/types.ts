@@ -15,6 +15,8 @@ export type DrawOptions = {
   custom: string[]
   /** huruf dibuka pelan-pelan setelah setengah waktu */
   hints: boolean
+  /** kursi bot; diisi otomatis oleh room saat game dimulai */
+  botSeats?: Seat[]
 }
 
 /**
@@ -69,6 +71,8 @@ export type DrawState = {
   reason: RevealReason | null
   /** kata yang belum keluar */
   deck: { word: string; level: Level }[]
+  /** kata bersketsa yang sudah digambar bot */
+  sketched?: string[]
   /** kursi pemenang (bisa seri) */
   winners: Seat[] | null
 }

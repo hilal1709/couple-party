@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import type { GameDef } from '../types'
+import { dominoBot } from './bot'
 import { init, reduce } from './engine'
 import type { DominoAction, DominoOptions, DominoState } from './types'
 
@@ -8,6 +9,7 @@ export const domino: GameDef<DominoState, DominoAction, DominoOptions> = {
   title: 'Domino',
   init,
   reduce,
+  bot: dominoBot,
   // dimuat saat game dimulai saja, supaya menu terbuka cepat
   View: lazy(() => import('./ui/DominoTable').then((m) => ({ default: m.DominoTable }))),
 }

@@ -139,6 +139,7 @@ export function DominoTable({ state: s, seat, names, online, act, exit }: Props)
               return (
                 <div
                   key={o}
+                  data-seat={o}
                   className={cn('relative mt-1 flex min-w-[104px] shrink-0 flex-col gap-0.5 border-[3px] border-ink px-2 pb-1 pt-1', isTurn ? 'bg-rose shadow-slab' : 'bg-paper/90 shadow-slab-sm')}
                   aria-label={`${names[o]}: ${tiles.length} kartu, ${scoreText(o)}${isTurn ? ', sedang giliran' : ''}`}
                 >
@@ -209,9 +210,11 @@ export function DominoTable({ state: s, seat, names, online, act, exit }: Props)
           style={{ backgroundImage: squiggles('#12121230', 64, 2.4) }}
         >
           <div className="flex items-center gap-2 px-3">
-            <Tape tone="paper" tilt="r" className="text-sm">
-              {names[seat]}
-            </Tape>
+            <span data-seat={seat}>
+              <Tape tone="paper" tilt="r" className="text-sm">
+                {names[seat]}
+              </Tape>
+            </span>
             <span className="truncate text-[12px] font-semibold">
               {hand.length} kartu · {scoreText(seat)}
               {meLine && s.phase === 'play' ? ` · ${meLine}` : ''}

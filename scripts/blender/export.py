@@ -1,6 +1,6 @@
 """Ekspor render Blender per game (brand/illustrations/<game>/*.png) ke WebP untuk app.
 
-Jalankan:  python -I scripts/blender/export.py [snakes|draw|remi|domino|monopoly|ludo|spy|bom]   (bawaan: snakes)
+Jalankan:  python -I scripts/blender/export.py [snakes|draw|remi|domino|monopoly|ludo|spy|bom|emote]   (bawaan: snakes)
 Sprite dipangkas ke tepi gambar (kecuali kepala ular: titik tengahnya = pangkal leher) lalu diperkecil.
 """
 import json
