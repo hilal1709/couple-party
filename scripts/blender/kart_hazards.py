@@ -335,11 +335,12 @@ def bola_permen():
 def lolipop():
     """Lolipop raksasa: cakram pink dengan spiral putih timbul di kedua muka, pita kuning."""
     parts = [cyl((0, 0, 3.0), 0.2, 6.0, pbr('#fff4fa', 0.5), verts=10)]
-    parts.append(sphere((0, 0, 7.6), 2.1, pbr('#ff37a6', 0.25, coat=1), (1, 0.2, 1), seg=28))
+    parts.append(sphere((0, 0, 7.6), 2.1, pbr('#ff37a6', 0.25, coat=1), (1, 0.2, 1), seg=16, sub=False))
+    # prop ini ditanam ratusan kali di Pabrik Permen, jadi spiralnya hemat segitiga
     for y in (-0.36, 0.36):
-        pts = [(math.cos(k * 0.3) * (0.1 + k * 0.024), y, 7.6 + math.sin(k * 0.3) * (0.1 + k * 0.024)) for k in range(80)]
-        parts.append(tube(pts, 0.11, pbr('#fff4fa', 0.3, coat=1), res=2))
-    parts.append(torus((0, 0, 5.6), 0.28, 0.08, pbr('#ffcc1f', 0.4)))
+        pts = [(math.cos(k * 0.6) * (0.1 + k * 0.048), y, 7.6 + math.sin(k * 0.6) * (0.1 + k * 0.048)) for k in range(40)]
+        parts.append(tube(pts, 0.11, pbr('#fff4fa', 0.3, coat=1), res=1, steps=1))
+    parts.append(torus((0, 0, 5.6), 0.28, 0.08, pbr('#ffcc1f', 0.4), seg=12))
     parts.append(cube((0.35, 0, 5.4), (0.5, 0.05, 0.35), pbr('#ffcc1f', 0.4), rot=(0, 0.6, 0), b=0.01))
     return parts
 

@@ -98,6 +98,10 @@ function road(t: Track, theme: Theme, tier: Tier): THREE.Object3D[] {
       // tekstur aspal Poly Haven sangat gelap: dicerahkan lewat warna > 1
       color: new THREE.Color(look.road).multiplyScalar(3.6),
       roughness: 0.82,
+      // malam: aspal tampak diterangi lampu jalan tanpa lampu sungguhan yang mahal di HP
+      emissive: new THREE.Color(look.dark ? '#d8c8ff' : '#000000'),
+      emissiveMap: look.dark ? tex('aspal_diff.webp') : null,
+      emissiveIntensity: look.dark ? 2.2 : 0,
     }),
   )
   asphalt.receiveShadow = true
@@ -198,6 +202,8 @@ export function heightAt(t: Track, theme: Theme, x: number, z: number): number {
 }
 
 const WATER_Y = -2.6
+/** kotak item lebih jauh dari ini (meter) tidak digambar */
+const BOX_VIEW = 260
 
 /** landmark tema di posisi tetap, menghadap jalan; yang mengapung ikut ombak */
 function landmarks(t: Track, theme: Theme) {
@@ -638,10 +644,10 @@ function grandstands(t: Track, theme: Theme, tier: Tier) {
 function props(t: Track, theme: Theme, tier: Tier) {
   const r = seeded(t.def.id.length * 97 + t.n)
   const group = new THREE.Group()
-  const total = Math.round((t.length / 3.5) * (0.45 + tier.detail * 0.55))
+  const total = Math.round((t.length / 3.5) * tier.props)
   const weights = theme.props
   const sum = weights.reduce((a, [, w]) => a + w, 0)
-  const CH = 8
+  const CH = 16
   // nama model (varian) → wilayah → matriks
   const spots = new Map<string, THREE.Matrix4[][]>()
   const minGap = (t.half + 16) ** 2
@@ -789,7 +795,11 @@ export type World = {
   hazards: { mesh: THREE.Object3D; shadow?: THREE.Mesh; index: number; parts: Record<string, THREE.Object3D> }[]
   /** 0..5 lampu merah menyala, 6 = hijau (GO) */
   setLights: (n: number) => void
-  update: (time: number, now: number) => void
+  update: (time: number, now: number, view: THREE.Vector3) => void
+  setTier: (tier: Tier) => void
+  /** buat ulang pencahayaan langit setelah context WebGL kembali */
+  restore: (renderer: THREE.WebGLRenderer) => void
+  dispose: () => void
   /** titik asap landmark (cerobong pabrik, kawah gunung) */
   smoke: THREE.Vector3[]
 }
@@ -803,20 +813,27 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
   scene.fog = new THREE.Fog(th.fog, th.fogNear * 2 * tier.far, th.fogFar * 2.4 * tier.far)
 
   // langit HDRI: latar + cahaya lingkungan (pantulan PBR)
-  try {
-    const hdr = await hdrLoader.loadAsync(texUrl(`langit-${look.sky}.hdr`))
-    hdr.mapping = THREE.EquirectangularReflectionMapping
-    const pmrem = new THREE.PMREMGenerator(renderer)
+  let hdr: THREE.Texture | null = null
+  const bakeSky = (r: THREE.WebGLRenderer) => {
+    if (!hdr) return
+    const pmrem = new THREE.PMREMGenerator(r)
+    scene.environment?.dispose()
     scene.environment = pmrem.fromEquirectangular(hdr).texture
     pmrem.dispose()
-    scene.background = hdr
-    scene.backgroundIntensity = look.sky === 'malam' ? 2.2 : 1
-    scene.environmentIntensity = look.sky === 'malam' ? 1.2 : 0.55
+  }
+  try {
+    hdr = await hdrLoader.loadAsync(texUrl(`langit-${look.sky}.hdr`))
+    hdr.mapping = THREE.EquirectangularReflectionMapping
+    bakeSky(renderer)
+    scene.background = look.dark ? nightSky(th.sky) : hdr
+    // Kota Neon benar-benar gelap; Kawah tetap terang karena disinari lava
+    scene.backgroundIntensity = look.sky !== 'malam' ? 1 : look.dark ? 1.1 : 2.2
+    scene.environmentIntensity = look.sky !== 'malam' ? 0.55 : look.dark ? 0.3 : 1.2
   } catch {
     scene.background = new THREE.Color(th.sky[1])
   }
 
-  scene.add(new THREE.HemisphereLight(th.ambient, th.ground, th.night ? 1.0 : 0.35))
+  scene.add(new THREE.HemisphereLight(th.ambient, th.ground, look.dark ? 0.45 : th.night ? 1.0 : 0.35))
   const sun = new THREE.DirectionalLight(th.sun, th.sunPower * (th.night ? 1 : 1.5))
   sun.position.set(120, 220, 80)
   if (tier.shadow) {
@@ -832,7 +849,9 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
   }
   scene.add(sun, sun.target)
 
-  scene.add(terrain(t, th, tier), ...road(t, th, tier), trackside(t, th), props(t, th, tier), details(t, th, tier), clouds(t, th.night))
+  const propGroup = props(t, th, tier)
+  const detailGroup = details(t, th, tier)
+  scene.add(terrain(t, th, tier), ...road(t, th, tier), trackside(t, th), propGroup, detailGroup, clouds(t, th.night))
   const mk = markings(t, th)
   scene.add(mk.group)
   const gate = gantry(t, th)
@@ -855,6 +874,8 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
   // semua kotak dalam satu set InstancedMesh; matriksnya diperbarui tiap bingkai (putar, melayang, muncul lagi)
   const spots = boxSpots(t)
   const boxGroup = instanced('item-box', spots.map(() => new THREE.Matrix4()), false)
+  // batas InstancedMesh dihitung sekali dari matriks awal; kotak yang bergerak tidak boleh di-cull dengannya
+  boxGroup.traverse((o) => (o.frustumCulled = false))
   scene.add(boxGroup)
   const boxes = spots.map((b) => ({ ...b, hiddenUntil: 0 }))
   const boxMx = new THREE.Matrix4()
@@ -917,7 +938,7 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
     })
   }
 
-  const update = (time: number, now: number) => {
+  const update = (time: number, now: number, view: THREE.Vector3) => {
     const sec = now / 1000
     stands.time.value = sec
     if (waterMat) waterMat.uniforms.time.value = sec
@@ -938,14 +959,19 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
       })
     }
     mk.pad.offset.y = -sec * 1.6
-    boxes.forEach((b, k) => {
+    // hanya kotak dekat kamera yang digambar: slot instance diisi berurutan
+    let shown = 0
+    boxes.forEach((b) => {
+      if ((b.x - view.x) ** 2 + (b.z - view.z) ** 2 > BOX_VIEW ** 2) return
       // tumbuh lagi dengan efek "pop" setelah diambil
       const back = (now - b.hiddenUntil) / 350
       const s = now < b.hiddenUntil ? 0 : back >= 1 ? 1 : Math.sin(back * Math.PI * 0.75) * 1.25
       boxE.set(Math.sin(sec * 1.1 + b.id) * 0.35, sec * 1.4 + b.id, Math.cos(sec * 0.9 + b.id) * 0.2)
       boxMx.compose(boxPos.set(b.x, b.y + Math.sin(sec * 2 + b.id) * 0.3, b.z), boxQ.setFromEuler(boxE), boxScale.setScalar(Math.max(0.0001, s)))
-      for (const im of boxGroup.children as THREE.InstancedMesh[]) im.setMatrixAt(k, boxMx)
+      for (const im of boxGroup.children as THREE.InstancedMesh[]) im.setMatrixAt(shown, boxMx)
+      shown++
     })
+    for (const im of boxGroup.children as THREE.InstancedMesh[]) im.count = shown
     for (const im of boxGroup.children as THREE.InstancedMesh[]) im.instanceMatrix.needsUpdate = true
     for (const hz of hazards) {
       const h = t.def.hazards[hz.index]
@@ -977,5 +1003,66 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
       }
     }
   }
-  return { scene, sun, boxes, hazards, setLights, update, smoke: marks.smoke }
+  // turun tingkat grafis saat balapan: prop dikurangi dari yang sudah dibangun, jarak pandang ikut pendek
+  const setTier = (next: Tier) => {
+    thin(propGroup, next.props / tier.props)
+    thin(detailGroup, next.detail / tier.detail)
+    const fog = scene.fog as THREE.Fog
+    fog.near = th.fogNear * 2 * next.far
+    fog.far = th.fogFar * 2.4 * next.far
+  }
+
+  const dispose = () => {
+    scene.traverse((o) => {
+      const m = o as THREE.Mesh
+      if (!m.isMesh) return
+      m.geometry?.dispose()
+      const mats = Array.isArray(m.material) ? m.material : [m.material]
+      for (const mt of mats) {
+        for (const v of Object.values(mt ?? {})) if (v instanceof THREE.Texture) v.dispose()
+        mt?.dispose()
+      }
+    })
+    scene.environment?.dispose()
+    hdr?.dispose()
+    if (scene.background instanceof THREE.Texture) scene.background.dispose()
+  }
+
+  return { scene, sun, boxes, hazards, setLights, update, setTier, restore: bakeSky, dispose, smoke: marks.smoke }
+}
+
+/** langit malam digambar sendiri: gradasi tema, bintang, dan bulan (HDRI malam masih seterang mendung) */
+function nightSky([top, horizon]: [string, string]) {
+  const c = document.createElement('canvas')
+  c.width = 2048
+  c.height = 1024
+  const g = c.getContext('2d')!
+  const grad = g.createLinearGradient(0, 0, 0, c.height / 2)
+  grad.addColorStop(0, top)
+  grad.addColorStop(1, horizon)
+  g.fillStyle = grad
+  g.fillRect(0, 0, c.width, c.height)
+  const r = seeded(1987)
+  for (let k = 0; k < 420; k++) {
+    g.fillStyle = `rgba(255,255,255,${0.25 + r() * 0.7})`
+    g.fillRect(r() * c.width, r() * c.height * 0.42, 1 + r() * 2, 1 + r() * 2)
+  }
+  g.shadowColor = '#d8d0ff'
+  g.shadowBlur = 40
+  g.fillStyle = '#f4f0ff'
+  g.beginPath()
+  g.arc(c.width * 0.72, c.height * 0.2, 34, 0, Math.PI * 2)
+  g.fill()
+  const sky = new THREE.CanvasTexture(c)
+  sky.colorSpace = THREE.SRGBColorSpace
+  sky.mapping = THREE.EquirectangularReflectionMapping
+  return sky
+}
+
+/** tampilkan sebagian salinan saja; urutan matriksnya acak, jadi penjarangannya merata */
+function thin(group: THREE.Group, share: number) {
+  group.traverse((o) => {
+    const m = o as THREE.InstancedMesh
+    if (m.isInstancedMesh) m.count = Math.ceil((m.userData.full as number) * Math.min(1, share))
+  })
 }

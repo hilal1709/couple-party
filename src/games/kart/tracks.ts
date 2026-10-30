@@ -32,6 +32,8 @@ export type Look = {
   runoff: Ground
   /** air di sekitar (laut / sungai cokelat) */
   water?: string
+  /** malam sungguhan: cahaya utama dari lampu & neon, bukan dari langit */
+  dark?: boolean
 }
 
 export type Theme = {
@@ -360,10 +362,10 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { model: 'gedung-3', at: 0.88, side: 1, dist: 32, scale: 1.4 },
     ],
     theme: {
-      look: { sky: 'malam', ground: 'cobble', tint: '#6a6090', road: '#8a8aa0', runoff: 'cobble' },
+      look: { sky: 'malam', ground: 'cobble', tint: '#6a6090', road: '#8a8aa0', runoff: 'cobble', dark: true },
       sky: ['#120a33', '#3a1a66'], fog: '#24104a', fogNear: 90, fogFar: 460,
       ground: '#2a2440', ground2: '#221d36', road: '#2c2c3a', roadLine: '#5cf64a', curb: ['#ff37a6', '#2f7bff'], wall: '#8a55ff',
-      sun: '#c0b0ff', sunPower: 1.5, ambient: '#9a8ae0', night: true, offroad: 'kota',
+      sun: '#c0b0ff', sunPower: 0.55, ambient: '#9a8ae0', night: true, offroad: 'kota',
       props: [['gedung', 8], ['lampu', 4], ['papan-neon', 1], ['pembatas', 1]],
     },
   },

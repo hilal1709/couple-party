@@ -97,6 +97,86 @@ export const withVariants = (names: string[]) => names.flatMap((n) => (variants(
 /** bahan standar (PBR) untuk model berwarna verteks: kena cahaya & pantulan langit */
 export const vertexMaterial = () => new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.72, metalness: 0 })
 
+/** samakan atribut supaya beberapa geometri bisa digabung */
+function sameAttributes(geos: THREE.BufferGeometry[]) {
+  const shared = (k: string) => geos.every((g) => g.getAttribute(k))
+  const keep = ['position', 'normal', ...['uv', 'color'].filter(shared)]
+  for (const g of geos) {
+    for (const k of Object.keys(g.attributes)) if (!keep.includes(k)) g.deleteAttribute(k)
+    if (!g.getAttribute('normal')) g.computeVertexNormals()
+  }
+}
+
+/** bagian yang dianimasikan game (rig kart, rintangan, landmark); selain ini boleh digabung */
+const MOVING = /^(wheel_|leg_|claw_|pincer_|eyes|tail|head|wing_)|^(steer|body|arm_[LR]|blades|light|screen|gunung)$/
+
+const compactCache = new Map<string, THREE.BufferGeometry>()
+/** grafis Hemat: warna material dipindah ke verteks, jadi satu bagian kart = satu draw call */
+const flatMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0 })
+
+function painted(g: THREE.BufferGeometry, mat: THREE.MeshStandardMaterial, tint: string) {
+  const c = mat.name.startsWith('tint') ? new THREE.Color(tint) : mat.color
+  const n = g.getAttribute('position').count
+  const col = new Float32Array(n * 3)
+  for (let v = 0; v < n; v++) c.toArray(col, v * 3)
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3))
+  return g
+}
+
+/**
+ * Salinan model dengan mesh digabung per material di dalam tiap bagian bergerak.
+ * Model GLB bisa berisi ratusan mesh kecil; tanpa ini tiap kart saja memakan ±150 draw call.
+ */
+function compactClone(name: string, flatTint?: string): THREE.Object3D {
+  const flat = flatTint !== undefined
+  const root = scenes.get(name)!.clone(true)
+  root.updateMatrixWorld(true)
+  const groups = new Map<THREE.Object3D, Map<THREE.Material, THREE.Mesh[]>>()
+  root.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (!m.isMesh || MOVING.test(m.name) || Array.isArray(m.material)) return
+    let owner = m.parent!
+    while (owner !== root && !MOVING.test(owner.name)) owner = owner.parent!
+    const byMat = groups.get(owner) ?? new Map<THREE.Material, THREE.Mesh[]>()
+    const mat = flat ? flatMaterial : m.material
+    byMat.set(mat, [...(byMat.get(mat) ?? []), m])
+    groups.set(owner, byMat)
+  })
+  for (const [owner, byMat] of groups) {
+    const toOwner = owner.matrixWorld.clone().invert()
+    for (const [mat, meshes] of byMat) {
+      if (!flat && meshes.length < 2) continue
+      const key = `${name}|${owner.name}|${mat.uuid}|${flatTint}`
+      let geo = compactCache.get(key) ?? null
+      if (!geo) {
+        const geos = meshes.map((m) => {
+          const g = m.geometry.clone().applyMatrix4(toOwner.clone().multiply(m.matrixWorld))
+          const out = g.index ? g.toNonIndexed() : g
+          return flat ? painted(out, m.material as THREE.MeshStandardMaterial, flatTint) : out
+        })
+        sameAttributes(geos)
+        geo = mergeGeometries(geos)
+        if (!geo) continue
+        compactCache.set(key, geo)
+      }
+      for (const m of meshes) m.removeFromParent()
+      owner.add(new THREE.Mesh(geo, mat))
+    }
+  }
+  return root
+}
+
+/** lepas semua model dari memori saat keluar dari game */
+export function clearModels() {
+  for (const g of cache.values()) g.dispose()
+  for (const g of compactCache.values()) g.dispose()
+  for (const parts of mergedCache.values()) for (const p of parts) p.geo.dispose()
+  cache.clear()
+  compactCache.clear()
+  mergedCache.clear()
+  scenes.clear()
+}
+
 /** gabungkan semua bagian GLB yang memakai material sama (koordinat adegan), supaya draw call sedikit */
 const mergedCache = new Map<string, { geo: THREE.BufferGeometry; mat: THREE.Material }[]>()
 function mergedParts(name: string, sc: THREE.Object3D) {
@@ -115,12 +195,7 @@ function mergedParts(name: string, sc: THREE.Object3D) {
     byMat.set(mat, list)
   })
   parts = [...byMat].map(([mat0, geos]) => {
-    // samakan atribut supaya bisa digabung
-    const keepUv = geos.every((g) => g.getAttribute('uv'))
-    for (const g of geos) {
-      for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal' && !(k === 'uv' && keepUv)) g.deleteAttribute(k)
-      if (!g.getAttribute('normal')) g.computeVertexNormals()
-    }
+    sameAttributes(geos)
     const mat = (mat0 as THREE.MeshStandardMaterial).clone()
     // daun & rumput bertekstur alfa (bidang dua sisi / transparan): potong, jangan transparan
     // (lebih murah & tanpa salah urutan); kaca polos tetap transparan
@@ -147,6 +222,7 @@ export function instanced(name: string, matrices: THREE.Matrix4[], shadow = true
     for (const { geo, mat } of mergedParts(name, sc)) {
       const im = new THREE.InstancedMesh(geo, mat, matrices.length)
       matrices.forEach((mx, i) => im.setMatrixAt(i, mx))
+      im.userData.full = matrices.length
       im.castShadow = shadow && !(mat as THREE.MeshStandardMaterial).transparent
       im.receiveShadow = true
       im.computeBoundingSphere()
@@ -156,6 +232,7 @@ export function instanced(name: string, matrices: THREE.Matrix4[], shadow = true
   }
   const im = new THREE.InstancedMesh(geometry(name), vertexMaterial(), matrices.length)
   matrices.forEach((mx, i) => im.setMatrixAt(i, mx))
+  im.userData.full = matrices.length
   im.castShadow = shadow
   im.receiveShadow = true
   im.computeBoundingSphere()
@@ -165,9 +242,8 @@ export function instanced(name: string, matrices: THREE.Matrix4[], shadow = true
 
 /** salinan utuh satu model (untuk landmark tunggal) */
 export function placed(name: string): THREE.Object3D {
-  const sc = scenes.get(name)
-  if (sc) {
-    const c = sc.clone(true)
+  if (scenes.has(name)) {
+    const c = compactClone(name)
     c.traverse((o) => {
       const m = o as THREE.Mesh
       if (m.isMesh) {
@@ -337,8 +413,8 @@ export type KartRig = {
 }
 
 /** salinan adegan GLB dengan material "tint" diganti warna pembalap */
-function tintedClone(name: string, color: string): THREE.Object3D {
-  const c = scenes.get(name)!.clone(true)
+function tintedClone(name: string, color: string, flat = false): THREE.Object3D {
+  const c = compactClone(name, flat ? color : undefined)
   const paint = new Map<THREE.Material, THREE.Material>()
   c.traverse((o) => {
     const m = o as THREE.Mesh
@@ -377,8 +453,8 @@ export function makeKart(charId: string, color: string, body: string, lite = fal
       const kn = scenes.has(kartName + suffix) ? kartName + suffix : kartName
       const cn = scenes.has(charName + suffix) ? charName + suffix : charName
       const level = new THREE.Group()
-      const k = tintedClone(kn, color)
-      const c = tintedClone(cn, color)
+      const k = tintedClone(kn, color, lite)
+      const c = tintedClone(cn, color, lite)
       level.add(k, c)
       level.traverse((o) => {
         const n = o.name

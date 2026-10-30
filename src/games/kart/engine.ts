@@ -11,8 +11,10 @@ const ENTITY_MAX = 36
 const EVENT_MAX = 16
 /** detik hitung mundur sebelum GO (dihitung di tiap HP sejak phaseId berubah) */
 export const COUNTDOWN = 4
-/** setelah kart pemain pertama finish, sisa waktu sebelum balapan ditutup host */
-export const FINISH_GRACE = 25
+/** batas aman setelah pemain pertama finish, kalau ada yang putus koneksi (detik) */
+export const FINISH_GRACE = 180
+/** setelah semua pemain finish, bot yang masih di jalan ditunggu selama ini (detik) */
+export const BOT_GRACE = 20
 
 export function defaultOptions(players = 2): KartOptions {
   return { players, course: 'daun', laps: 3, bots: true, level: 'normal' }

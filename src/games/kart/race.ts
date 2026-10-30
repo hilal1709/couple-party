@@ -7,15 +7,15 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import type { LiveChannel, Seat } from '../types'
 import { CHARACTERS, LEVEL_INFO, statsFor, type Stats } from './data'
-import { COUNTDOWN, FINISH_GRACE, humansDone } from './engine'
+import { BOT_GRACE, COUNTDOWN, FINISH_GRACE, humansDone } from './engine'
 import { loadModels, makeKart, placed, withVariants, type KartRig } from './render/models'
 import { DRIFT_COLORS, DUST, Particles } from './render/particles'
 import { initialTier, TIERS, type Quality, type Tier } from './render/quality'
 import { Skids } from './render/skids'
 import { buildWorld, type World } from './render/world'
 import { botInput, newBrain, type BotBrain } from './sim/bots'
-import { BOX_RESPAWN, blockPush, entityPose, hazardContact, onPad } from './sim/hazards'
-import { bounce, collide, driftLevel, hitKart, spawnKart, stepKart, type Input, type Kart } from './sim/physics'
+import { BOX_RESPAWN, blockPush, entityPose, hazardContact, onPad, ownerSafe } from './sim/hazards'
+import { bounce, collide, driftLevel, hitKart, magnetPull, spawnKart, stepKart, type Input, type Kart } from './sim/physics'
 import { buildTrack, pointAt, type Track } from './sim/track'
 import { TRACKS } from './tracks'
 import type { Entity, KartAction, KartState } from './types'
@@ -117,7 +117,8 @@ type Opts = {
   live?: LiveChannel
   act: (a: KartAction) => void
   onHud: (h: Hud) => void
-  onSound: (s: Sound, info?: { rate?: number; volume?: number }) => void
+  /** `noFx`: kejadian dunia yang tidak menyangkut kart sendiri, jadi tanpa efek layar */
+  onSound: (s: Sound, info?: { rate?: number; volume?: number; noFx?: boolean }) => void
   /** tingkat grafis turun otomatis */
   onQuality?: (q: Quality) => void
 }
@@ -153,6 +154,7 @@ export class Race {
   private rolling = new Map<number, number>()
   private botItemT = new Map<number, number>()
   private firstFinishAt = 0
+  private humansDoneAt = 0
   private ended = false
   private wrongT = 0
   private countShown = 99
@@ -165,6 +167,9 @@ export class Race {
   private fpsT = 0
   private fpsN = 0
   private ratio: number
+  /** ukuran canvas diganti tepat sebelum render, karena mengubahnya mengosongkan layar */
+  private sizeDirty = true
+  private contextLost = false
   private tier: Tier
   private composer: EffectComposer | null = null
   private particles!: Particles
@@ -215,6 +220,12 @@ export class Race {
       else this.remotes.set(i, { buf: [] })
       if (r.seat === null) this.brains.set(i, newBrain(i * 7919 + 13))
     })
+    // masuk balapan yang sudah jalan (muat ulang): benda & kejadian lama jangan diputar lagi
+    const start = performance.now()
+    for (const e of o.state.entities) this.born.set(e.id, start - 60_000)
+    for (const ev of o.state.events) this.seenEvents = Math.max(this.seenEvents, ev.id)
+    o.canvas.addEventListener('webglcontextlost', this.onContextLost)
+    o.canvas.addEventListener('webglcontextrestored', this.onContextRestored)
     this.stopLive = o.live?.on((d) => this.onLive(d))
     // dev: taruh kart sendiri di jarak tertentu (?at=meter) untuk memotret bagian lintasan
     const at = import.meta.env.DEV ? Number(new URLSearchParams(location.search).get('at')) : 0
@@ -264,8 +275,9 @@ export class Race {
       this.meshes.push(m)
       this.world.scene.add(m)
     })
+    this.fitFar()
     this.setupPost()
-    this.resize()
+    this.applySize()
     this.placeCamera(true)
     this.startAt = performance.now()
     this.goAt = this.startAt + (INTRO + COUNTDOWN) * 1000
@@ -275,8 +287,7 @@ export class Race {
 
   /** bloom + tone mapping akhir + FXAA (grafis Sedang/Tinggi) */
   private setupPost() {
-    this.composer?.dispose()
-    this.composer = null
+    this.dropPost()
     if (!this.tier.post) return
     const night = this.t.def.theme.night
     const c = new EffectComposer(this.renderer)
@@ -292,11 +303,22 @@ export class Race {
     this.composer = c
   }
 
+  /** Hemat: benda di balik kabut tidak perlu digambar sama sekali */
+  private fitFar() {
+    this.camera.far = this.tier.q === 'low' ? (this.world.scene.fog as THREE.Fog).far + 60 : 4000
+    this.camera.updateProjectionMatrix()
+  }
+
+  private dropPost() {
+    this.composer?.passes.forEach((p) => p.dispose())
+    this.composer?.dispose()
+    this.composer = null
+  }
+
   /** ganti tingkat grafis saat balapan (dari panel pengaturan atau turun otomatis) */
   setQuality(q: Quality) {
     this.tier = TIERS[q]
     this.ratio = Math.min(this.tier.ratio, window.devicePixelRatio || 1)
-    this.renderer.setPixelRatio(this.ratio)
     this.renderer.shadowMap.enabled = this.tier.shadow > 0
     if (this.world) {
       const sun = this.world.sun
@@ -308,20 +330,45 @@ export class Race {
         const m = o as THREE.Mesh
         if (m.isMesh && m.material) (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => (mt.needsUpdate = true))
       })
+      this.world.setTier(this.tier)
+      this.fitFar()
       this.setupPost()
     }
     this.resize()
   }
 
+  /** ukuran baru dipasang di bingkai berikutnya, sesaat sebelum menggambar */
   resize() {
+    this.sizeDirty = true
+  }
+
+  private applySize() {
+    this.sizeDirty = false
     const c = this.o.canvas
     const w = c.clientWidth || window.innerWidth
     const h = c.clientHeight || window.innerHeight
+    this.renderer.setPixelRatio(this.ratio)
     this.renderer.setSize(w, h, false)
     this.composer?.setPixelRatio(this.ratio)
     this.composer?.setSize(w, h)
     this.camera.aspect = w / h
     this.camera.updateProjectionMatrix()
+  }
+
+  private onContextLost = (e: Event) => {
+    e.preventDefault()
+    this.contextLost = true
+  }
+
+  /** three.js mengunggah ulang aset sendiri; yang hasil render (langit, bloom, bayangan) dibuat lagi */
+  private onContextRestored = () => {
+    this.contextLost = false
+    if (!this.world) return
+    this.world.restore(this.renderer)
+    this.world.sun.shadow.map?.dispose()
+    this.world.sun.shadow.map = null
+    this.setupPost()
+    this.resize()
   }
 
   /** state baru dari host: item, benda, kejadian */
@@ -432,8 +479,9 @@ export class Race {
       steps++
     }
     if (steps === 5) this.acc = 0
-    this.render(now, frame)
     this.adapt(frame)
+    if (this.sizeDirty) this.applySize()
+    this.render(now, frame)
   }
 
   private raceTime(now: number) {
@@ -504,6 +552,7 @@ export class Race {
       this.prog[i] = (this.crossed[i] - 1) * this.t.length + k.s
 
       if (!go) continue
+      if (k.magnetT > 0) this.pullMagnet(i, k, ranks, now)
       // panel turbo
       if (onPad(this.t, k.s, k.lateral) && k.boostT < 0.6) {
         k.boostT = 1
@@ -538,10 +587,7 @@ export class Race {
       }
       // kotak item
       for (const b of this.world.boxes) {
-        if (now < b.hiddenUntil) continue
-        if ((b.x - k.x) ** 2 + (b.z - k.z) ** 2 > 2.6 ** 2 || Math.abs(b.y - k.y - 1.4) > 3) continue
-        b.hiddenUntil = now + BOX_RESPAWN * 1000
-        this.boxBurst(b.x, b.y, b.z)
+        if (!this.takeBox(b, k, now)) continue
         if (!s.items[i] && !this.rolling.has(i) && s.times[i] === null) {
           this.rolling.set(i, now)
           this.o.act({ type: 'box', racer: i, rank: ranks.indexOf(i) })
@@ -562,6 +608,11 @@ export class Race {
       }
     }
 
+    // kart HP lain: kotaknya pecah juga di layar ini
+    if (go) {
+      for (const i of this.remotes.keys()) for (const b of this.world.boxes) this.takeBox(b, this.karts[i], now)
+    }
+
     // kart sendiri: deteksi salah arah
     if (this.mine >= 0 && go) {
       const k = this.karts[this.mine]
@@ -571,14 +622,33 @@ export class Race {
 
     // host menutup balapan
     if (this.o.seat === 0 && !this.ended && s.phase === 'race') {
-      const grace = this.firstFinishAt && now - this.firstFinishAt > FINISH_GRACE * 1000
-      if (humansDone(s) || grace) {
+      if (humansDone(s) && !this.humansDoneAt) this.humansDoneAt = now
+      const lost = this.firstFinishAt && now - this.firstFinishAt > FINISH_GRACE * 1000
+      const botsLate = this.humansDoneAt && now - this.humansDoneAt > BOT_GRACE * 1000
+      if (lost || botsLate) {
         this.ended = true
         const rest = ranks.filter((i) => s.times[i] === null)
         this.o.act({ type: 'end', rest })
       }
     }
     if (s.times.some((t, i) => t !== null && s.racers[i].seat !== null) && !this.firstFinishAt) this.firstFinishAt = now
+  }
+
+  /** kart menyentuh kotak yang sedang ada: kotak pecah dan muncul lagi nanti */
+  private takeBox(b: World['boxes'][number], k: Kart, now: number) {
+    if (now < b.hiddenUntil) return false
+    if ((b.x - k.x) ** 2 + (b.z - k.z) ** 2 > 2.6 ** 2 || Math.abs(b.y - k.y - 1.4) > 3) return false
+    b.hiddenUntil = now + BOX_RESPAWN * 1000
+    this.boxBurst(b.x, b.y, b.z)
+    return true
+  }
+
+  /** magnet: kart ditarik ke lawan tepat di depannya */
+  private pullMagnet(i: number, k: Kart, ranks: number[], now: number) {
+    const j = ranks[ranks.indexOf(i) - 1]
+    if (j === undefined) return
+    const target = this.local.has(j) ? this.karts[j] : this.remotePose(j, now)
+    if (target && magnetPull(k, target, DT) && Math.random() < DT * 40) this.particles?.emit('spark', k.x, k.y + 1, k.z, (target.x - k.x) * 0.4, 1, (target.z - k.z) * 0.4, '#7fd0ff')
   }
 
   private ensureBrain(i: number) {
@@ -593,16 +663,15 @@ export class Race {
     const age = (now - (this.born.get(e.id) ?? now)) / 1000
     const p = entityPose(this.t, e, age)
     if (!p || !p.live) return
-    if (e.by === i && age < 1.2) return
+    if (ownerSafe(e, i, age)) return
     if ((p.x - k.x) ** 2 + (p.z - k.z) ** 2 > (p.r + 1.3) ** 2 || Math.abs(p.y - k.y) > 4) return
     this.handled.add(key)
     const shielded = k.shieldT > 0
     const hit = hitKart(k, e.kind === 'petasan' ? 1.5 : 1.15)
-    if (e.kind === 'petasan') k.vy = 9
     if (hit) this.particles?.burst('star', 12, k.x, k.y + 2.5, k.z, 0, 3, 0, 8, ['#ffcc1f', '#fff4fa', '#ff37a6'])
     if (hit && i === this.mine) this.shake = e.kind === 'petasan' ? 1.4 : 0.8
     if (hit || shielded) this.o.act({ type: 'hit', racer: i, id: e.id })
-    if (i === this.mine) this.o.onSound(shielded ? 'shield' : e.kind === 'petasan' ? 'blast' : 'hit')
+    if (i === this.mine && (hit || shielded)) this.o.onSound(shielded ? 'shield' : e.kind === 'petasan' ? 'blast' : 'hit')
   }
 
   /** pose kart HP lain yang diinterpolasi */
@@ -635,7 +704,7 @@ export class Race {
 
   private render(now: number, frame: number) {
     const time = this.raceTime(now)
-    this.world.update(time, now)
+    this.world.update(time, now, this.camPos)
     const poses: Pose[] = []
     this.karts.forEach((k, i) => {
       const m = this.meshes[i]
@@ -687,7 +756,9 @@ export class Race {
     SHIELD_MAT.uniforms.time.value = now / 1000
     this.placeCamera(false, frame)
     this.followSun()
-    if (this.composer) this.composer.render(frame)
+    if (this.contextLost) {
+      // tunggu context kembali; simulasi & pengiriman pose tetap jalan
+    } else if (this.composer) this.composer.render(frame)
     else this.renderer.render(this.world.scene, this.camera)
 
     // hitung mundur: lampu gerbang menyala satu per satu lalu hijau
@@ -998,7 +1069,11 @@ export class Race {
         if (!blast && age < 0.8 && Math.random() < dt * 50) p0.emit('spark', p.x, p.y + 1.2, p.z, (Math.random() - 0.5) * 4, 3, (Math.random() - 0.5) * 4, '#ffcc1f', 0.8)
         if (blast && !this.handled.has(`snd${e.id}`)) {
           this.handled.add(`snd${e.id}`)
-          this.o.onSound('blast', { volume: 0.6 })
+          // ledakan di kejauhan: bunyinya mengecil, tanpa efek layar (efek "kena" hanya dari checkEntity)
+          const mine = this.karts[Math.max(0, this.mine)]
+          const far = Math.hypot(mine.x - p.x, mine.z - p.z)
+          if (far < 160) this.o.onSound('blast', { volume: 0.6 * (1 - far / 160), noFx: true })
+          if (far < 40) this.shake = Math.max(this.shake, 0.6 * (1 - far / 40))
           p0.burst('fire', 40, p.x, p.y + 1, p.z, 0, 4, 0, 22, ['#ff8a1c', '#ffcc1f', '#ff3b5c'], 2.2)
           p0.burst('smoke', 22, p.x, p.y + 1.5, p.z, 0, 3, 0, 10, ['#8a8090', '#c8c0d0'], 2.4)
           p0.burst('spark', 30, p.x, p.y + 1, p.z, 0, 8, 0, 26, ['#ffffff', '#ffcc1f', '#ff37a6'])
@@ -1008,8 +1083,6 @@ export class Race {
           ring.userData.born = now
           this.fxGroup.add(ring)
           this.rings.push(ring)
-          const mine = this.karts[Math.max(0, this.mine)]
-          if ((mine.x - p.x) ** 2 + (mine.z - p.z) ** 2 < 40 ** 2) this.shake = Math.max(this.shake, 0.6)
         }
       }
     }
@@ -1092,11 +1165,12 @@ export class Race {
     if (fps >= 40) return
     if (this.ratio > 1) {
       this.ratio = Math.max(1, this.ratio - 0.25)
-      this.renderer.setPixelRatio(this.ratio)
       this.resize()
     } else if (this.tier.q !== 'low') {
-      // masih lambat: turunkan tingkat grafis satu langkah
+      // masih lambat: turunkan tingkat grafis satu langkah, resolusi jangan naik lagi
+      const ratio = this.ratio
       this.setQuality(this.tier.q === 'high' ? 'med' : 'low')
+      this.ratio = Math.min(this.ratio, ratio)
       this.o.onQuality?.(this.tier.q)
     }
   }
@@ -1105,17 +1179,18 @@ export class Race {
     this.disposed = true
     cancelAnimationFrame(this.raf)
     this.stopLive?.()
+    this.o.canvas.removeEventListener('webglcontextlost', this.onContextLost)
+    this.o.canvas.removeEventListener('webglcontextrestored', this.onContextRestored)
     this.particles?.dispose()
     this.skids?.dispose()
-    this.composer?.dispose()
-    this.world?.scene.traverse((o) => {
-      const m = o as THREE.Mesh
-      if (m.isMesh) {
-        m.geometry?.dispose()
-        const mats = Array.isArray(m.material) ? m.material : [m.material]
-        mats.forEach((mt) => mt?.dispose())
-      }
-    })
+    this.dropPost()
+    this.world?.dispose()
     this.renderer.dispose()
+    // tiap balapan memakai canvas baru; context lama dilepas supaya tidak menumpuk sampai batas browser.
+    // canvas yang masih terpasang dipakai lagi (StrictMode), jadi context-nya jangan dimatikan
+    const { canvas } = this.o
+    setTimeout(() => {
+      if (!canvas.isConnected) this.renderer.forceContextLoss()
+    })
   }
 }

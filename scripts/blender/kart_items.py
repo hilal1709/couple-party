@@ -155,12 +155,15 @@ def sambal(x=0.0):
 
 
 def magnet():
+    # tapal kuda bentuk U (bukan cincin utuh): ujung perak menghadap atas, kilat biru di antara kutubnya
     red = pbr('#ff3b5c', 0.3, coat=0.8)
-    arc = torus((0, 0, 0.75), 0.42, 0.17, red, rot=(math.radians(90), 0, 0))
-    legs = [cyl((s * 0.42, 0, 0.42), 0.17, 0.5, red, verts=20) for s in (-1, 1)]
-    tips = [cyl((s * 0.42, 0, 0.12), 0.175, 0.2, pbr('#e8e8f0', 0.2, metal=0.9), verts=20) for s in (-1, 1)]
-    sparks = [cyl((s * 0.42, 0, -0.15), 0.02, 0.25, pbr('#7fd0ff', 0.2, emit=4), rot=(0, s * 0.4, 0), verts=6) for s in (-1, 1)]
-    return [arc, *legs, *tips, *sparks]
+    w, h, r = 0.5, 0.42, 0.2
+    bend = [(math.cos(math.pi + k / 16 * math.pi) * w, 0, 0.5 + math.sin(math.pi + k / 16 * math.pi) * w) for k in range(17)]
+    body = tube([(-w, 0, 0.5 + h), *bend, (w, 0, 0.5 + h)], r, red, res=3)
+    tips = [cyl((s * w, 0, 0.5 + h + 0.14), r + 0.015, 0.3, pbr('#f4f4fa', 0.2, metal=0.9), verts=20) for s in (-1, 1)]
+    bolt = pbr('#2f7bff', 0.2, emit=3)
+    sparks = [cyl((s * w + a * 0.2, 0, 0.5 + h + 0.48), 0.04, 0.26, bolt, rot=(0, a * 0.45, 0), verts=8) for s in (-1, 1) for a in (-1, 0, 1)]
+    return [body, *tips, *sparks]
 
 
 # ---------------------------------------------------------------------------
@@ -322,7 +325,7 @@ ICON = {
     'item-sambal': (lambda: sambal(), 1.8, (0, 0, 0.7)),
     'item-sambal3': (lambda: [*sambal(-0.55), *sambal(0), *sambal(0.55)], 2.4, (0, 0, 0.7)),
     'item-awan': (awan, 2.6, (0, 0, 0.1)),
-    'item-magnet': (magnet, 1.8, (0, 0, 0.55)),
+    'item-magnet': (magnet, 2.3, (0, 0, 0.75)),
     'item-petasan': (petasan, 2.6, (0, 0, 1.0)),
 }
 
