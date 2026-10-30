@@ -24,7 +24,7 @@ function deduce(s: SpyState, level: BotLevel, rnd: () => number): { text: string
 }
 
 /** Bahan petunjuk untuk kursi ini; kursi tanpa kata hanya bisa menirukan arah pembicaraan. */
-function cluePool(s: SpyState, seat: Seat, level: BotLevel, rnd: () => number): string[] {
+function cluePool(s: SpyState, seat: Seat, level: BotLevel, rnd: () => number, fresh: (c: string) => boolean): string[] {
   const secret = s.secret[seat]
   if (s.opts.mode === 'lokasi') {
     if (secret) return LOCATION_CLUES[secret] ?? []
@@ -37,13 +37,14 @@ function cluePool(s: SpyState, seat: Seat, level: BotLevel, rnd: () => number): 
   const k = WORD_CLUES.get(normalize(secret))
   if (!k) return []
   // putaran pertama cukup samar; makin lama makin spesifik. Gampang langsung kebablasan.
-  return level === 1 || s.cycle > 1 ? [...k.own, ...k.shared] : k.shared
+  const vague = k.shared.filter(fresh)
+  return level === 1 || s.cycle > 1 || !vague.length ? [...k.own, ...k.shared] : vague
 }
 
 export function pickClue(s: SpyState, seat: Seat, level: BotLevel, rnd: () => number): string {
   const said = s.clues.map((c) => c.text)
   const fresh = (c: string) => !same(said, c) && !clueProblem(s, seat, c)
-  const pool = cluePool(s, seat, level, rnd).filter(fresh)
+  const pool = cluePool(s, seat, level, rnd, fresh).filter(fresh)
   if (pool.length) return pickOne(pool, rnd)
   const safe = GENERIC_CLUES.filter(fresh)
   return pickOne(safe.length ? safe : GENERIC_CLUES, rnd)

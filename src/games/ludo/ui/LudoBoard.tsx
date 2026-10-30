@@ -283,7 +283,7 @@ export function LudoBoard({ state: s, seat, names, online, act, exit }: Props) {
             <div ref={diceRef} className="relative">
               {diceFx > 0 && (
                 <Lottie
-                  key={diceFx}
+                  key={`fx-${diceFx}`}
                   src={diceRoll}
                   autoplay
                   loop={false}

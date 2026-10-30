@@ -163,9 +163,9 @@ const cases: Case[] = [
 describe('semua kursi bot: game selalu tamat', () => {
   for (const c of cases) {
     for (const level of LEVELS) {
-      it(`${c.name}, level ${level}`, () => {
+      it(`${c.name}, level ${level}`, { timeout: 60000 }, () => {
         for (const seed of [11, 222]) expect(simulate(c, level, seed).steps).toBeGreaterThan(0)
-      }, 60000)
+      })
     }
   }
 })

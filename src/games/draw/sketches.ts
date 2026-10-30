@@ -50,7 +50,7 @@ const RAW: Record<string, { level: Level; lines: Line[] }> = {
   },
   rumah: {
     level: 1,
-    lines: [box(280, 330, 440, 320), line(PINK, 230, 335, 500, 120, 770, 335, 230, 335), scribble(290, 330, 420, 0, PINK), box(450, 470, 100, 180, BROWN), box(320, 400, 90, 90, BLUE), box(590, 400, 90, 90, BLUE), line(INK, 620, 230, 620, 140, 670, 140, 670, 270)],
+    lines: [box(280, 330, 440, 320), line(PINK, 230, 335, 500, 120, 770, 335, 230, 335), box(450, 470, 100, 180, BROWN), box(320, 400, 90, 90, BLUE), box(590, 400, 90, 90, BLUE), line(INK, 620, 230, 620, 140, 670, 140, 670, 270)],
   },
   mobil: {
     level: 1,
@@ -168,14 +168,27 @@ export const SKETCH_WORDS: Sketch[] = Object.entries(RAW).map(([word, s]) => ({ 
 
 /** Panjang satu potongan coretan, supaya gambar muncul sedikit-sedikit seperti digambar tangan. */
 const CHUNK = 12
+/** Jarak titik di garis lurus: kanvas menghaluskan coretan, tanpa titik rapat sudutnya jadi membulat. */
+const GAP = 70
+
+function dense(pts: number[]): number[] {
+  const out = pts.slice(0, 2)
+  for (let i = 2; i < pts.length; i += 2) {
+    const [ax, ay, bx, by] = pts.slice(i - 2, i + 2)
+    const steps = Math.max(1, Math.round(Math.hypot(bx - ax, by - ay) / GAP))
+    for (let k = 1; k <= steps; k++) out.push(Math.round(ax + ((bx - ax) * k) / steps), Math.round(ay + ((by - ay) * k) / steps))
+  }
+  return out
+}
 
 /** Sketsa sebagai deretan Stroke siap kirim; satu goresan bisa jadi beberapa potongan bernomor `g` sama. */
 export function sketchStrokes(word: string): Stroke[] {
   const lines = RAW[word]?.lines ?? []
   return lines.flatMap((l, g) => {
+    const pts = dense(l.pts)
     const out: Stroke[] = []
-    for (let i = 0; i + 2 < l.pts.length; i += CHUNK - 2) {
-      out.push({ g, c: l.c, w: l.w ?? 1, pts: l.pts.slice(i, i + CHUNK) })
+    for (let i = 0; i + 2 < pts.length; i += CHUNK - 2) {
+      out.push({ g, c: l.c, w: l.w ?? 1, pts: pts.slice(i, i + CHUNK) })
     }
     return out
   })

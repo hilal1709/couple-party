@@ -306,7 +306,7 @@ export function MonopolyBoard({ state: s, seat, names, online, act, exit }: Prop
             <div ref={diceRef} className="relative flex gap-1">
               {diceFx > 0 && (
                 <Lottie
-                  key={diceFx}
+                  key={`fx-${diceFx}`}
                   src={diceRoll}
                   autoplay
                   loop={false}

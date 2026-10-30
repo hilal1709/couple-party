@@ -272,8 +272,8 @@ describe('simulasi acak: game berjalan tanpa macet', () => {
         expect(s.winner).not.toBeNull()
       }
     })
-    it(`${n} pemain · sampai bangkrut (tanpa macet)`, () => {
+    it(`${n} pemain · sampai bangkrut (tanpa macet)`, { timeout: 20000 }, () => {
       for (const seed of [4, 5]) simulate(n, seed * 13 + n, { end: 'bankrupt', freeParking: seed % 2 === 0, auction: seed % 2 === 1 })
-    }, 20000)
+    })
   }
 })

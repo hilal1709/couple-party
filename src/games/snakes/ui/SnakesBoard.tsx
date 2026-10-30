@@ -268,7 +268,7 @@ export function SnakesBoard({ state: s, seat, names, online, act, exit }: Props)
             <div ref={diceRef} className="relative flex gap-1.5">
               {diceFx > 0 && (
                 <Lottie
-                  key={diceFx}
+                  key={`fx-${diceFx}`}
                   src={diceRoll}
                   autoplay
                   loop={false}
