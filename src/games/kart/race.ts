@@ -15,7 +15,8 @@ import { Skids } from './render/skids'
 import { buildWorld, type World } from './render/world'
 import { botInput, newBrain, type BotBrain } from './sim/bots'
 import { BOX_RESPAWN, blockPush, entityPose, hazardContact, onPad, ownerSafe } from './sim/hazards'
-import { bounce, collide, driftLevel, hitKart, magnetPull, spawnKart, stepKart, type Input, type Kart } from './sim/physics'
+import { bounce, collide, driftLevel, hitKart, isShielded, magnetPull, rainKart, spawnKart, stepKart, type Input, type Kart } from './sim/physics'
+import { hermite, syncClock } from './sim/interp'
 import { buildTrack, pointAt, type Track } from './sim/track'
 import { TRACKS } from './tracks'
 import type { Entity, KartAction, KartState } from './types'
@@ -24,7 +25,8 @@ const DT = 1 / 60
 /** detik kamera intro menyusuri lintasan sebelum hitung mundur (sama di semua HP) */
 const INTRO = 4.5
 const SEND_EVERY = 0.1
-const INTERP_DELAY = 130
+/** kart HP lain ditampilkan selambat ini (ms): cukup untuk dua paket + jitter jaringan */
+const INTERP_DELAY = 200
 
 export type Hud = {
   /** detik tersisa hitung mundur (≤ 0 = sudah jalan) */
@@ -52,7 +54,7 @@ export type Sound = 'go' | 'count' | 'lap' | 'final' | 'boost' | 'drift' | 'hit'
 
 export type Controls = Input & { item: boolean }
 
-type Remote = { buf: { t: number; p: number[] }[] }
+type Remote = { buf: { t: number; p: number[] }[]; off: number | null }
 
 /** pose ringkas yang dikirim ke HP lain: [kart, x, y, z, yaw, kecepatan, slide, flags, kemajuan, setir] */
 type Pose = [number, number, number, number, number, number, number, number, number, number]
@@ -144,6 +146,8 @@ export class Race {
   private startAt = performance.now()
   private goAt: number
   private acc = 0
+  /** pose kart lokal sebelum tick terakhir: layar menggambar di antara dua tick */
+  private before = new Map<number, { x: number; y: number; z: number; yaw: number }>()
   private sendAcc = 0
   private hudAcc = 0
   private raf = 0
@@ -217,7 +221,7 @@ export class Race {
       this.stats.push(statsFor(r.char, r.body))
       const local = i === this.mine || (r.seat === null && o.seat === 0)
       if (local) this.local.add(i)
-      else this.remotes.set(i, { buf: [] })
+      else this.remotes.set(i, { buf: [], off: null })
       if (r.seat === null) this.brains.set(i, newBrain(i * 7919 + 13))
     })
     // masuk balapan yang sudah jalan (muat ulang): benda & kejadian lama jangan diputar lagi
@@ -381,14 +385,17 @@ export class Race {
       this.seenEvents = Math.max(this.seenEvents, ev.id)
       if (ev.kind === 'awan') {
         const ranks = this.ranks()
+        const now = performance.now()
+        const dry = new Set<number>()
         for (const i of this.local) {
           if (i !== ev.by && ranks.indexOf(i) < ranks.indexOf(ev.by) && this.state.times[i] === null) {
-            this.karts[i].slowT = 4
-            if (i === this.mine) this.o.onSound('rain')
+            const wet = rainKart(this.karts[i])
+            if (!wet) dry.add(i)
+            if (i === this.mine) this.o.onSound(wet ? 'rain' : 'shield')
           }
         }
-        // semua HP menampilkan awan di atas kart yang kena
-        ranks.slice(0, ranks.indexOf(ev.by)).forEach((i) => this.showCloud(i))
+        // semua HP menampilkan awan di atas kart yang kena; perisai menahannya
+        ranks.slice(0, ranks.indexOf(ev.by)).filter((i) => !dry.has(i) && !((this.remotePose(i, now)?.flags ?? 0) & F_SHIELD)).forEach((i) => this.showCloud(i))
       }
     }
     // kotak item: begitu item datang, mainkan bunyi
@@ -398,13 +405,16 @@ export class Race {
   private lastItem: KartState['items'][number] = null
 
   private onLive(d: unknown) {
-    const m = d as { p?: Pose[] }
+    const m = d as { p?: Pose[]; at?: number }
     if (!m.p) return
     const now = performance.now()
+    const at = m.at ?? now
     for (const p of m.p) {
       const r = this.remotes.get(p[0])
       if (!r) continue
-      r.buf.push({ t: now, p })
+      r.off = syncClock(r.off, now - at)
+      const last = r.buf[r.buf.length - 1]
+      r.buf.push({ t: Math.max(at + r.off, last ? last.t + 1 : 0), p })
       if (r.buf.length > 12) r.buf.shift()
       this.prog[p[0]] = p[8]
     }
@@ -474,6 +484,10 @@ export class Race {
     this.acc += frame
     let steps = 0
     while (this.acc >= DT && steps < 5) {
+      for (const i of this.local) {
+        const k = this.karts[i]
+        this.before.set(i, { x: k.x, y: k.y, z: k.z, yaw: k.yaw })
+      }
       this.tick(now)
       this.acc -= DT
       steps++
@@ -563,12 +577,15 @@ export class Race {
       if (hz === 'bounce' && !k.airborne) {
         bounce(k, 1)
         if (me) this.o.onSound('jump', { rate: 1.3 })
-      } else if (hz === 'hit' && hitKart(k, 1.2)) {
-        this.particles?.burst('star', 10, k.x, k.y + 2.5, k.z, 0, 3, 0, 7, ['#ffcc1f', '#fff4fa'])
-        if (me) {
-          this.o.onSound('hit')
-          this.shake = 0.8
-        }
+      } else if (hz === 'hit') {
+        const fresh = k.shieldT > 0
+        if (hitKart(k, 1.2)) {
+          this.particles?.burst('star', 10, k.x, k.y + 2.5, k.z, 0, 3, 0, 7, ['#ffcc1f', '#fff4fa'])
+          if (me) {
+            this.o.onSound('hit')
+            this.shake = 0.8
+          }
+        } else if (fresh && me) this.o.onSound('shield')
       }
       const push = blockPush(this.t, k.x, k.z)
       if (push) {
@@ -666,7 +683,7 @@ export class Race {
     if (ownerSafe(e, i, age)) return
     if ((p.x - k.x) ** 2 + (p.z - k.z) ** 2 > (p.r + 1.3) ** 2 || Math.abs(p.y - k.y) > 4) return
     this.handled.add(key)
-    const shielded = k.shieldT > 0
+    const shielded = isShielded(k)
     const hit = hitKart(k, e.kind === 'petasan' ? 1.5 : 1.15)
     if (hit) this.particles?.burst('star', 12, k.x, k.y + 2.5, k.z, 0, 3, 0, 8, ['#ffcc1f', '#fff4fa', '#ff37a6'])
     if (hit && i === this.mine) this.shake = e.kind === 'petasan' ? 1.4 : 0.8
@@ -694,12 +711,15 @@ export class Race {
       const p = b.p
       return { x: p[1] + Math.sin(p[4]) * p[5] * dt, y: p[2], z: p[3] + Math.cos(p[4]) * p[5] * dt, yaw: p[4], slide: p[6], flags: p[7], speed: p[5], steer: p[9] ?? 0 }
     }
-    const f = b.t === a.t ? 1 : (t - a.t) / (b.t - a.t)
+    const f = b.t === a.t ? 1 : Math.max(0, (t - a.t) / (b.t - a.t))
     let dy = b.p[4] - a.p[4]
     while (dy > Math.PI) dy -= Math.PI * 2
     while (dy < -Math.PI) dy += Math.PI * 2
     const L = (u: number, v: number) => u + (v - u) * f
-    return { x: L(a.p[1], b.p[1]), y: L(a.p[2], b.p[2]), z: L(a.p[3], b.p[3]), yaw: a.p[4] + dy * f, slide: L(a.p[6], b.p[6]), flags: b.p[7], speed: b.p[5], steer: b.p[9] ?? 0 }
+    const h = (b.t - a.t) / 1000
+    const x = hermite(a.p[1], Math.sin(a.p[4]) * a.p[5], b.p[1], Math.sin(b.p[4]) * b.p[5], f, h)
+    const z = hermite(a.p[3], Math.cos(a.p[4]) * a.p[5], b.p[3], Math.cos(b.p[4]) * b.p[5], f, h)
+    return { x, y: L(a.p[2], b.p[2]), z, yaw: a.p[4] + dy * f, slide: L(a.p[6], b.p[6]), flags: b.p[7], speed: b.p[5], steer: b.p[9] ?? 0 }
   }
 
   private render(now: number, frame: number) {
@@ -710,8 +730,16 @@ export class Race {
       const m = this.meshes[i]
       let x = k.x, y = k.y, z = k.z, yaw = k.yaw, slide = k.slide, flags = 0, speed = k.speed
       if (this.local.has(i)) {
-        flags = (k.drift ? F_DRIFT : 0) | (k.boostT > 0 ? F_BOOST : 0) | (k.spinT > 0 ? F_SPIN : 0) | (k.shieldT > 0 ? F_SHIELD : 0) | (k.airborne ? F_AIR : 0) | (k.slowT > 0 ? F_SLOW : 0) | (k.offroad ? F_OFF : 0) | (this.isBraking(i) ? F_BRAKE : 0)
+        flags = (k.drift ? F_DRIFT : 0) | (k.boostT > 0 ? F_BOOST : 0) | (k.spinT > 0 ? F_SPIN : 0) | (isShielded(k) ? F_SHIELD : 0) | (k.airborne ? F_AIR : 0) | (k.slowT > 0 ? F_SLOW : 0) | (k.offroad ? F_OFF : 0) | (this.isBraking(i) ? F_BRAKE : 0)
         poses.push([i, r2(x), r2(y), r2(z), r2(yaw), r2(speed), r2(slide), flags | (driftLevel(k) << 8), Math.round(this.prog[i]), r2(this.steers[i])])
+        const q = this.before.get(i)
+        if (q) {
+          const f = this.acc / DT
+          x = q.x + (x - q.x) * f
+          y = q.y + (y - q.y) * f
+          z = q.z + (z - q.z) * f
+          yaw = q.yaw + (yaw - q.yaw) * f
+        }
         if (k.fallT > 0) y -= (1.2 - k.fallT) * 6
       } else {
         const p = this.remotePose(i, now)
@@ -747,8 +775,8 @@ export class Race {
     // kirim pose ke HP lain
     this.sendAcc += frame
     if (this.o.live && this.sendAcc >= SEND_EVERY && poses.length) {
-      this.sendAcc = 0
-      this.o.live.send({ p: poses })
+      this.sendAcc = Math.min(this.sendAcc - SEND_EVERY, SEND_EVERY)
+      this.o.live.send({ p: poses, at: Math.round(now) })
     }
 
     this.renderEntities(now, frame)

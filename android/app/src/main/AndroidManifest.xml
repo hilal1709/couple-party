@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Unity minta API 25, app tetap API 24: game lain jalan, KartUnityPlugin menolak di bawah 25. -->
+    <uses-sdk tools:overrideLibrary="com.unity3d.player,androidx.games.framepacing" />
 
     <application
         android:allowBackup="true"
@@ -24,6 +28,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+        </activity>
+
+        <!-- Activity bawaan Unity memuat LAUNCHER dan akan menambah ikon kedua. -->
+        <activity android:name="com.unity3d.player.UnityPlayerActivity" tools:node="remove" />
+
+        <!-- Proses sendiri: Unity mematikan prosesnya saat keluar, WebView dan room tetap hidup. -->
+        <activity
+            android:name=".KartUnityActivity"
+            android:process=":unity"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
+            android:hardwareAccelerated="false"
+            android:screenOrientation="userLandscape"
+            android:theme="@style/UnityThemeSelector"
+            android:exported="false">
+            <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+            <meta-data android:name="notch_support" android:value="true" />
         </activity>
 
         <provider

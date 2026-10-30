@@ -26,5 +26,6 @@ dist-ssr
 CoupleParty.apk
 CoupleParty-*.apk
 release-notes.md
+android/unity-export/
 
 __pycache__/
