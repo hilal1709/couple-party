@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils'
 import { CATEGORIES, GAMES, entryById, playerRange, type Category, type GameEntry } from './games/registry'
 import type { BotLevel } from './games/types'
 import { hasOnline, store, type NetStatus, type Peer } from './net/transport'
+import { EmoteLayer } from './emote/EmoteLayer'
 import { MAX_ROOM, useRoom, type Pick, type SessionAction } from './net/useRoom'
 import { UpdateBanner } from './update/UpdateBanner'
 import { useMusic } from './audio/audio'
@@ -297,11 +298,12 @@ function useRoomToasts(players: Peer[], meId: string, pick: Pick | null | undefi
 }
 
 function Room({ me, room, onLeave }: { me: Peer; room: RoomInfo; onLeave: () => void }) {
-  const { session, online, dispatch, seat, net, queued, live } = useRoom(room.code, me, room.host, room.pick ?? null)
+  const { session, online, dispatch, seat, net, queued, live, emote } = useRoom(room.code, me, room.host, room.pick ?? null)
   const players = session?.players ?? []
   const onlineBySeat = players.map((p) => p.bot || online.some((o) => o.id === p.id))
   const game = entryById(session?.gameId ?? null)?.game ?? null
   const picked = entryById(session?.pick?.gameId ?? null)
+  const emotes = session && seat !== -1 && <EmoteLayer channel={emote} seat={seat} names={players.map((p) => p.name)} low={game?.emoteLow} />
   const inGame = Boolean(session && seat !== -1 && game)
   const isHost = seat === 0
   const humans = players.filter((p) => !p.bot).length
@@ -336,6 +338,7 @@ function Room({ me, room, onLeave }: { me: Peer; room: RoomInfo; onLeave: () => 
             live={live}
           />
         </Suspense>
+        {emotes}
       </>
     )
   }
@@ -474,6 +477,7 @@ function Room({ me, room, onLeave }: { me: Peer; room: RoomInfo; onLeave: () => 
         confirmLabel="Keluar"
         onConfirm={onLeave}
       />
+      {emotes}
     </main>
   )
 }
@@ -605,6 +609,7 @@ function PlayerList({ players, online, meSeat }: { players: Peer[]; online: bool
       {players.map((p, i) => (
         <li
           key={p.id}
+          data-seat={i}
           className={cn(
             'flex items-center gap-2 border-[3px] border-ink px-3 py-1.5 shadow-slab-sm',
             SEAT_TONES[i % SEAT_TONES.length],

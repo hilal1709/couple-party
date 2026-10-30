@@ -246,7 +246,7 @@ export function LudoBoard({ state: s, seat, names, online, act, exit }: Props) {
               const home = ps.filter((p) => p === F).length
               const out = ps.filter((p) => p >= 0 && p < F).length
               return (
-                <li key={i} className={cn('flex items-center gap-1.5 border-[3px] border-ink px-1.5 py-0.5', i === s.turn && s.phase !== 'end' ? 'bg-rose shadow-slab-sm' : 'bg-paper/90')}>
+                <li key={i} data-seat={i} className={cn('flex items-center gap-1.5 border-[3px] border-ink px-1.5 py-0.5', i === s.turn && s.phase !== 'end' ? 'bg-rose shadow-slab-sm' : 'bg-paper/90')}>
                   <SeatDot seat={i} size={14} />
                   <span className={cn('size-2 shrink-0 rounded-full border-2 border-ink', online[i] ? 'bg-electric' : 'bg-paper')} aria-label={online[i] ? 'online' : 'offline'} />
                   <span className="min-w-0 flex-1 truncate font-display text-[11px] uppercase leading-tight">

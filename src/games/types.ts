@@ -23,6 +23,12 @@ export type LiveChannel = {
   on: (cb: (d: unknown, from: Seat) => void) => () => void
 }
 
+/** Saluran emote: sifatnya sama dengan LiveChannel, isinya id dari katalog emote. */
+export type EmoteChannel = {
+  send: (id: string) => void
+  on: (cb: (id: string, from: Seat) => void) => () => void
+}
+
 /** 1 = gampang, 2 = sedang, 3 = susah */
 export type BotLevel = 1 | 2 | 3
 
@@ -55,6 +61,8 @@ export type GameDef<S, A, O = unknown> = {
   View: ComponentType<GameProps<S, A>>
   /** otak bot; kosong = game ini tidak memakai kursi bot */
   bot?: BotPolicy<S, A>
+  /** true = tombol emote di kiri bawah, bukan kiri tengah, kalau di sana ada kontrol game */
+  emoteLow?: boolean
 }
 
 /** Layar pengaturan game sebelum mulai (dipakai di Home sebelum room ada, dan di room saat ganti game). */

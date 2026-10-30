@@ -204,6 +204,7 @@ export function DrawBoard({ state: s, seat, names, online, act, exit }: Props) {
             {s.scores.map((pts, i) => (
               <li
                 key={i}
+                data-seat={i}
                 className={cn(
                   'flex items-center gap-1 border-2 border-ink px-1.5 py-px text-[11px] font-bold',
                   s.guessed.includes(i) ? 'bg-electric' : i === s.drawer ? 'bg-rose' : 'bg-paper',

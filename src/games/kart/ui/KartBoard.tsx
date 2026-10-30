@@ -211,7 +211,7 @@ function PickScreen({ s, seat, names, online, act, back }: { s: KartState; seat:
             .map((r, i) => ({ r, i }))
             .filter(({ r }) => r.seat !== null)
             .map(({ r, i }) => (
-              <li key={i} className={cn('flex items-center gap-1 border-2 border-ink px-1 py-0.5 text-[11px] font-bold', s.ready[r.seat!] ? 'bg-fern' : 'bg-paper', !online[r.seat!] && 'opacity-50')}>
+              <li key={i} data-seat={r.seat!} className={cn('flex items-center gap-1 border-2 border-ink px-1 py-0.5 text-[11px] font-bold', s.ready[r.seat!] ? 'bg-fern' : 'bg-paper', !online[r.seat!] && 'opacity-50')}>
                 <Portrait char={r.char} size={20} className="border-2" />
                 {names[r.seat!]} {s.ready[r.seat!] ? '✓' : '…'}
               </li>

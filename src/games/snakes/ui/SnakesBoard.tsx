@@ -233,6 +233,7 @@ export function SnakesBoard({ state: s, seat, names, online, act, exit }: Props)
             {s.pos.map((pos, i) => (
               <li
                 key={i}
+                data-seat={i}
                 className={cn(
                   'flex items-center gap-2 border-[3px] border-ink px-2 py-1',
                   i === s.turn && s.winner === null ? 'bg-rose shadow-slab-sm' : 'bg-paper/90',

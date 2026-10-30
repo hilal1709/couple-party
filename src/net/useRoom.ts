@@ -1,7 +1,7 @@
 export type { Pick, Session, SessionAction } from './session'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { applyAction, MAX_ROOM, type Pick, type Session, type SessionAction } from './session'
-import type { LiveChannel, Seat } from '../games/types'
+import type { EmoteChannel, LiveChannel, Seat } from '../games/types'
 import { openTransport, store, type NetStatus, type Peer, type Transport } from './transport'
 import { useBots } from './useBots'
 
@@ -13,6 +13,8 @@ type Msg =
   | { t: 'act'; from: string; n: number; action: SessionAction }
   /** pesan game real-time (mis. posisi kart): tidak disimpan, tidak di-ack, tidak dikirim ulang */
   | { t: 'live'; from: string; d: unknown }
+  /** emote pemain: sifatnya sama dengan `live`, dipisah supaya tidak masuk ke listener game */
+  | { t: 'emote'; from: string; id: string }
 
 const storeKey = (code: string) => `couple-party:session:${code}`
 
@@ -37,6 +39,7 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
   const outbox = useRef<{ n: number; action: SessionAction }[]>([])
   const counter = useRef(Number(store.getItem(`couple-party:actn:${code}`) ?? 0))
   const liveCbs = useRef(new Set<(d: unknown, from: string) => void>())
+  const emoteCbs = useRef(new Set<(id: string, from: string) => void>())
 
   const commit = useCallback(
     (next: Session) => {
@@ -139,6 +142,10 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
         liveCbs.current.forEach((cb) => cb(m.d, m.from))
         return
       }
+      if (m.t === 'emote') {
+        emoteCbs.current.forEach((cb) => cb(m.id, m.from))
+        return
+      }
       if (isHost) {
         if (m.t === 'hello') t.send({ t: 'sync', session: sessionRef.current! } satisfies Msg)
         if (m.t === 'act') {
@@ -229,6 +236,21 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
     [me.id],
   )
 
+  const emote = useMemo<EmoteChannel>(
+    () => ({
+      send: (id) => tRef.current?.send({ t: 'emote', from: me.id, id } satisfies Msg),
+      on: (cb) => {
+        const wrapped = (id: string, from: string) => {
+          const seat = sessionRef.current?.players.findIndex((p) => p.id === from) ?? -1
+          if (seat !== -1) cb(id, seat)
+        }
+        emoteCbs.current.add(wrapped)
+        return () => void emoteCbs.current.delete(wrapped)
+      },
+    }),
+    [me.id],
+  )
+
   const hostSession = useCallback(() => (isHost ? sessionRef.current : null), [isHost])
   const actAsBot = useCallback(
     (id: string, action: SessionAction) => {
@@ -243,5 +265,5 @@ export function useRoom(code: string, me: Peer, isHost: boolean, initialPick: Pi
   useBots(session, hostSession, actAsBot)
 
   const seat = (session?.players.findIndex((p) => p.id === me.id) ?? -1) as Seat | -1
-  return { session: shown, online, dispatch, seat, net, queued, live }
+  return { session: shown, online, dispatch, seat, net, queued, live, emote }
 }

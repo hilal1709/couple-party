@@ -10,6 +10,7 @@ export const draw: GameDef<DrawState, DrawAction, DrawOptions> = {
   init,
   reduce,
   bot: drawBot,
+  emoteLow: true,
   // dimuat saat game dimulai saja, supaya menu terbuka cepat
   View: lazy(() => import('./ui/DrawBoard').then((m) => ({ default: m.DrawBoard }))),
 }
