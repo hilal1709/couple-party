@@ -11,6 +11,51 @@ const lobby = (players = [host, guest]): Session => ({
   rev: 0,
 })
 
+describe('applyAction: kursi bot', () => {
+  const solo = (gameId = 'ludo', options: unknown = {}): Session => ({ ...lobby([host]), pick: { gameId, options } })
+
+  it('host menambah bot lalu bisa mulai sendirian', () => {
+    const s = applyAction(solo(), { kind: 'addBot' }, 'h')
+    expect(s.players).toHaveLength(2)
+    expect(s.players[1].bot).toBe(true)
+    const started = applyAction(s, { kind: 'start' }, 'h', 3)
+    expect(started.gameId).toBe('ludo')
+    expect((started.game as { opts: { botSeats: number[] } }).opts.botSeats).toEqual([1])
+  })
+
+  it('tamu tidak bisa mengatur bot', () => {
+    const s = lobby()
+    expect(applyAction(s, { kind: 'addBot' }, 'g')).toBe(s)
+    expect(applyAction(s, { kind: 'botLevel', level: 3 }, 'g')).toBe(s)
+  })
+
+  it('nama bot tidak kembar dan berhenti di batas pemain mode', () => {
+    let s: Session = solo('remi', { mode: 'bigtwo' })
+    for (let i = 0; i < 8; i++) s = applyAction(s, { kind: 'addBot' }, 'h')
+    expect(s.players).toHaveLength(4)
+    expect(new Set(s.players.map((p) => p.name)).size).toBe(4)
+  })
+
+  it('removeBot melepas bot terakhir, tidak pernah manusia', () => {
+    let s = applyAction(lobby(), { kind: 'addBot' }, 'h')
+    s = applyAction(s, { kind: 'removeBot' }, 'h')
+    expect(s.players.map((p) => p.id)).toEqual(['h', 'g'])
+    expect(applyAction(s, { kind: 'removeBot' }, 'h')).toBe(s)
+  })
+
+  it('bot tidak bisa diubah saat game berjalan', () => {
+    const s = applyAction(applyAction(solo(), { kind: 'addBot' }, 'h'), { kind: 'start' }, 'h', 3)
+    expect(applyAction(s, { kind: 'addBot' }, 'h')).toBe(s)
+    expect(applyAction(s, { kind: 'removeBot' }, 'h')).toBe(s)
+  })
+
+  it('pindah ke Kart melepas kursi bot', () => {
+    const s = applyAction(applyAction(solo(), { kind: 'addBot' }, 'h'), { kind: 'pick', gameId: 'kart', options: {} }, 'h')
+    expect(s.players.map((p) => p.id)).toEqual(['h'])
+    expect(applyAction(s, { kind: 'addBot' }, 'h')).toBe(s)
+  })
+})
+
 describe('applyAction: pilih game dulu, room menyusul', () => {
   it('start memakai game pilihan host beserta jumlah pemain', () => {
     const s = applyAction(lobby(), { kind: 'start' }, 'h', 7)

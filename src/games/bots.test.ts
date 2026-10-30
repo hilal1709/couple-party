@@ -72,7 +72,36 @@ function simulate(c: Case, level: BotLevel, seed: number) {
   throw new Error(`${c.name} level ${level} seed ${seed} macet: ${JSON.stringify({ phase: s.phase, turn: s.turn, rejects })}`)
 }
 
+const nextRound = (s: Any) => (s.roundWinner !== null && s.gameWinner === null ? { type: 'nextRound' } : null)
+const nextOnRoundEnd = (s: Any) => (s.phase === 'roundEnd' ? { t: 'next' } : null)
+const ended = (s: Any) => s.phase === 'end'
+const house = { stacking: false, sevenZero: false, jumpIn: false, drawToMatch: false, forcePlay: false, noChallenge: false }
+
+const cardCases: Case[] = [
+  ...(['classic', 'flip', 'noMercy'] as const).flatMap((variant) => [
+    { name: `UNO ${variant} 2 pemain`, id: 'uno', n: 2, options: { variant, house, target: 200 }, over: (s: Any) => s.gameWinner !== null, host: nextRound },
+    { name: `UNO ${variant} 5 pemain`, id: 'uno', n: 5, options: { variant, house, target: 200 }, over: (s: Any) => s.gameWinner !== null, host: nextRound },
+  ]),
+  {
+    name: 'UNO semua aturan rumah',
+    id: 'uno',
+    n: 4,
+    options: { variant: 'classic', house: { ...house, stacking: true, sevenZero: true, drawToMatch: true, forcePlay: true }, target: 200 },
+    over: (s) => s.gameWinner !== null,
+    host: nextRound,
+  },
+  ...(['gaple', 'cangkul', 'lima', 'qiuqiu'] as const).flatMap((mode) => [
+    { name: `Domino ${mode} 2 pemain`, id: 'domino', n: 2, options: { mode, rounds: 3, hands: 5 }, over: ended, host: nextOnRoundEnd },
+    { name: `Domino ${mode} 4 pemain`, id: 'domino', n: 4, options: { mode, rounds: 3, hands: 5 }, over: ended, host: nextOnRoundEnd },
+  ]),
+  ...(['cangkulan', 'bigtwo', 'remi41', 'poker', 'joker', 'bohong', 'blackjack', 'seven'] as const).flatMap((mode) => [
+    { name: `Remi ${mode} 2 pemain`, id: 'remi', n: 2, options: { mode, rounds: 3, hands: 5 }, over: ended, host: nextOnRoundEnd },
+    { name: `Remi ${mode} 4 pemain`, id: 'remi', n: 4, options: { mode, rounds: 3, hands: 5 }, over: ended, host: nextOnRoundEnd },
+  ]),
+]
+
 const cases: Case[] = [
+  ...cardCases,
   { name: 'Ludo 2 pemain', id: 'ludo', n: 2, over: (s) => s.phase === 'end' },
   { name: 'Ludo tim 4 pemain + petak jahil', id: 'ludo', n: 4, options: { teams: true, specials: true }, over: (s) => s.phase === 'end' },
   { name: 'Ludo 8 pemain', id: 'ludo', n: 8, options: { arms: 8, pieces: 2 }, over: (s) => s.phase === 'end' },
