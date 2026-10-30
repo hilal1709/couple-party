@@ -29,6 +29,8 @@ export type SnakesOptions = {
   exact: boolean
   /** mundur berapa kotak kalau tolak/gagal tantangan */
   penalty: 3 | 5
+  /** kursi bot; diisi otomatis oleh room saat game dimulai */
+  botSeats?: Seat[]
 }
 
 export type Pending =

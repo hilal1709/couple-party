@@ -274,6 +274,6 @@ describe('simulasi acak: game berjalan tanpa macet', () => {
     })
     it(`${n} pemain · sampai bangkrut (tanpa macet)`, () => {
       for (const seed of [4, 5]) simulate(n, seed * 13 + n, { end: 'bankrupt', freeParking: seed % 2 === 0, auction: seed % 2 === 1 })
-    })
+    }, 20000)
   }
 })

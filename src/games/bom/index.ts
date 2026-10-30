@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import type { GameDef } from '../types'
+import { bomBot } from './bot'
 import { init, reduce } from './engine'
 import type { BomAction, BomOptions, BomState } from './types'
 
@@ -8,6 +9,7 @@ export const bom: GameDef<BomState, BomAction, BomOptions> = {
   title: 'Bom Waktu',
   init,
   reduce,
+  bot: bomBot,
   // dimuat saat game dimulai saja, supaya menu terbuka cepat
   View: lazy(() => import('./ui/BomBoard').then((m) => ({ default: m.BomBoard }))),
 }

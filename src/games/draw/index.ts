@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import type { GameDef } from '../types'
+import { drawBot } from './bot'
 import { init, reduce } from './engine'
 import type { DrawAction, DrawOptions, DrawState } from './types'
 
@@ -8,6 +9,7 @@ export const draw: GameDef<DrawState, DrawAction, DrawOptions> = {
   title: 'Tebak Gambar',
   init,
   reduce,
+  bot: drawBot,
   // dimuat saat game dimulai saja, supaya menu terbuka cepat
   View: lazy(() => import('./ui/DrawBoard').then((m) => ({ default: m.DrawBoard }))),
 }

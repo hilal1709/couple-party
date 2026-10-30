@@ -33,7 +33,8 @@ function proposal(s: MonopolyState, by: Seat, rnd: () => number): MonopolyAction
   })
   const sq = pick(wanted, rnd)
   if (sq === undefined) return null
-  const offer = Math.floor((priceOf(sq) * 1.6) / 10) * 10
+  // cukup mahal untuk diterima: pemilik melepas petak yang melengkapi komplek lawan
+  const offer = Math.floor((priceOf(sq) * 2.4) / 10) * 10
   if (offer > s.cash[by] - 150) return null
   return { type: 'propose', trade: { to: s.owner[sq]!, give: [], get: [sq], giveCash: offer, getCash: 0 } }
 }
@@ -71,7 +72,7 @@ export function decide(s: MonopolyState, by: Seat, rnd: () => number, level: Bot
       const un = mine.filter((sq) => canUnmortgage(s, by, sq) && cash > 500)
       if (un.length && rnd() < 0.3) return { type: 'unmortgage', sq: un[0] }
       if (s.phase === 'done') {
-        const offer = level > 1 && s.opts.trade && !s.trade && rnd() < 0.15 ? proposal(s, by, rnd) : null
+        const offer = s.opts.trade && !s.trade && rnd() < 0.15 ? proposal(s, by, rnd) : null
         return offer ?? { type: 'endTurn' }
       }
       if (s.jail[by] >= 0 && s.jailCards[by].length) return { type: 'jailCard' }
