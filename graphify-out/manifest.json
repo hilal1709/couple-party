@@ -24,15 +24,15 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1793090273.6166615,
-    "seen": 1793092614.359392,
-    "ast_hash": "64b9ecd4ca7f606675f4c44b91b600ff",
+    "mtime": 1793370821.0221741,
+    "seen": 1793372760.1143234,
+    "ast_hash": "d1e37248db91969400ccc8129aac3aab",
     "semantic_hash": ""
   },
   "scripts/apk.mjs": {
-    "mtime": 1792000765.591946,
-    "seen": 1793089435.2146358,
-    "ast_hash": "aa06c05811474a392e675863e7c06f9c",
+    "mtime": 1793389565.5290704,
+    "seen": 1793390032.4603367,
+    "ast_hash": "8312863cb89e324b9e4a91775fc73337",
     "semantic_hash": ""
   },
   "scripts/blender/scene.py": {
@@ -42,26 +42,26 @@
     "semantic_hash": ""
   },
   "scripts/capture.mjs": {
-    "mtime": 1793090874.0633597,
-    "seen": 1793092614.359487,
-    "ast_hash": "24c7b66989bc1c00d2dcdab8d4826dbb",
+    "mtime": 1793113185.8869212,
+    "seen": 1793350321.225386,
+    "ast_hash": "33054ffa9ef09ce2fbe0c948ace80d66",
     "semantic_hash": ""
   },
   "scripts/lottie.mjs": {
-    "mtime": 1793089012.6979141,
-    "seen": 1793089435.2146928,
+    "mtime": 1793113185.8889391,
+    "seen": 1793350321.2253964,
     "ast_hash": "74c4be42ca494ea24942aefa7435803b",
     "semantic_hash": ""
   },
   "src/App.tsx": {
-    "mtime": 1793085279.1734147,
-    "seen": 1793089435.2146983,
-    "ast_hash": "cdc318d80c243ba30ce57bb4eff8edfc",
+    "mtime": 1793363527.0400007,
+    "seen": 1793363698.4291968,
+    "ast_hash": "74b2356742e00567c4d8e2fc4972dea1",
     "semantic_hash": ""
   },
   "src/Demo.tsx": {
-    "mtime": 1793086631.454765,
-    "seen": 1793089435.2147007,
+    "mtime": 1793113185.8929718,
+    "seen": 1793350321.2254126,
     "ast_hash": "02894efc82858545236a8d06a5036e22",
     "semantic_hash": ""
   },
@@ -150,9 +150,9 @@
     "semantic_hash": ""
   },
   "src/games/registry.ts": {
-    "mtime": 1793086631.4333572,
-    "seen": 1793089435.2154949,
-    "ast_hash": "a3accbe071306c92e36ef95a5cb11ed3",
+    "mtime": 1793348104.9275317,
+    "seen": 1793350321.227252,
+    "ast_hash": "3a33cd1659d97af09e090732bbd8520e",
     "semantic_hash": ""
   },
   "src/games/rng.ts": {
@@ -162,9 +162,9 @@
     "semantic_hash": ""
   },
   "src/games/types.ts": {
-    "mtime": 1793085279.1718953,
-    "seen": 1793089435.215619,
-    "ast_hash": "268dce12dca85063c75e6656d1df0b95",
+    "mtime": 1793363522.6143453,
+    "seen": 1793363698.431359,
+    "ast_hash": "e2653bc2b71f488bd7f9b75ebafa4478",
     "semantic_hash": ""
   },
   "src/games/uno/art/CardArt.tsx": {
@@ -192,9 +192,9 @@
     "semantic_hash": ""
   },
   "src/games/uno/index.ts": {
-    "mtime": 1792021870.9049556,
-    "seen": 1793089435.2156293,
-    "ast_hash": "455f31bfc772704235591017d7c74221",
+    "mtime": 1793348533.2145827,
+    "seen": 1793350321.227587,
+    "ast_hash": "380e2ea1909e702592df8548a947f390",
     "semantic_hash": ""
   },
   "src/games/uno/types.ts": {
@@ -216,9 +216,9 @@
     "semantic_hash": ""
   },
   "src/games/uno/ui/UnoTable.tsx": {
-    "mtime": 1792055641.3575058,
-    "seen": 1793089435.215643,
-    "ast_hash": "2b0fb3e65b3d18b60654553b1e3516e3",
+    "mtime": 1793362842.6742375,
+    "seen": 1793363698.4313927,
+    "ast_hash": "af99fe9b11a25bc54a54b5c06e464a18",
     "semantic_hash": ""
   },
   "src/games/uno/ui/copy.ts": {
@@ -234,21 +234,21 @@
     "semantic_hash": ""
   },
   "src/main.tsx": {
-    "mtime": 1793086631.4333572,
-    "seen": 1793089435.2156494,
+    "mtime": 1793113186.8448243,
+    "seen": 1793350321.2276335,
     "ast_hash": "b71e764b17cb4ba2333192faf392134d",
     "semantic_hash": ""
   },
   "src/net/transport.ts": {
-    "mtime": 1791996917.518431,
-    "seen": 1793089435.2156532,
-    "ast_hash": "e14f3d8aaba98158f9c9aa87983aacbf",
+    "mtime": 1793348102.6926086,
+    "seen": 1793350321.2276428,
+    "ast_hash": "e7ac9db4088ac4cbf6ed64875bad8f22",
     "semantic_hash": ""
   },
   "src/net/useRoom.ts": {
-    "mtime": 1793085279.1698735,
-    "seen": 1793089435.2156577,
-    "ast_hash": "e8965bd9a4c42fc0dd3c5dba93ab0f0b",
+    "mtime": 1793362771.3039653,
+    "seen": 1793363698.4314182,
+    "ast_hash": "9479bb09111935ade1171bebe3aa04e0",
     "semantic_hash": ""
   },
   "tsconfig.app.json": {
@@ -552,20 +552,20 @@
     "semantic_hash": ""
   },
   "scripts/audio/build.py": {
-    "mtime": 1793088598.9472065,
-    "seen": 1793089435.2146392,
+    "mtime": 1793389565.5300899,
+    "seen": 1793390032.4603453,
     "ast_hash": "bdd45c956c6c31e3d097c63cc02ce394",
     "semantic_hash": ""
   },
   "src/audio/SoundSettings.tsx": {
-    "mtime": 1793092222.2675674,
-    "seen": 1793092614.360439,
+    "mtime": 1793113186.7979488,
+    "seen": 1793350321.226687,
     "ast_hash": "5ce5344446dd287875e833ec0caeedf7",
     "semantic_hash": ""
   },
   "src/audio/audio.ts": {
-    "mtime": 1793086519.567304,
-    "seen": 1793089435.21528,
+    "mtime": 1793113186.7979488,
+    "seen": 1793350321.226693,
     "ast_hash": "d7f329b26a9b93e46945d17c168b31ff",
     "semantic_hash": ""
   },
@@ -588,8 +588,8 @@
     "semantic_hash": ""
   },
   "public/audio/CREDITS.md": {
-    "mtime": 1793092223.472798,
-    "seen": 1793092614.3611596,
+    "mtime": 1793113185.765805,
+    "seen": 1793350321.2277558,
     "ast_hash": "525684f6d695be879f8b78bc99c3a855",
     "semantic_hash": ""
   },
@@ -786,9 +786,9 @@
     "semantic_hash": ""
   },
   "scripts/blender/export.py": {
-    "mtime": 1793087187.9313467,
-    "seen": 1793089435.214659,
-    "ast_hash": "e176fa2537edd6bd46f4eb1fe0b3f3b3",
+    "mtime": 1793362589.1815464,
+    "seen": 1793363698.4290798,
+    "ast_hash": "bcf5748d63a063ed3d450bc2dd49bbea",
     "semantic_hash": ""
   },
   "scripts/blender/snakes.py": {
@@ -1092,21 +1092,21 @@
     "semantic_hash": ""
   },
   "src/games/snakes/engine.ts": {
-    "mtime": 1792019177.3073828,
-    "seen": 1793089435.2155802,
-    "ast_hash": "ef542cd4241ab5269e1552a6f004155a",
+    "mtime": 1793348817.8282175,
+    "seen": 1793350321.2274523,
+    "ast_hash": "7e8caca86e4a3754e2cbf448a1f5335a",
     "semantic_hash": ""
   },
   "src/games/snakes/index.ts": {
-    "mtime": 1792021870.9011757,
-    "seen": 1793089435.2155821,
-    "ast_hash": "1c15deb74a40248b83fd7edf8866eeff",
+    "mtime": 1793348821.1838267,
+    "seen": 1793350321.2274566,
+    "ast_hash": "d7cb12200b18a9423f833085953d38c6",
     "semantic_hash": ""
   },
   "src/games/snakes/types.ts": {
-    "mtime": 1792019177.309399,
-    "seen": 1793089435.215584,
-    "ast_hash": "c18d85cfb326357c69f2034f73450c62",
+    "mtime": 1793348818.9062266,
+    "seen": 1793350321.2274606,
+    "ast_hash": "8a7b8fc4fe1b3ee3eaac09a975d53d05",
     "semantic_hash": ""
   },
   "src/games/snakes/ui/Lobby.tsx": {
@@ -1116,9 +1116,9 @@
     "semantic_hash": ""
   },
   "src/games/snakes/ui/SnakesBoard.tsx": {
-    "mtime": 1792021870.9031937,
-    "seen": 1793089435.215588,
-    "ast_hash": "aa22a1ab20b60f013b70fe2c0f3336a2",
+    "mtime": 1793362851.2780852,
+    "seen": 1793363698.4313087,
+    "ast_hash": "e40c3dec75664d2789dae360ac24260c",
     "semantic_hash": ""
   },
   "src/games/snakes/ui/art.tsx": {
@@ -1134,15 +1134,15 @@
     "semantic_hash": ""
   },
   "src/net/session.ts": {
-    "mtime": 1792055641.3595214,
-    "seen": 1793089435.215651,
-    "ast_hash": "503f597f2f07f4890b473bc38bc81c0e",
+    "mtime": 1793348106.386326,
+    "seen": 1793350321.227638,
+    "ast_hash": "2c1962ce128c3e8b0aa880e0ceb70a26",
     "semantic_hash": ""
   },
   "src/net/useRoom.test.ts": {
-    "mtime": 1792055641.3615386,
-    "seen": 1793089435.2156556,
-    "ast_hash": "9e3d41cc1b1858433864d9335028fdb8",
+    "mtime": 1793348272.2930171,
+    "seen": 1793350321.2276776,
+    "ast_hash": "74e98362ca7f9111610802cc40a5e11e",
     "semantic_hash": ""
   },
   "brand/illustrations/snakes/die-paper-1.png": {
@@ -1698,27 +1698,27 @@
     "semantic_hash": ""
   },
   "src/games/draw/engine.ts": {
-    "mtime": 1792024826.242285,
-    "seen": 1793089435.2153773,
-    "ast_hash": "460ec1b23883d084df05d22c918c7702",
+    "mtime": 1793348933.7795532,
+    "seen": 1793350321.226959,
+    "ast_hash": "90eb5f3b0cfe327ef777a79c392865f3",
     "semantic_hash": ""
   },
   "src/games/draw/index.ts": {
-    "mtime": 1792024826.242285,
-    "seen": 1793089435.21538,
-    "ast_hash": "ea302f0a178e3b9a3415f626f6481f1f",
+    "mtime": 1793363543.5493522,
+    "seen": 1793363698.4309473,
+    "ast_hash": "0631f54fee80b41b8675f2bef1c09757",
     "semantic_hash": ""
   },
   "src/games/draw/types.ts": {
-    "mtime": 1792024826.242285,
-    "seen": 1793089435.2153819,
-    "ast_hash": "6459951d6c467a6e6f808454c8147ed6",
+    "mtime": 1793348931.4652896,
+    "seen": 1793350321.2269719,
+    "ast_hash": "e8540fcda208e2163a646ec95db06826",
     "semantic_hash": ""
   },
   "src/games/draw/ui/DrawBoard.tsx": {
-    "mtime": 1792024826.2443001,
-    "seen": 1793089435.2153838,
-    "ast_hash": "625f343a2edcf15f7a1c8c96c5e91fa3",
+    "mtime": 1793362852.5421152,
+    "seen": 1793363698.4309614,
+    "ast_hash": "b22bbf2eed9d822102c12cf501b3af90",
     "semantic_hash": ""
   },
   "src/games/draw/ui/Lobby.tsx": {
@@ -2190,9 +2190,9 @@
     "semantic_hash": ""
   },
   "src/games/remi/index.ts": {
-    "mtime": 1792027818.3938608,
-    "seen": 1793089435.2155054,
-    "ast_hash": "f56a30ed1f4bbcd512d9500755a2f630",
+    "mtime": 1793348531.007153,
+    "seen": 1793350321.2272766,
+    "ast_hash": "c076148ad72662fc33e9ece81d6814c2",
     "semantic_hash": ""
   },
   "src/games/remi/modes.ts": {
@@ -2292,9 +2292,9 @@
     "semantic_hash": ""
   },
   "src/games/remi/ui/RemiTable.tsx": {
-    "mtime": 1792027818.411343,
-    "seen": 1793089435.215541,
-    "ast_hash": "0cef927d713c188856688d51b4033bd8",
+    "mtime": 1793362845.2924335,
+    "seen": 1793363698.431229,
+    "ast_hash": "0cb18b2190358aa269750c8a45b137db",
     "semantic_hash": ""
   },
   "src/games/remi/ui/RoundEnd.tsx": {
@@ -2874,9 +2874,9 @@
     "semantic_hash": ""
   },
   "src/games/domino/index.ts": {
-    "mtime": 1792050099.2995584,
-    "seen": 1793089435.2153454,
-    "ast_hash": "ba46e97186abd2c773850796c9de3a5e",
+    "mtime": 1793348532.1111465,
+    "seen": 1793350321.2268782,
+    "ast_hash": "6bf02be4eda08fc5a9e16016a4663c85",
     "semantic_hash": ""
   },
   "src/games/domino/modes.ts": {
@@ -2922,9 +2922,9 @@
     "semantic_hash": ""
   },
   "src/games/domino/ui/DominoTable.tsx": {
-    "mtime": 1792050099.3115277,
-    "seen": 1793089435.2153628,
-    "ast_hash": "7fc37351fa9df9549679917f42c0233f",
+    "mtime": 1793362847.6108766,
+    "seen": 1793363698.430906,
+    "ast_hash": "48b07efdb1e7e5cd3764ebf9fbb60568",
     "semantic_hash": ""
   },
   "src/games/domino/ui/Lobby.tsx": {
@@ -3552,15 +3552,15 @@
     "semantic_hash": ""
   },
   "src/games/monopoly/dev.ts": {
-    "mtime": 1792055641.3360448,
-    "seen": 1793089435.2154713,
-    "ast_hash": "b0d5332900191631be7f1b45fdb2db82",
+    "mtime": 1793348227.7751234,
+    "seen": 1793350321.2271945,
+    "ast_hash": "318158a5ebf7ee3b127fff20d858a6c0",
     "semantic_hash": ""
   },
   "src/games/monopoly/engine.test.ts": {
-    "mtime": 1792055641.3378034,
-    "seen": 1793089435.2154732,
-    "ast_hash": "abc1f9ea785b48c5025803862a2c320b",
+    "mtime": 1793350346.7771206,
+    "seen": 1793363698.4311094,
+    "ast_hash": "6481c7f02f8ff8ee279b668b6de8e789",
     "semantic_hash": ""
   },
   "src/games/monopoly/engine.ts": {
@@ -3570,9 +3570,9 @@
     "semantic_hash": ""
   },
   "src/games/monopoly/index.ts": {
-    "mtime": 1792055641.3398201,
-    "seen": 1793089435.215477,
-    "ast_hash": "b127a337763f609816baccc46dd5e620",
+    "mtime": 1793348201.2595568,
+    "seen": 1793350321.227208,
+    "ast_hash": "7e1ad405cbe0f6e769bcfe08b9aeb0a2",
     "semantic_hash": ""
   },
   "src/games/monopoly/sounds.ts": {
@@ -3594,9 +3594,9 @@
     "semantic_hash": ""
   },
   "src/games/monopoly/ui/MonopolyBoard.tsx": {
-    "mtime": 1792055641.3456533,
-    "seen": 1793089435.2154849,
-    "ast_hash": "1e3c8b91ec1d0ea342bbf1f2b99a9871",
+    "mtime": 1793362848.7943316,
+    "seen": 1793363698.4311244,
+    "ast_hash": "29834b921138c41bf71a9f5e1643d857",
     "semantic_hash": ""
   },
   "src/games/monopoly/ui/PropertyCard.tsx": {
@@ -4476,9 +4476,9 @@
     "semantic_hash": ""
   },
   "src/games/ludo/dev.ts": {
-    "mtime": 1792058770.7682264,
-    "seen": 1793089435.2154317,
-    "ast_hash": "0e0b9de49ddbc6984c7a2742a7311dfa",
+    "mtime": 1793348199.0243082,
+    "seen": 1793350321.2271311,
+    "ast_hash": "a6ad7ef68de3b8c90abcb6169e470689",
     "semantic_hash": ""
   },
   "src/games/ludo/engine.test.ts": {
@@ -4494,9 +4494,9 @@
     "semantic_hash": ""
   },
   "src/games/ludo/index.ts": {
-    "mtime": 1792058770.7720037,
-    "seen": 1793089435.215438,
-    "ast_hash": "ae0873754803e8f7b3166371395f7283",
+    "mtime": 1793348200.2048817,
+    "seen": 1793350321.2271483,
+    "ast_hash": "e849a8f3f032d1b9a48e5e3ec7d4ad70",
     "semantic_hash": ""
   },
   "src/games/ludo/sounds.ts": {
@@ -4518,9 +4518,9 @@
     "semantic_hash": ""
   },
   "src/games/ludo/ui/LudoBoard.tsx": {
-    "mtime": 1792058770.7759733,
-    "seen": 1793089435.215446,
-    "ast_hash": "474f0048e0c5e05e107a74802336aaba",
+    "mtime": 1793362850.0622237,
+    "seen": 1793363698.4310896,
+    "ast_hash": "839f619135e1a802d1a4cf0cf26045ca",
     "semantic_hash": ""
   },
   "src/games/ludo/ui/art.tsx": {
@@ -5052,9 +5052,9 @@
     "semantic_hash": ""
   },
   "src/games/spy/index.ts": {
-    "mtime": 1792123197.996322,
-    "seen": 1793089435.2156005,
-    "ast_hash": "b1bacb91fc5efc4b0339761d8e508f2d",
+    "mtime": 1793349085.7228904,
+    "seen": 1793350321.2275093,
+    "ast_hash": "89d2a27aa381ea04788bf23a7b840ee6",
     "semantic_hash": ""
   },
   "src/games/spy/locations.ts": {
@@ -5082,9 +5082,9 @@
     "semantic_hash": ""
   },
   "src/games/spy/ui/SpyBoard.tsx": {
-    "mtime": 1792123198.0030928,
-    "seen": 1793089435.2156107,
-    "ast_hash": "17be9ffd0f6c813397435d63b5226655",
+    "mtime": 1793362883.5852976,
+    "seen": 1793363698.4313488,
+    "ast_hash": "21ec68786cc2b05e51ef693528728b16",
     "semantic_hash": ""
   },
   "src/games/spy/ui/art.ts": {
@@ -5346,1227 +5346,2199 @@
     "semantic_hash": ""
   },
   "scripts/blender/bom.py": {
-    "mtime": 1793085159.977497,
-    "seen": 1793089435.2146437,
+    "mtime": 1793113185.872542,
+    "seen": 1793350321.224985,
     "ast_hash": "c8ff8cc384e272bee6bea262ae6389d4",
     "semantic_hash": ""
   },
   "src/assets/bom/bom-lose.webp.json": {
-    "mtime": 1793085159.9945278,
-    "seen": 1793089435.214704,
+    "mtime": 1793113185.896005,
+    "seen": 1793350321.2254171,
     "ast_hash": "1951edbbf5929afd2f4562e256ff64a9",
     "semantic_hash": ""
   },
   "src/assets/bom/bom-win.webp.json": {
-    "mtime": 1793085159.9984267,
-    "seen": 1793089435.2147067,
+    "mtime": 1793113185.8980236,
+    "seen": 1793350321.225421,
     "ast_hash": "38700f7e6cd6cdab916dad21e0a64b44",
     "semantic_hash": ""
   },
   "src/assets/bom/bomb.webp.json": {
-    "mtime": 1793085160.002453,
-    "seen": 1793089435.2147098,
+    "mtime": 1793113185.9000404,
+    "seen": 1793350321.2254262,
     "ast_hash": "01b3bd35911659cc6f76582b59cba368",
     "semantic_hash": ""
   },
   "src/assets/bom/icon-heart-off.webp.json": {
-    "mtime": 1793085160.0517752,
-    "seen": 1793089435.2147126,
+    "mtime": 1793113185.9020574,
+    "seen": 1793350321.2254307,
     "ast_hash": "2dbe8af933e73d7091fef9b6439c45b6",
     "semantic_hash": ""
   },
   "src/assets/bom/icon-heart.webp.json": {
-    "mtime": 1793085160.0559497,
-    "seen": 1793089435.2147152,
+    "mtime": 1793113185.9052448,
+    "seen": 1793350321.2254355,
     "ast_hash": "0eb383630ea7c036c73a48348127fee5",
     "semantic_hash": ""
   },
   "src/assets/bom/icon-protest.webp.json": {
-    "mtime": 1793085160.0587435,
-    "seen": 1793089435.214718,
+    "mtime": 1793113185.907261,
+    "seen": 1793350321.2254405,
     "ast_hash": "5e8f4348c874fae3803004813c864f54",
     "semantic_hash": ""
   },
   "src/assets/bom/mascot-gosong.webp.json": {
-    "mtime": 1793085160.062858,
-    "seen": 1793089435.2147205,
+    "mtime": 1793113185.9112928,
+    "seen": 1793350321.225445,
     "ast_hash": "729eecc82bd45a948a46caab6e71893a",
     "semantic_hash": ""
   },
   "src/assets/bom/power-balik.webp.json": {
-    "mtime": 1793085160.0672853,
-    "seen": 1793089435.214723,
+    "mtime": 1793113185.9133093,
+    "seen": 1793350321.2254505,
     "ast_hash": "7ea4dc66e3fd686ef483db7fed805e1b",
     "semantic_hash": ""
   },
   "src/assets/bom/power-lompat.webp.json": {
-    "mtime": 1793085160.0693016,
-    "seen": 1793089435.2147257,
+    "mtime": 1793113185.915326,
+    "seen": 1793350321.2254555,
     "ast_hash": "20b78ef8a36f4d75314c01566cce125f",
     "semantic_hash": ""
   },
   "src/assets/bom/power-pendek.webp.json": {
-    "mtime": 1793085160.072642,
-    "seen": 1793089435.214728,
+    "mtime": 1793113185.915326,
+    "seen": 1793350321.22546,
     "ast_hash": "658603434a3a47c978f2c4831696083a",
     "semantic_hash": ""
   },
   "src/assets/bom/tile-bom.webp.json": {
-    "mtime": 1793085160.079635,
-    "seen": 1793089435.2147307,
+    "mtime": 1793113185.9207938,
+    "seen": 1793350321.2254648,
     "ast_hash": "57d1b1b145b72fde227b7d9b44d7aa36",
     "semantic_hash": ""
   },
   "src/assets/lottie/bom-boom.json": {
-    "mtime": 1793089013.322425,
-    "seen": 1793089435.214867,
+    "mtime": 1793113186.7863512,
+    "seen": 1793350321.2257588,
     "ast_hash": "74fdb3f3a26b1457a3920baf335c1f10",
     "semantic_hash": ""
   },
   "src/assets/lottie/bom-cancel.json": {
-    "mtime": 1793089013.3232741,
-    "seen": 1793089435.2148702,
+    "mtime": 1793113186.7878668,
+    "seen": 1793350321.2257645,
     "ast_hash": "99de32d96678be09f9cf39276a029fce",
     "semantic_hash": ""
   },
   "src/assets/lottie/bom-pass.json": {
-    "mtime": 1793089013.3229392,
-    "seen": 1793089435.214873,
+    "mtime": 1793113186.789884,
+    "seen": 1793350321.2257702,
     "ast_hash": "6af76e1e2edf00f981b322034af29d7f",
     "semantic_hash": ""
   },
   "src/assets/lottie/bom-power.json": {
-    "mtime": 1793089013.3245962,
-    "seen": 1793089435.2148757,
+    "mtime": 1793113186.789884,
+    "seen": 1793350321.2257752,
     "ast_hash": "9d416dda71732aeb608d830000f942a0",
     "semantic_hash": ""
   },
   "src/assets/lottie/bom-spark.json": {
-    "mtime": 1793089013.318317,
-    "seen": 1793089435.2148783,
+    "mtime": 1793113186.7919,
+    "seen": 1793350321.22578,
     "ast_hash": "ca798a7a515fb82a117c95f20c1ac938",
     "semantic_hash": ""
   },
   "src/games/bom/dev.ts": {
-    "mtime": 1793085160.110476,
-    "seen": 1793089435.215315,
+    "mtime": 1793113186.7999651,
+    "seen": 1793350321.2267966,
     "ast_hash": "a4155108e0629880b62142b7d7c58922",
     "semantic_hash": ""
   },
   "src/games/bom/engine.test.ts": {
-    "mtime": 1793085160.1360018,
-    "seen": 1793089435.215317,
+    "mtime": 1793113186.8019805,
+    "seen": 1793350321.2268014,
     "ast_hash": "5a4457dee3cf7999067711d4aa36e8bc",
     "semantic_hash": ""
   },
   "src/games/bom/engine.ts": {
-    "mtime": 1793085160.1400304,
-    "seen": 1793089435.2153192,
+    "mtime": 1793113186.8039966,
+    "seen": 1793350321.2268057,
     "ast_hash": "03908a6d1f3603b9d4cd77d134de7ba2",
     "semantic_hash": ""
   },
   "src/games/bom/index.ts": {
-    "mtime": 1793085160.1400304,
-    "seen": 1793089435.2153213,
-    "ast_hash": "8a0cea852d3e4e28f05d98d5b3d60aac",
+    "mtime": 1793348928.2248373,
+    "seen": 1793350321.2268095,
+    "ast_hash": "ffdc514373ce45104cf8fa3d19ba4002",
     "semantic_hash": ""
   },
   "src/games/bom/sounds.ts": {
-    "mtime": 1793085160.1440613,
-    "seen": 1793089435.2153234,
+    "mtime": 1793113186.8060095,
+    "seen": 1793350321.2268143,
     "ast_hash": "57eb77ccfdeacda570daa53fd86d5d1d",
     "semantic_hash": ""
   },
   "src/games/bom/types.ts": {
-    "mtime": 1793085160.1458232,
-    "seen": 1793089435.2153254,
+    "mtime": 1793113186.8080213,
+    "seen": 1793350321.2268186,
     "ast_hash": "f7a56f9325bfe3f2094dbbe5935ed64e",
     "semantic_hash": ""
   },
   "src/games/bom/ui/BomBoard.tsx": {
-    "mtime": 1793085160.1490133,
-    "seen": 1793089435.2153277,
-    "ast_hash": "aee8e3a62b56e08b61fe8877b411a3c1",
+    "mtime": 1793362884.4864306,
+    "seen": 1793363698.4308074,
+    "ast_hash": "9270e2d01109f2907ff7239f23d43abe",
     "semantic_hash": ""
   },
   "src/games/bom/ui/Lobby.tsx": {
-    "mtime": 1793085160.1511188,
-    "seen": 1793089435.2153301,
+    "mtime": 1793113186.8120582,
+    "seen": 1793350321.2268276,
     "ast_hash": "32d4826b9a8feaf4270be7baff00e585",
     "semantic_hash": ""
   },
   "src/games/bom/ui/art.ts": {
-    "mtime": 1793085160.1511188,
-    "seen": 1793089435.2153318,
+    "mtime": 1793113186.8120582,
+    "seen": 1793350321.2268324,
     "ast_hash": "6c43fdb8f9d81a110592c6d1e18110fa",
     "semantic_hash": ""
   },
   "src/games/bom/ui/copy.ts": {
-    "mtime": 1793085160.1531353,
-    "seen": 1793089435.2153344,
+    "mtime": 1793113186.81382,
+    "seen": 1793350321.2268367,
     "ast_hash": "0d80f5ebb4e0b65c63315414b14ba969",
     "semantic_hash": ""
   },
   "src/games/bom/words.ts": {
-    "mtime": 1793085160.1551487,
-    "seen": 1793089435.2153368,
+    "mtime": 1793113186.8158345,
+    "seen": 1793350321.226842,
     "ast_hash": "bf4efd5d4b24f46a9098b0d9de3589fa",
     "semantic_hash": ""
   },
   "brand/illustrations/bom/bom-lose.png": {
-    "mtime": 1793085159.5891118,
-    "seen": 1793089435.2157001,
+    "mtime": 1793113185.4890072,
+    "seen": 1793350321.2277875,
     "ast_hash": "c17cccef600109237fb521dec6c9c9c2",
     "semantic_hash": ""
   },
   "brand/illustrations/bom/bom-win.png": {
-    "mtime": 1793085159.6010616,
-    "seen": 1793089435.2157032,
+    "mtime": 1793113185.499099,
+    "seen": 1793350321.2277935,
     "ast_hash": "d2647b063fdf52e8b7c5cfa2a79bbff3",
     "semantic_hash": ""
   },
   "brand/illustrations/bom/bomb.png": {
-    "mtime": 1793085159.6050975,
-    "seen": 1793089435.2157054,
+    "mtime": 1793113185.503128,
+    "seen": 1793350321.2277992,
     "ast_hash": "361aa35541fb0cbab332b22373d06156",
     "semantic_hash": ""
   },
   "brand/illustrations/bom/icon-heart-off.png": {
-    "mtime": 1793085159.6100426,
-    "seen": 1793089435.2157073,
+    "mtime": 1793113185.5051444,
+    "seen": 1793350321.2278032,
     "ast_hash": "11a4ca565eaafb9b0be02b989eb4a7ef",
     "semantic_hash": ""
   },
   "brand/illustrations/bom/icon-heart.png": {
-    "mtime": 1793085159.6140761,
-    "seen": 1793089435.2157097,
+    "mtime": 1793113185.5096884,
+    "seen": 1793350321.227808,
     "ast_hash": "70d32bcfa1195d9d422225571f00e2f8",
     "semantic_hash": ""
   },
   "brand/illustrations/bom/icon-protest.png": {
-    "mtime": 1793085159.6171155,
-    "seen": 1793089435.2157116,
+    "mtime": 1793113185.51173,
+    "seen": 1793350321.227813,
     "ast_hash": "fa99fe90475d3ec707a7d8901d0f0ed3",
     "semantic_hash": ""
   },
   "brand/illustrations/bom/mascot-gosong.png": {
-    "mtime": 1793085159.6219053,
-    "seen": 1793089435.2157137,
+    "mtime": 1793113185.516782,
+    "seen": 1793350321.2278187,
     "ast_hash": "5d831e77fe30f25f4102c414397fdcc7",
     "semantic_hash": ""
   },
   "brand/illustrations/bom/power-balik.png": {
-    "mtime": 1793085159.624933,
-    "seen": 1793089435.2157161,
+    "mtime": 1793113185.518808,
+    "seen": 1793350321.2278237,
     "ast_hash": "d0554d4be13ed9308ff73da88bbba78d",
     "semantic_hash": ""
   },
   "brand/illustrations/bom/power-lompat.png": {
-    "mtime": 1793085159.6309104,
-    "seen": 1793089435.2157185,
+    "mtime": 1793113185.522346,
+    "seen": 1793350321.2278287,
     "ast_hash": "fa590f7214981c5eabe77048bdb4ba18",
     "semantic_hash": ""
   },
   "brand/illustrations/bom/power-pendek.png": {
-    "mtime": 1793085159.6361797,
-    "seen": 1793089435.2157204,
+    "mtime": 1793113185.5263815,
+    "seen": 1793350321.227833,
     "ast_hash": "450869f48ccd3cb0289853773f357dd0",
     "semantic_hash": ""
   },
   "brand/illustrations/bom/tile-bom.png": {
-    "mtime": 1793085159.6495368,
-    "seen": 1793089435.2157226,
+    "mtime": 1793113185.5364602,
+    "seen": 1793350321.2278378,
     "ast_hash": "c85e61424fbb4c5b4adffb91f034db08",
     "semantic_hash": ""
   },
   "src/assets/bom/bom-lose.webp": {
-    "mtime": 1793085159.992513,
-    "seen": 1793089435.2161882,
+    "mtime": 1793113185.8949878,
+    "seen": 1793350321.2289674,
     "ast_hash": "aa96a5bedc6184161a70679e0eba3bb7",
     "semantic_hash": ""
   },
   "src/assets/bom/bom-win.webp": {
-    "mtime": 1793085159.9963186,
-    "seen": 1793089435.2161906,
+    "mtime": 1793113185.8980236,
+    "seen": 1793350321.2289734,
     "ast_hash": "cabaa4fbaffc2cb840acc832473aea2c",
     "semantic_hash": ""
   },
   "src/assets/bom/bomb.webp": {
-    "mtime": 1793085160.00044,
-    "seen": 1793089435.2161932,
+    "mtime": 1793113185.9000404,
+    "seen": 1793350321.2289784,
     "ast_hash": "9c774c09fa7c5162f2f859de76fb91ab",
     "semantic_hash": ""
   },
   "src/assets/bom/icon-heart-off.webp": {
-    "mtime": 1793085160.0489914,
-    "seen": 1793089435.216196,
+    "mtime": 1793113185.9020574,
+    "seen": 1793350321.228983,
     "ast_hash": "b83bfaaa5d6f61b5577f8edd8385ca42",
     "semantic_hash": ""
   },
   "src/assets/bom/icon-heart.webp": {
-    "mtime": 1793085160.0539339,
-    "seen": 1793089435.2161984,
+    "mtime": 1793113185.9052448,
+    "seen": 1793350321.2289875,
     "ast_hash": "cbd5719109dfbf0008c0bccc7517fd1f",
     "semantic_hash": ""
   },
   "src/assets/bom/icon-protest.webp": {
-    "mtime": 1793085160.0559497,
-    "seen": 1793089435.2162006,
+    "mtime": 1793113185.907261,
+    "seen": 1793350321.228992,
     "ast_hash": "89c18ca894b45b4d0cdc455dd6e6cc8a",
     "semantic_hash": ""
   },
   "src/assets/bom/mascot-gosong.webp": {
-    "mtime": 1793085160.0608432,
-    "seen": 1793089435.2162027,
+    "mtime": 1793113185.9092758,
+    "seen": 1793350321.2289965,
     "ast_hash": "396fb9328913440057ec02c9f55cc577",
     "semantic_hash": ""
   },
   "src/assets/bom/power-balik.webp": {
-    "mtime": 1793085160.0656862,
-    "seen": 1793089435.216205,
+    "mtime": 1793113185.9112928,
+    "seen": 1793350321.2290018,
     "ast_hash": "fe2c6dac28079d81c65b482f348a1896",
     "semantic_hash": ""
   },
   "src/assets/bom/power-lompat.webp": {
-    "mtime": 1793085160.0693016,
-    "seen": 1793089435.2162068,
+    "mtime": 1793113185.9133093,
+    "seen": 1793350321.229006,
     "ast_hash": "e876690b9eb742fb038930f5cdee4963",
     "semantic_hash": ""
   },
   "src/assets/bom/power-pendek.webp": {
-    "mtime": 1793085160.072642,
-    "seen": 1793089435.2162092,
+    "mtime": 1793113185.915326,
+    "seen": 1793350321.229011,
     "ast_hash": "29e65690d5eefad3f4117f4bb42ef6a9",
     "semantic_hash": ""
   },
   "src/assets/bom/tile-bom.webp": {
-    "mtime": 1793085160.0767727,
-    "seen": 1793089435.2162116,
+    "mtime": 1793113185.918778,
+    "seen": 1793350321.229015,
     "ast_hash": "ca071eae29b9f5403747302d95eeac67",
     "semantic_hash": ""
   },
   "public/audio/music/bom-tense.ogg": {
-    "mtime": 1793085159.7538228,
-    "seen": 1793089435.216644,
+    "mtime": 1793113185.7889988,
+    "seen": 1793350321.230213,
     "ast_hash": "6241d5df569fadd1a5cb08a0a4bdddf6",
     "semantic_hash": ""
   },
   "public/audio/music/bom.ogg": {
-    "mtime": 1793085159.895679,
-    "seen": 1793089435.2166464,
+    "mtime": 1793113185.8152113,
+    "seen": 1793350321.2302191,
     "ast_hash": "548f06ff5770021335f1de6ff83910b2",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-accept.ogg": {
-    "mtime": 1793085159.8990526,
-    "seen": 1793089435.2166915,
+    "mtime": 1793113185.827049,
+    "seen": 1793350321.2303603,
     "ast_hash": "b5705458e46626613dd8cdcefb27f1b5",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-boom.ogg": {
-    "mtime": 1793085159.9011633,
-    "seen": 1793089435.2166934,
+    "mtime": 1793113185.8290641,
+    "seen": 1793350321.2303643,
     "ast_hash": "d42aec0ee8d7154bea8aa5b0508d71df",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-cancel.ogg": {
-    "mtime": 1793085159.9031806,
-    "seen": 1793089435.2166963,
+    "mtime": 1793113185.8310788,
+    "seen": 1793350321.230369,
     "ast_hash": "0ef7e954f11cc763f5851dbf90269f73",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-champion.ogg": {
-    "mtime": 1793085159.9031806,
-    "seen": 1793089435.2166986,
+    "mtime": 1793113185.8328357,
+    "seen": 1793350321.2303731,
     "ast_hash": "b102741b03d5cc631827da43bbe233d5",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-cut.ogg": {
-    "mtime": 1793085159.906034,
-    "seen": 1793089435.2167013,
+    "mtime": 1793113185.8348482,
+    "seen": 1793350321.230377,
     "ast_hash": "372cf44bc604a5327d617dab475efe3e",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-light.ogg": {
-    "mtime": 1793085159.9517949,
-    "seen": 1793089435.2167037,
+    "mtime": 1793113185.8368642,
+    "seen": 1793350321.230381,
     "ast_hash": "a228eb899efcd6e6a316ca91df9e0da3",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-lose.ogg": {
-    "mtime": 1793085159.9517949,
-    "seen": 1793089435.2167063,
+    "mtime": 1793113185.83888,
+    "seen": 1793350321.2303846,
     "ast_hash": "ad8fd18dddf51e92cd4a31058724c2a3",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-out.ogg": {
-    "mtime": 1793085159.9545877,
-    "seen": 1793089435.2167087,
+    "mtime": 1793113185.8408923,
+    "seen": 1793350321.2303889,
     "ast_hash": "2a3388fea5e1a8c6c8152376a15a781e",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-pass.ogg": {
-    "mtime": 1793085159.9587052,
-    "seen": 1793089435.2167113,
+    "mtime": 1793113185.8419065,
+    "seen": 1793350321.2303941,
     "ast_hash": "1d1e50127d7075ec93e0112c81a96250",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-power.ogg": {
-    "mtime": 1793085159.9627364,
-    "seen": 1793089435.2167137,
+    "mtime": 1793113185.8419065,
+    "seen": 1793350321.2303982,
     "ast_hash": "c10bea4a844b2ba52e132e27c0116bee",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-protest.ogg": {
-    "mtime": 1793085159.964753,
-    "seen": 1793089435.2167158,
+    "mtime": 1793113185.8439195,
+    "seen": 1793350321.230402,
     "ast_hash": "56975d9ac8e6d09e4ac18a8e16ff5f9c",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-reject.ogg": {
-    "mtime": 1793085159.964753,
-    "seen": 1793089435.2167187,
+    "mtime": 1793113185.8439195,
+    "seen": 1793350321.2304063,
     "ast_hash": "dc2e91b0203367d29dff42205c41ef85",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-tick.ogg": {
-    "mtime": 1793085159.968447,
-    "seen": 1793089435.216721,
+    "mtime": 1793113185.8439195,
+    "seen": 1793350321.230411,
     "ast_hash": "2f5d46dab83df7329359a8e70e52d93e",
     "semantic_hash": ""
   },
   "public/audio/sfx/bom-turn.ogg": {
-    "mtime": 1793085159.9705482,
-    "seen": 1793089435.2167232,
+    "mtime": 1793113185.8485906,
+    "seen": 1793350321.2304146,
     "ast_hash": "4b8eaea104101f87aec06bb50ff9f2d0",
     "semantic_hash": ""
   },
   "scripts/blender/kart.py": {
-    "mtime": 1793087239.8344448,
-    "seen": 1793089435.2146626,
+    "mtime": 1793113185.8765752,
+    "seen": 1793350321.2252765,
     "ast_hash": "511bf04a5854013fd96c6d5c9d312211",
     "semantic_hash": ""
   },
   "scripts/blender/kart_props.py": {
-    "mtime": 1793088390.7054842,
-    "seen": 1793089435.2146666,
-    "ast_hash": "37e29790e6501ddbb052fb4348474655",
+    "mtime": 1793113185.880352,
+    "seen": 1793350321.225322,
+    "ast_hash": "44c1931353f8381d3a36edaf4dd4bf8f",
     "semantic_hash": ""
   },
   "scripts/kart-tracks.mts": {
-    "mtime": 1793088806.021536,
-    "seen": 1793089435.2146902,
-    "ast_hash": "10059675ca358b31fb0026f73d04f976",
+    "mtime": 1793113185.8869212,
+    "seen": 1793350321.2253911,
+    "ast_hash": "721dfc7f6a5770326e39faf81541b52b",
     "semantic_hash": ""
   },
   "src/assets/kart/char-bubu.webp.json": {
-    "mtime": 1793093476.322695,
-    "seen": 1793094897.3764598,
+    "mtime": 1793369490.3867054,
+    "seen": 1793370315.422319,
     "ast_hash": "b59af914db92b8ec56e3c1c9b07f6af7",
     "semantic_hash": ""
   },
   "src/assets/kart/char-ciko.webp.json": {
-    "mtime": 1793093478.32753,
-    "seen": 1793094897.3764641,
+    "mtime": 1793369490.3887465,
+    "seen": 1793370315.4223223,
     "ast_hash": "a854c76952149bdbc35ce3bfc92e8a7b",
     "semantic_hash": ""
   },
   "src/assets/kart/char-embek.webp.json": {
-    "mtime": 1793093480.9372027,
-    "seen": 1793094897.3764684,
+    "mtime": 1793369490.3907638,
+    "seen": 1793370315.422325,
     "ast_hash": "47c63c31d777adc18c711cf337608fb6",
     "semantic_hash": ""
   },
   "src/assets/kart/char-gurit.webp.json": {
-    "mtime": 1793093482.8003788,
-    "seen": 1793094897.3764741,
+    "mtime": 1793369490.392783,
+    "seen": 1793370315.4223273,
     "ast_hash": "b0f47187e54e8ac18b39fc8ee684434d",
     "semantic_hash": ""
   },
   "src/assets/kart/char-komo.webp.json": {
-    "mtime": 1793093484.8731318,
-    "seen": 1793094897.3764791,
+    "mtime": 1793369490.3940637,
+    "seen": 1793370315.42233,
     "ast_hash": "21a3ad536875626a23e94d6c37abf1dd",
     "semantic_hash": ""
   },
   "src/assets/kart/char-kroak.webp.json": {
-    "mtime": 1793093487.1615498,
-    "seen": 1793094897.3764844,
+    "mtime": 1793369490.3961155,
+    "seen": 1793370315.4223328,
     "ast_hash": "7e0501d7d609ce753f8e19fed3cd41d8",
     "semantic_hash": ""
   },
   "src/assets/kart/char-loreng.webp.json": {
-    "mtime": 1793093489.1258702,
-    "seen": 1793094897.376489,
+    "mtime": 1793369490.3981357,
+    "seen": 1793370315.422335,
     "ast_hash": "523a6fd0c3b9d6beba439b93f5d5cbc0",
     "semantic_hash": ""
   },
   "src/assets/kart/char-moci.webp.json": {
-    "mtime": 1793093491.2337437,
-    "seen": 1793094897.376494,
+    "mtime": 1793369490.399924,
+    "seen": 1793370315.4223373,
     "ast_hash": "605870c0c2d65e9f5a6b8e53ca37a225",
     "semantic_hash": ""
   },
   "src/assets/kart/item-awan.webp.json": {
-    "mtime": 1793093492.8470562,
-    "seen": 1793094897.3764987,
+    "mtime": 1793369490.402056,
+    "seen": 1793370315.42234,
     "ast_hash": "7d92f8d6091923137feecaa64785236d",
     "semantic_hash": ""
   },
   "src/assets/kart/item-magnet.webp.json": {
-    "mtime": 1793093494.1876736,
-    "seen": 1793094897.376503,
-    "ast_hash": "519cfbcf02e322a5890560355bfe0bc8",
+    "mtime": 1793370624.0931966,
+    "seen": 1793372760.1147401,
+    "ast_hash": "0cc4bb0f4d64deddb3019cc3be912484",
     "semantic_hash": ""
   },
   "src/assets/kart/item-perisai.webp.json": {
-    "mtime": 1793093496.038582,
-    "seen": 1793094897.3765078,
+    "mtime": 1793369490.4040754,
+    "seen": 1793370315.4223442,
     "ast_hash": "002fe09a9c638935b9319616ffd712cd",
     "semantic_hash": ""
   },
   "src/assets/kart/item-petasan.webp.json": {
-    "mtime": 1793093497.181764,
-    "seen": 1793094897.376512,
+    "mtime": 1793369490.4057305,
+    "seen": 1793370315.4223466,
     "ast_hash": "9c84298231312a2ea92504f36cf7e239",
     "semantic_hash": ""
   },
   "src/assets/kart/item-pisang.webp.json": {
-    "mtime": 1793093498.566612,
-    "seen": 1793094897.3765166,
+    "mtime": 1793369490.408113,
+    "seen": 1793370315.42235,
     "ast_hash": "9a0aa8aedfc5ae16e94a273acf3bba0b",
     "semantic_hash": ""
   },
   "src/assets/kart/item-pisang3.webp.json": {
-    "mtime": 1793093499.8883412,
-    "seen": 1793094897.3765209,
+    "mtime": 1793369490.4101615,
+    "seen": 1793370315.4223518,
     "ast_hash": "a41a1c8b6e628e27b664e46177348032",
     "semantic_hash": ""
   },
   "src/assets/kart/item-roket.webp.json": {
-    "mtime": 1793093501.4291599,
-    "seen": 1793094897.3765254,
+    "mtime": 1793369490.412338,
+    "seen": 1793370315.422354,
     "ast_hash": "4b3b5bf31da97f93e47e2afe01a5f0bd",
     "semantic_hash": ""
   },
   "src/assets/kart/item-sambal.webp.json": {
-    "mtime": 1793093502.4851787,
-    "seen": 1793094897.37653,
+    "mtime": 1793369490.41386,
+    "seen": 1793370315.422356,
     "ast_hash": "7f4d5576d2a07c0cc1804d1b19404cf6",
     "semantic_hash": ""
   },
   "src/assets/kart/item-sambal3.webp.json": {
-    "mtime": 1793093504.1863647,
-    "seen": 1793094897.376534,
+    "mtime": 1793369490.415893,
+    "seen": 1793370315.422358,
     "ast_hash": "c86147a1314e11ac11b30648832f6154",
     "semantic_hash": ""
   },
   "src/assets/kart/kart-bajaj.webp.json": {
-    "mtime": 1793093507.1293917,
-    "seen": 1793094897.3765376,
+    "mtime": 1793369490.4179032,
+    "seen": 1793370315.4223604,
     "ast_hash": "108efa7cb67699f187adb345ddded0cf",
     "semantic_hash": ""
   },
   "src/assets/kart/kart-bebek.webp.json": {
-    "mtime": 1793093509.9991972,
-    "seen": 1793094897.3765411,
+    "mtime": 1793369490.4189417,
+    "seen": 1793370315.4223626,
     "ast_hash": "e151587adf4e9f8a7701837f19e25a96",
     "semantic_hash": ""
   },
   "src/assets/kart/kart-gerobak.webp.json": {
-    "mtime": 1793093513.0615108,
-    "seen": 1793094897.3765454,
+    "mtime": 1793369490.4208379,
+    "seen": 1793370315.4223652,
     "ast_hash": "1f841ec2ac2ab258672042c3681416bb",
     "semantic_hash": ""
   },
   "src/assets/kart/tile-kart.webp.json": {
-    "mtime": 1793093519.553013,
-    "seen": 1793094897.3765495,
+    "mtime": 1793369490.4230478,
+    "seen": 1793370315.4223676,
     "ast_hash": "aa52cd9231e1f45e9a921abdfca11765",
     "semantic_hash": ""
   },
   "src/assets/lottie/kart-boost.json": {
-    "mtime": 1793089013.3245962,
-    "seen": 1793089435.2149148,
+    "mtime": 1793113186.7919,
+    "seen": 1793350321.225867,
     "ast_hash": "2298494ba7c75fd6b321b6ccc1398b7a",
     "semantic_hash": ""
   },
   "src/assets/lottie/kart-box.json": {
-    "mtime": 1793089013.3266132,
-    "seen": 1793089435.2149167,
+    "mtime": 1793113186.7939146,
+    "seen": 1793350321.225872,
     "ast_hash": "22c8f71e5ff0bc7b3a916e3492d8a919",
     "semantic_hash": ""
   },
   "src/assets/lottie/kart-finish.json": {
-    "mtime": 1793089013.3266132,
-    "seen": 1793089435.2149186,
+    "mtime": 1793113186.7939146,
+    "seen": 1793350321.2258768,
     "ast_hash": "6549ebbd82e4d47b85ddf9dee23368cf",
     "semantic_hash": ""
   },
   "src/assets/lottie/kart-hit.json": {
-    "mtime": 1793089013.3245962,
-    "seen": 1793089435.214921,
+    "mtime": 1793113186.7959354,
+    "seen": 1793350321.2258813,
     "ast_hash": "aaabdb06f3a98cf1259ee8bc408b37b4",
     "semantic_hash": ""
   },
   "src/assets/lottie/kart-lap.json": {
-    "mtime": 1793089013.3266132,
-    "seen": 1793089435.214923,
+    "mtime": 1793113186.7959354,
+    "seen": 1793350321.2258863,
     "ast_hash": "5cc0733a6b821d7722096c56138f984f",
     "semantic_hash": ""
   },
   "src/games/kart/data.ts": {
-    "mtime": 1793085385.4968517,
-    "seen": 1793089435.2153933,
-    "ast_hash": "5ef5028a2c6f5522f7e88a05f2444030",
+    "mtime": 1793370624.0951967,
+    "seen": 1793372760.1156216,
+    "ast_hash": "81ccfbb8c9b691908846cc7f2f2c5e4d",
     "semantic_hash": ""
   },
   "src/games/kart/engine.test.ts": {
-    "mtime": 1793085946.3121965,
-    "seen": 1793089435.2153957,
-    "ast_hash": "f2b30aa36ccbfa508e721c3a5c3e2a28",
+    "mtime": 1793113186.8178535,
+    "seen": 1793350321.2270086,
+    "ast_hash": "6d44bfb432062055cbb426f8382bcbfc",
     "semantic_hash": ""
   },
   "src/games/kart/engine.ts": {
-    "mtime": 1793085793.898985,
-    "seen": 1793089435.2153976,
-    "ast_hash": "ae449d8a7350f0c89047f51160c108a7",
+    "mtime": 1793370624.0961964,
+    "seen": 1793372760.1156323,
+    "ast_hash": "eb255ecebfda9baed4858c33ef5c95e3",
     "semantic_hash": ""
   },
   "src/games/kart/index.ts": {
-    "mtime": 1793086506.1497688,
-    "seen": 1793089435.2153997,
-    "ast_hash": "d9029ae9eb8829f116c656aadebea155",
+    "mtime": 1793113186.8178535,
+    "seen": 1793350321.2270176,
+    "ast_hash": "87bf5685b7a7985fce09f3edacf27710",
     "semantic_hash": ""
   },
   "src/games/kart/race.ts": {
-    "mtime": 1793094254.1325364,
-    "seen": 1793094897.3777287,
-    "ast_hash": "f2b012a65f7e5a4f1a7ac84b3877b04f",
+    "mtime": 1793403059.3017726,
+    "seen": 1793405949.7715473,
+    "ast_hash": "d369154f534eebd589ce88535b54a1de",
     "semantic_hash": ""
   },
   "src/games/kart/render/models.ts": {
-    "mtime": 1793093281.6356826,
-    "seen": 1793094897.3777344,
-    "ast_hash": "245b885367f224940d84008d09ac0c5f",
+    "mtime": 1793399526.4977422,
+    "seen": 1793401698.7207196,
+    "ast_hash": "f824dff13ce08c847777fb6b0ef82f88",
     "semantic_hash": ""
   },
   "src/games/kart/render/world.ts": {
-    "mtime": 1793093901.355486,
-    "seen": 1793094897.3777611,
-    "ast_hash": "979a4e4237b001c71be8a9ae4136fd78",
+    "mtime": 1793403800.098482,
+    "seen": 1793405949.7715805,
+    "ast_hash": "94550106ed76b64fca998b9b5388aee0",
     "semantic_hash": ""
   },
   "src/games/kart/sim/bots.ts": {
-    "mtime": 1793088864.780204,
-    "seen": 1793089435.2154071,
-    "ast_hash": "a8206ecba86affdffd77edf31c94151a",
+    "mtime": 1793399158.5529919,
+    "seen": 1793401698.720749,
+    "ast_hash": "3ccbac1ebe545907aa17edcbf5723251",
     "semantic_hash": ""
   },
   "src/games/kart/sim/hazards.ts": {
-    "mtime": 1793086705.3335881,
-    "seen": 1793089435.215409,
-    "ast_hash": "48dee70565f55dfea1020ee846e73663",
+    "mtime": 1793399158.5540063,
+    "seen": 1793401698.7207544,
+    "ast_hash": "b3d93ee99728a00841bade300014f8d0",
     "semantic_hash": ""
   },
   "src/games/kart/sim/physics.test.ts": {
-    "mtime": 1793085903.019931,
-    "seen": 1793089435.2154107,
-    "ast_hash": "b8fff498911ff4acede12afbdd921ff1",
+    "mtime": 1793399243.2580137,
+    "seen": 1793401698.7207644,
+    "ast_hash": "44bfd7b5ca57a892d7a79dbc45e2200e",
     "semantic_hash": ""
   },
   "src/games/kart/sim/physics.ts": {
-    "mtime": 1793088834.5417337,
-    "seen": 1793089435.2154124,
-    "ast_hash": "b8a85020ee493a8514c7953432ef2100",
+    "mtime": 1793399158.5487373,
+    "seen": 1793401698.720767,
+    "ast_hash": "cba7020dcca2876daf0097077a504b00",
     "semantic_hash": ""
   },
   "src/games/kart/sim/track.ts": {
-    "mtime": 1793088893.984946,
-    "seen": 1793089435.215414,
-    "ast_hash": "6d16eb9ca7c854f6650e12cd8845c30c",
+    "mtime": 1793399158.5466254,
+    "seen": 1793401698.7207696,
+    "ast_hash": "9a93ef2a455f1c8cbda6507311726533",
     "semantic_hash": ""
   },
   "src/games/kart/sounds.ts": {
-    "mtime": 1793086520.4693522,
-    "seen": 1793089435.215416,
-    "ast_hash": "3ce483ca8ef4c6c0491b5354ab2bc196",
+    "mtime": 1793113186.8309617,
+    "seen": 1793350321.2270832,
+    "ast_hash": "4de6a44cb445bdd05d1599d0457a84b1",
     "semantic_hash": ""
   },
   "src/games/kart/tracks.ts": {
-    "mtime": 1793093904.6048276,
-    "seen": 1793094897.3777943,
-    "ast_hash": "03ba0f782ac0045d2c29e2eb7029f67d",
+    "mtime": 1793403800.019181,
+    "seen": 1793405949.7716053,
+    "ast_hash": "95fe85be737af221fab7e6661f9fbeac",
     "semantic_hash": ""
   },
   "src/games/kart/types.ts": {
-    "mtime": 1793085356.019925,
-    "seen": 1793089435.2154193,
-    "ast_hash": "9375703edd7cf2dc80d64e1dfde5bb00",
+    "mtime": 1793113186.8329813,
+    "seen": 1793350321.2270944,
+    "ast_hash": "a87e5570b644d7beb15a721fde75f868",
     "semantic_hash": ""
   },
   "src/games/kart/ui/KartBoard.tsx": {
-    "mtime": 1793092153.317607,
-    "seen": 1793092614.3607156,
-    "ast_hash": "fc4cdd5d0bb7b3cdef5a94ffa437d728",
+    "mtime": 1793370624.1087933,
+    "seen": 1793372760.1156929,
+    "ast_hash": "539fc3b27ed6358e0097b551e3af27ef",
     "semantic_hash": ""
   },
   "src/games/kart/ui/Lobby.tsx": {
-    "mtime": 1793086505.295744,
-    "seen": 1793089435.2154236,
-    "ast_hash": "e57322290433ddb99a9d65c61fb19508",
+    "mtime": 1793389565.53198,
+    "seen": 1793390032.4622643,
+    "ast_hash": "f9b5c2d540ed0d469a39b49bd4b7e3fe",
     "semantic_hash": ""
   },
   "src/games/kart/ui/art.ts": {
-    "mtime": 1793086629.0772185,
-    "seen": 1793089435.2154253,
-    "ast_hash": "d8e7118f8f910f12f181bc09f43fc63c",
+    "mtime": 1793113186.8410428,
+    "seen": 1793350321.2271104,
+    "ast_hash": "6c5986660442146cd6e8eec472bb6b46",
     "semantic_hash": ""
   },
   "src/games/kart/ui/copy.ts": {
-    "mtime": 1793086504.5377219,
-    "seen": 1793089435.2154272,
-    "ast_hash": "da8ef4dfc7eb57dbe62c413b14a05764",
+    "mtime": 1793113186.8410428,
+    "seen": 1793350321.227115,
+    "ast_hash": "b2c6177c62c2f6278fa5f6ca21711c82",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/char-bubu.png": {
-    "mtime": 1793091218.298635,
-    "seen": 1793092614.3613305,
+    "mtime": 1793113185.5405,
+    "seen": 1793350321.2280052,
     "ast_hash": "4c305a5f3313ada21027f7eb3e40a64e",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/char-ciko.png": {
-    "mtime": 1793091225.8600385,
-    "seen": 1793092614.361334,
+    "mtime": 1793113185.5425205,
+    "seen": 1793350321.2280104,
     "ast_hash": "46ace1d255ff5c09312eb3fd908def0f",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/char-embek.png": {
-    "mtime": 1793091244.5735278,
-    "seen": 1793092614.3613372,
+    "mtime": 1793113185.5445373,
+    "seen": 1793350321.2280154,
     "ast_hash": "349cd1bf19284ef77f88058c6bce5f1b",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/char-gurit.png": {
-    "mtime": 1793091231.7643592,
-    "seen": 1793092614.3613398,
+    "mtime": 1793113185.548316,
+    "seen": 1793350321.2280197,
     "ast_hash": "a2877dfd9e44a7a1ce21b79d0a2907e6",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/char-komo.png": {
-    "mtime": 1793091250.5996687,
-    "seen": 1793092614.3613434,
+    "mtime": 1793113185.5503328,
+    "seen": 1793350321.2280245,
     "ast_hash": "72d1dce8865082e08b632747a0478a41",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/char-kroak.png": {
-    "mtime": 1793091211.2093048,
-    "seen": 1793092614.3613465,
+    "mtime": 1793113185.552351,
+    "seen": 1793350321.2280307,
     "ast_hash": "d431e2cce13c54cabbffaefe2e13bac0",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/char-loreng.png": {
-    "mtime": 1793091238.163303,
-    "seen": 1793092614.36135,
+    "mtime": 1793113185.5604246,
+    "seen": 1793350321.228035,
     "ast_hash": "9f91475ff791d24069e149ae83b115d4",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/char-moci.png": {
-    "mtime": 1793091204.2172232,
-    "seen": 1793092614.3613534,
+    "mtime": 1793113185.5659716,
+    "seen": 1793350321.2280416,
     "ast_hash": "6e3942a4f019dec889574f40e62b8c10",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-awan.png": {
-    "mtime": 1793093107.326686,
-    "seen": 1793094897.3787003,
+    "mtime": 1793113185.567989,
+    "seen": 1793350321.2280476,
     "ast_hash": "edea0f346b79afb0037933fad612c81e",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-magnet.png": {
-    "mtime": 1793093108.209038,
-    "seen": 1793094897.3787055,
-    "ast_hash": "167570d202368764fa481463f066fdf9",
+    "mtime": 1793370624.0816717,
+    "seen": 1793372760.1163728,
+    "ast_hash": "39dd81279cf6234cf68d55196d800f78",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-perisai.png": {
-    "mtime": 1793093098.6244898,
-    "seen": 1793094897.3787105,
+    "mtime": 1793113185.5720186,
+    "seen": 1793350321.2280576,
     "ast_hash": "968d2e3d8cfc018db498f8fa43eac14b",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-petasan.png": {
-    "mtime": 1793093109.3585188,
-    "seen": 1793094897.3787148,
+    "mtime": 1793113185.574034,
+    "seen": 1793350321.2280624,
     "ast_hash": "a3c004eca45da1429e52410fc5f051cd",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-pisang.png": {
-    "mtime": 1793093213.6073573,
-    "seen": 1793094897.3787208,
+    "mtime": 1793113185.5760534,
+    "seen": 1793350321.2280674,
     "ast_hash": "d532a55320bdad183e227c07eb49b5a2",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-pisang3.png": {
-    "mtime": 1793093222.7373917,
-    "seen": 1793094897.3787253,
+    "mtime": 1793113185.5780697,
+    "seen": 1793350321.2280724,
     "ast_hash": "4d69d33c047d15b415e03f391af3af6a",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-roket.png": {
-    "mtime": 1793093082.0514445,
-    "seen": 1793094897.37873,
+    "mtime": 1793113185.5818458,
+    "seen": 1793350321.2280784,
     "ast_hash": "4b68c4c7f29d2993d9c0d8a845aa5331",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-sambal.png": {
-    "mtime": 1793093100.4767258,
-    "seen": 1793094897.3787346,
+    "mtime": 1793113185.5833604,
+    "seen": 1793350321.2280834,
     "ast_hash": "151ead29b055447a2d2d82e633751275",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/item-sambal3.png": {
-    "mtime": 1793093104.853687,
-    "seen": 1793094897.3787386,
+    "mtime": 1793113185.5869162,
+    "seen": 1793350321.2280881,
     "ast_hash": "cb155bd70f209cbbbd8692a3fd90fb0d",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/kart-bajaj.png": {
-    "mtime": 1793091262.6839693,
-    "seen": 1793092614.3613915,
+    "mtime": 1793113185.5909448,
+    "seen": 1793350321.2280934,
     "ast_hash": "29b2d566a9f2c3c50d592b924490f623",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/kart-bebek.png": {
-    "mtime": 1793091292.4818523,
-    "seen": 1793092614.3613951,
+    "mtime": 1793113185.5949707,
+    "seen": 1793350321.2280993,
     "ast_hash": "b522e4ea4dd03f051cbdf91ec5341927",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/kart-gerobak.png": {
-    "mtime": 1793091384.567514,
-    "seen": 1793092614.3613982,
+    "mtime": 1793113185.605047,
+    "seen": 1793350321.228104,
     "ast_hash": "17d85e4ff2f43cca3ff2604b3fcd894d",
     "semantic_hash": ""
   },
   "brand/illustrations/kart/tile-kart.png": {
-    "mtime": 1793087253.898017,
-    "seen": 1793089435.2158558,
+    "mtime": 1793113185.6189137,
+    "seen": 1793350321.2281115,
     "ast_hash": "1c5967177a9c6e8d4cfef18a57f64767",
     "semantic_hash": ""
   },
   "src/assets/kart/char-bubu.webp": {
-    "mtime": 1793093476.3208725,
-    "seen": 1793094897.3797195,
+    "mtime": 1793369447.5258553,
+    "seen": 1793370315.424284,
     "ast_hash": "20f3cadd022f61aef187d355df6aba73",
     "semantic_hash": ""
   },
   "src/assets/kart/char-ciko.webp": {
-    "mtime": 1793093478.32753,
-    "seen": 1793094897.3797243,
+    "mtime": 1793369449.7467754,
+    "seen": 1793370315.4242861,
     "ast_hash": "22f593c50aec7cfd0ec402609aa69790",
     "semantic_hash": ""
   },
   "src/assets/kart/char-embek.webp": {
-    "mtime": 1793093480.9372027,
-    "seen": 1793094897.3797293,
+    "mtime": 1793369452.4084382,
+    "seen": 1793370315.4242883,
     "ast_hash": "6eb6e2ea36aaa691aaece2c4a35747d9",
     "semantic_hash": ""
   },
   "src/assets/kart/char-gurit.webp": {
-    "mtime": 1793093482.8003788,
-    "seen": 1793094897.3797336,
+    "mtime": 1793369454.6150177,
+    "seen": 1793370315.4242904,
     "ast_hash": "0476f9c9005b0faf52fc586f08364c3b",
     "semantic_hash": ""
   },
   "src/assets/kart/char-komo.webp": {
-    "mtime": 1793093484.8731318,
-    "seen": 1793094897.3797374,
+    "mtime": 1793369456.5155303,
+    "seen": 1793370315.4242923,
     "ast_hash": "68dcdf7b06b3fde2f8925735fab84dce",
     "semantic_hash": ""
   },
   "src/assets/kart/char-kroak.webp": {
-    "mtime": 1793093487.1615498,
-    "seen": 1793094897.3797412,
+    "mtime": 1793369458.7463481,
+    "seen": 1793370315.424296,
     "ast_hash": "4b08afa3a0ceae58e627512d2d9ae5a5",
     "semantic_hash": ""
   },
   "src/assets/kart/char-loreng.webp": {
-    "mtime": 1793093489.1258702,
-    "seen": 1793094897.3797452,
+    "mtime": 1793369460.771744,
+    "seen": 1793370315.424301,
     "ast_hash": "6e9f889ce966f0703ee785788a6f0b61",
     "semantic_hash": ""
   },
   "src/assets/kart/char-moci.webp": {
-    "mtime": 1793093491.2337437,
-    "seen": 1793094897.3797493,
+    "mtime": 1793369462.7177935,
+    "seen": 1793370315.4243052,
     "ast_hash": "805213f17b181cd496aa7ef27fedcae5",
     "semantic_hash": ""
   },
   "src/assets/kart/item-awan.webp": {
-    "mtime": 1793093492.840638,
-    "seen": 1793094897.379754,
+    "mtime": 1793369464.3497007,
+    "seen": 1793370315.4243107,
     "ast_hash": "db79d70e657891fb67b3c4cf67cab064",
     "semantic_hash": ""
   },
   "src/assets/kart/item-magnet.webp": {
-    "mtime": 1793093494.1876736,
-    "seen": 1793094897.3797584,
-    "ast_hash": "0b49ff9262b924bc7909def323b3c5c8",
+    "mtime": 1793370624.0921977,
+    "seen": 1793372760.1169841,
+    "ast_hash": "d6806e60faafefc2c29f760c08da1fa7",
     "semantic_hash": ""
   },
   "src/assets/kart/item-perisai.webp": {
-    "mtime": 1793093496.027728,
-    "seen": 1793094897.3797624,
+    "mtime": 1793369467.8236287,
+    "seen": 1793370315.4243176,
     "ast_hash": "28f3f5a5f6cb182dca8a1971437f00c1",
     "semantic_hash": ""
   },
   "src/assets/kart/item-petasan.webp": {
-    "mtime": 1793093497.181764,
-    "seen": 1793094897.3797684,
+    "mtime": 1793369468.974486,
+    "seen": 1793370315.42432,
     "ast_hash": "95ba184a10a595c8c3392107161d2745",
     "semantic_hash": ""
   },
   "src/assets/kart/item-pisang.webp": {
-    "mtime": 1793093498.566612,
-    "seen": 1793094897.379773,
+    "mtime": 1793369470.4146347,
+    "seen": 1793370315.4243221,
     "ast_hash": "1bdd796b295b80c2f15d403104681ef1",
     "semantic_hash": ""
   },
   "src/assets/kart/item-pisang3.webp": {
-    "mtime": 1793093499.8883412,
-    "seen": 1793094897.379778,
+    "mtime": 1793369471.8840652,
+    "seen": 1793370315.4243245,
     "ast_hash": "9b6b0195294c2eb804276696a181ea86",
     "semantic_hash": ""
   },
   "src/assets/kart/item-roket.webp": {
-    "mtime": 1793093501.4271474,
-    "seen": 1793094897.3797827,
+    "mtime": 1793369473.4882598,
+    "seen": 1793370315.4243274,
     "ast_hash": "b26812980d1a75581f9aed737fe7d28b",
     "semantic_hash": ""
   },
   "src/assets/kart/item-sambal.webp": {
-    "mtime": 1793093502.4851787,
-    "seen": 1793094897.3797874,
+    "mtime": 1793369474.592354,
+    "seen": 1793370315.42433,
     "ast_hash": "3b80eafbf7a91a9a6625fb3cf4475c28",
     "semantic_hash": ""
   },
   "src/assets/kart/item-sambal3.webp": {
-    "mtime": 1793093504.1863647,
-    "seen": 1793094897.3797925,
+    "mtime": 1793369476.3136976,
+    "seen": 1793370315.4243324,
     "ast_hash": "2ef2f9ab59d3205667011d49bcc5d919",
     "semantic_hash": ""
   },
   "src/assets/kart/kart-bajaj.webp": {
-    "mtime": 1793093507.1273775,
-    "seen": 1793094897.3797975,
+    "mtime": 1793369479.2893806,
+    "seen": 1793370315.4243348,
     "ast_hash": "8069309e5c19e8b20770ceb98cd392db",
     "semantic_hash": ""
   },
   "src/assets/kart/kart-bebek.webp": {
-    "mtime": 1793093509.9991972,
-    "seen": 1793094897.3798022,
+    "mtime": 1793369481.8935587,
+    "seen": 1793370315.4243371,
     "ast_hash": "a15b8e54eecdf9c1cf13408479a3c3d8",
     "semantic_hash": ""
   },
   "src/assets/kart/kart-gerobak.webp": {
-    "mtime": 1793093513.0531476,
-    "seen": 1793094897.3798068,
+    "mtime": 1793369484.7894197,
+    "seen": 1793370315.4243395,
     "ast_hash": "993d7029a8872c1cbf5e24fc04c1489e",
     "semantic_hash": ""
   },
   "src/assets/kart/tile-kart.webp": {
-    "mtime": 1793093519.551,
-    "seen": 1793094897.3798902,
+    "mtime": 1793369489.8957572,
+    "seen": 1793370315.4243827,
     "ast_hash": "b859415a702fad883f95de90a4910ac3",
     "semantic_hash": ""
   },
   "public/audio/music/kart-tense.ogg": {
-    "mtime": 1793088607.197532,
-    "seen": 1793089435.2166579,
+    "mtime": 1793388973.2767367,
+    "seen": 1793389192.8891122,
     "ast_hash": "1409c2d5028efbb81ac77cdf94c56f46",
     "semantic_hash": ""
   },
   "public/audio/music/kart.ogg": {
-    "mtime": 1793088603.720407,
-    "seen": 1793089435.21666,
+    "mtime": 1793388973.2960744,
+    "seen": 1793389192.8891149,
     "ast_hash": "8a219724937766baa9a0f3ca54ca7929",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-blast.ogg": {
-    "mtime": 1793088613.2452486,
-    "seen": 1793089435.216837,
+    "mtime": 1793113185.8485906,
+    "seen": 1793350321.2306895,
     "ast_hash": "83c9e63b3e4996bcd2822312c49eae65",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-boost.ogg": {
-    "mtime": 1793088608.5599284,
-    "seen": 1793089435.2168386,
+    "mtime": 1793113185.8506086,
+    "seen": 1793350321.2306948,
     "ast_hash": "e2f725659767054574348d554392d95c",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-box.ogg": {
-    "mtime": 1793088611.2061653,
-    "seen": 1793089435.2168407,
+    "mtime": 1793113185.8506086,
+    "seen": 1793350321.2307222,
     "ast_hash": "8114b4a754de573191fed9f570ba68b2",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-bump.ogg": {
-    "mtime": 1793088610.9130883,
-    "seen": 1793089435.216843,
+    "mtime": 1793113185.8506086,
+    "seen": 1793350321.2307305,
     "ast_hash": "d9b77d8a903a6c242f4d4f79db11653b",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-champion.ogg": {
-    "mtime": 1793088613.9082098,
-    "seen": 1793089435.2168446,
+    "mtime": 1793113185.8526263,
+    "seen": 1793350321.2307353,
     "ast_hash": "c3b442b53ff6ad767c83af5358e9d9b6",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-count.ogg": {
-    "mtime": 1793088609.140126,
-    "seen": 1793089435.2168467,
+    "mtime": 1793113185.8526263,
+    "seen": 1793350321.2307417,
     "ast_hash": "606d2cf62da12d016fc95b41a1bff8c8",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-drift.ogg": {
-    "mtime": 1793088608.7597873,
-    "seen": 1793089435.2168486,
+    "mtime": 1793113185.8546426,
+    "seen": 1793350321.230748,
     "ast_hash": "29e1e84a6a39ab18418a93cdb6f0843f",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-engine.ogg": {
-    "mtime": 1793088608.2753537,
-    "seen": 1793089435.2168517,
+    "mtime": 1793113185.8546426,
+    "seen": 1793350321.2307525,
     "ast_hash": "95bfd29b8cbab0bb63c9d1ee81f2c2c5",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-fall.ogg": {
-    "mtime": 1793088612.6144867,
-    "seen": 1793089435.2168539,
+    "mtime": 1793113185.85666,
+    "seen": 1793350321.2307563,
     "ast_hash": "471ca3f8738af3832c9d1bb278f60161",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-final.ogg": {
-    "mtime": 1793088610.3298266,
-    "seen": 1793089435.2168555,
+    "mtime": 1793113185.85666,
+    "seen": 1793350321.2307608,
     "ast_hash": "3ace546a84ea5f048a9c744294332bdf",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-finish.ogg": {
-    "mtime": 1793088612.2976604,
-    "seen": 1793089435.2168574,
+    "mtime": 1793113185.8586771,
+    "seen": 1793350321.2307646,
     "ast_hash": "301e8a68a713c3b0d939bea187a226b5",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-go.ogg": {
-    "mtime": 1793088609.3568902,
-    "seen": 1793089435.2168596,
+    "mtime": 1793113185.8586771,
+    "seen": 1793350321.2307694,
     "ast_hash": "76eb373a182a9c1775224099bdf43ff8",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-hit.ogg": {
-    "mtime": 1793088610.615366,
-    "seen": 1793089435.2168617,
+    "mtime": 1793113185.8586771,
+    "seen": 1793350321.2307742,
     "ast_hash": "62c03300d6cf23106b85b5c5a939602a",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-item.ogg": {
-    "mtime": 1793088611.5400965,
-    "seen": 1793089435.2168634,
+    "mtime": 1793113185.8606946,
+    "seen": 1793350321.2307785,
     "ast_hash": "8e18ef832aaf6e8952c882729455821e",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-jump.ogg": {
-    "mtime": 1793088608.9558392,
-    "seen": 1793089435.2168655,
+    "mtime": 1793113185.8606946,
+    "seen": 1793350321.230783,
     "ast_hash": "ee3cdb0300361bade8d636741a920e71",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-land.ogg": {
-    "mtime": 1793088611.9762688,
-    "seen": 1793089435.2168674,
+    "mtime": 1793113185.862711,
+    "seen": 1793350321.2307885,
     "ast_hash": "f095f53f1d88c2952da7762c82e60dd5",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-lap.ogg": {
-    "mtime": 1793088609.9836147,
-    "seen": 1793089435.2168694,
+    "mtime": 1793113185.862711,
+    "seen": 1793350321.2307925,
     "ast_hash": "817d47218fbfff0823ed0549ca6fa709",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-lose.ogg": {
-    "mtime": 1793088614.239832,
-    "seen": 1793089435.2168715,
+    "mtime": 1793113185.8644702,
+    "seen": 1793350321.2307968,
     "ast_hash": "a318614b9a07bd5bc1934a2f673abd91",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-rain.ogg": {
-    "mtime": 1793088609.6525512,
-    "seen": 1793089435.216873,
+    "mtime": 1793113185.86649,
+    "seen": 1793350321.2308013,
     "ast_hash": "e9969c1e30bae0532bf99de077d7b5c8",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-shield.ogg": {
-    "mtime": 1793088612.917786,
-    "seen": 1793089435.2168753,
+    "mtime": 1793113185.86649,
+    "seen": 1793350321.230806,
     "ast_hash": "d95fffd8678bcce0ed8248b5d4d2514e",
     "semantic_hash": ""
   },
   "public/audio/sfx/kart-throw.ogg": {
-    "mtime": 1793088613.5524082,
-    "seen": 1793089435.2168772,
+    "mtime": 1793113185.868506,
+    "seen": 1793350321.230812,
     "ast_hash": "45ed40f931894b77cec334bdc2085fcb",
     "semantic_hash": ""
   },
   "scripts/blender/kart_hd.py": {
-    "mtime": 1793091360.664836,
-    "seen": 1793092614.3594375,
-    "ast_hash": "745d3c89b42c6ad514f6b4dc84c806a6",
+    "mtime": 1793113185.8785913,
+    "seen": 1793350321.2253036,
+    "ast_hash": "3cba9887bae74b94bf78e393a22a2ee1",
     "semantic_hash": ""
   },
   "scripts/blender/kart_props_hd.py": {
-    "mtime": 1793091836.4194949,
-    "seen": 1793092614.3594487,
+    "mtime": 1793113185.882368,
+    "seen": 1793350321.225327,
     "ast_hash": "b176a1692a973f823d9c091d8f87fbd5",
     "semantic_hash": ""
   },
   "scripts/blender/kart_textures.py": {
-    "mtime": 1793090317.4226828,
-    "seen": 1793092614.3594522,
-    "ast_hash": "bb81304f25ceacf5f143d50607ef5aaa",
+    "mtime": 1793402592.1329281,
+    "seen": 1793405949.7706532,
+    "ast_hash": "7c87ca443f92eaaf6c0ef84da4221319",
     "semantic_hash": ""
   },
   "scripts/blender/kart_world.py": {
-    "mtime": 1793091795.0844083,
-    "seen": 1793092614.3594565,
-    "ast_hash": "b797739230846253387e120fdec9a881",
+    "mtime": 1793113185.884384,
+    "seen": 1793350321.2253385,
+    "ast_hash": "31a625df48d9bb003ab2d208fae18aa4",
     "semantic_hash": ""
   },
   "src/games/kart/render/particles.ts": {
-    "mtime": 1793090637.5940764,
-    "seen": 1793092614.360667,
-    "ast_hash": "da39b54dc04729b053a560b6bb638595",
+    "mtime": 1793399527.0986552,
+    "seen": 1793401698.7207227,
+    "ast_hash": "872a8e2715d7b12cafe86b87716440cd",
     "semantic_hash": ""
   },
   "src/games/kart/render/podium.ts": {
-    "mtime": 1793092135.7867546,
-    "seen": 1793092614.3606706,
-    "ast_hash": "a2a88b48c6466acacf87b83c587620b5",
+    "mtime": 1793113186.8239045,
+    "seen": 1793350321.2270386,
+    "ast_hash": "f18d8a414bf391b14a691c47a806a7b0",
     "semantic_hash": ""
   },
   "src/games/kart/render/quality.ts": {
-    "mtime": 1793090301.4290743,
-    "seen": 1793092614.360674,
-    "ast_hash": "c4f80575d6e6b3d32bdbe1da9e92d76c",
+    "mtime": 1793370624.1001968,
+    "seen": 1793372760.1156592,
+    "ast_hash": "7f69cce569186878d92d6c9fc3653fb1",
     "semantic_hash": ""
   },
   "src/games/kart/render/skids.ts": {
-    "mtime": 1793090638.4328663,
-    "seen": 1793092614.3606768,
-    "ast_hash": "81b103cfb4380f2f2fbf4042990b9128",
+    "mtime": 1793113186.8239045,
+    "seen": 1793350321.2270486,
+    "ast_hash": "eba1e878c9b0d2150b0cbda9f1bbe634",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/aspal_diff.webp": {
-    "mtime": 1793090326.038332,
-    "seen": 1793092614.362188,
+    "mtime": 1793113186.6658223,
+    "seen": 1793350321.2292945,
     "ast_hash": "00f32694b705e9c83510f9bd5d16963e",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/aspal_nor.webp": {
-    "mtime": 1793090326.531392,
-    "seen": 1793092614.3621914,
+    "mtime": 1793113186.6658223,
+    "seen": 1793350321.2292993,
     "ast_hash": "d71f5271288ac5887d367d804f40d56a",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/batu_diff.webp": {
-    "mtime": 1793090332.0652776,
-    "seen": 1793092614.362194,
+    "mtime": 1793113186.6707995,
+    "seen": 1793350321.2293036,
     "ast_hash": "a70a28fc5bfe0c152755e8a926e507c1",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/batu_nor.webp": {
-    "mtime": 1793090332.594783,
-    "seen": 1793092614.3621967,
+    "mtime": 1793113186.6743355,
+    "seen": 1793350321.2293077,
     "ast_hash": "6a1e4823ac16d49551f6042fe2fb1ce7",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/cobble_diff.webp": {
-    "mtime": 1793090334.1030586,
-    "seen": 1793092614.3621995,
+    "mtime": 1793113186.6763554,
+    "seen": 1793350321.229312,
     "ast_hash": "14e163116ccd1ee6771575ba4c79f004",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/cobble_nor.webp": {
-    "mtime": 1793090334.6097474,
-    "seen": 1793092614.3622024,
+    "mtime": 1793113186.680392,
+    "seen": 1793350321.229317,
     "ast_hash": "a2603aaa539445e53e7f8e519f500ca6",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/kerikil_diff.webp": {
-    "mtime": 1793090330.8096087,
-    "seen": 1793092614.3622055,
+    "mtime": 1793113186.6844287,
+    "seen": 1793350321.2293215,
     "ast_hash": "12d333ce277983eb3a9b294715649e5b",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/kerikil_nor.webp": {
-    "mtime": 1793090331.384832,
-    "seen": 1793092614.362208,
+    "mtime": 1793113186.6897151,
+    "seen": 1793350321.2293262,
     "ast_hash": "569a6b16f4439d66673bdf8055e5edd7",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/papan_diff.webp": {
-    "mtime": 1793090333.0872235,
-    "seen": 1793092614.3622108,
+    "mtime": 1793113186.7565074,
+    "seen": 1793350321.229332,
     "ast_hash": "741317c64d0e4820e8a9c62739ca9fb3",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/papan_nor.webp": {
-    "mtime": 1793090333.5332584,
-    "seen": 1793092614.3622136,
+    "mtime": 1793113186.7585256,
+    "seen": 1793350321.2293377,
     "ast_hash": "3dc0fb0416102e0a8255bad64d90c67e",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/pasir_diff.webp": {
-    "mtime": 1793090327.184041,
-    "seen": 1793092614.3622167,
+    "mtime": 1793113186.762551,
+    "seen": 1793350321.2293427,
     "ast_hash": "d5a849f5b30076a857c22d61818ce414",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/pasir_nor.webp": {
-    "mtime": 1793090327.7533836,
-    "seen": 1793092614.36222,
+    "mtime": 1793113186.7683477,
+    "seen": 1793350321.2293484,
     "ast_hash": "e7246a36ea4c871c3aa8efe09c05e431",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/rumput_diff.webp": {
-    "mtime": 1793090328.4269042,
-    "seen": 1793092614.3622231,
+    "mtime": 1793113186.7703633,
+    "seen": 1793350321.2293534,
     "ast_hash": "7a49b3cc3c99c306d68cf092b8516f5c",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/rumput_nor.webp": {
-    "mtime": 1793090328.99627,
-    "seen": 1793092614.362226,
+    "mtime": 1793113186.7764204,
+    "seen": 1793350321.2293584,
     "ast_hash": "8d2de62e47add17f1557d32305174cc5",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/salju_diff.webp": {
-    "mtime": 1793090329.4724176,
-    "seen": 1793092614.362229,
+    "mtime": 1793113186.778438,
+    "seen": 1793350321.2293627,
     "ast_hash": "37168e5f72a2b10c8e7cf0dc16e05d8e",
     "semantic_hash": ""
   },
   "src/assets/kart/tex/salju_nor.webp": {
-    "mtime": 1793090330.114149,
-    "seen": 1793092614.362232,
+    "mtime": 1793113186.7822192,
+    "seen": 1793350321.229367,
     "ast_hash": "b48911d0ccf45ff0f481c50e32323416",
     "semantic_hash": ""
   },
   "scripts/blender/kart_items.py": {
-    "mtime": 1793093194.5907118,
-    "seen": 1793094897.3761554,
-    "ast_hash": "f756169f0279bface6a8f593df6fc50b",
+    "mtime": 1793370624.0896752,
+    "seen": 1793372760.1143973,
+    "ast_hash": "960df8442d6738f50487c43e20d859b2",
+    "semantic_hash": ""
+  },
+  "scripts/blender/kart_hazards.py": {
+    "mtime": 1793370624.088676,
+    "seen": 1793372760.1143873,
+    "ast_hash": "6459bc96183edc27b0db119f569883c0",
+    "semantic_hash": ""
+  },
+  "scripts/blender/kart_lib.py": {
+    "mtime": 1793370624.0911844,
+    "seen": 1793372760.1144013,
+    "ast_hash": "e2c65f4fe97fb08d886a08b2adfa0219",
+    "semantic_hash": ""
+  },
+  "scripts/blender/kart_world2.py": {
+    "mtime": 1793113185.884384,
+    "seen": 1793350321.2253432,
+    "ast_hash": "697c98aee1ec8790f57fc817046be52b",
+    "semantic_hash": ""
+  },
+  "src/games/bom/bot.ts": {
+    "mtime": 1793348927.4397714,
+    "seen": 1793350321.2267854,
+    "ast_hash": "3d7db2148acd00be041726cebe400663",
+    "semantic_hash": ""
+  },
+  "src/games/bom/botWords.ts": {
+    "mtime": 1793349256.4203627,
+    "seen": 1793350321.2267907,
+    "ast_hash": "dc6709484fa1b3546a88eb4fcdc13e52",
+    "semantic_hash": ""
+  },
+  "src/games/botKit.ts": {
+    "mtime": 1793348473.5986967,
+    "seen": 1793350321.226846,
+    "ast_hash": "4db548fa6ccc810068a93b5f0c16c234",
+    "semantic_hash": ""
+  },
+  "src/games/bots.test.ts": {
+    "mtime": 1793350346.899284,
+    "seen": 1793363698.4308438,
+    "ast_hash": "b1925a7737852cfc63c374629a0c3e97",
+    "semantic_hash": ""
+  },
+  "src/games/domino/bot.ts": {
+    "mtime": 1793348475.5112314,
+    "seen": 1793350321.2268548,
+    "ast_hash": "8bd202ffc32c4d2f4f6f6d61a29e2001",
+    "semantic_hash": ""
+  },
+  "src/games/draw/bot.ts": {
+    "mtime": 1793348934.8446527,
+    "seen": 1793350321.22695,
+    "ast_hash": "291663029bb57bffb5f646729cee880b",
+    "semantic_hash": ""
+  },
+  "src/games/draw/sketches.ts": {
+    "mtime": 1793349616.1347888,
+    "seen": 1793350321.2269683,
+    "ast_hash": "0adc64349fc93afb960e83766a43231a",
+    "semantic_hash": ""
+  },
+  "src/games/ludo/bot.ts": {
+    "mtime": 1793348198.002644,
+    "seen": 1793350321.2271256,
+    "ast_hash": "8d13a3a6afb6e9172d3b95065c7e2aa8",
+    "semantic_hash": ""
+  },
+  "src/games/monopoly/bot.ts": {
+    "mtime": 1793349257.5047758,
+    "seen": 1793350321.2271857,
+    "ast_hash": "9da56c647fe4f3360ab874e1768e3690",
+    "semantic_hash": ""
+  },
+  "src/games/remi/bot.ts": {
+    "mtime": 1793348530.1096478,
+    "seen": 1793350321.2272549,
+    "ast_hash": "481338ea7db4fb7b020ebdac0b84af44",
+    "semantic_hash": ""
+  },
+  "src/games/snakes/bot.ts": {
+    "mtime": 1793348820.0014875,
+    "seen": 1793350321.2274346,
+    "ast_hash": "20b05c230f75f489c6d7a1748ccf7762",
+    "semantic_hash": ""
+  },
+  "src/games/spy/bot.ts": {
+    "mtime": 1793349695.513029,
+    "seen": 1793350321.2274835,
+    "ast_hash": "9b432887951d37f2b385afed97ad165d",
+    "semantic_hash": ""
+  },
+  "src/games/spy/botClues.ts": {
+    "mtime": 1793349083.4134648,
+    "seen": 1793350321.2274885,
+    "ast_hash": "7c547f2febbac6503dd2370a16bf804b",
+    "semantic_hash": ""
+  },
+  "src/games/uno/bot.ts": {
+    "mtime": 1793348474.5202127,
+    "seen": 1793350321.2275634,
+    "ast_hash": "c965c0328d49f8c9eaa93e1d8bcece6f",
+    "semantic_hash": ""
+  },
+  "src/net/useBots.test.ts": {
+    "mtime": 1793348271.3456864,
+    "seen": 1793350321.2276685,
+    "ast_hash": "fe98994530a64df7193738de83f08bb6",
+    "semantic_hash": ""
+  },
+  "src/net/useBots.ts": {
+    "mtime": 1793348107.321612,
+    "seen": 1793350321.2276728,
+    "ast_hash": "2612b6833d02d0e6979a919ad6de9f13",
+    "semantic_hash": ""
+  },
+  "scripts/blender/emote.py": {
+    "mtime": 1793363055.504836,
+    "seen": 1793363698.4290655,
+    "ast_hash": "86424ccd6f3ae6143ceb515cc8f91716",
+    "semantic_hash": ""
+  },
+  "scripts/blender/emote_anim.py": {
+    "mtime": 1793362761.1179368,
+    "seen": 1793363698.4290736,
+    "ast_hash": "802baebe1d5810db269c09501a4cdbaa",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/kaget-anim.webp.json": {
+    "mtime": 1793363108.115171,
+    "seen": 1793363698.429461,
+    "ast_hash": "c0c583cd71d221d06b2b63069feaee2b",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/kaget.webp.json": {
+    "mtime": 1793363087.0150204,
+    "seen": 1793363698.4294677,
+    "ast_hash": "30cba3968384924ba51dd59cf96700af",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/keren-anim.webp.json": {
+    "mtime": 1793363120.3148131,
+    "seen": 1793363698.4294732,
+    "ast_hash": "21aa3bf5edca65bda47ef93f9e44c57a",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/keren.webp.json": {
+    "mtime": 1793363088.541411,
+    "seen": 1793363698.4294786,
+    "ast_hash": "df2f87f953ede9194e5c3a16bf2e0291",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/naksir-anim.webp.json": {
+    "mtime": 1793363132.668841,
+    "seen": 1793363698.4294827,
+    "ast_hash": "052dc7e1ed9fc2f08ef3b43953a439e0",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/naksir.webp.json": {
+    "mtime": 1793363089.9023771,
+    "seen": 1793363698.429488,
+    "ast_hash": "2e7d279f2f1ce4ec4b6afb80fdb117ab",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/nangis-anim.webp.json": {
+    "mtime": 1793363144.932107,
+    "seen": 1793363698.429492,
+    "ast_hash": "78631f7b0805d91d6b3aa1489bba4a7a",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/nangis.webp.json": {
+    "mtime": 1793363091.0968096,
+    "seen": 1793363698.4294968,
+    "ast_hash": "33badcfa4b5c120292eb098afa7d0bec",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/ngakak-anim.webp.json": {
+    "mtime": 1793363155.782284,
+    "seen": 1793363698.4295008,
+    "ast_hash": "0e63def226053ae659ce53e6c874d2d1",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/ngakak.webp.json": {
+    "mtime": 1793363092.3892002,
+    "seen": 1793363698.4295053,
+    "ast_hash": "4af84e3fed3b255847cf7a900275bdb4",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/ngambek-anim.webp.json": {
+    "mtime": 1793363166.7460487,
+    "seen": 1793363698.4295084,
+    "ast_hash": "0510d02905cd9d7f77df00da82f72d7b",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/ngambek.webp.json": {
+    "mtime": 1793363093.4157844,
+    "seen": 1793363698.429512,
+    "ast_hash": "8e00abf6f2873f95bd165d71dad798c1",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/ngantuk-anim.webp.json": {
+    "mtime": 1793363179.8483317,
+    "seen": 1793363698.4295156,
+    "ast_hash": "4298c7b004fa1474a8dc9760e1a4a2f5",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/ngantuk.webp.json": {
+    "mtime": 1793363094.8530078,
+    "seen": 1793363698.42952,
+    "ast_hash": "6c7431101439f5b47895077281c28a62",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/sip-anim.webp.json": {
+    "mtime": 1793363192.499483,
+    "seen": 1793363698.4295242,
+    "ast_hash": "286988f44a3349859bc3f70dc204eed7",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/sip.webp.json": {
+    "mtime": 1793363096.025814,
+    "seen": 1793363698.4295287,
+    "ast_hash": "c640e35dd2cc76f96bc66fd024cf498e",
+    "semantic_hash": ""
+  },
+  "src/emote/EmoteLayer.tsx": {
+    "mtime": 1793363524.7539756,
+    "seen": 1793363698.4307566,
+    "ast_hash": "a4db58f880ae51429429e684e41c1889",
+    "semantic_hash": ""
+  },
+  "src/emote/emotes.test.ts": {
+    "mtime": 1793363445.6916611,
+    "seen": 1793363698.430761,
+    "ast_hash": "ee1990cffdf08b80c8f0bd6484fc2770",
+    "semantic_hash": ""
+  },
+  "src/emote/emotes.ts": {
+    "mtime": 1793363444.5230894,
+    "seen": 1793363698.430765,
+    "ast_hash": "c541bf67409eb10956e2d8acc3d5b311",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/kaget-0.png": {
+    "mtime": 1793362834.585204,
+    "seen": 1793363698.4316058,
+    "ast_hash": "d2d5b3c6277056706f47c6549b498a55",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/kaget-1.png": {
+    "mtime": 1793362836.8880196,
+    "seen": 1793363698.4316092,
+    "ast_hash": "93a0c836de7d3623ec1ace4cc2547d85",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/kaget-2.png": {
+    "mtime": 1793362838.220935,
+    "seen": 1793363698.431611,
+    "ast_hash": "64b28647f8856b09c538123da2924610",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/kaget-3.png": {
+    "mtime": 1793362839.6192307,
+    "seen": 1793363698.4316146,
+    "ast_hash": "7d82799ea1e346f36e619efbbf9442ae",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/kaget-4.png": {
+    "mtime": 1793362840.9966295,
+    "seen": 1793363698.431617,
+    "ast_hash": "ed7db36865fb42acb0c4b22046b7043b",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/kaget-5.png": {
+    "mtime": 1793362843.3193343,
+    "seen": 1793363698.4316192,
+    "ast_hash": "89ad769a91db080473ba9c19bc8bc01d",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/kaget-6.png": {
+    "mtime": 1793362845.5747626,
+    "seen": 1793363698.4316213,
+    "ast_hash": "a8250c59fd6fc4e371c3bf5761bf9b38",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/kaget-7.png": {
+    "mtime": 1793362847.8747456,
+    "seen": 1793363698.4316235,
+    "ast_hash": "25d2961e97465785d7657fa0501302ca",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/keren-0.png": {
+    "mtime": 1793362849.3895254,
+    "seen": 1793363698.4316251,
+    "ast_hash": "b7c35799af755e9a12cdb9f97efeb7aa",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/keren-1.png": {
+    "mtime": 1793362852.229198,
+    "seen": 1793363698.431627,
+    "ast_hash": "fa7fb0a76ea3897bc3890eec70813d2f",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/keren-2.png": {
+    "mtime": 1793362853.8816566,
+    "seen": 1793363698.4316287,
+    "ast_hash": "0169add3f42f03b86498222a72968909",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/keren-3.png": {
+    "mtime": 1793362855.4073474,
+    "seen": 1793363698.4316306,
+    "ast_hash": "3b39a63db70697aa24383e6b67b213b3",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/keren-4.png": {
+    "mtime": 1793362856.8164175,
+    "seen": 1793363698.431633,
+    "ast_hash": "e785b1e1cf2f4bb6272725888ff2c544",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/keren-5.png": {
+    "mtime": 1793362858.2681694,
+    "seen": 1793363698.431635,
+    "ast_hash": "828ba8e1589a4940d9c783290ea6fffc",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/keren-6.png": {
+    "mtime": 1793362859.8802435,
+    "seen": 1793363698.4316373,
+    "ast_hash": "d685a6656b532a5da58163027d63c7a7",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/keren-7.png": {
+    "mtime": 1793362860.8714545,
+    "seen": 1793363698.4316392,
+    "ast_hash": "fd8cb89ddadb08b55f91a72e120aef2c",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/naksir-0.png": {
+    "mtime": 1793362824.828691,
+    "seen": 1793363698.4316416,
+    "ast_hash": "c17d5675b9f485ee37ac8b0a927e36a2",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/naksir-1.png": {
+    "mtime": 1793362826.72436,
+    "seen": 1793363698.4316442,
+    "ast_hash": "4762ef111eb0ab3b4caa651a5395e05d",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/naksir-2.png": {
+    "mtime": 1793362827.8959389,
+    "seen": 1793363698.431646,
+    "ast_hash": "b6ba5923f9548786c4de3bb67f1228e9",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/naksir-3.png": {
+    "mtime": 1793362828.9935884,
+    "seen": 1793363698.431648,
+    "ast_hash": "953c271d6a2b428a23e0ea16c3753ffa",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/naksir-4.png": {
+    "mtime": 1793362830.1055267,
+    "seen": 1793363698.4316497,
+    "ast_hash": "c74966444a920e0c158f6d1053f13095",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/naksir-5.png": {
+    "mtime": 1793362831.1474926,
+    "seen": 1793363698.431652,
+    "ast_hash": "e0b4c3cc3999e22a09f1880c8e902928",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/naksir-6.png": {
+    "mtime": 1793362832.1939602,
+    "seen": 1793363698.431654,
+    "ast_hash": "a274a497114196ea3c28a4385ef43de1",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/naksir-7.png": {
+    "mtime": 1793362833.228923,
+    "seen": 1793363698.431656,
+    "ast_hash": "b46e5467a322b575eb75cd1fce98a922",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/nangis-0.png": {
+    "mtime": 1793362794.3964283,
+    "seen": 1793363698.4316583,
+    "ast_hash": "b30b0e8e6063d0a91e389ebe9965fcc5",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/nangis-1.png": {
+    "mtime": 1793362796.5198064,
+    "seen": 1793363698.431661,
+    "ast_hash": "d08ba208bd42aad1476cff8aefa1fe06",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/nangis-2.png": {
+    "mtime": 1793362797.8024094,
+    "seen": 1793363698.4316626,
+    "ast_hash": "974e9159d7ce39acb726e794d4e358aa",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/nangis-3.png": {
+    "mtime": 1793362799.087941,
+    "seen": 1793363698.4316645,
+    "ast_hash": "f2b49a6d0be32de5d4273c8be72c4396",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/nangis-4.png": {
+    "mtime": 1793362800.3115163,
+    "seen": 1793363698.4316711,
+    "ast_hash": "3090b38074e5b9d1bb67ee12f17ec06c",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/nangis-5.png": {
+    "mtime": 1793362802.1039274,
+    "seen": 1793363698.4316733,
+    "ast_hash": "3145296c5b37900ddaf7501d0fcb25cc",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/nangis-6.png": {
+    "mtime": 1793362803.9875183,
+    "seen": 1793363698.4316754,
+    "ast_hash": "d68c9138f7a38ff51be29c862b02dc46",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/nangis-7.png": {
+    "mtime": 1793362805.9741237,
+    "seen": 1793363698.4316776,
+    "ast_hash": "4eb35c060047d8a92c7c8721889ac2d3",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngakak-0.png": {
+    "mtime": 1793362784.3782053,
+    "seen": 1793363698.4316795,
+    "ast_hash": "4461b75b8b06005b735765a6c21b0523",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngakak-1.png": {
+    "mtime": 1793362786.3576913,
+    "seen": 1793363698.4316816,
+    "ast_hash": "ba52b3cd7d72dc4c0cec3ced4bc12466",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngakak-2.png": {
+    "mtime": 1793362787.3959234,
+    "seen": 1793363698.4316835,
+    "ast_hash": "75406cf6a38ffe31f40634813ab9af00",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngakak-3.png": {
+    "mtime": 1793362788.4941342,
+    "seen": 1793363698.4316852,
+    "ast_hash": "f128ddfe6931f80a84f514d3e7199eb9",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngakak-4.png": {
+    "mtime": 1793362789.8403974,
+    "seen": 1793363698.4316874,
+    "ast_hash": "16af473f40a1df18c4d30d01da3dcd2c",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngakak-5.png": {
+    "mtime": 1793362790.9358003,
+    "seen": 1793363698.4316897,
+    "ast_hash": "6430ce01355e107c16ec284cf611d3ef",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngakak-6.png": {
+    "mtime": 1793362792.074415,
+    "seen": 1793363698.4316921,
+    "ast_hash": "8ef0960d5006b84e397e4d9edc8eec65",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngakak-7.png": {
+    "mtime": 1793362793.1934159,
+    "seen": 1793363698.431694,
+    "ast_hash": "11183b563e27b7faa0a60543ee978f5f",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngambek-0.png": {
+    "mtime": 1793363072.8362212,
+    "seen": 1793363698.431696,
+    "ast_hash": "38e41121e99416ed11daa1568c8d0be8",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngambek-1.png": {
+    "mtime": 1793363075.3499238,
+    "seen": 1793363698.4316978,
+    "ast_hash": "97d3f59720d1a752aa188ab7199eb18e",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngambek-2.png": {
+    "mtime": 1793363076.8362477,
+    "seen": 1793363698.4316998,
+    "ast_hash": "7359b25c5670e528b7987ea2555394b8",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngambek-3.png": {
+    "mtime": 1793363078.3287382,
+    "seen": 1793363698.4317014,
+    "ast_hash": "4349639736e43149fa3a4b020a1b4c63",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngambek-4.png": {
+    "mtime": 1793363079.9173505,
+    "seen": 1793363698.431703,
+    "ast_hash": "a7fcd1f972ac28fc12f55040fa348769",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngambek-5.png": {
+    "mtime": 1793363081.390491,
+    "seen": 1793363698.431705,
+    "ast_hash": "851ff7bae0a5b5c1f77cca80d4f1a56d",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngambek-6.png": {
+    "mtime": 1793363082.8842397,
+    "seen": 1793363698.4317074,
+    "ast_hash": "8d448b12e348ca7b830a3cbeb51193b2",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngambek-7.png": {
+    "mtime": 1793363084.3961794,
+    "seen": 1793363698.4317098,
+    "ast_hash": "7d5cf1be3745936601428f759f129a0f",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngantuk-0.png": {
+    "mtime": 1793362861.884321,
+    "seen": 1793363698.4317114,
+    "ast_hash": "5b2510fd0d2822b09d52a05832fd72af",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngantuk-1.png": {
+    "mtime": 1793362863.805583,
+    "seen": 1793363698.4317138,
+    "ast_hash": "26e1f4c5e2420f0909966410be9df775",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngantuk-2.png": {
+    "mtime": 1793362864.98193,
+    "seen": 1793363698.4317162,
+    "ast_hash": "03ba9655e539415641ed2d60e83ecf21",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngantuk-3.png": {
+    "mtime": 1793362866.127793,
+    "seen": 1793363698.431718,
+    "ast_hash": "e71c6e33545993ca45e8dc228dc28a72",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngantuk-4.png": {
+    "mtime": 1793362867.1275427,
+    "seen": 1793363698.4317207,
+    "ast_hash": "4a64a56f03cef8ca0ac56a04edde594c",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngantuk-5.png": {
+    "mtime": 1793362868.1566267,
+    "seen": 1793363698.4317226,
+    "ast_hash": "65429683bc9f2cba82a9ffb2e8b541b8",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngantuk-6.png": {
+    "mtime": 1793362869.2523358,
+    "seen": 1793363698.4317248,
+    "ast_hash": "ff668ff329699d8ac085b91ddb83b746",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/ngantuk-7.png": {
+    "mtime": 1793362870.2798524,
+    "seen": 1793363698.431727,
+    "ast_hash": "3a12e683c9be199a2f12cc3db477d534",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/sip-0.png": {
+    "mtime": 1793362871.109765,
+    "seen": 1793363698.4317303,
+    "ast_hash": "a7a39173ad2eb1be3b86b4957b79f10c",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/sip-1.png": {
+    "mtime": 1793362872.959247,
+    "seen": 1793363698.4317322,
+    "ast_hash": "29db20de65e86fb48b5f2e177f18f068",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/sip-2.png": {
+    "mtime": 1793362873.8318245,
+    "seen": 1793363698.431734,
+    "ast_hash": "06a7a1192b7a7abc349aba90428aa0bb",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/sip-3.png": {
+    "mtime": 1793362874.5983393,
+    "seen": 1793363698.4317358,
+    "ast_hash": "d572825fd461eb9d4aeec8eb593ea2b9",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/sip-4.png": {
+    "mtime": 1793362875.3547719,
+    "seen": 1793363698.4317381,
+    "ast_hash": "49bb3ee7c3a3aeb05ac3917a0bc901d4",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/sip-5.png": {
+    "mtime": 1793362876.1601958,
+    "seen": 1793363698.43174,
+    "ast_hash": "48b9c00460942631020fa5aa7119ce28",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/sip-6.png": {
+    "mtime": 1793362876.9305744,
+    "seen": 1793363698.4317417,
+    "ast_hash": "0df8bf1b8c68d4b477700e546bb4018c",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/frames/sip-7.png": {
+    "mtime": 1793362877.6883676,
+    "seen": 1793363698.4317439,
+    "ast_hash": "e47dfd4e315bda4533f1ca053cf13b8e",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/kaget.png": {
+    "mtime": 1793362835.4937105,
+    "seen": 1793363698.4317462,
+    "ast_hash": "3add2cbe48f177df3f4859e052df7c54",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/keren.png": {
+    "mtime": 1793362850.7078497,
+    "seen": 1793363698.431748,
+    "ast_hash": "9aa8ba0bc3d04e3d9b0177758c50c5bd",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/naksir.png": {
+    "mtime": 1793362825.6896162,
+    "seen": 1793363698.4317498,
+    "ast_hash": "8eb4714e054a455daa80f88d0a42337b",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/nangis.png": {
+    "mtime": 1793362795.3540246,
+    "seen": 1793363698.4317517,
+    "ast_hash": "edbde9352d23164f5054a81c1412c1e9",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/ngakak.png": {
+    "mtime": 1793362785.265941,
+    "seen": 1793363698.4317534,
+    "ast_hash": "2a23ce88688c6a8bcfb2c2d9f0406524",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/ngambek.png": {
+    "mtime": 1793363073.8551888,
+    "seen": 1793363698.431755,
+    "ast_hash": "df0102ca6df3e55a4f9964fb9757976e",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/ngantuk.png": {
+    "mtime": 1793362862.7106082,
+    "seen": 1793363698.4317567,
+    "ast_hash": "1cb9bc12fb71d532ca6abf52454564b9",
+    "semantic_hash": ""
+  },
+  "brand/illustrations/emote/sip.png": {
+    "mtime": 1793362872.0677187,
+    "seen": 1793363698.4317589,
+    "ast_hash": "9ddefc4612baa9348d548a739a63b7fb",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/kaget-anim.webp": {
+    "mtime": 1793363108.115171,
+    "seen": 1793363698.4323523,
+    "ast_hash": "76006f97416340d82da2b9d51cf11693",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/kaget.webp": {
+    "mtime": 1793363087.0139296,
+    "seen": 1793363698.4323559,
+    "ast_hash": "c2ffd06c3e03c95e1df196316bcbbe64",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/keren-anim.webp": {
+    "mtime": 1793363120.3148131,
+    "seen": 1793363698.4323578,
+    "ast_hash": "e971606932521878700bddfbded3d20a",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/keren.webp": {
+    "mtime": 1793363088.541411,
+    "seen": 1793363698.4323602,
+    "ast_hash": "87d7a7e088a0bcd74252d18911a72d0d",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/naksir-anim.webp": {
+    "mtime": 1793363132.668841,
+    "seen": 1793363698.4323623,
+    "ast_hash": "1866f5b36ae89cc1cb6b8857af153ad8",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/naksir.webp": {
+    "mtime": 1793363089.9023771,
+    "seen": 1793363698.4323647,
+    "ast_hash": "458698f0c07c2bae23675c012f401863",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/nangis-anim.webp": {
+    "mtime": 1793363144.9295075,
+    "seen": 1793363698.4323673,
+    "ast_hash": "4123493734ea505c0af2b15b8d577156",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/nangis.webp": {
+    "mtime": 1793363091.0958042,
+    "seen": 1793363698.4323695,
+    "ast_hash": "7ebbd01b4150bc83db824cac392400b4",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/ngakak-anim.webp": {
+    "mtime": 1793363155.782284,
+    "seen": 1793363698.4323716,
+    "ast_hash": "df1f2bea28cec1040f721c29e2105639",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/ngakak.webp": {
+    "mtime": 1793363092.3892002,
+    "seen": 1793363698.432374,
+    "ast_hash": "7c02f928a381644ee04690114eea0e1a",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/ngambek-anim.webp": {
+    "mtime": 1793363166.7452612,
+    "seen": 1793363698.432376,
+    "ast_hash": "aef2302b1015675f7171d0a4b3448af7",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/ngambek.webp": {
+    "mtime": 1793363093.4157844,
+    "seen": 1793363698.4323785,
+    "ast_hash": "31b83322a03fc0b453f8f16e6d925cb1",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/ngantuk-anim.webp": {
+    "mtime": 1793363179.8483317,
+    "seen": 1793363698.4323807,
+    "ast_hash": "da49405717bfe4a857d8ef6e0b3f0ada",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/ngantuk.webp": {
+    "mtime": 1793363094.8530078,
+    "seen": 1793363698.432383,
+    "ast_hash": "8e342b15287a5228999712ebaedca088",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/sip-anim.webp": {
+    "mtime": 1793363192.499483,
+    "seen": 1793363698.4323852,
+    "ast_hash": "29dae425a4f94d96f965816f4daa6301",
+    "semantic_hash": ""
+  },
+  "src/assets/emote/sip.webp": {
+    "mtime": 1793363096.0198662,
+    "seen": 1793363698.4323876,
+    "ast_hash": "884d016a3e66447b61a8f206d4c091d6",
+    "semantic_hash": ""
+  },
+  "src/games/kart/sim/hazards.test.ts": {
+    "mtime": 1793370624.1027105,
+    "seen": 1793372760.1156707,
+    "ast_hash": "cc6d5cd52fdd7c8102bd29b20e98ded8",
+    "semantic_hash": ""
+  },
+  "src/games/kart/sim/interp.test.ts": {
+    "mtime": 1793373049.9007344,
+    "seen": 1793373118.312781,
+    "ast_hash": "7bfd53b6f30a6c4d43abe410588236c5",
+    "semantic_hash": ""
+  },
+  "src/games/kart/sim/interp.ts": {
+    "mtime": 1793373049.0387366,
+    "seen": 1793373118.3127844,
+    "ast_hash": "3862a311c7c07079c6ea1368cb9d68fd",
+    "semantic_hash": ""
+  },
+  "src/games/kart/render/ground.test.ts": {
+    "mtime": 1793402592.1329281,
+    "seen": 1793405949.7715507,
+    "ast_hash": "0f10d85f10100ca45fe58cb69de1cbc1",
+    "semantic_hash": ""
+  },
+  "src/games/kart/render/ground.ts": {
+    "mtime": 1793402649.11318,
+    "seen": 1793405949.7715533,
+    "ast_hash": "067660fc46a82e13379fe24508bda710",
+    "semantic_hash": ""
+  },
+  "src/games/kart/render/kits.ts": {
+    "mtime": 1793402592.1194267,
+    "seen": 1793405949.771556,
+    "ast_hash": "b0f99a8336bf954e1f065ea1b16cd990",
+    "semantic_hash": ""
+  },
+  "src/games/kart/render/recipe.ts": {
+    "mtime": 1793403800.0287588,
+    "seen": 1793405949.771569,
+    "ast_hash": "2c23b13c1478d11fb6f71a297c1f2349",
+    "semantic_hash": ""
+  },
+  "src/games/kart/render/shaders.ts": {
+    "mtime": 1793403800.0267456,
+    "seen": 1793405949.7715712,
+    "ast_hash": "7d4ee989ff9f45f21abc47e7028c0787",
+    "semantic_hash": ""
+  },
+  "src/games/kart/render/sky.ts": {
+    "mtime": 1793402592.1148758,
+    "seen": 1793405949.7715757,
+    "ast_hash": "8d3cb06205fc80776e2544553bcd5d6c",
+    "semantic_hash": ""
+  },
+  "src/games/kart/render/tex.ts": {
+    "mtime": 1793402592.1173894,
+    "seen": 1793405949.771578,
+    "ast_hash": "c34c64a5f8324d6d276f443a82c7e8cb",
+    "semantic_hash": ""
+  },
+  "kart-dunia-contoh.png": {
+    "mtime": 1793401382.771024,
+    "seen": 1793401698.7224402,
+    "ast_hash": "b4e0766f3dc5eb76c368d452756667b1",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/aspal-kota_diff.webp": {
+    "mtime": 1793399126.7445776,
+    "seen": 1793401698.7229028,
+    "ast_hash": "7805c09256605cb0fc4517d66e0af9af",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/aspal-kota_nor.webp": {
+    "mtime": 1793399126.7723186,
+    "seen": 1793401698.7229085,
+    "ast_hash": "290b90394184a2c5e8bb94a0122c90e9",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/beton_diff.webp": {
+    "mtime": 1793399126.793598,
+    "seen": 1793401698.7229364,
+    "ast_hash": "3b8ca558b4492d90eec7a88f92d9fd73",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/beton_nor.webp": {
+    "mtime": 1793399126.8205118,
+    "seen": 1793401698.7229404,
+    "ast_hash": "a8258d0c729bb58eab7fd669f9c3987b",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/papan-tua_diff.webp": {
+    "mtime": 1793399126.838275,
+    "seen": 1793401698.722965,
+    "ast_hash": "e3f926ba6c7525cde7a22a318bf0c17b",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/papan-tua_nor.webp": {
+    "mtime": 1793399126.862559,
+    "seen": 1793401698.7229693,
+    "ast_hash": "4da17bedffd4cc99788f0f49ba85346a",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/pasir-basah_diff.webp": {
+    "mtime": 1793399126.8912697,
+    "seen": 1793401698.7229831,
+    "ast_hash": "7012260d991dda59d07abd2cd8875fe6",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/pasir-basah_nor.webp": {
+    "mtime": 1793399126.9124303,
+    "seen": 1793401698.7229874,
+    "ast_hash": "cd10dc5de9dafe5003605451ae24266d",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/paving_diff.webp": {
+    "mtime": 1793399126.941033,
+    "seen": 1793401698.723003,
+    "ast_hash": "d400034c401732252228ca673c27be8f",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/paving_nor.webp": {
+    "mtime": 1793399126.9734702,
+    "seen": 1793401698.723007,
+    "ast_hash": "26cd006754e9644d423146b9d73e60b3",
+    "semantic_hash": ""
+  },
+  "kart-dunia-delapan.png": {
+    "mtime": 1793405894.3800104,
+    "seen": 1793405949.7726645,
+    "ast_hash": "d9d13fafd71ac6cf99a1bf3afedcd5bf",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/aspal-salju_diff.webp": {
+    "mtime": 1793402304.150848,
+    "seen": 1793405949.7731123,
+    "ast_hash": "584034e6a53b97b04f975e6f89bec1c3",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/aspal-salju_nor.webp": {
+    "mtime": 1793402305.3431315,
+    "seen": 1793405949.773119,
+    "ast_hash": "6efafa9a0f37b9e43c77a4fa89d6ec10",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/basal_diff.webp": {
+    "mtime": 1793402306.3840785,
+    "seen": 1793405949.773136,
+    "ast_hash": "92f0eacdd0ea708ad31b6925b0a18322",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/basal_nor.webp": {
+    "mtime": 1793402307.6001394,
+    "seen": 1793405949.7731407,
+    "ast_hash": "fd04182fc7eea9157e0da0ab9bc1f39f",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/batu-lumut_diff.webp": {
+    "mtime": 1793402296.4719517,
+    "seen": 1793405949.7731457,
+    "ast_hash": "6a8546f1d4e017a8b4c8ec00c88ca983",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/batu-lumut_nor.webp": {
+    "mtime": 1793402297.5112426,
+    "seen": 1793405949.7731504,
+    "ast_hash": "8afb665414dea3726c565017365b2d24",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/batu-merah_diff.webp": {
+    "mtime": 1793402301.5589335,
+    "seen": 1793405949.7731552,
+    "ast_hash": "3a5b3d339a610479d850a8ccb6fba218",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/batu-merah_nor.webp": {
+    "mtime": 1793402302.7807398,
+    "seen": 1793405949.7731595,
+    "ast_hash": "1b87a844b3581610770851800184513f",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/hutan_diff.webp": {
+    "mtime": 1793402298.691707,
+    "seen": 1793405949.773199,
+    "ast_hash": "d8294d2ee212993fd189851362e61aef",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/hutan_nor.webp": {
+    "mtime": 1793402299.8991385,
+    "seen": 1793405949.7732038,
+    "ast_hash": "ba3fbad9e3fd4f305519a993222316fc",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/tanah_diff.webp": {
+    "mtime": 1793402294.1211545,
+    "seen": 1793405949.7732995,
+    "ast_hash": "c8d6964fa79199a582cc163721e17dc2",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/tanah_nor.webp": {
+    "mtime": 1793402295.3118,
+    "seen": 1793405949.7733042,
+    "ast_hash": "e50f4569400babfee3b94b5c22db2017",
     "semantic_hash": ""
   }
 }

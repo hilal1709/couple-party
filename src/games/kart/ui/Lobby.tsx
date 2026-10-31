@@ -1,12 +1,10 @@
 import { useState } from 'react'
 import { Slab, Tape } from '@/components/memphis/Slab'
-import { toast } from '@/components/feedback/toast'
 import { Switch } from '@/components/ui/switch'
 import { CUPS, LEVEL_INFO } from '../data'
 import { defaultOptions } from '../engine'
 import { TRACKS, TRACK_IDS } from '../tracks'
 import type { CupId, KartOptions, Level } from '../types'
-import { hasKartUnity, KartUnity } from '../unity'
 import type { LobbyProps } from '../../types'
 
 const SWITCH = 'h-7 w-12 shrink-0 border-[3px] border-ink data-[state=checked]:bg-fern data-[state=unchecked]:bg-petal'
@@ -24,21 +22,6 @@ export function Lobby({ players, cta, initial, onSubmit }: LobbyProps<KartOption
         <Slab tone="rose" size="lg" className="ml-auto" onClick={() => onSubmit({ ...opts, players: n })}>
           {cta}
         </Slab>
-        {/* sementara: uji penyematan Unity, dihapus setelah Fase 2 */}
-        {hasKartUnity() && (
-          <Slab
-            tone="ink"
-            size="sm"
-            onClick={() =>
-              KartUnity.start().then(
-                (r) => toast(`Unity balik: ${r.finished ? r.result : 'ditutup'}`),
-                (e: Error) => toast(e.message),
-              )
-            }
-          >
-            Uji Unity
-          </Slab>
-        )}
       </div>
 
       <div>

@@ -1,8 +1,5 @@
 include ':app'
 include ':capacitor-cordova-android-plugins'
 project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')
-// Hasil export Unity (kart-unity), dibuat ulang oleh scripts/apk.mjs; tidak di-commit.
-include ':unityLibrary'
-project(':unityLibrary').projectDir = new File('./unity-export/unityLibrary/')
 
 apply from: 'capacitor.settings.gradle'

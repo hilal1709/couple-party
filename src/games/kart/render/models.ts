@@ -202,6 +202,7 @@ function mergedParts(name: string, sc: THREE.Object3D) {
     if (mat.map && (mat.transparent || mat.side === THREE.DoubleSide)) {
       mat.transparent = false
       mat.alphaTest = 0.45
+      mat.alphaToCoverage = true
       mat.side = THREE.DoubleSide
     }
     return { geo: mergeGeometries(geos) ?? geos[0], mat }
@@ -238,6 +239,12 @@ export function instanced(name: string, matrices: THREE.Matrix4[], shadow = true
   im.computeBoundingSphere()
   g.add(im)
   return g
+}
+
+/** bahan instanced sebuah model, untuk ditambal shader sebelum digambar */
+export function modelMaterials(name: string): THREE.Material[] {
+  const sc = scenes.get(name)
+  return sc ? mergedParts(name, sc).map((p) => p.mat) : []
 }
 
 /** salinan utuh satu model (untuk landmark tunggal) */

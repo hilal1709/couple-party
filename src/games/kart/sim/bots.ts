@@ -32,7 +32,7 @@ export function botInput(k: Kart, b: BotBrain, t: Track, dt: number, skill: numb
   const curve = curvature(t, ahead, 10)
   // di tikungan, ambil sisi dalam
   const lane = Math.max(-0.85, Math.min(0.85, b.lane - Math.sign(curve) * Math.min(0.6, Math.abs(curve) * 25) * skill))
-  const lat = lane * t.half
+  const lat = lane * t.hw[ahead]
   const tx = t.px[ahead] - t.tz[ahead] * lat
   const tz = t.pz[ahead] + t.tx[ahead] * lat
   const want = Math.atan2(tx - k.x, tz - k.z)

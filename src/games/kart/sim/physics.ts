@@ -52,7 +52,7 @@ export function spawnKart(t: Track, slot: number): Kart {
   const col = slot % 2 ? 1 : -1
   const s = t.length - 8 - row * 7
   const i = Math.round(s / STEP) % t.n
-  const lateral = col * t.half * 0.4
+  const lateral = col * t.hw[i] * 0.4
   const x = t.px[i] - t.tz[i] * lateral
   const z = t.pz[i] + t.tx[i] * lateral
   return {
@@ -168,8 +168,8 @@ export function stepKart(k: Kart, inp: Input, st: Stats, t: Track, dt: number, m
   k.i = near.i
   k.lateral = near.lateral
   k.s = near.s
-  const wall = t.half + (lava ? 8 : 14)
-  k.offroad = Math.abs(near.lateral) > t.half
+  const wall = t.wall[k.i]
+  k.offroad = Math.abs(near.lateral) > t.hw[k.i]
   if (Math.abs(near.lateral) > wall) {
     // dinding: dorong balik & redam
     const over = Math.abs(near.lateral) - wall
@@ -201,7 +201,7 @@ export function stepKart(k: Kart, inp: Input, st: Stats, t: Track, dt: number, m
       ev.jump = true
     } else k.y = ground
   }
-  if (lava && k.offroad && !k.airborne && Math.abs(near.lateral) > t.half + 2) {
+  if (lava && k.offroad && !k.airborne && Math.abs(near.lateral) > t.hw[k.i] + 2) {
     k.fallT = 1.2
     k.boostT = 0
     k.drift = 0

@@ -4,7 +4,7 @@ import * as THREE from 'three'
  * Partikel ringan: satu THREE.Points per mode campur (aditif untuk api/percikan, biasa untuk asap/debu).
  * Kolam berukuran tetap; partikel terlama ditimpa saat penuh. Semua dihitung di CPU (ratusan saja).
  */
-export type ParticleKind = 'spark' | 'fire' | 'smoke' | 'dust' | 'star' | 'confetti' | 'splash' | 'snow'
+export type ParticleKind = 'spark' | 'fire' | 'smoke' | 'dust' | 'star' | 'confetti' | 'splash' | 'snow' | 'rain'
 
 type Pool = {
   points: THREE.Points
@@ -72,6 +72,7 @@ const KIND: Record<ParticleKind, { add: boolean; life: number; size: number; gro
   confetti: { add: false, life: 2.6, size: 0.55, grow: 0, grav: 4 },
   splash: { add: false, life: 0.7, size: 0.8, grow: 0.8, grav: 16 },
   snow: { add: false, life: 0.9, size: 1.1, grow: 1.6, grav: 3 },
+  rain: { add: false, life: 0.55, size: 0.3, grow: 0, grav: 0 },
 }
 
 export class Particles {

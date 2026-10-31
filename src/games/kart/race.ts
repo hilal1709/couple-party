@@ -18,6 +18,8 @@ import { BOX_RESPAWN, blockPush, entityPose, hazardContact, onPad, ownerSafe } f
 import { bounce, collide, driftLevel, hitKart, isShielded, magnetPull, rainKart, spawnKart, stepKart, type Input, type Kart } from './sim/physics'
 import { hermite, syncClock } from './sim/interp'
 import { buildTrack, pointAt, type Track } from './sim/track'
+import { recipeOf } from './render/recipe'
+import { setMaxAnisotropy } from './render/tex'
 import { TRACKS } from './tracks'
 import type { Entity, KartAction, KartState } from './types'
 
@@ -96,9 +98,9 @@ const SANITIZE = {
 
 /** color grading akhir: saturasi & kontras naik sedikit supaya warna kartun lebih tegas */
 const GRADE = {
-  uniforms: { tDiffuse: { value: null }, sat: { value: 1.22 }, contrast: { value: 1.08 } },
+  uniforms: { tDiffuse: { value: null }, sat: { value: 1.22 }, contrast: { value: 1.08 }, tint: { value: new THREE.Vector3(1, 1, 1) } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-  fragmentShader: `uniform sampler2D tDiffuse; uniform float sat; uniform float contrast; varying vec2 vUv;
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float sat; uniform float contrast; uniform vec3 tint; varying vec2 vUv;
     void main(){
       vec4 c = texture2D(tDiffuse, vUv);
       float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
@@ -106,7 +108,7 @@ const GRADE = {
       g = (g - 0.5) * contrast + 0.5;
       // vinyet tipis
       float v = smoothstep(1.15, 0.45, length(vUv - 0.5));
-      gl_FragColor = vec4(g * mix(0.82, 1.0, v), c.a);
+      gl_FragColor = vec4(g * tint * mix(0.82, 1.0, v), c.a);
     }`,
 }
 /** dev: kart sendiri disetir AI (?autopilot=1) untuk tangkapan layar */
@@ -200,7 +202,9 @@ export class Race {
     this.mine = o.state.racers.findIndex((r) => r.seat === o.seat)
     this.tier = initialTier()
     this.ratio = Math.min(this.tier.ratio, window.devicePixelRatio || 1)
-    this.renderer = new THREE.WebGLRenderer({ canvas: o.canvas, antialias: !this.tier.post, powerPreference: 'high-performance' })
+    // antialias hanya bisa dipilih saat renderer dibuat; selalu nyala supaya tetap ada setelah turun ke Hemat
+    this.renderer = new THREE.WebGLRenderer({ canvas: o.canvas, antialias: true, powerPreference: 'high-performance' })
+    setMaxAnisotropy(this.renderer.capabilities.getMaxAnisotropy())
     this.renderer.setPixelRatio(this.ratio)
     this.renderer.outputColorSpace = THREE.SRGBColorSpace
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
@@ -246,6 +250,8 @@ export class Race {
     const th = this.t.def
     await loadModels([
       ...withVariants(th.theme.props.map(([n]) => n)),
+      ...(recipeOf(th).models ?? []),
+      ...withVariants(recipeOf(th).wind.map(([n]) => n)),
       ...withVariants(['rumput-kecil', 'bunga', 'pakis', 'kerikil-kecil', 'kit-arah-kiri', 'kit-arah-kanan', 'kit-bendera']),
       ...(th.landmarks ?? []).map((l) => l.model),
       'camar',
@@ -289,21 +295,25 @@ export class Race {
     this.loop()
   }
 
-  /** bloom + tone mapping akhir + FXAA (grafis Sedang/Tinggi) */
+  /** MSAA + bloom + tone mapping akhir (grafis Sedang/Tinggi); FXAA hanya menambal MSAA 2x di Sedang */
   private setupPost() {
     this.dropPost()
     if (!this.tier.post) return
-    const night = this.t.def.theme.night
-    const c = new EffectComposer(this.renderer)
+    const recipe = recipeOf(this.t.def)
+    const samples = Math.min(this.tier.samples, this.renderer.capabilities.maxSamples)
+    const c = new EffectComposer(this.renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples }))
     c.addPass(new RenderPass(this.world.scene, this.camera))
     // buang piksel NaN & batasi kecerahan sebelum bloom; satu piksel rusak bisa memutihkan seluruh layar
     c.addPass(new ShaderPass(SANITIZE))
-    // lava: tanah luas menyala, bloom harus jauh lebih selektif supaya tidak jadi kabut putih
-    const lava = this.t.def.theme.offroad === 'lava'
-    c.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), lava ? 0.18 : night ? 0.6 : 0.16, lava ? 0.25 : 0.4, lava ? 1.6 : night ? 0.75 : 0.97))
+    const [strength, radius, threshold] = recipe.bloom
+    c.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), strength, radius, threshold))
     c.addPass(new OutputPass())
-    c.addPass(new ShaderPass(GRADE))
-    c.addPass(new FXAAPass())
+    const grade = new ShaderPass(GRADE)
+    grade.uniforms.sat.value = recipe.grade.sat
+    grade.uniforms.contrast.value = recipe.grade.contrast
+    grade.uniforms.tint.value.fromArray(recipe.grade.tint)
+    c.addPass(grade)
+    if (samples < 4) c.addPass(new FXAAPass())
     this.composer = c
   }
 
@@ -972,10 +982,16 @@ export class Race {
           p.emit('snow', x, y, z, 1.5, -2, 0.5, '#ffffff', 0.45)
         }
         break
+      case 'neon':
+        for (let j = 0; j < 4; j++) if (rate(45)) {
+          const [x, y, z] = around(70, 4, 26)
+          p.emit('rain', x, y, z, 1, -46, 0.6, '#c4d0ff', 0.5)
+        }
+        break
       case 'candi':
         if (rate(25)) {
           const [x, y, z] = around(80, 0, 6)
-          p.emit('dust', x, y, z, 9, 0.4, 3, '#f2d79a', 2.2)
+          p.emit('dust', x, y, z, 9, 0.4, 3, '#f2d79a', 1)
         }
         break
       case 'jamur':
