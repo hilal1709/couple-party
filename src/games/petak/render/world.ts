@@ -16,7 +16,7 @@ import type { Pattern } from './paint'
 const LM_RANGE = 3
 
 const ASSETS = import.meta.glob('/src/assets/petak/maps/*.{glb,webp}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
-const SKIES = import.meta.glob('/src/assets/kart/tex/langit-*.hdr', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
+const SKIES = import.meta.glob('/src/assets/sport/tex/langit-*.hdr', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
 
 export type Picked = {
   /** warna linear sebelum tone mapping, rata-rata 8×8 piksel */
@@ -253,7 +253,7 @@ export class World {
   async load() {
     const info = this.info
     const [sky, gltf, lm] = await Promise.all([
-      new HDRLoader().loadAsync(SKIES[`/src/assets/kart/tex/langit-${info.sky}.hdr`]),
+      new HDRLoader().loadAsync(SKIES[`/src/assets/sport/tex/langit-${info.sky}.hdr`]),
       new GLTFLoader().loadAsync(ASSETS[`/src/assets/petak/maps/${this.map}.glb`]),
       new THREE.TextureLoader().loadAsync(ASSETS[`/src/assets/petak/maps/${this.map}-lm.webp`]),
     ])

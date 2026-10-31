@@ -1,9 +1,8 @@
-"""Tekstur PBR Sport Kacau dari Poly Haven (CC0): JPG 1K → WebP, plus langit HDR dari Kart.
+"""Tekstur PBR Sport Kacau dari Poly Haven (CC0): JPG 1K → WebP.
 
 Sumber (unduh lewat api.polyhaven.com, simpan di luar repo): D:/dev/asset-src/polyhaven/tex-sport
 Jalankan: python -I scripts/blender/sport_textures.py
 """
-import shutil
 from pathlib import Path
 
 from PIL import Image
@@ -35,8 +34,6 @@ def main():
             im = Image.open(SRC / f'{pid}_{kind}.jpg').convert('RGB').resize((size, size), Image.LANCZOS)
             im.save(OUT / f'{name}_{kind}.webp', 'WEBP', quality=q, method=6)
             print(name, kind)
-    for sky in ('siang', 'senja', 'malam'):
-        shutil.copy(ROOT / 'src' / 'assets' / 'kart' / 'tex' / f'langit-{sky}.hdr', OUT / f'langit-{sky}.hdr')
 
 
 if __name__ == '__main__':
