@@ -5940,9 +5940,9 @@
     "semantic_hash": ""
   },
   "src/games/kart/race.ts": {
-    "mtime": 1793399527.009925,
-    "seen": 1793401698.7207055,
-    "ast_hash": "fc3c43cd3a86ba0e8a074d275a3d2432",
+    "mtime": 1793403059.3017726,
+    "seen": 1793405949.7715473,
+    "ast_hash": "d369154f534eebd589ce88535b54a1de",
     "semantic_hash": ""
   },
   "src/games/kart/render/models.ts": {
@@ -5952,9 +5952,9 @@
     "semantic_hash": ""
   },
   "src/games/kart/render/world.ts": {
-    "mtime": 1793400289.4365416,
-    "seen": 1793401698.720746,
-    "ast_hash": "b4f20d4f763a8b7bedb93efa4d56cacf",
+    "mtime": 1793403800.098482,
+    "seen": 1793405949.7715805,
+    "ast_hash": "94550106ed76b64fca998b9b5388aee0",
     "semantic_hash": ""
   },
   "src/games/kart/sim/bots.ts": {
@@ -5994,9 +5994,9 @@
     "semantic_hash": ""
   },
   "src/games/kart/tracks.ts": {
-    "mtime": 1793401049.1778173,
-    "seen": 1793401698.7207747,
-    "ast_hash": "1b6620b34c6db5b24c22f82ce0a3298c",
+    "mtime": 1793403800.019181,
+    "seen": 1793405949.7716053,
+    "ast_hash": "95fe85be737af221fab7e6661f9fbeac",
     "semantic_hash": ""
   },
   "src/games/kart/types.ts": {
@@ -6432,9 +6432,9 @@
     "semantic_hash": ""
   },
   "scripts/blender/kart_textures.py": {
-    "mtime": 1793398851.5257552,
-    "seen": 1793401698.7195892,
-    "ast_hash": "2a947f00c54ba2bd072e08e081def72a",
+    "mtime": 1793402592.1329281,
+    "seen": 1793405949.7706532,
+    "ast_hash": "7c87ca443f92eaaf6c0ef84da4221319",
     "semantic_hash": ""
   },
   "scripts/blender/kart_world.py": {
@@ -7356,45 +7356,45 @@
     "semantic_hash": ""
   },
   "src/games/kart/render/ground.test.ts": {
-    "mtime": 1793400286.2229211,
-    "seen": 1793401698.7207098,
-    "ast_hash": "cd3dfdb8c2eea7e5a36a091ca5193a9b",
+    "mtime": 1793402592.1329281,
+    "seen": 1793405949.7715507,
+    "ast_hash": "0f10d85f10100ca45fe58cb69de1cbc1",
     "semantic_hash": ""
   },
   "src/games/kart/render/ground.ts": {
-    "mtime": 1793400836.8804092,
-    "seen": 1793401698.7207127,
-    "ast_hash": "967533e530b159b06cb4653389bf8741",
+    "mtime": 1793402649.11318,
+    "seen": 1793405949.7715533,
+    "ast_hash": "067660fc46a82e13379fe24508bda710",
     "semantic_hash": ""
   },
   "src/games/kart/render/kits.ts": {
-    "mtime": 1793399526.5155158,
-    "seen": 1793401698.7207158,
-    "ast_hash": "81995322dc8eb4817252137bb76035b2",
+    "mtime": 1793402592.1194267,
+    "seen": 1793405949.771556,
+    "ast_hash": "b0f99a8336bf954e1f065ea1b16cd990",
     "semantic_hash": ""
   },
   "src/games/kart/render/recipe.ts": {
-    "mtime": 1793400289.333392,
-    "seen": 1793401698.7207325,
-    "ast_hash": "c570eaef93bbef87ee4047876a3fecae",
+    "mtime": 1793403800.0287588,
+    "seen": 1793405949.771569,
+    "ast_hash": "2c23b13c1478d11fb6f71a297c1f2349",
     "semantic_hash": ""
   },
   "src/games/kart/render/shaders.ts": {
-    "mtime": 1793399948.1337442,
-    "seen": 1793401698.7207353,
-    "ast_hash": "b82459208a8ed611c8422b0d54e6f43f",
+    "mtime": 1793403800.0267456,
+    "seen": 1793405949.7715712,
+    "ast_hash": "7d4ee989ff9f45f21abc47e7028c0787",
     "semantic_hash": ""
   },
   "src/games/kart/render/sky.ts": {
-    "mtime": 1793399092.0158286,
-    "seen": 1793401698.7207408,
-    "ast_hash": "20569d12dac10c72a87b38fd429b9cef",
+    "mtime": 1793402592.1148758,
+    "seen": 1793405949.7715757,
+    "ast_hash": "8d3cb06205fc80776e2544553bcd5d6c",
     "semantic_hash": ""
   },
   "src/games/kart/render/tex.ts": {
-    "mtime": 1793399084.201106,
-    "seen": 1793401698.7207432,
-    "ast_hash": "9cbaad88efc0ca584416fff99c7a6b24",
+    "mtime": 1793402592.1173894,
+    "seen": 1793405949.771578,
+    "ast_hash": "c34c64a5f8324d6d276f443a82c7e8cb",
     "semantic_hash": ""
   },
   "kart-dunia-contoh.png": {
@@ -7461,6 +7461,84 @@
     "mtime": 1793399126.9734702,
     "seen": 1793401698.723007,
     "ast_hash": "26cd006754e9644d423146b9d73e60b3",
+    "semantic_hash": ""
+  },
+  "kart-dunia-delapan.png": {
+    "mtime": 1793405894.3800104,
+    "seen": 1793405949.7726645,
+    "ast_hash": "d9d13fafd71ac6cf99a1bf3afedcd5bf",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/aspal-salju_diff.webp": {
+    "mtime": 1793402304.150848,
+    "seen": 1793405949.7731123,
+    "ast_hash": "584034e6a53b97b04f975e6f89bec1c3",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/aspal-salju_nor.webp": {
+    "mtime": 1793402305.3431315,
+    "seen": 1793405949.773119,
+    "ast_hash": "6efafa9a0f37b9e43c77a4fa89d6ec10",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/basal_diff.webp": {
+    "mtime": 1793402306.3840785,
+    "seen": 1793405949.773136,
+    "ast_hash": "92f0eacdd0ea708ad31b6925b0a18322",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/basal_nor.webp": {
+    "mtime": 1793402307.6001394,
+    "seen": 1793405949.7731407,
+    "ast_hash": "fd04182fc7eea9157e0da0ab9bc1f39f",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/batu-lumut_diff.webp": {
+    "mtime": 1793402296.4719517,
+    "seen": 1793405949.7731457,
+    "ast_hash": "6a8546f1d4e017a8b4c8ec00c88ca983",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/batu-lumut_nor.webp": {
+    "mtime": 1793402297.5112426,
+    "seen": 1793405949.7731504,
+    "ast_hash": "8afb665414dea3726c565017365b2d24",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/batu-merah_diff.webp": {
+    "mtime": 1793402301.5589335,
+    "seen": 1793405949.7731552,
+    "ast_hash": "3a5b3d339a610479d850a8ccb6fba218",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/batu-merah_nor.webp": {
+    "mtime": 1793402302.7807398,
+    "seen": 1793405949.7731595,
+    "ast_hash": "1b87a844b3581610770851800184513f",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/hutan_diff.webp": {
+    "mtime": 1793402298.691707,
+    "seen": 1793405949.773199,
+    "ast_hash": "d8294d2ee212993fd189851362e61aef",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/hutan_nor.webp": {
+    "mtime": 1793402299.8991385,
+    "seen": 1793405949.7732038,
+    "ast_hash": "ba3fbad9e3fd4f305519a993222316fc",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/tanah_diff.webp": {
+    "mtime": 1793402294.1211545,
+    "seen": 1793405949.7732995,
+    "ast_hash": "c8d6964fa79199a582cc163721e17dc2",
+    "semantic_hash": ""
+  },
+  "src/assets/kart/tex/tanah_nor.webp": {
+    "mtime": 1793402295.3118,
+    "seen": 1793405949.7733042,
+    "ast_hash": "e50f4569400babfee3b94b5c22db2017",
     "semantic_hash": ""
   }
 }
