@@ -10,6 +10,7 @@ Jalankan:  python -I scripts/audio/build.py          (semua)
            python -I scripts/audio/build.py bom      (hanya musik & SFX Bom Waktu)
            python -I scripts/audio/build.py sport    (hanya musik & SFX Sport Kacau)
            python -I scripts/audio/build.py kart     (hanya musik & SFX Kart Kacau)
+           python -I scripts/audio/build.py petak    (hanya musik & SFX Petak Cat)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
 import subprocess
@@ -282,6 +283,119 @@ def sport_synth():
     write_ogg(_st(body(int(SR * 0.09), 1400, 0.012, 0.9)), out / 'sport-shuttle.ogg', 64, mono=True, lufs=-17)
 
 
+def petak_music():
+    """Petak Cat: "Music loop variations" (obscure music, CC0). Tiga tahap dirangkai; versi evil saat berburu."""
+    m = SRC / 'music' / 'petak' / 'x'
+    calm = np.concatenate([load(m / f'level1-step{i}.wav') for i in (1, 1, 2, 3)])
+    tense = np.concatenate([load(m / f'level1-step{i}-evil.wav') for i in (1, 2, 3)])
+    write_ogg(calm, OUT / 'music' / 'petak.ogg', 80, lufs=-21)
+    write_ogg(tense, OUT / 'music' / 'petak-tense.ogg', 80, lufs=-20)
+
+
+def petak_synth():
+    """SFX Petak Cat disintesis sendiri: langkah, kuas, pipet, merpati, kucing, dan suara sore di gang."""
+    rng = np.random.default_rng(11)
+    out = OUT / 'sfx'
+
+    def tone(n, f0, f1=None):
+        f = np.linspace(f0, f0 if f1 is None else f1, n)
+        return np.sin(2 * np.pi * np.cumsum(f) / SR).astype(np.float32)
+
+    def noise(n):
+        return rng.normal(0, 1, n).astype(np.float32)
+
+    def lowpass(x, k):
+        return np.convolve(x, np.ones(k) / k, mode='same').astype(np.float32)
+
+    # langkah: hentakan rendah + gesekan sandal
+    n = int(SR * 0.16)
+    write_ogg(_st(lowpass(noise(n), 60) * 6 * _env(n, 0.002, 0.04) + tone(n, 95, 60) * 0.5 * _env(n, 0.002, 0.05)), out / 'petak-langkah.ogg', 64, mono=True, lufs=-18)
+    # kuas: desis lembut
+    n = int(SR * 0.22)
+    write_ogg(_st(lowpass(noise(n), 6) * _env(n, 0.03, 0.07)), out / 'petak-cat.ogg', 64, mono=True, lufs=-24)
+    # pipet: bunyi "plup" naik
+    n = int(SR * 0.16)
+    write_ogg(_st(tone(n, 340, 1100) * _env(n, 0.004, 0.05)), out / 'petak-pipet.ogg', 64, mono=True, lufs=-18)
+    # merpati: rentetan kepakan
+    n = int(SR * 1.1)
+    flap = lowpass(noise(n), 14) * (0.55 + 0.45 * np.sign(np.sin(2 * np.pi * 13 * np.arange(n) / SR))) * _env(n, 0.02, 0.4)
+    write_ogg(_st(flap), out / 'petak-merpati.ogg', 64, mono=True, lufs=-19)
+    # meong: nada naik-turun dengan harmonik
+    n = int(SR * 0.62)
+    t = np.arange(n) / n
+    f = 560 + 420 * np.sin(np.pi * t) ** 2 - 170 * t
+    ph = 2 * np.pi * np.cumsum(f) / SR
+    meow = (np.sin(ph) + 0.5 * np.sin(2 * ph) + 0.3 * np.sin(3 * ph)) * np.sin(np.pi * t) ** 0.6
+    write_ogg(_st(meow.astype(np.float32)), out / 'petak-meong.ogg', 64, mono=True, lufs=-20)
+    # sore di gang: angin, burung jauh, dan motor lewat di kejauhan; loop 20 detik
+    n = int(SR * 20)
+    wind = lowpass(noise(n), 400) * 14
+    t = np.arange(n) / SR
+    wind *= 0.6 + 0.4 * np.sin(2 * np.pi * t / 20) ** 2
+    birds = np.zeros(n, dtype=np.float32)
+    for _ in range(26):
+        at = rng.integers(0, n - SR)
+        m = int(SR * (0.07 + rng.random() * 0.1))
+        chirp = tone(m, 2400 + rng.random() * 1800, 3400 + rng.random() * 1600) * _env(m, 0.01, 0.04)
+        birds[at:at + m] += chirp * (0.05 + rng.random() * 0.1)
+    moto = tone(n, 74) * 0.5 + tone(n, 111) * 0.25
+    moto *= np.exp(-((t - 12) / 2.6) ** 2) * 0.1
+    write_ogg(_st(wind + birds + moto), out / 'petak-amb-gang.ogg', 56, mono=True, lufs=-24)
+    # pasar malam: dengung orang ramai dan kendang dangdut jauh
+    crowd = lowpass(noise(n), 90) * 8 * (0.7 + 0.3 * np.sin(2 * np.pi * t / 7) ** 2)
+    beat = np.zeros(n, dtype=np.float32)
+    step_n = int(SR * 0.42)
+    for i, at in enumerate(range(0, n - SR, step_n)):
+        m = int(SR * 0.16)
+        beat[at:at + m] += tone(m, 130 if i % 4 else 85, 70) * _env(m, 0.002, 0.05) * (0.3 if i % 2 else 0.18)
+    write_ogg(_st(crowd + beat), out / 'petak-amb-pasar.ogg', 56, mono=True, lufs=-24)
+    # museum: dengung ruangan dan langkah jauh yang bergema
+    hum = lowpass(noise(n), 700) * 12 + tone(n, 58) * 0.02
+    echo = np.zeros(n, dtype=np.float32)
+    for _ in range(9):
+        at = rng.integers(0, n - 2 * SR)
+        m = int(SR * 0.9)
+        echo[at:at + m] += lowpass(noise(m), 40) * _env(m, 0.002, 0.2) * (0.3 + rng.random() * 0.4)
+    write_ogg(_st(hum + echo), out / 'petak-amb-museum.ogg', 56, mono=True, lufs=-28)
+    # stasiun: hujan rapat dan guruh jauh
+    rain = noise(n) - lowpass(noise(n), 8) * 0.5
+    thunder = lowpass(noise(n), 900) * 40 * np.exp(-(((t - 13) / 1.6) ** 2))
+    write_ogg(_st(rain * 0.35 + thunder), out / 'petak-amb-stasiun.ogg', 56, mono=True, lufs=-23)
+    # pabrik: dengung mesin dan hentakan berirama
+    hum2 = tone(n, 55) * 0.08 + tone(n, 110) * 0.04 + lowpass(noise(n), 300) * 5
+    clank = np.zeros(n, dtype=np.float32)
+    for at in range(0, n - SR, int(SR * 0.9)):
+        m = int(SR * 0.12)
+        clank[at:at + m] += lowpass(noise(m), 12) * _env(m, 0.001, 0.03) * 0.5
+    write_ogg(_st(hum2 + clank), out / 'petak-amb-pabrik.ogg', 56, mono=True, lufs=-24)
+    # dapur: desis kompor, kulkas, dan tetes air
+    fridge = tone(n, 60) * 0.03 + noise(n) * 0.02
+    drip = np.zeros(n, dtype=np.float32)
+    for _ in range(12):
+        at = rng.integers(0, n - SR)
+        m = int(SR * 0.09)
+        drip[at:at + m] += tone(m, 900, 1700) * _env(m, 0.002, 0.03) * 0.25
+    write_ogg(_st(fridge + drip), out / 'petak-amb-dapur.ogg', 56, mono=True, lufs=-26)
+    # kota terbalik: angin tinggi dan burung
+    gust = lowpass(noise(n), 250) * 10 * (0.5 + 0.5 * np.sin(2 * np.pi * t / 10) ** 2)
+    write_ogg(_st(gust + birds), out / 'petak-amb-kota.ogg', 56, mono=True, lufs=-25)
+    # kapal: deburan ombak, hujan, dan derit kayu
+    surf = lowpass(noise(n), 500) * 26 * (0.45 + 0.55 * np.sin(2 * np.pi * t / 5) ** 2)
+    creak = np.zeros(n, dtype=np.float32)
+    for _ in range(5):
+        at = rng.integers(0, n - 2 * SR)
+        m = int(SR * 0.8)
+        creak[at:at + m] += tone(m, 120, 190) * _env(m, 0.1, 0.25) * 0.06
+    write_ogg(_st(surf + noise(n) * 0.09 + creak), out / 'petak-amb-kapal.ogg', 56, mono=True, lufs=-23)
+    # kereta melintas: gemuruh naik-turun dengan ketukan roda
+    n = int(SR * 8)
+    t = np.arange(n) / SR
+    rumble = lowpass(noise(n), 200) * 18
+    clack = (np.mod(t, 0.31) < 0.03) * lowpass(noise(n), 30) * 3
+    horn = (tone(n, 311) + tone(n, 392)) * 0.2 * np.exp(-(((t - 1.2) / 0.5) ** 4))
+    write_ogg(_st((rumble + clack) * np.sin(np.pi * t / 8) ** 1.2 + horn), out / 'petak-kereta.ogg', 64, mono=True, lufs=-17)
+
+
 def _env(n, a=0.005, r=0.2):
     """Amplop attack/release sederhana untuk n sampel."""
     t = np.arange(n) / SR
@@ -494,6 +608,11 @@ SFX = {
     'bom-out': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA07.ogg',
     'bom-champion': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA12.ogg',
     'bom-lose': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA15.ogg',
+    # Petak Cat — Kenney; sisanya disintesis di petak_synth
+    'petak-hunt': 'jingles/x/OGG/jingles_HIT/jingles_HIT03.ogg',
+    'petak-catch': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA03.ogg',
+    'petak-miss': 'interface/x/Audio/error_004.ogg',
+    'petak-reveal': 'jingles/x/OGG/jingles_HIT/jingles_HIT08.ogg',
     # Kart Kacau — Kenney "Interface Sounds" & "Music Jingles" (sisanya disintesis di kart_synth)
     'kart-lap': 'interface/x/Audio/maximize_006.ogg',
     'kart-final': 'jingles/x/OGG/jingles_NES/jingles_NES12.ogg',
@@ -573,6 +692,10 @@ if __name__ == '__main__':
         sport_music()
         sport_synth()
         sfx('sport-')
+    elif sys.argv[1:] == ['petak']:
+        petak_music()
+        petak_synth()
+        sfx('petak-')
     else:
         music()
         draw_music()
@@ -586,6 +709,8 @@ if __name__ == '__main__':
         kart_synth()
         sport_music()
         sport_synth()
+        petak_music()
+        petak_synth()
         sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))
     print(f'Selesai: {len(list(OUT.rglob("*.ogg")))} file, {total / 1024 / 1024:.2f} MB di {OUT}')

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { defaultOptions, init, reduce } from './games/uno/engine'
 import type { UnoAction, Variant } from './games/uno/types'
 import { UnoTable } from './games/uno/ui/UnoTable'
@@ -41,6 +41,10 @@ import type { BowlingMatch, SportAction, SportState } from './games/sport/types'
 import { SportBoard } from './games/sport/ui/SportBoard'
 import { saveLook, savedLook } from './games/sport/ui/lookStore'
 import { store } from './net/transport'
+import type { LiveChannel } from './games/types'
+import * as petakEngine from './games/petak/engine'
+import type { PetakAction, PetakOptions, PetakState } from './games/petak/types'
+import { PetakBoard } from './games/petak/ui/PetakBoard'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -48,7 +52,9 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' }) {
+  if (variant === 'petak') return <PetakDemo />
+
   if (variant === 'draw') return <DrawDemo />
   if (variant === 'domino') return <DominoDemo />
   if (variant === 'monopoly') return <MonopolyDemo />
@@ -380,4 +386,66 @@ function KartDemo() {
   })
   const act = (a: KartAction) => setS((cur) => kartEngine.reduce(cur, a, 0))
   return <KartBoard state={s} seat={0} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} />
+}
+
+/**
+ * Petak Cat lokal: ?demo=petak &map=gang|pasar|museum|stasiun &size=kecil|sedang|besar &n=1..8 pemain &total=2..8 peserta &seat= &role=seeker|hider &seeker=aktor &level=1..3
+ * &phase=hunt|reveal|end &hide=detik &hunt=detik &rounds=1|3|5 &q=low|med|high. Kursi 0 = host (menjalankan bot).
+ */
+function PetakDemo() {
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(8, Math.max(1, Number(q.get('n') ?? 1)))
+  const [s, setS] = useState<PetakState>(() => {
+    const o: Partial<PetakOptions> = {
+      players: n,
+      total: Number(q.get('total') ?? 5),
+      map: (q.get('map') ?? 'gang') as PetakOptions['map'],
+      size: (q.get('size') ?? 'sedang') as PetakOptions['size'],
+      level: (Number(q.get('level') ?? 2) as 1 | 2 | 3) || 2,
+      rounds: (Number(q.get('rounds') ?? 3) as 1 | 3 | 5) || 3,
+      hideSecs: Number(q.get('hide') ?? 90) as PetakOptions['hideSecs'],
+      huntSecs: Number(q.get('hunt') ?? 180) as PetakOptions['huntSecs'],
+    }
+    let st = petakEngine.init(Number(q.get('seed') ?? 42), o)
+    if (q.get('role') === 'seeker') st = { ...st, seekers: [0], botSpots: st.botSpots.map((b, i) => (i === 0 ? -1 : b < 0 ? 0 : b)) }
+    if (q.get('seeker')) st = { ...st, seekers: [Number(q.get('seeker'))] }
+    const phase = q.get('phase')
+    if (phase) st = petakEngine.reduce(st, { type: 'toHunt' }, 0)
+    if (phase === 'reveal' || phase === 'end') st = petakEngine.reduce(st, { type: 'endHunt', nyali: [] }, 0)
+    if (phase === 'end') st = { ...petakEngine.reduce({ ...st, round: st.opts.rounds - 1 }, { type: 'next' }, 0) }
+    return st
+  })
+  const seat = Number(q.get('seat') ?? 0)
+  // &duo=1: dua tab berbagi state dan saluran live lewat BroadcastChannel, seperti room dua HP
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const bus = useMemo(() => (q.get('duo') ? new BroadcastChannel('petak-duo') : null), [])
+  useEffect(() => {
+    if (!bus) return
+    const fn = (e: MessageEvent) => {
+      const m = e.data
+      if (m.state && seat !== 0) setS(m.state)
+      if (m.action && seat === 0) setS((cur) => petakEngine.reduce(cur, m.action, m.by))
+    }
+    bus.addEventListener('message', fn)
+    return () => bus.removeEventListener('message', fn)
+  }, [bus, seat])
+  useEffect(() => {
+    if (bus && seat === 0) bus.postMessage({ state: s })
+  }, [bus, s, seat])
+  const live = useMemo<LiveChannel | undefined>(() => {
+    if (!bus) return undefined
+    return {
+      send: (d) => bus.postMessage({ live: d, from: seat }),
+      on: (cb) => {
+        const fn = (e: MessageEvent) => e.data.live !== undefined && cb(e.data.live, e.data.from)
+        bus.addEventListener('message', fn)
+        return () => bus.removeEventListener('message', fn)
+      },
+    }
+  }, [bus, seat])
+  const act = (a: PetakAction) => {
+    if (bus && seat !== 0) bus.postMessage({ action: a, by: seat })
+    else setS((cur) => petakEngine.reduce(cur, a, seat))
+  }
+  return <PetakBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} live={live} />
 }
