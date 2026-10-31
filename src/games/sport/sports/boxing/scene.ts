@@ -1,8 +1,14 @@
 import * as THREE from 'three'
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import worldUrl from '@/assets/sport/models/boxing.glb?url'
+import lightmapUrl from '@/assets/sport/models/boxing-lm.webp?url'
+import { dressArena, lightShaft, makeCrowd, squareSeats } from '../../render/arena'
 import { Chibi, loadChibi, type Clip } from '../../render/chibi'
+import type { Crowd } from '../../render/crowd'
+import { Particles } from '../../render/fx'
+import { DETAIL } from '../../render/lod'
+import { addPulse, makeClock } from '../../render/shaders'
+import { applyPbr } from '../../render/textures'
 import type { Stage } from '../../render/stage'
 import type { BoxHand, BoxOutcome, Look, Stance } from '../../types'
 
@@ -76,6 +82,10 @@ export class BoxingScene {
   private foe!: Fighter
   private sparks: { s: THREE.Sprite; t: number }[] = []
   private shake = 0
+  private clockU = makeClock()
+  private crowd: Crowd | null = null
+  private fx: Particles | null = null
+  private haze = 0
   private clock = 0
   private view: 'intro' | 'fight' | 'ko' = 'intro'
   private koAt = new THREE.Vector3()
@@ -88,31 +98,48 @@ export class BoxingScene {
 
   async load(me: Look, foe: Look) {
     const [world, gltf] = await Promise.all([new GLTFLoader().loadAsync(worldUrl), loadChibi()])
-    const { scene, renderer, sun } = this.stage
+    const { scene, sun } = this.stage
+    await dressArena(this.stage, world.scene, this.clockU, {
+      sky: 'malam',
+      env: 0.2,
+      skyBackground: false,
+      lightmap: lightmapUrl,
+      lightmapIntensity: 1.7,
+      score: 'RONDE KACAU',
+      mats: {
+        beton: { tex: 'beton', repeat: 1, tint: '#6a6480' },
+        logam: { tex: 'logam', repeat: 1, tint: '#a8aebc' },
+        kulit: { tex: 'kulit', repeat: 1, tint: '#a83a3a' },
+        kulit_ff37a6: { tex: 'kulit', repeat: 1, tint: '#ff4fb0' },
+        kulit_42c6ff: { tex: 'kulit', repeat: 1, tint: '#4fc8ff' },
+        lantai_gelap: { tex: 'karpet', repeat: 6, tint: '#55506a' },
+        papan: { tex: 'papan', repeat: 1 },
+      },
+    })
     scene.background = new THREE.Color('#090612')
     scene.fog = new THREE.Fog('#090612', 14, 32)
-    const pmrem = new THREE.PMREMGenerator(renderer)
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
-    scene.environmentIntensity = 0.18
-    pmrem.dispose()
-
+    const jobs: Promise<void>[] = []
     world.scene.traverse((o) => {
       const mesh = o as THREE.Mesh
       if (!mesh.isMesh) return
       const m = mesh.material as THREE.MeshStandardMaterial
-      m.emissiveIntensity = Math.min(m.emissiveIntensity, 1.5)
-      if (m.name.startsWith('crowd') && this.stage.quality === 'low') mesh.visible = false
+      if (m.emissiveIntensity > 0.1 && m.emissive.getHex() !== 0) addPulse(m, this.clockU)
       if (m.name === 'canvas') {
-        m.map = canvasTexture()
-        m.color.set('#ffffff')
-        mesh.receiveShadow = true
+        // logo di kanvas; serat kain dari normal map
+        jobs.push(applyPbr(m, 'kain', 8, DETAIL[this.stage.quality], { plain: true, normal: 0.5, tint: '#ffffff' }).then(() => void (m.map = canvasTexture())))
       }
     })
+    await Promise.all(jobs)
     scene.add(world.scene)
+    this.crowd = makeCrowd(this.stage, squareSeats({ d0: 5.6, tiers: 5, gap: 0.74, base: -0.9, sides: [0, 1, 2, 3] }), this.clockU)
+    const detail = DETAIL[this.stage.quality]
+    this.fx = new Particles(detail.particles)
+    scene.add(this.fx.group)
+    if (detail.pbr) for (const [x, z] of [[-2.2, 2.2], [2.2, 2.2], [-2.2, -2.2], [2.2, -2.2]]) scene.add(lightShaft(x, 5.2, z, 5))
 
     scene.add(new THREE.HemisphereLight('#ffe9f5', '#2c2350', 0.6))
     for (const [x, z] of [[-2.4, 2.4], [2.4, 2.4], [-2.4, -2.4], [2.4, -2.4]]) {
-      const spot = new THREE.SpotLight('#fff2dc', 13, 11, 0.62, 0.5, 1.2)
+      const spot = new THREE.SpotLight('#fff2dc', 15, 11, 0.62, 0.5, 1.2)
       spot.position.set(x, 5.2, z)
       spot.target.position.set(0, 0.4, 0)
       scene.add(spot, spot.target)
@@ -199,6 +226,9 @@ export class BoxingScene {
       f.c.play('hit', { once: true, fade: 0.04 })
       f.busy = f.c.duration('hit')
       this.spark(f, counter ? '#ff37a6' : '#ffe14a', counter ? 1.5 : 1)
+      this.crowd?.cheer(counter ? 0.7 : 0.35)
+      const at = f.c.root.position
+      this.fx?.burst('spark', counter ? 16 : 8, at.x, 1.05, at.z, 0, 1.5, 0, 5, ['#ffe14a', '#ffffff'], 0.5)
       this.shake = who === 'me' ? 0.14 : 0.05
     } else if (outcome === 'block') {
       if (f.stance !== 'guard') {
@@ -231,6 +261,8 @@ export class BoxingScene {
   ko(who: Who) {
     const f = this.f(who)
     f.c.play('ko', { once: true, fade: 0.05 })
+    this.crowd?.cheer(1)
+    this.fx?.burst('confetti', 40, 0, 4.5, 0, 0, 1, 0, 8, ['#ff37a6', '#5cf64a', '#ffcc1f', '#fff4fa'])
     f.busy = 1e6
     this.koAt.copy(f.c.root.position)
     this.view = 'ko'
@@ -251,6 +283,15 @@ export class BoxingScene {
 
   private frame(dt: number) {
     this.clock += dt
+    this.clockU.value += dt
+    this.crowd?.update(dt)
+    this.fx?.update(dt)
+    // asap tipis melayang di bawah lampu
+    this.haze -= dt
+    if (this.haze <= 0 && this.fx) {
+      this.haze = 0.35
+      this.fx.emit('smoke', (Math.random() - 0.5) * 7, 3.6, (Math.random() - 0.5) * 7, 0.1, 0.05, 0, '#3a3548', 1.4)
+    }
     for (const f of [this.me, this.foe]) {
       f.c.update(dt)
       if (f.busy > 0 && f.busy < 1e5) {

@@ -2,17 +2,36 @@ import * as THREE from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { store } from '@/net/transport'
 
 export type Quality = 'low' | 'med' | 'high'
 
-type Tier = { ratio: number; shadow: number; bloom: boolean }
+/** msaa: sampel anti-aliasing jalur bloom; tanpa bloom kanvas memakai MSAA bawaan browser */
+type Tier = { ratio: number; shadow: number; bloom: boolean; msaa: number }
 
 const TIERS: Record<Quality, Tier> = {
-  low: { ratio: 1, shadow: 0, bloom: false },
-  med: { ratio: 1.25, shadow: 1024, bloom: true },
-  high: { ratio: 1.75, shadow: 2048, bloom: true },
+  low: { ratio: 1, shadow: 0, bloom: false, msaa: 0 },
+  med: { ratio: 1.25, shadow: 1024, bloom: true, msaa: 2 },
+  high: { ratio: 1.75, shadow: 2048, bloom: true, msaa: 4 },
+}
+
+/** Sentuhan akhir: kontras & saturasi sedikit naik, tepi layar menggelap supaya mata ke tengah. */
+const GRADE = {
+  uniforms: { tDiffuse: { value: null } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+  fragmentShader: `
+    uniform sampler2D tDiffuse; varying vec2 vUv;
+    void main(){
+      vec4 c = texture2D(tDiffuse, vUv);
+      float l = dot(c.rgb, vec3(0.3, 0.59, 0.11));
+      c.rgb = mix(vec3(l), c.rgb, 1.12);
+      c.rgb = (c.rgb - 0.5) * 1.06 + 0.5;
+      vec2 d = vUv - 0.5;
+      c.rgb *= 1.0 - dot(d, d) * 0.55;
+      gl_FragColor = c;
+    }`,
 }
 
 export const QUALITY_TITLE: Record<Quality, string> = { low: 'Hemat', med: 'Sedang', high: 'Tinggi' }
@@ -82,10 +101,13 @@ export class Stage {
     this.composer?.dispose()
     this.composer = null
     if (t.bloom) {
-      const c = new EffectComposer(this.renderer)
+      // kanvas tidak ikut menggambar adegan saat ada bloom, jadi target gambarnya harus multisample sendiri
+      const target = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: Math.min(t.msaa, this.renderer.capabilities.maxSamples) })
+      const c = new EffectComposer(this.renderer, target)
       c.addPass(new RenderPass(this.scene, this.camera))
-      c.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), 0.32, 0.4, 0.92))
+      c.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), 0.28, 0.4, 1))
       c.addPass(new OutputPass())
+      c.addPass(new ShaderPass(GRADE))
       this.composer = c
     }
     this.resize()

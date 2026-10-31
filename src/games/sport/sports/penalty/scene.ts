@@ -1,11 +1,15 @@
 import * as THREE from 'three'
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import worldUrl from '@/assets/sport/models/pitch.glb?url'
+import lightmapUrl from '@/assets/sport/models/pitch-lm.webp?url'
+import { dressArena, makeCrowd, squareSeats } from '../../render/arena'
 import { Chibi, loadChibi } from '../../render/chibi'
+import type { Crowd } from '../../render/crowd'
+import { Particles } from '../../render/fx'
+import { DETAIL } from '../../render/lod'
+import { addStripes, makeClock } from '../../render/shaders'
 import type { Stage } from '../../render/stage'
 import type { Look, PenaltyResult } from '../../types'
-import { grassTexture } from '../archery/scene'
 
 const GOAL_Z = -11
 const GOAL_W = 2.5
@@ -37,20 +41,6 @@ function ballTexture() {
   return t
 }
 
-function netTexture() {
-  const S = 256
-  const c = document.createElement('canvas')
-  c.width = c.height = S
-  const g = c.getContext('2d')!
-  g.strokeStyle = 'rgba(255,255,255,0.75)'
-  g.lineWidth = 3
-  g.strokeRect(0, 0, S, S)
-  const t = new THREE.CanvasTexture(c)
-  t.wrapS = t.wrapT = THREE.RepeatWrapping
-  t.repeat.set(26, 12)
-  return t
-}
-
 type View = 'taker' | 'keeper'
 
 export class PenaltyScene {
@@ -69,6 +59,9 @@ export class PenaltyScene {
   private camPos = new THREE.Vector3(0, 1.6, 3.8)
   private camLook = new THREE.Vector3(0, 0.9, GOAL_Z)
   private spin = 0
+  private clock2 = makeClock()
+  private crowd: Crowd | null = null
+  private fx: Particles | null = null
 
   constructor(stage: Stage) {
     this.stage = stage
@@ -76,41 +69,39 @@ export class PenaltyScene {
 
   async load() {
     const [world, gltf] = await Promise.all([new GLTFLoader().loadAsync(worldUrl), loadChibi()])
-    const { scene, renderer, sun } = this.stage
+    const { scene, sun } = this.stage
     this.gltf = gltf
-    scene.background = new THREE.Color('#0c1a33')
-    scene.fog = new THREE.Fog('#0c1a33', 40, 90)
-    const pmrem = new THREE.PMREMGenerator(renderer)
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
-    scene.environmentIntensity = 0.25
-    pmrem.dispose()
+    await dressArena(this.stage, world.scene, this.clock2, {
+      sky: 'malam',
+      env: 0.35,
+      lightmap: lightmapUrl,
+      lightmapIntensity: 1.5,
+      score: 'KACAU',
+      mats: {
+        ground: { tex: 'rumput', repeat: 34, tint: '#b4e888', vary: { scale: 0.09, amount: 0.2 } },
+        beton: { tex: 'beton', repeat: 1, tint: '#8a8698' },
+        logam: { tex: 'logam', repeat: 1, tint: '#c4cad6' },
+      },
+    })
+    scene.fog = new THREE.Fog('#0c1a33', 45, 110)
     world.scene.traverse((o) => {
-      const mesh = o as THREE.Mesh
-      if (!mesh.isMesh) return
-      const m = mesh.material as THREE.MeshStandardMaterial
-      // papan iklan menyala lembut, lampu & tulisan tetap terang
-      m.emissiveIntensity = m.emissiveIntensity < 1 ? m.emissiveIntensity * 0.35 : Math.min(m.emissiveIntensity, 1.5)
-      if (m.name.startsWith('crowd') && this.stage.quality === 'low') mesh.visible = false
-      if (m.name === 'grass') {
-        mesh.receiveShadow = true
-        m.map = grassTexture('#3f9a33', true)
-        m.map.repeat.set(4, 10)
-        m.color.set('#ffffff')
-      } else if (m.name === 'net') {
-        m.map = netTexture()
-        m.alphaMap = null
+      const m = (o as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined
+      if (m?.name === 'ground') addStripes(m, 2.4)
+      if (m?.name === 'kulit_kaca') {
         m.transparent = true
-        m.alphaTest = 0.2
-        m.side = THREE.DoubleSide
-      } else mesh.castShadow = true
+        m.opacity = 0.35
+      }
     })
     scene.add(world.scene)
     scene.add(this.lines())
 
-    scene.add(new THREE.HemisphereLight('#dfeaff', '#2a4a2a', 1.1))
+    this.crowd = makeCrowd(this.stage, squareSeats({ d0: 16, tiers: 5, gap: 1, base: 0.8, cy: 2, sides: [0, 2, 3] }), this.clock2)
+    this.fx = new Particles(DETAIL[this.stage.quality].particles)
+    scene.add(this.fx.group)
+    scene.add(new THREE.HemisphereLight('#dfeaff', '#3a5a3a', 1.1))
     sun.position.set(-6, 14, 2)
     sun.target.position.set(0, 0, -6)
-    sun.intensity = 2
+    sun.intensity = 3
     const sc = sun.shadow.camera
     sc.left = -9
     sc.right = 9
@@ -187,6 +178,9 @@ export class PenaltyScene {
 
   private frame(dt: number) {
     this.clock += dt
+    this.clock2.value += dt
+    this.crowd?.update(dt)
+    this.fx?.update(dt)
     this.taker?.update(dt)
     this.keeper?.update(dt)
     const r = this.result
@@ -206,6 +200,12 @@ export class PenaltyScene {
           if (this.cb) {
             this.cb()
             this.cb = null
+            const p = this.ball.position
+            this.fx?.burst('dust', 8, p.x, 0.1, p.z, 0, 0.5, 0, 2, ['#9ccf78'], 0.4)
+            if (r.why === 'goal') {
+              this.crowd?.cheer(1)
+              this.fx?.burst('confetti', 36, p.x, 3, p.z, 0, 2, 2, 9, ['#ff37a6', '#5cf64a', '#ffcc1f', '#42c6ff'])
+            } else this.crowd?.cheer(0.45)
           }
         }
         this.spin += dt * 16

@@ -1,12 +1,18 @@
 import * as THREE from 'three'
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import courtUrl from '@/assets/sport/models/court.glb?url'
 import hallUrl from '@/assets/sport/models/hall.glb?url'
+import courtLightmap from '@/assets/sport/models/court-lm.webp?url'
+import hallLightmap from '@/assets/sport/models/hall-lm.webp?url'
+import { dressArena, makeCrowd, type ArenaSpec } from '../../render/arena'
 import { Chibi, loadChibi, type Clip } from '../../render/chibi'
+import { rowSeats, type Crowd, type Seat } from '../../render/crowd'
+import { Particles } from '../../render/fx'
+import { makeGrass } from '../../render/grass'
+import { DETAIL } from '../../render/lod'
+import { makeClock } from '../../render/shaders'
 import type { Stage } from '../../render/stage'
 import type { Look, RacketShot, RacketSport, ShotKind } from '../../types'
-import { grassTexture } from '../archery/scene'
 
 const SIZE: Record<RacketSport, { hw: number; hl: number; net: number }> = {
   tenis: { hw: 4, hl: 8, net: 0.9 },
@@ -16,37 +22,37 @@ const RUN_SPEED = 7
 
 export type Who = 'me' | 'foe'
 
-function netTexture() {
-  const S = 128
-  const c = document.createElement('canvas')
-  c.width = c.height = S
-  const g = c.getContext('2d')!
-  g.strokeStyle = 'rgba(255,255,255,0.8)'
-  g.lineWidth = 6
-  g.strokeRect(0, 0, S, S)
-  const t = new THREE.CanvasTexture(c)
-  t.wrapS = t.wrapT = THREE.RepeatWrapping
-  t.repeat.set(40, 5)
-  return t
-}
-
-function woodTexture() {
-  const S = 512
-  const c = document.createElement('canvas')
-  c.width = c.height = S
-  const g = c.getContext('2d')!
-  for (let i = 0; i < 16; i++) {
-    const tone = 170 + (i * 37) % 34
-    g.fillStyle = `rgb(${tone + 30},${tone - 30},${tone - 90})`
-    g.fillRect((i * S) / 16, 0, S / 16 + 1, S)
-    g.fillStyle = 'rgba(60,30,10,0.3)'
-    g.fillRect((i * S) / 16, 0, 1.5, S)
-  }
-  const t = new THREE.CanvasTexture(c)
-  t.colorSpace = THREE.SRGBColorSpace
-  t.wrapS = t.wrapT = THREE.RepeatWrapping
-  t.repeat.set(4, 4)
-  return t
+const STONE = { tex: 'beton', repeat: 1 }
+const STEEL = { tex: 'logam', repeat: 1, tint: '#c4cad6' }
+const SPEC: Record<RacketSport, ArenaSpec> = {
+  tenis: {
+    sky: 'senja',
+    env: 0.5,
+    lightmap: courtLightmap,
+    score: 'KACAU OPEN',
+    mats: {
+      ground: { tex: 'rumput', repeat: 90, tint: '#c7d98f', vary: { scale: 0.05, amount: 0.34 } },
+      court_in: { tex: 'lapangan', repeat: 4, tint: '#23835a', normal: 0.35, plain: true, vary: { scale: 0.4, amount: 0.1, wear: { z: 7.6, halfX: 3, halfZ: 1.6 } } },
+      court_out: { tex: 'lapangan', repeat: 6, tint: '#325fae', normal: 0.35, plain: true, vary: { scale: 0.4, amount: 0.1 } },
+      beton: STONE,
+      logam: STEEL,
+      papan: { tex: 'papan', repeat: 1 },
+    },
+  },
+  badminton: {
+    sky: 'malam',
+    env: 0.3,
+    skyBackground: false,
+    lightmap: hallLightmap,
+    score: 'HALL KACAU',
+    mats: {
+      lantai: { tex: 'kayu', repeat: 9, tint: '#e8c79a', vary: { scale: 0.3, amount: 0.12 } },
+      court_in: { tex: 'lapangan', repeat: 3, tint: '#1a7a52', normal: 0.3, plain: true, vary: { scale: 0.5, amount: 0.1, wear: { z: 4.6, halfX: 2, halfZ: 1.2 } } },
+      beton: { tex: 'beton', repeat: 1, tint: '#857f92' },
+      logam: STEEL,
+      papan: { tex: 'papan', repeat: 1 },
+    },
+  },
 }
 
 function shuttle() {
@@ -77,6 +83,10 @@ export class RacketScene {
   private onArrive: (() => void) | null = null
   private bounced = false
   onBounce: (() => void) | null = null
+  private clock = makeClock()
+  private crowd: Crowd | null = null
+  private fx: Particles | null = null
+  private dustIn = 0
 
   constructor(stage: Stage, sport: RacketSport, flip: boolean) {
     this.stage = stage
@@ -86,46 +96,33 @@ export class RacketScene {
 
   async load(me: Look, foe: Look) {
     const [world, gltf] = await Promise.all([new GLTFLoader().loadAsync(this.sport === 'tenis' ? courtUrl : hallUrl), loadChibi()])
-    const { scene, renderer, sun } = this.stage
+    const { scene, sun } = this.stage
     const out = this.sport === 'tenis'
-    const bg = out ? '#f7c9a0' : '#0d0a18'
-    scene.background = new THREE.Color(bg)
-    scene.fog = new THREE.Fog(bg, 30, 70)
-    const pmrem = new THREE.PMREMGenerator(renderer)
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
-    scene.environmentIntensity = out ? 0.3 : 0.25
-    pmrem.dispose()
-    world.scene.traverse((o) => {
-      const mesh = o as THREE.Mesh
-      if (!mesh.isMesh) return
-      mesh.receiveShadow = true
-      const m = mesh.material as THREE.MeshStandardMaterial
-      m.emissiveIntensity = Math.min(m.emissiveIntensity, 1.5)
-      if (m.name.startsWith('crowd') && this.stage.quality === 'low') mesh.visible = false
-      if (m.name === 'grass') {
-        m.map = grassTexture('#4f9a3a', false)
-        m.map.repeat.set(16, 16)
-        m.color.set('#ffffff')
-      } else if (m.name === 'wood') {
-        m.map = woodTexture()
-        m.color.set('#ffffff')
-      } else if (m.name === 'net') {
-        m.map = netTexture()
-        m.transparent = true
-        m.alphaTest = 0.2
-        m.side = THREE.DoubleSide
-      }
-    })
+    const detail = DETAIL[this.stage.quality]
+    await dressArena(this.stage, world.scene, this.clock, SPEC[this.sport])
+    if (out) scene.fog = new THREE.Fog('#f0c8a0', 45, 130)
+    else {
+      scene.background = new THREE.Color('#0d0a18')
+      scene.fog = new THREE.Fog('#0d0a18', 30, 70)
+    }
+    this.crowd = makeCrowd(this.stage, this.seats(), this.clock)
+    if (out && detail.grass) {
+      const { hw, hl } = SIZE.tenis
+      scene.add(makeGrass(Math.round(9000 * detail.grass), 42, (x, z) => (Math.abs(x) < hw + 7.6 && Math.abs(z) < 16) || (Math.abs(x) < 8 && z > 0) || (Math.abs(z) < hl + 3.8 && Math.abs(x) < hw + 2.6), this.clock, '#7fae4a'))
+    }
+    this.fx = new Particles(detail.particles)
+    scene.add(this.fx.group)
     scene.add(world.scene)
-    scene.add(new THREE.HemisphereLight(out ? '#ffeeda' : '#ffe9f5', out ? '#5f8a4a' : '#2c2350', out ? 1.25 : 0.9))
+    scene.add(new THREE.HemisphereLight(out ? '#ffe6c8' : '#ffe9f5', out ? '#55703a' : '#2c2350', out ? 0.35 : 0.9))
     sun.position.set(out ? -8 : 1, 14, out ? 6 : 2)
     sun.target.position.set(0, 0, 0)
-    sun.intensity = out ? 2.1 : 1.1
+    sun.intensity = out ? 2.6 : 1.1
+    if (out) sun.color.set('#ffdcb4')
     const sc = sun.shadow.camera
-    sc.left = sc.bottom = -11
-    sc.right = sc.top = 11
+    sc.left = sc.bottom = -16
+    sc.right = sc.top = 16
     sc.near = 1
-    sc.far = 34
+    sc.far = 40
     sc.updateProjectionMatrix()
 
     const { hl } = SIZE[this.sport]
@@ -135,6 +132,20 @@ export class RacketScene {
     this.ball.traverse((o) => (o.castShadow = true))
     scene.add(this.ball)
     this.stage.onFrame = (dt) => this.frame(dt)
+  }
+
+  /** Kursi cocok dengan `stand()` di sport_world.py. */
+  private seats() {
+    const { hw } = SIZE[this.sport]
+    const half = this.sport === 'tenis' ? 12.4 : 9.6
+    const seats: Seat[] = []
+    for (const side of [-1, 1]) {
+      for (let r = 0; r < 5; r++) {
+        const x = side * (hw + 3.42 + r * 0.85)
+        seats.push(...rowSeats([x, (r + 1) * 0.42, -half], [x, (r + 1) * 0.42, half], 0.76, (side * -Math.PI) / 2))
+      }
+    }
+    return seats
   }
 
   private spawn(gltf: Awaited<ReturnType<typeof loadChibi>>, look: Look, z: number, turn: number): Player {
@@ -194,6 +205,7 @@ export class RacketScene {
     const target = byMe ? this.foe : this.me
     const x = this.worldX(s.out ? s.x * 1.4 : s.x)
     this.from.set(hitter.x, s.kind === 'smash' ? 2.2 : 0.95, hitter.z + (byMe ? -0.4 : 0.4))
+    this.fx?.burst('spark', 8, this.from.x, this.from.y, this.from.z, 0, 1, 0, 4, ['#fff2b0', '#ffffff'], 0.5)
     this.to.set(x, 0.95, target.z + (s.out ? (byMe ? -2.5 : 2.5) : 0))
     this.ball.visible = true
     target.to = x
@@ -202,6 +214,8 @@ export class RacketScene {
 
   celebrate(winner: Who | null) {
     this.shot = null
+    this.crowd?.cheer(1)
+    if (winner) this.fx?.burst('confetti', 26, 0, 3.4, this.p(winner).z, 0, 2, 0, 8, ['#ff37a6', '#5cf64a', '#ffcc1f', '#42c6ff'])
     for (const who of ['me', 'foe'] as const) {
       const p = this.p(who)
       p.to = 0
@@ -237,6 +251,7 @@ export class RacketScene {
         if (!this.bounced) {
           this.bounced = true
           this.onBounce?.()
+          this.fx?.burst('dust', 5, out.x, 0.05, out.z, 0, 0.4, 0, 1, ['#e8ece0'], 0.3)
         }
       }
     } else out.y = this.from.y * (1 - k) + this.to.y * k + 4 * k * (1 - k) * arc
@@ -244,12 +259,20 @@ export class RacketScene {
   }
 
   private frame(dt: number) {
+    this.clock.value += dt
+    this.crowd?.update(dt)
+    this.fx?.update(dt)
+    this.dustIn -= dt
     for (const p of [this.me, this.foe]) {
       p.c.update(dt)
       const dx = p.to - p.x
       const step = Math.min(Math.abs(dx), RUN_SPEED * dt)
       p.x += Math.sign(dx) * step
       p.c.root.position.x = p.x
+      if (step > RUN_SPEED * dt * 0.5 && this.dustIn <= 0) {
+        this.dustIn = 0.05
+        this.fx?.emit('dust', p.x, 0.06, p.z, 0, 0.5, 0, this.sport === 'tenis' ? '#d8e2d0' : '#c9a878', 0.4)
+      }
       if (p.busy > 0 && p.busy < 1e5) {
         p.busy -= dt
         if (p.busy <= 0) p.c.play('rk_ready', { fade: 0.15 })
@@ -270,7 +293,7 @@ export class RacketScene {
       }
     }
     const { hl } = SIZE[this.sport]
-    const pos = new THREE.Vector3(this.me.x * 0.4, this.sport === 'tenis' ? 4.1 : 3.9, hl + (this.sport === 'tenis' ? 4.2 : 4.4))
+    const pos = new THREE.Vector3(this.me.x * 0.4, this.sport === 'tenis' ? 3.7 : 3.9, hl + (this.sport === 'tenis' ? 3.5 : 4.4))
     const look = new THREE.Vector3(this.me.x * 0.2, 0, -hl * 0.1)
     const k = 1 - Math.exp(-dt * 5)
     this.camPos.lerp(pos, k)

@@ -1,8 +1,14 @@
 import * as THREE from 'three'
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import worldUrl from '@/assets/sport/models/archery.glb?url'
+import lightmapUrl from '@/assets/sport/models/archery-lm.webp?url'
+import { dressArena, makeCrowd } from '../../render/arena'
 import { Chibi, loadChibi } from '../../render/chibi'
+import { rowSeats, type Crowd } from '../../render/crowd'
+import { Particles } from '../../render/fx'
+import { makeGrass } from '../../render/grass'
+import { DETAIL } from '../../render/lod'
+import { makeClock } from '../../render/shaders'
 import type { Stage } from '../../render/stage'
 import type { ArrowShot, Look } from '../../types'
 import { flightTime, TARGET_DIST, type ArrowAim } from './sim'
@@ -12,31 +18,6 @@ const SLOW = 2.6
 /** lama satu tembakan, dari lepas sampai giliran berikutnya */
 export const SHOT_MS = 3400
 const TARGET_Y = 1.3
-
-export function grassTexture(base: string, stripes: boolean) {
-  const S = 512
-  const c = document.createElement('canvas')
-  c.width = c.height = S
-  const g = c.getContext('2d')!
-  g.fillStyle = base
-  g.fillRect(0, 0, S, S)
-  if (stripes) {
-    g.fillStyle = 'rgba(255,255,255,0.09)'
-    for (let i = 0; i < 8; i += 2) g.fillRect(0, (i * S) / 8, S, S / 8)
-  }
-  // bintik tetap, supaya semua HP melihat rumput yang sama
-  let v = 11
-  const r = () => (v = (v * 16807) % 2147483647) / 2147483647
-  for (let i = 0; i < 2600; i++) {
-    g.fillStyle = i % 2 ? 'rgba(255,255,200,0.07)' : 'rgba(0,40,0,0.1)'
-    g.fillRect(r() * S, r() * S, 2, 5)
-  }
-  const t = new THREE.CanvasTexture(c)
-  t.colorSpace = THREE.SRGBColorSpace
-  t.wrapS = t.wrapT = THREE.RepeatWrapping
-  t.anisotropy = 4
-  return t
-}
 
 function arrowMesh() {
   const g = new THREE.Group()
@@ -76,6 +57,9 @@ export class ArcheryScene {
   private camLook = new THREE.Vector3(0, 1.3, -18)
   private fov = 46
   private onHit: (() => void) | null = null
+  private clockU = makeClock()
+  private crowd: Crowd | null = null
+  private fx: Particles | null = null
 
   constructor(stage: Stage) {
     this.stage = stage
@@ -83,33 +67,33 @@ export class ArcheryScene {
 
   async load() {
     const [world, gltf] = await Promise.all([new GLTFLoader().loadAsync(worldUrl), loadChibi()])
-    const { scene, renderer, sun } = this.stage
+    const { scene, sun } = this.stage
     this.gltf = gltf
-    scene.background = new THREE.Color('#9bd8f5')
-    scene.fog = new THREE.Fog('#bfe6f7', 40, 120)
-    const pmrem = new THREE.PMREMGenerator(renderer)
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
-    scene.environmentIntensity = 0.3
-    pmrem.dispose()
-
-    world.scene.traverse((o) => {
-      const mesh = o as THREE.Mesh
-      if (!mesh.isMesh) return
-      mesh.castShadow = true
-      mesh.receiveShadow = true
-      const m = mesh.material as THREE.MeshStandardMaterial
-      if (m.name === 'grass') {
-        mesh.castShadow = false
-        m.map = grassTexture('#5aae3a', false)
-        m.map.repeat.set(30, 30)
-        m.color.set('#ffffff')
-      }
+    await dressArena(this.stage, world.scene, this.clockU, {
+      sky: 'siang',
+      env: 0.6,
+      lightmap: lightmapUrl,
+      lightmapIntensity: 1.3,
+      mats: {
+        ground: { tex: 'rumput', repeat: 110, tint: '#d2e49a', vary: { scale: 0.05, amount: 0.34 } },
+        papan: { tex: 'papan', repeat: 1 },
+        kulit_jerami: { tex: 'karpet', repeat: 2, tint: '#e4c078' },
+        kulit_tenda: { tex: 'kain', repeat: 2, tint: '#fff4fa' },
+      },
     })
+    scene.fog = new THREE.Fog('#cfe8f4', 50, 150)
     scene.add(world.scene)
-    scene.add(new THREE.HemisphereLight('#e8f6ff', '#6b8f4a', 1.3))
+    const detail = DETAIL[this.stage.quality]
+    if (detail.grass) scene.add(makeGrass(Math.round(16000 * detail.grass), 40, (x, z) => Math.abs(x) < 7 && z > -22 && z < 5, this.clockU, '#8fbd52'))
+    const seats = [-1, 1].flatMap((s) => [0, 1, 2].flatMap((k) => rowSeats([s * 11, 0.46, -(0.7 + k * 2.2)], [s * 11, 0.46, -(2.4 + k * 2.2)], 0.7, (s * -Math.PI) / 2)))
+    this.crowd = makeCrowd(this.stage, seats, this.clockU)
+    this.fx = new Particles(detail.particles)
+    scene.add(this.fx.group)
+
+    scene.add(new THREE.HemisphereLight('#e8f6ff', '#6b8f4a', 0.45))
     sun.position.set(-8, 16, 6)
     sun.target.position.set(0, 0, -10)
-    sun.intensity = 2.2
+    sun.intensity = 2.8
     const sc = sun.shadow.camera
     sc.left = -22
     sc.right = 22
@@ -184,7 +168,13 @@ export class ArcheryScene {
   }
 
   shoot(s: ArrowShot, onHit: () => void) {
-    this.onHit = onHit
+    this.onHit = () => {
+      if (s.score >= 9) {
+        this.crowd?.cheer(1)
+        this.fx?.burst('confetti', 24, s.hit.x, TARGET_Y + 1, -TARGET_DIST + 1, 0, 2, 0, 6, ['#ff37a6', '#5cf64a', '#ffcc1f', '#42c6ff'])
+      } else if (s.score >= 7) this.crowd?.cheer(0.4)
+      onHit()
+    }
     this.reticle.visible = false
     this.drawing = false
     this.archer?.play('bow_loose', { once: true, fade: 0.04 })
@@ -202,6 +192,9 @@ export class ArcheryScene {
 
   private frame(dt: number) {
     this.clock += dt
+    this.clockU.value += dt
+    this.crowd?.update(dt)
+    this.fx?.update(dt)
     this.archer?.update(dt)
     if (this.drawing) this.held += dt
     const cam = this.stage.camera
@@ -238,6 +231,7 @@ export class ArcheryScene {
         this.stuck.push(a)
         this.flying.visible = false
         this.onHit?.()
+        this.fx?.burst('dust', 8, this.to.x, this.to.y, this.to.z + 0.1, 0, 0.6, 0.6, 1.2, ['#d8c088'], 0.3)
       }
     } else {
       pos = new THREE.Vector3(0.5, TARGET_Y + 0.1, -TARGET_DIST + 2.5)

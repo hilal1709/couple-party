@@ -1,9 +1,14 @@
 import * as THREE from 'three'
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import worldUrl from '@/assets/sport/models/bowling.glb?url'
 import propsUrl from '@/assets/sport/models/bowling-props.glb?url'
+import lightmapUrl from '@/assets/sport/models/bowling-lm.webp?url'
+import { dressArena, makeCrowd } from '../../render/arena'
 import { Chibi, loadChibi } from '../../render/chibi'
+import { rowSeats, type Crowd } from '../../render/crowd'
+import { Particles } from '../../render/fx'
+import { DETAIL } from '../../render/lod'
+import { addPulse, makeClock } from '../../render/shaders'
 import type { Stage } from '../../render/stage'
 import type { BowlRoll, Look } from '../../types'
 import { BALL_R, HEAD_Z, PIN_SPOTS, RollSim, startX, type BowlThrow } from './sim'
@@ -136,6 +141,11 @@ export class BowlingScene {
   private aim: BowlThrow = { x: 0, dir: 0, speed: 8, spin: 0 }
   private react: 'cheer' | 'sad' = 'sad'
   private rackDrop = 1
+  private clockU = makeClock()
+  private crowd: Crowd | null = null
+  private fx: Particles | null = null
+  private ghosts: THREE.Object3D[] = []
+  private call: BowlRoll['call'] = 'open'
 
   constructor(stage: Stage) {
     this.stage = stage
@@ -144,34 +154,57 @@ export class BowlingScene {
   async load() {
     const loader = new GLTFLoader()
     const [world, props, gltfChibi] = await Promise.all([loader.loadAsync(worldUrl), loader.loadAsync(propsUrl), loadChibi()])
-    const { scene, renderer, sun } = this.stage
+    const { scene, sun } = this.stage
     this.gltfChibi = gltfChibi
 
+    await dressArena(this.stage, world.scene, this.clockU, {
+      sky: 'malam',
+      env: 0.35,
+      skyBackground: false,
+      lightmap: lightmapUrl,
+      lightmapIntensity: 1.8,
+      mats: {
+        beton: { tex: 'beton', repeat: 1, tint: '#7a6f92' },
+        logam: { tex: 'logam', repeat: 1, tint: '#c4cad6' },
+        logam_gelap: { tex: 'logam', repeat: 1, tint: '#4a4458' },
+        papan: { tex: 'papan', repeat: 1 },
+        sofa_rose: { tex: 'kulit', repeat: 1, tint: '#ff5ab0' },
+        sofa_leaf: { tex: 'kulit', repeat: 1, tint: '#5ac86a' },
+      },
+    })
     scene.background = new THREE.Color('#0d0a18')
     scene.fog = new THREE.Fog('#0d0a18', 26, 60)
-    const pmrem = new THREE.PMREMGenerator(renderer)
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
-    scene.environmentIntensity = 0.22
-    pmrem.dispose()
-
     world.scene.traverse((o) => {
       const mesh = o as THREE.Mesh
       if (!mesh.isMesh) return
       const m = mesh.material as THREE.MeshStandardMaterial
-      // nilai lampu dari Blender terlalu terang untuk bloom di HP
-      m.emissiveIntensity = Math.min(m.emissiveIntensity, 1.5)
+      if (m.emissiveIntensity > 0.1 && m.emissive.getHex() !== 0) addPulse(m, this.clockU)
       if (m.name === 'lane') {
         m.map = laneTexture()
         m.color.set('#e9d9c4')
         m.envMapIntensity = 3
-        mesh.receiveShadow = true
+        // lintasan sedikit tembus: pantulan pin dibuat dari salinan terbalik di bawahnya
+        if (this.stage.quality !== 'low') {
+          m.transparent = true
+          m.opacity = 0.84
+        }
       } else if (m.name === 'carpet') {
         m.map = carpetTexture()
         m.color.set('#ffffff')
-        mesh.receiveShadow = true
       }
     })
     scene.add(world.scene)
+    const detail = DETAIL[this.stage.quality]
+    this.fx = new Particles(detail.particles)
+    scene.add(this.fx.group)
+    // penonton di sofa jalur tetangga & beberapa pemain yang menunggu
+    const people = [
+      ...rowSeats([-5.9, 0.4, 5.1], [-0.9, 0.4, 5.1], 0.8, Math.PI),
+      ...rowSeats([0.9, 0.4, 5.1], [5.9, 0.4, 5.1], 0.8, Math.PI),
+      ...rowSeats([-6.8, 0, 1.6], [-1.6, 0, 1.6], 2.4, Math.PI),
+      ...rowSeats([1.6, 0, 1.6], [6.8, 0, 1.6], 2.4, Math.PI),
+    ]
+    this.crowd = makeCrowd(this.stage, people, this.clockU)
 
     scene.add(new THREE.HemisphereLight('#ffe9f5', '#2c2350', 0.55))
     // lampu hangat di area pemain dan sorot di pin
@@ -201,6 +234,12 @@ export class BowlingScene {
       p.traverse((o) => (o.castShadow = true))
       scene.add(p)
       this.pins.push(p)
+      if (this.stage.quality !== 'low') {
+        const g = pinNode.clone()
+        g.scale.y = -1
+        scene.add(g)
+        this.ghosts.push(g)
+      }
     }
     const ball = props.scene.getObjectByName('ball')!
     ball.traverse((o) => {
@@ -300,6 +339,7 @@ export class BowlingScene {
     this.clock = 0
     this.step = 0
     this.hit = false
+    this.call = roll.call
     this.react = roll.call === 'strike' || roll.call === 'spare' ? 'cheer' : roll.knocked.length >= 7 ? 'cheer' : 'sad'
     this.chibi?.play('bowl', { once: true, fade: 0.15 })
     const b = roll.th.spin
@@ -317,6 +357,15 @@ export class BowlingScene {
 
   private frame(dt: number) {
     this.clock += dt
+    this.clockU.value += dt
+    this.crowd?.update(dt)
+    this.fx?.update(dt)
+    this.ghosts.forEach((g, i) => {
+      const p = this.pins[i]
+      g.visible = p.visible
+      g.position.set(p.position.x, -p.position.y, p.position.z)
+      g.rotation.set(-p.rotation.x, p.rotation.y, -p.rotation.z)
+    })
     this.chibi?.update(dt)
     if (this.rackDrop < 1) {
       this.rackDrop = Math.min(1, this.rackDrop + dt * 2.4)
@@ -347,6 +396,10 @@ export class BowlingScene {
         if (this.clock > 1.1) {
           this.phase = 'react'
           this.clock = 0
+          if (this.call === 'strike' || this.call === 'spare') {
+            this.crowd?.cheer(this.call === 'strike' ? 1 : 0.6)
+            this.fx?.burst('confetti', 30, 0, 3, 1, 0, 2, 0, 7, ['#ff37a6', '#5cf64a', '#ffcc1f', '#42c6ff'])
+          }
           if (this.chibi) {
             // kamera pindah ke atas lintasan, jadi karakter tetap menghadap -Z ke arah kamera
             this.chibi.root.position.set(0, 0, 0.8)
@@ -391,6 +444,7 @@ export class BowlingScene {
         pin.rotation.set((p.tz * -k * Math.PI) / 2, 0, (p.tx * -k * Math.PI) / 2)
         if (!this.hit) {
           this.hit = true
+          this.fx?.burst('spark', 14, pin.position.x, 0.25, pin.position.z, 0, 2, -1, 5, ['#fff2b0', '#ffffff'], 0.6)
           this.cb.onFirstHit?.(Math.sqrt(b.vx * b.vx + b.vz * b.vz))
         }
       }

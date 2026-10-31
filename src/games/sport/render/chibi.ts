@@ -3,6 +3,10 @@ import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js'
 import chibiUrl from '@/assets/sport/models/chibi.glb?url'
 import { HAIRS, PANTS, SHIRTS, SKINS } from '../look'
+import { DETAIL } from './lod'
+import { addRim } from './shaders'
+import { savedQuality } from './stage'
+import { applyCloth } from './textures'
 import type { Look } from '../types'
 
 export type Clip =
@@ -58,6 +62,11 @@ export class Chibi {
     })
     this.setLook(look)
     this.setGear(null)
+    // tepi bercahaya memisahkan karakter dari latar; kain hanya kalau grafis mengizinkan
+    for (const [name, m] of this.mats) {
+      addRim(m, '#fff0dc', name === 'skin' ? 0.22 : 0.3)
+      if (DETAIL[savedQuality()].pbr && (name === 'shirt' || name === 'pants')) void applyCloth(m)
+    }
   }
 
   private own(m: THREE.MeshStandardMaterial) {

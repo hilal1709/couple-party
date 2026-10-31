@@ -27,7 +27,7 @@ colored('hair', '#121212')
 colored('pants', '#21252e')
 colored('skin', '#e0a878')
 for o in bpy.data.objects:
-    if o.name.startswith(('hair_', 'acc_')):
+    if o.name.startswith(('hair_', 'acc_')) or o.name in ('gloves', 'bow', 'racket'):
         o.hide_render = o.name != 'hair_1'
 
 # karakter menghadap kamera sambil memeluk bola, pin di belakangnya

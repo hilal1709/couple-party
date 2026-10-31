@@ -37,6 +37,7 @@ SHOE = named('shoe', '#fff4fa', 0.45)
 SOLE = named('sole', '#121212', 0.7)
 EYE = named('eye', '#16121a', 0.15, 1.0)
 GLINT = named('glint', '#ffffff', 0.2)
+IRIS = named('iris', '#5a3a1e', 0.2, 1.0)
 BLUSH = named('blush', '#ff8fa8', 0.7)
 ACC = named('acc', '#ff37a6', 0.5)
 LENS = named('lens', '#121212', 0.25, 0.8)
@@ -76,6 +77,102 @@ def join(objs, name):
     o.name = name
     o.data.name = name
     return o
+
+
+def transfer_weights(src, dst, rounds=8, keep=3):
+    """bobot dari titik terdekat di bagian asal, dihaluskan lewat tetangga supaya sendi menekuk lembut"""
+    from mathutils.kdtree import KDTree
+    names = [g.name for g in src.vertex_groups]
+    kd = KDTree(len(src.data.vertices))
+    for v in src.data.vertices:
+        kd.insert(v.co, v.index)
+    kd.balance()
+    weights = []
+    for v in dst.data.vertices:
+        _, i, _ = kd.find(v.co)
+        weights.append({names[g.group]: g.weight for g in src.data.vertices[i].groups})
+    near = [[] for _ in dst.data.vertices]
+    for e in dst.data.edges:
+        a, b = e.vertices
+        near[a].append(b)
+        near[b].append(a)
+    for _ in range(rounds):
+        nxt = []
+        for i, w in enumerate(weights):
+            sum_w = dict(w)
+            for n in near[i]:
+                for k, v in weights[n].items():
+                    sum_w[k] = sum_w.get(k, 0) + v
+            count = len(near[i]) + 1
+            nxt.append({k: v / count for k, v in sum_w.items()})
+        weights = nxt
+    for name in names:
+        dst.vertex_groups.new(name=name)
+    for i, w in enumerate(weights):
+        top = sorted(w.items(), key=lambda kv: -kv[1])[:keep]
+        total = sum(v for _, v in top) or 1
+        for k, v in top:
+            dst.vertex_groups[k].add([i], v / total, 'REPLACE')
+
+
+def unify(objs, name, voxel=0.011, ratio=0.1):
+    """lebur bagian-bagian jadi satu kulit tanpa sambungan; bobot tulang disalin dari bagian asal lalu dihaluskan"""
+    src = join(objs, f'{name}_asal')
+    dup = src.copy()
+    dup.data = src.data.copy()
+    dup.name = name
+    scene.collection.objects.link(dup)
+    dup.vertex_groups.clear()
+    bpy.ops.object.select_all(action='DESELECT')
+    dup.select_set(True)
+    bpy.context.view_layer.objects.active = dup
+    r = dup.modifiers.new('r', 'REMESH')
+    r.mode = 'VOXEL'
+    r.voxel_size = voxel
+    r.use_smooth_shade = True
+    bpy.ops.object.modifier_apply(modifier=r.name)
+    d = dup.modifiers.new('d', 'DECIMATE')
+    d.ratio = ratio
+    bpy.ops.object.modifier_apply(modifier=d.name)
+    for p in dup.data.polygons:
+        p.use_smooth = True
+    transfer_weights(src, dup)
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.01)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    bpy.data.objects.remove(src, do_unlink=True)
+    return dup
+
+
+def clumps(n, r, length, m, zmin=1.12, seed=1, lean=0.6):
+    """gumpalan helai rambut di kubah kepala: kerucut ramping yang mengikuti arah sisir"""
+    import random
+    rnd = random.Random(seed)
+    out = []
+    for _ in range(n):
+        a = rnd.random() * math.tau
+        k = 0.15 + rnd.random() * 0.8
+        x, y = math.cos(a) * k * HEAD_R, math.sin(a) * k * HEAD_R
+        z = HEAD[2] + math.sqrt(max(0.01, 1 - k * k)) * HEAD_R * 1.0
+        if z < zmin:
+            continue
+        L = length * (0.75 + rnd.random() * 0.5)
+        base = Vector((x * 1.02, y * 1.02, z))
+        # helai rebah mengikuti kepala: arah sisir dibuang komponen tegak lurusnya
+        n = (base - Vector(HEAD)).normalized()
+        comb = Vector((0.25 * math.copysign(1, x), lean, -1))
+        comb = (comb - n * comb.dot(n)).normalized()
+        tip = base + comb * L + n * 0.02
+        bpy.ops.mesh.primitive_cone_add(radius1=r * (0.8 + rnd.random() * 0.5), radius2=0.002, depth=(tip - base).length, location=(base + tip) / 2, vertices=6)
+        o = last()
+        o.rotation_mode = 'QUATERNION'
+        o.rotation_quaternion = Vector((0, 0, 1)).rotation_difference(tip - base)
+        o.data.materials.append(m)
+        for p in o.data.polygons:
+            p.use_smooth = True
+        out.append(o)
+    return out
 
 
 def shell(r, scale, cut, m, center=HEAD, seg=20):
@@ -119,8 +216,10 @@ def build_body():
     # wajah: dibuat agak maju dari permukaan kepala supaya tidak tenggelam
     for s in (-1, 1):
         x = s * 0.115
-        head.append(sphere((x, -0.262, 1.03), 0.052, EYE, (0.85, 0.42, 1.25), seg=14, sub=False))
-        head.append(sphere((x + 0.016, -0.285, 1.058), 0.016, GLINT, (1, 0.5, 1), seg=8, sub=False))
+        head.append(sphere((x, -0.255, 1.03), 0.058, GLINT, (0.95, 0.42, 1.25), seg=14, sub=False))
+        head.append(sphere((x, -0.277, 1.03), 0.044, IRIS, (0.92, 0.4, 1.2), seg=14, sub=False))
+        head.append(sphere((x, -0.292, 1.03), 0.026, EYE, (0.92, 0.35, 1.15), seg=12, sub=False))
+        head.append(sphere((x + 0.014, -0.304, 1.052), 0.011, GLINT, (1, 0.5, 1), seg=8, sub=False))
         head.append(sphere((s * 0.19, -0.222, 0.945), 0.042, BLUSH, (1.15, 0.35, 0.65), seg=10, sub=False))
         brow = limb((x - 0.05, -0.265, 1.118 - s * 0.006), (x + 0.05, -0.262, 1.118 + s * 0.006), 0.0105, HAIR)
         head.extend(brow)
@@ -135,30 +234,32 @@ def build_body():
     parts += to('head', *head)
 
     # badan
-    parts += to('spine', sphere((0, 0, 0.6), 0.215, SHIRT, (1, 0.8, 1.02), seg=22, sub=False))
-    parts += to('hips', sphere((0, 0, 0.45), 0.195, PANTS, (1, 0.82, 0.62), seg=16, sub=False))
-    parts += to('spine', torus((0, 0, 0.725), 0.075, 0.018, SHIRT, seg=16))
+    cloth = to('spine', sphere((0, 0, 0.6), 0.215, SHIRT, (1, 0.8, 1.02), seg=22, sub=False), torus((0, 0, 0.725), 0.075, 0.018, SHIRT, seg=16))
+    legs = to('hips', sphere((0, 0, 0.45), 0.195, PANTS, (1, 0.82, 0.62), seg=16, sub=False))
+    limbs = []
 
     # lengan
     for side, s in (('R', -1), ('L', 1)):
         sh = (s * 0.215, 0, 0.7)
         el = (s * 0.262, 0, 0.53)
         wr = (s * 0.285, 0, 0.385)
-        parts += to(f'upper_{side}', *limb(sh, el, 0.066, SHIRT, 0.056))
-        parts += to(f'fore_{side}', *limb(el, wr, 0.05, SKIN, 0.043))
+        cloth += to(f'upper_{side}', *limb(sh, el, 0.066, SHIRT, 0.056))
+        arm_skin = to(f'fore_{side}', *limb(el, wr, 0.05, SKIN, 0.043))
         hand = [sphere((wr[0], wr[1], wr[2] - 0.045), 0.06, SKIN, (0.85, 0.95, 1.1), seg=12, sub=False)]
         hand.append(sphere((wr[0] - s * 0.04, wr[1] - 0.025, wr[2] - 0.035), 0.024, SKIN, (1, 1, 1.3), seg=8, sub=False))
-        parts += to(f'hand_{side}', *hand)
+        arm_skin += to(f'hand_{side}', *hand)
+        limbs.append(unify(arm_skin, f'lengan_{side}', voxel=0.009, ratio=0.22))
         hp = (s * 0.1, 0, 0.42)
         kn = (s * 0.105, 0, 0.25)
         an = (s * 0.105, 0, 0.1)
-        parts += to(f'thigh_{side}', *limb(hp, kn, 0.082, PANTS, 0.07))
-        parts += to(f'shin_{side}', *limb(kn, an, 0.066, PANTS, 0.056))
+        legs += to(f'thigh_{side}', *limb(hp, kn, 0.082, PANTS, 0.07))
+        legs += to(f'shin_{side}', *limb(kn, an, 0.066, PANTS, 0.056))
         foot = [
             sphere((s * 0.105, -0.05, 0.062), 0.082, SHOE, (0.88, 1.5, 0.72), seg=14, sub=False),
             sphere((s * 0.105, -0.05, 0.022), 0.082, SOLE, (0.92, 1.54, 0.3), seg=14, sub=False),
         ]
         parts += to(f'foot_{side}', *foot)
+    parts += [unify(cloth, 'baju'), unify(legs, 'celana'), *limbs]
     return join(parts, 'body')
 
 
@@ -168,7 +269,7 @@ def fringe():
 
 
 def hair_0():
-    return [shell(0.305, (1.05, 1.03, 1), 0.05, HAIR), fringe()]
+    return [shell(0.305, (1.05, 1.03, 1), 0.05, HAIR), fringe(), *clumps(30, 0.05, 0.11, HAIR, seed=2)]
 
 
 def hair_1():
@@ -190,11 +291,12 @@ def hair_2():
         sphere((-0.265, 0.03, 0.97), 0.13, HAIR, (0.7, 1.15, 1.45), seg=14, sub=False),
         sphere((0.265, 0.03, 0.97), 0.13, HAIR, (0.7, 1.15, 1.45), seg=14, sub=False),
         sphere((0, 0.17, 0.96), 0.24, HAIR, (1.12, 0.65, 1.05), seg=14, sub=False),
+        *clumps(36, 0.055, 0.16, HAIR, zmin=1.0, seed=3, lean=1.0),
     ]
 
 
 def hair_3():
-    out = [shell(0.305, (1.05, 1.03, 1), 0.05, HAIR), fringe()]
+    out = [shell(0.305, (1.05, 1.03, 1), 0.05, HAIR), fringe(), *clumps(30, 0.05, 0.12, HAIR, seed=4)]
     out.append(torus((0, 0.3, 1.13), 0.04, 0.016, ACC, rot=(math.radians(90), 0, 0), seg=12))
     for i, (y, z, r) in enumerate(((0.35, 1.12, 0.075), (0.41, 1.03, 0.085), (0.44, 0.92, 0.075), (0.45, 0.83, 0.05))):
         out.append(sphere((0, y, z), r, HAIR, seg=12, sub=False))
