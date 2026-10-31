@@ -2,7 +2,7 @@ import { Howl, Howler } from 'howler'
 import { useEffect, useSyncExternalStore } from 'react'
 import { store } from '@/net/transport'
 
-export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense'
+export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense' | 'petak' | 'petak-tense'
 
 export type SfxName =
   | 'card-place-1'
@@ -174,6 +174,16 @@ export type SfxName =
   | 'kart-throw'
   | 'kart-champion'
   | 'kart-lose'
+  | 'petak-hunt'
+  | 'petak-catch'
+  | 'petak-miss'
+  | 'petak-pipet'
+  | 'petak-merpati'
+  | 'petak-meong'
+  | 'petak-langkah'
+  | 'petak-reveal'
+  | 'petak-cat'
+  | 'petak-kereta'
 
 export type AudioSettings = { music: number; sfx: number; muted: boolean }
 

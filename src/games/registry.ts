@@ -4,6 +4,7 @@ import bomArt from '@/assets/bom/tile-bom.webp'
 import drawArt from '@/assets/draw/tile-draw.webp'
 import ludoArt from '@/assets/ludo/tile-ludo.webp'
 import monopolyArt from '@/assets/monopoly/tile-monopoly.webp'
+import petakArt from '@/assets/petak/tile-petak.webp'
 import remiArt from '@/assets/remi/tile-remi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import spyArt from '@/assets/spy/tile-spy.webp'
@@ -38,6 +39,9 @@ import { kart } from './kart'
 import type { KartOptions } from './kart/types'
 import { summary as kartSummary } from './kart/ui/copy'
 import { sprite as kartSprite } from './kart/ui/art'
+import { petak } from './petak'
+import type { PetakOptions } from './petak/types'
+import { summary as petakSummary } from './petak/ui/copy'
 import { uno } from './uno'
 import type { UnoOptions } from './uno/types'
 import { VARIANT_INFO } from './uno/ui/copy'
@@ -175,6 +179,17 @@ export const GAMES: GameEntry[] = [
     art: kartSprite('tile-kart') ?? bomArt,
     Lobby: lazy(() => import('./kart/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: KartOptions) => kartSummary(o),
+    nativeBots: true,
+  },
+  {
+    game: petak,
+    category: 'lainnya',
+    blurb: 'Petak umpet di 8 map: cat badanmu mirip tembok, lalu diam',
+    minPlayers: 1,
+    maxPlayers: 8,
+    art: petakArt,
+    Lobby: lazy(() => import('./petak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: PetakOptions) => petakSummary(o),
     nativeBots: true,
   },
 ]
