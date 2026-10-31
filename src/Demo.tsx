@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { defaultOptions, init, reduce } from './games/uno/engine'
 import type { UnoAction, Variant } from './games/uno/types'
 import { UnoTable } from './games/uno/ui/UnoTable'
@@ -33,6 +33,14 @@ import { BomBoard } from './games/bom/ui/BomBoard'
 import * as kartEngine from './games/kart/engine'
 import type { KartAction, KartOptions, KartState } from './games/kart/types'
 import { KartBoard } from './games/kart/ui/KartBoard'
+import * as sportEngine from './games/sport/engine'
+import { sportBot } from './games/sport/bot'
+import type { SportId } from './games/sport/types'
+import { randomLook } from './games/sport/look'
+import type { BowlingMatch, SportAction, SportState } from './games/sport/types'
+import { SportBoard } from './games/sport/ui/SportBoard'
+import { saveLook, savedLook } from './games/sport/ui/lookStore'
+import { store } from './net/transport'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -40,7 +48,7 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' }) {
   if (variant === 'draw') return <DrawDemo />
   if (variant === 'domino') return <DominoDemo />
   if (variant === 'monopoly') return <MonopolyDemo />
@@ -48,6 +56,7 @@ export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino
   if (variant === 'spy') return <SpyDemo />
   if (variant === 'bom') return <BomDemo />
   if (variant === 'kart') return <KartDemo />
+  if (variant === 'sport') return <SportDemo />
   if (variant === 'remi') return <RemiDemo />
   return <UnoDemo variant={variant} />
 }
@@ -306,6 +315,59 @@ function BomDemo() {
  * Kart Kacau lokal: ?demo=kart &track=pantai|…|lava atau &cup=daun|bintang &n=1..8 pemain &laps=1|3|5
  * &bots=0 &phase=pick (default langsung balapan) &end=1 (langsung layar hasil). Kursi 0 = host (menjalankan bot).
  */
+/**
+ * Sport Kacau lokal: ?demo=sport &s=bowling|tinju|panahan|penalti|tenis|badminton &n=2..8 &frames=3|5|10 &rounds=1|3|5 &ends=3|5 &points=5|7|11 &input=camera &lag=ms (jeda jaringan buatan)
+ * &maker=1 (pembuat karakter) &end=1 (layar akhir bowling) &auto=1 (kursi 0 ikut dimainkan bot). Kursi lain selalu bot.
+ */
+function SportDemo() {
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(8, Math.max(2, Number(q.get('n') ?? 2)))
+  const seat = Number(q.get('seat') ?? 0)
+  const auto = q.has('auto')
+  const [s, setS] = useState<SportState>(() => {
+    if (q.has('input')) store.setItem('couple-party:sport-input', q.get('input')!)
+    if (q.has('q')) store.setItem('couple-party:sport-quality', q.get('q')!)
+    if (!q.has('maker') && !savedLook()) saveLook(randomLook(5)[0])
+    const sport = (q.get('s') ?? 'bowling') as SportId
+    let st = sportEngine.init(42, { sport, ends: (Number(q.get('ends') ?? 3) as 3 | 5) || 3, points: (Number(q.get('points') ?? 5) as 5 | 7 | 11) || 5, players: sport === 'bowling' || sport === 'panahan' ? n : 2, frames: (Number(q.get('frames') ?? 3) as 3 | 5 | 10) || 3, rounds: (Number(q.get('rounds') ?? 3) as 1 | 3 | 5) || 3 })
+    if (q.has('end') && st.m.kind === 'bowling') {
+      for (let i = 0; i < 200 && st.m.phase !== 'end'; i++) {
+        const b = st.m as BowlingMatch
+        st = sportEngine.reduce(st, { type: 'throw', id: b.rollId, th: { x: 0, dir: (i % 5) * 0.004, speed: 8, spin: 0 } }, b.turn)
+        st = sportEngine.reduce(st, { type: 'next', id: (st.m as BowlingMatch).roll!.id }, 0)
+      }
+    }
+    return st
+  })
+  const lag = Number(q.get('lag') ?? 0)
+  const act = (a: SportAction, by = seat) => {
+    const run = () => setS((cur) => sportEngine.reduce(cur, a, by))
+    if (lag) setTimeout(run, lag)
+    else run()
+  }
+  // satu aksi terjadwal per kursi bot, sama seperti useBots
+  const latest = useRef(s)
+  latest.current = s
+  const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>())
+  useEffect(() => {
+    const plan = (by: number) => {
+      if (timers.current.has(by)) return
+      const mv = sportBot({ state: latest.current, seat: by, level: 2, rnd: Math.random, mem: {}, now: Date.now() })
+      if (!mv) return
+      timers.current.set(
+        by,
+        setTimeout(() => {
+          timers.current.delete(by)
+          act(mv.action, by)
+          setTimeout(() => plan(by), 20)
+        }, mv.delay),
+      )
+    }
+    s.looks.forEach((_, i) => (i !== seat || auto) && plan(i))
+  })
+  return <SportBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} />
+}
+
 function KartDemo() {
   const q = new URLSearchParams(location.search)
   const n = Math.min(8, Math.max(1, Number(q.get('n') ?? 1)))
