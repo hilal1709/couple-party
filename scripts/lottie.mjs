@@ -1,4 +1,4 @@
-// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi, Domino, Monopoli, Ludo, Siapa Mata-mata, Bom Waktu & Kart Kacau.
+// Generator animasi Lottie buatan sendiri (bukan unduhan): confetti, ledakan, loader, efek Ular Tangga, Tebak Gambar, Kartu Remi, Domino, Monopoli, Ludo, Siapa Mata-mata, Bom Waktu, Kart Kacau & Sport Kacau.
 // Jalankan: node scripts/lottie.mjs  → src/assets/lottie/*.json
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -2217,8 +2217,187 @@ function kartFinish() {
   return doc('kart-finish', S, S, OP, layers)
 }
 
+// pin bowling kecil: badan putih + pita merah
+function pinShape(size) {
+  const k = size / 40
+  const body = {
+    ty: 'sh',
+    ks: st({
+      c: true,
+      v: [[0, -20 * k], [7 * k, -13 * k], [4 * k, -5 * k], [11 * k, 8 * k], [6 * k, 20 * k], [-6 * k, 20 * k], [-11 * k, 8 * k], [-4 * k, -5 * k], [-7 * k, -13 * k]],
+      i: [[-4 * k, 0], [0, -3 * k], [1 * k, -3 * k], [0, -6 * k], [3 * k, 0], [0, 0], [0, 5 * k], [-1 * k, 3 * k], [0, 3 * k]],
+      o: [[4 * k, 0], [0, 3 * k], [-1 * k, 3 * k], [0, 6 * k], [-3 * k, 0], [0, 0], [0, -5 * k], [1 * k, -3 * k], [0, -3 * k]],
+    }),
+  }
+  return [
+    { ty: 'gr', it: [{ ty: 'rc', p: st([0, -5 * k]), s: st([11 * k, 3.5 * k]), r: st(0) }, fill('#ff37a6'), tr()], nm: 'pita' },
+    { ty: 'gr', it: [body, fill('#fff4fa'), stroke('#121212', 2.5), tr()], nm: 'badan' },
+  ]
+}
+
+/** pin terpental ke segala arah dari tengah, dengan bintang; selain bowling hanya bintang */
+function sportBurst(name, count, colors) {
+  const pins = name === 'sport-strike' || name === 'sport-spare'
+  const S = 360
+  const OP = 60
+  const c = S / 2
+  const layers = []
+  for (let i = 0; i < count; i++) {
+    const a = (i / count) * Math.PI * 2 + rand() * 0.4
+    const d = 130 + rand() * 60
+    const x = c + Math.cos(a) * d
+    const y = c + Math.sin(a) * d
+    layers.push(
+      layer(
+        layers.length + 1,
+        pins && i % 2 ? pinShape(46) : star(11 + rand() * 7, 5, 5, colors[i % colors.length]),
+        { p: anim([[0, [c, c, 0]], [34, [x, y, 0]], [OP - 4, [x, y + 46, 0]]]), r: anim([[0, [0]], [OP - 4, [(rand() - 0.5) * 720]]]), o: anim([[0, [100]], [42, [100]], [OP - 4, [0]]]) },
+        OP,
+      ),
+    )
+  }
+  return doc(name, S, S, OP, layers)
+}
+
+/** bola gelinding masuk parit, ditutup tetes sedih */
+function sportGutter() {
+  const S = 360
+  const OP = 60
+  const layers = [layer(1, [{ ty: 'el', p: st([0, 0]), s: st([64, 64]) }, fill('#ff37a6'), stroke('#121212', 3)], { p: anim([[0, [40, 170, 0]], [30, [190, 190, 0]], [44, [320, 260, 0]]]), r: anim([[0, [0]], [44, [540]]]), o: anim([[0, [100]], [40, [100]], [50, [0]]]) }, OP)]
+  for (let i = 0; i < 4; i++) {
+    const x = 110 + i * 46
+    layers.push(layer(2 + i, [{ ty: 'el', p: st([0, 0]), s: st([12, 20]) }, fill('#42c6ff'), stroke('#121212', 2.5)], { p: anim([[12 + i * 6, [x, 110, 0]], [48 + i * 3, [x, 280, 0]]]), o: anim([[12 + i * 6, [0]], [16 + i * 6, [100]], [52 + i * 3, [0]]]) }, OP))
+  }
+  return doc('sport-gutter', S, S, OP, layers)
+}
+
+/** panduan gerak: orang lidi, lengan kanan turun lalu mengayun ke atas */
+function sportSwing() {
+  const S = 200
+  const OP = 72
+  const line = (a, b) => ({ ty: 'sh', ks: st({ c: false, v: [a, b], i: [[0, 0], [0, 0]], o: [[0, 0], [0, 0]] }) })
+  const ink = stroke('#121212', 9)
+  const body = [
+    { ty: 'gr', it: [{ ty: 'el', p: st([0, -56]), s: st([38, 38]) }, fill('#ffcae9'), stroke('#121212', 5), tr()], nm: 'kepala' },
+    { ty: 'gr', it: [line([0, -36], [0, 20]), line([0, 20], [-20, 74]), line([0, 20], [20, 74]), line([0, -24], [-26, 12]), ink, tr()], nm: 'badan' },
+  ]
+  const arm = [line([0, 0], [0, 62]), stroke('#ff37a6', 11), { ty: 'gr', it: [{ ty: 'el', p: st([0, 70]), s: st([24, 24]) }, fill('#5cf64a'), stroke('#121212', 4), tr()], nm: 'bola' }]
+  return doc('sport-swing', S, S, OP, [
+    layer(1, arm, { p: st([100, 76, 0]), r: anim([[0, [0]], [24, [40]], [40, [40]], [54, [-150]], [64, [-150]], [OP, [0]]]) }, OP),
+    layer(2, body, { p: st([100, 100, 0]) }, OP),
+  ])
+}
+
+/** KO: bintang berputar dan sarung tinju terlempar */
+function sportKo() {
+  const S = 360
+  const OP = 70
+  const c = S / 2
+  const layers = []
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2
+    const x = c + Math.cos(a) * 150
+    const y = c + Math.sin(a) * 90
+    layers.push(layer(layers.length + 1, star(13 + (i % 3) * 3, 5, 5, i % 2 ? '#ffcc1f' : '#ff37a6'), { p: anim([[0, [c, c, 0]], [18, [x, y, 0]], [OP, [x, y + 20, 0]]]), r: anim([[0, [0]], [OP, [360]]]), o: anim([[0, [100]], [50, [100]], [OP, [0]]]) }, OP))
+  }
+  for (const s of [-1, 1]) {
+    layers.push(layer(layers.length + 1, [{ ty: 'el', p: st([0, 0]), s: st([70, 62]) }, fill('#e0223c'), stroke('#121212', 4)], { p: anim([[0, [c, c, 0]], [22, [c + s * 150, c - 120, 0]], [OP, [c + s * 190, S + 40, 0]]]), r: anim([[0, [0]], [OP, [s * 400]]]) }, OP))
+  }
+  return doc('sport-ko', S, S, OP, layers)
+}
+
 mkdirSync('src/assets/lottie', { recursive: true })
 // urutan penting: confetti & burst duluan supaya hasil acaknya tetap sama seperti sebelumnya
+// ---------- Petak Cat ----------
+// Cipratan cat: gumpalan warna terlempar dari tengah
+function petakCiprat() {
+  const S = 320
+  const c = S / 2
+  const OP = 60
+  const colors = ['#ff37a6', '#5cf64a', '#ffcae9', '#87e752', '#43b929']
+  const layers = []
+  for (let i = 0; i < 16; i++) {
+    const a = (i / 16) * Math.PI * 2 + rand() * 0.5
+    const d = 70 + rand() * 80
+    const size = 16 + rand() * 30
+    layers.push(
+      layer(i + 1, shape('circle', size, colors[i % colors.length]), {
+        p: anim([[0, [c, c, 0]], [26, [c + Math.cos(a) * d, c + Math.sin(a) * d, 0]], [OP, [c + Math.cos(a) * d, c + Math.sin(a) * d + 26, 0]]]),
+        s: anim([[0, [20, 20, 100]], [20, [120, 90, 100]], [OP, [50, 130, 100]]]),
+        o: anim([[0, [100]], [38, [100]], [OP, [0]]]),
+      }, OP),
+    )
+  }
+  return doc('petak-ciprat', S, S, OP, layers)
+}
+
+// Mata tertutup: kelopak menutup, lalu tiga Z naik
+function petakTutup() {
+  const S = 320
+  const c = S / 2
+  const OP = 120
+  const ink = '#121212'
+  const lid = (y0, y1, ind) =>
+    layer(ind, [{ ty: 'rc', p: st([0, 0]), s: st([230, 100]), r: st(46) }, fill('#ffcae9'), stroke(ink, 6)], {
+      p: anim([[0, [c, y0, 0]], [24, [c, y1, 0]], [84, [c, y1, 0]], [106, [c, y0, 0]], [OP, [c, y0, 0]]]),
+    }, OP)
+  const layers = [lid(c - 104, c - 34, 1), lid(c + 104, c + 34, 2), layer(3, [{ ty: 'el', p: st([0, 0]), s: st([206, 120]) }, fill('#fff4fa'), stroke(ink, 6)], { p: st([c, c, 0]) }, OP), layer(4, [{ ty: 'el', p: st([0, 0]), s: st([70, 70]) }, fill(ink)], { p: anim([[0, [c - 22, c, 0]], [OP / 2, [c + 22, c, 0]], [OP, [c - 22, c, 0]]]) }, OP)]
+  return doc('petak-tutup', S, S, OP, layers)
+}
+
+// Ketangkap: cap silang menghantam, percikan cat
+function petakKetangkap() {
+  const S = 320
+  const c = S / 2
+  const OP = 64
+  const layers = []
+  for (const [i, rot] of [[1, 45], [2, -45]]) {
+    layers.push(
+      layer(i, [{ ty: 'rc', p: st([0, 0]), s: st([190, 42]), r: st(6) }, fill('#ff37a6'), stroke('#121212', 6)], {
+        p: st([c, c, 0]),
+        r: st(rot),
+        s: anim([[0, [260, 260, 100]], [10, [92, 92, 100]], [15, [108, 108, 100]], [20, [100, 100, 100]]]),
+        o: anim([[0, [0]], [6, [100]], [50, [100]], [OP, [0]]]),
+      }, OP),
+    )
+  }
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2
+    layers.push(
+      layer(i + 3, shape(i % 2 ? 'tri' : 'circle', 16, i % 3 ? '#5cf64a' : '#ffcae9'), {
+        p: anim([[9, [c, c, 0]], [36, [c + Math.cos(a) * 130, c + Math.sin(a) * 130, 0]]]),
+        o: anim([[9, [0]], [11, [100]], [34, [100]], [46, [0]]]),
+      }, OP),
+    )
+  }
+  return doc('petak-ketangkap', S, S, OP, layers)
+}
+
+// Lolos: lingkaran menyembul dan bintang berputar
+function petakLolos() {
+  const S = 320
+  const c = S / 2
+  const OP = 80
+  const layers = [
+    layer(1, [{ ty: 'sr', sy: 1, p: st([0, 0]), or: st(120), os: st(0), ir: st(58), is: st(0), r: st(0), pt: st(5) }, fill('#5cf64a'), stroke('#121212', 6)], {
+      p: st([c, c, 0]),
+      r: anim([[0, [-40]], [40, [10]], [OP, [0]]]),
+      s: anim([[0, [0, 0, 100]], [20, [116, 116, 100]], [32, [100, 100, 100]]]),
+      o: anim([[0, [100]], [62, [100]], [OP, [0]]]),
+    }, OP),
+  ]
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2 + 0.3
+    layers.push(
+      layer(i + 2, shape('circle', 14, i % 2 ? '#ff37a6' : '#ffcae9'), {
+        p: anim([[10, [c, c, 0]], [44, [c + Math.cos(a) * 146, c + Math.sin(a) * 146, 0]]]),
+        o: anim([[10, [100]], [36, [100]], [54, [0]]]),
+      }, OP),
+    )
+  }
+  return doc('petak-lolos', S, S, OP, layers)
+}
+
 const out = {
   confetti: confetti(),
   burst: burst(),
@@ -2280,6 +2459,20 @@ const out = {
   'kart-lap': kartLap(),
   'kart-box': kartBox(),
   'kart-finish': kartFinish(),
+  // Sport Kacau paling akhir, supaya acakan efek lain tidak berubah
+  'sport-strike': sportBurst('sport-strike', 16, PALETTE.slice(0, 5)),
+  'sport-spare': sportBurst('sport-spare', 9, ['#5cf64a', '#ffcae9']),
+  'sport-gutter': sportGutter(),
+  'sport-swing': sportSwing(),
+  'sport-ko': sportKo(),
+  'sport-bullseye': sportBurst('sport-bullseye', 10, ['#ffcc1f', '#ff37a6', '#5cf64a']),
+  'sport-goal': sportBurst('sport-goal', 14, ['#5cf64a', '#ffcc1f', '#ff37a6', '#fff4fa']),
+  'sport-ace': sportBurst('sport-ace', 12, ['#ffcc1f', '#5cf64a']),
+  // Petak Cat paling akhir, supaya acakan efek lain tidak berubah
+  'petak-ciprat': petakCiprat(),
+  'petak-tutup': petakTutup(),
+  'petak-ketangkap': petakKetangkap(),
+  'petak-lolos': petakLolos(),
 }
 for (const [name, json] of Object.entries(out)) writeFileSync(`src/assets/lottie/${name}.json`, JSON.stringify(json))
 console.log('Lottie dibuat:', Object.keys(out).join(', '))

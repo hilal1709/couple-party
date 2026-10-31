@@ -4,6 +4,7 @@ import bomArt from '@/assets/bom/tile-bom.webp'
 import drawArt from '@/assets/draw/tile-draw.webp'
 import ludoArt from '@/assets/ludo/tile-ludo.webp'
 import monopolyArt from '@/assets/monopoly/tile-monopoly.webp'
+import petakArt from '@/assets/petak/tile-petak.webp'
 import remiArt from '@/assets/remi/tile-remi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import spyArt from '@/assets/spy/tile-spy.webp'
@@ -34,10 +35,17 @@ import type { SnakesOptions } from './snakes/types'
 import { spy } from './spy'
 import type { SpyOptions } from './spy/types'
 import { summary as spySummary } from './spy/ui/copy'
+import { sport } from './sport'
+import type { SportOptions } from './sport/types'
+import { summary as sportSummary } from './sport/ui/copy'
+import { sprite as sportSprite } from './sport/ui/art'
 import { kart } from './kart'
 import type { KartOptions } from './kart/types'
 import { summary as kartSummary } from './kart/ui/copy'
 import { sprite as kartSprite } from './kart/ui/art'
+import { petak } from './petak'
+import type { PetakOptions } from './petak/types'
+import { summary as petakSummary } from './petak/ui/copy'
 import { uno } from './uno'
 import type { UnoOptions } from './uno/types'
 import { VARIANT_INFO } from './uno/ui/copy'
@@ -175,6 +183,28 @@ export const GAMES: GameEntry[] = [
     art: kartSprite('tile-kart') ?? bomArt,
     Lobby: lazy(() => import('./kart/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: KartOptions) => kartSummary(o),
+    nativeBots: true,
+  },
+  {
+    game: sport,
+    category: 'lainnya',
+    blurb: '6 cabang 3D: main pakai tombol atau gerakkan badan di depan kamera',
+    minPlayers: 2,
+    maxPlayers: 8,
+    art: sportSprite('tile-sport') ?? bomArt,
+    Lobby: lazy(() => import('./sport/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: SportOptions) => sportSummary(o),
+    playersFor: (o: SportOptions) => (o.sport === 'bowling' || o.sport === 'panahan' ? [2, 8] : [2, 2]),
+  },
+  {
+    game: petak,
+    category: 'lainnya',
+    blurb: 'Petak umpet di 8 map: cat badanmu mirip tembok, lalu diam',
+    minPlayers: 1,
+    maxPlayers: 8,
+    art: petakArt,
+    Lobby: lazy(() => import('./petak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: PetakOptions) => petakSummary(o),
     nativeBots: true,
   },
 ]
