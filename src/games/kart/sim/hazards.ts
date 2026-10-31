@@ -1,6 +1,6 @@
 import type { Hazard } from '../tracks'
 import type { Entity } from '../types'
-import { STEP, pointAt, type Track } from './track'
+import { STEP, hwAt, pointAt, type Track } from './track'
 
 /** kecepatan roket kertas (m/s) & umurnya (detik) */
 export const ROCKET_SPEED = 62
@@ -29,29 +29,29 @@ const TAU = Math.PI * 2
 export function hazardPose(t: Track, h: Hazard, time: number): { x: number; y: number; z: number; yaw: number; r: number; lift: number } | null {
   switch (h.kind) {
     case 'roller': {
-      const span = t.half + 8
+      const span = hwAt(t, h.at * t.length) + 8
       const lat = span * Math.sin((TAU * time) / h.period)
       const p = pointAt(t, h.at * t.length, lat)
       const dir = Math.cos((TAU * time) / h.period) >= 0 ? 1 : -1
       return { ...p, yaw: p.yaw + (dir * Math.PI) / 2, r: h.radius, lift: 0 }
     }
     case 'block': {
-      const p = pointAt(t, h.at * t.length, h.lane * t.half * 0.8)
+      const p = pointAt(t, h.at * t.length, h.lane * hwAt(t, h.at * t.length) * 0.8)
       return { ...p, r: h.radius, lift: 0 }
     }
     case 'swing': {
       const ang = Math.sin((TAU * time) / h.period) * 1.1
-      const reach = t.half * 0.85
+      const reach = hwAt(t, h.at * t.length) * 0.85
       const p = pointAt(t, h.at * t.length, Math.sin(ang) * reach)
       // bandul: makin ke tepi makin tinggi
       return { ...p, r: 2.8, lift: (1 - Math.cos(ang)) * 6, yaw: ang }
     }
     case 'bounce': {
-      const p = pointAt(t, h.at * t.length, h.lane * t.half * 0.7)
+      const p = pointAt(t, h.at * t.length, h.lane * hwAt(t, h.at * t.length) * 0.7)
       return { ...p, r: 4, lift: 0 }
     }
     case 'drop': {
-      const p = pointAt(t, h.at * t.length, h.lane * t.half * 0.7)
+      const p = pointAt(t, h.at * t.length, h.lane * hwAt(t, h.at * t.length) * 0.7)
       const ph = (time % h.period) / h.period
       // lift = tinggi batu di atas jalan (jatuh di 0.55..0.72)
       const fall = Math.max(0, Math.min(1, (ph - 0.5) / (DROP_HIT[0] - 0.5)))
@@ -91,7 +91,7 @@ export function hazardContact(t: Track, time: number, x: number, z: number, y: n
 export function blockPush(t: Track, x: number, z: number): { nx: number; nz: number; depth: number } | null {
   for (const h of t.def.hazards) {
     if (h.kind !== 'block') continue
-    const p = pointAt(t, h.at * t.length, h.lane * t.half * 0.8)
+    const p = pointAt(t, h.at * t.length, h.lane * hwAt(t, h.at * t.length) * 0.8)
     const dx = x - p.x
     const dz = z - p.z
     const d = Math.hypot(dx, dz)
@@ -107,7 +107,7 @@ export function onPad(t: Track, s: number, lateral: number): boolean {
     let ds = s - at * t.length
     if (ds > t.length / 2) ds -= t.length
     if (ds < -t.length / 2) ds += t.length
-    if (Math.abs(ds) < 4 && Math.abs(lateral - lane * t.half * 0.6) < 4) return true
+    if (Math.abs(ds) < 4 && Math.abs(lateral - lane * hwAt(t, s) * 0.6) < 4) return true
   }
   return false
 }
@@ -117,7 +117,7 @@ export function boxSpots(t: Track): { id: number; x: number; y: number; z: numbe
   const out: { id: number; x: number; y: number; z: number }[] = []
   t.def.boxes.forEach((at, r) => {
     for (let c = 0; c < 4; c++) {
-      const p = pointAt(t, at * t.length, (c - 1.5) * t.half * 0.45)
+      const p = pointAt(t, at * t.length, (c - 1.5) * hwAt(t, at * t.length) * 0.45)
       out.push({ id: r * 4 + c, x: p.x, y: p.y + 1.4, z: p.z })
     }
   })

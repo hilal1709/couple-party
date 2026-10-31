@@ -18,11 +18,10 @@ export type Hazard =
   /** bandul / palu yang mengayun melintasi jalan */
   | { kind: 'swing'; at: number; model: string; period: number }
 
-export type Ground = 'pasir' | 'rumput' | 'salju' | 'batu' | 'kerikil' | 'cobble'
+export type Ground = 'pasir' | 'rumput' | 'salju' | 'batu' | 'kerikil' | 'cobble' | 'paving' | 'hutan' | 'tanah'
 
-/** tampilan premium: langit HDRI, tekstur tanah & jalan, warna celup */
+/** tekstur tanah & jalan, warna celup; langit dan shader ada di render/recipe.ts */
 export type Look = {
-  sky: 'siang' | 'senja' | 'malam'
   ground: Ground
   /** warna pengali tekstur tanah (boleh > terang dari tekstur aslinya) */
   tint: string
@@ -78,6 +77,11 @@ export type TrackDef = {
   /** titik rapat lintasan tertutup: [x, z, tinggi?] dalam meter, searah putaran (dari road()) */
   points: [number, number, number?][]
   width: number
+  /** lebar berubah sepanjang lap: [posisi 0..1, lebar jalan, bahu sampai dinding?] urut naik.
+   *  Tanpa ini lebar tetap `width`. Bahu bawaan 14 m (lava 8 m). */
+  profile?: [number, number, number?][]
+  /** ruas jembatan di atas air: [dari, sampai] 0..1 */
+  bridges?: [number, number][]
   /** posisi (0..1 sepanjang lintasan) deretan kotak item */
   boxes: number[]
   /** panel turbo: [posisi, offset samping -1..1] */
@@ -160,14 +164,17 @@ export const TRACKS: Record<TrackId, TrackDef> = {
     title: 'Pantai Kelapa',
     line: 'Ngebut di tepi ombak, awas kepiting nyebrang',
     points: road([[0, 0, 40], [-500, -500, 18], [-520, -640, 16], [-440, -720, 14], [-340, -700, 14], [-300, -780, 16], [-160, -780, 20], [-120, -660, 14], [-200, -600, 14], [-160, -520, 18], [-40, -440, 24], [60, -300, 16], [20, -220, 14], [100, -160, 14], [200, -80, 20], [380, 60, 30], [420, 160, 16], [340, 220, 14], [260, 180, 16], [120, 140, 22]]),
-    width: 30,
+    width: 36,
+    // pesisir lapang, menyempit di tikungan barat, jembatan papan melintasi teluk
+    profile: [[0.02, 36], [0.12, 36], [0.16, 28, 12], [0.34, 28, 12], [0.4, 34], [0.54, 34], [0.585, 22, 3], [0.675, 22, 3], [0.71, 30, 12], [0.8, 30, 12], [0.9, 36]],
+    bridges: [[0.585, 0.675]],
     boxes: [0.06, 0.2, 0.34, 0.48, 0.62, 0.76, 0.9],
     pads: [[0.03, 0], [0.25, 0.5], [0.47, -0.4], [0.72, 0.4], [0.95, 0]],
     ramps: [0.4, 0.55, 0.83],
     hazards: [
       { kind: 'roller', at: 0.15, model: 'kepiting', period: 5, radius: 2.5 },
       { kind: 'roller', at: 0.3, model: 'kepiting', period: 6, radius: 2.5 },
-      { kind: 'roller', at: 0.66, model: 'kepiting', period: 4.5, radius: 2.5 },
+      { kind: 'roller', at: 0.75, model: 'kepiting', period: 4.5, radius: 2.5 },
       { kind: 'roller', at: 0.79, model: 'kepiting', period: 6, radius: 2.5 },
       { kind: 'grip', from: 0.5, to: 0.53, grip: 0.9, drag: 0.35, color: '#f6dc9a' },
       { kind: 'block', at: 0.1, lane: -0.5, model: 'istana-pasir', radius: 2.6 },
@@ -180,9 +187,8 @@ export const TRACKS: Record<TrackId, TrackDef> = {
     ],
     landmarks: [
       { model: 'mercusuar', at: 0.34, side: -1, dist: 120, scale: 1.4 },
-      { model: 'dermaga', at: 0.62, side: 1, dist: 45, turn: Math.PI / 2 },
       { model: 'perahu', at: 0.6, side: 1, dist: 95, turn: 0.4, float: true },
-      { model: 'perahu', at: 0.66, side: 1, dist: 120, turn: -0.8, float: true },
+      { model: 'perahu', at: 0.66, side: -1, dist: 120, turn: -0.8, float: true },
       { model: 'perahu', at: 0.15, side: -1, dist: 160, turn: 1.2, float: true },
       { model: 'perahu', at: 0.88, side: 1, dist: 140, turn: 2.2, float: true },
       { model: 'pondok', at: 0.04, side: -1, dist: 40 },
@@ -190,12 +196,12 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { model: 'pondok', at: 0.8, side: -1, dist: 45 },
       { model: 'selancar', at: 0.05, side: -1, dist: 34 },
       { model: 'selancar', at: 0.81, side: -1, dist: 38 },
-      { model: 'pelampung', at: 0.25, side: 1, dist: 110, float: true },
+      { model: 'pelampung', at: 0.25, side: -1, dist: 120, float: true },
       { model: 'pelampung', at: 0.4, side: 1, dist: 130, float: true },
       { model: 'pelampung', at: 0.72, side: -1, dist: 120, float: true },
     ],
     theme: {
-      look: { sky: 'siang', ground: 'pasir', tint: '#fff0c8', road: '#9a98a8', runoff: 'pasir', water: '#2fb8ff' },
+      look: { ground: 'pasir', tint: '#fff8e4', road: '#e6dfd0', runoff: 'pasir', water: '#1fb6e6' },
       sky: ['#5ac8ff', '#fff4fa'], fog: '#bfe9ff', fogNear: 120, fogFar: 520,
       ground: '#f6dc9a', ground2: '#e9c77a', road: '#5a5a66', roadLine: '#fff4fa', curb: ['#ff37a6', '#fff4fa'], wall: '#43b929',
       sun: '#fff1d6', sunPower: 2.4, ambient: '#bfe4ff', night: false, offroad: 'pasir',
@@ -208,6 +214,8 @@ export const TRACKS: Record<TrackId, TrackDef> = {
     line: 'Naik-turun pematang, kerbau jalan santai',
     points: road([[0, 0, 40, 0], [600, 0, 24, 6], [680, -80, 16, 10], [640, -200, 14, 14], [760, -260, 18, 18], [880, -180, 22, 22], [900, 40, 26, 22], [820, 120, 14, 18], [860, 220, 14, 14], [760, 300, 18, 10], [400, 300, 30, 6], [300, 400, 16, 4], [180, 360, 14, 2], [80, 440, 16, 2], [-80, 400, 24, 0], [-120, 200, 18, 0], [-40, 120, 14, 0], [-100, 40, 22, 0]]),
     width: 28,
+    // pematang: jalan tanah menyempit di tengah sawah
+    profile: [[0, 26], [0.1, 24, 10], [0.16, 18, 6], [0.3, 18, 6], [0.36, 24, 10], [0.5, 20, 8], [0.6, 20, 8], [0.68, 26], [0.8, 18, 6], [0.9, 18, 6], [0.96, 26]],
     boxes: [0.05, 0.18, 0.32, 0.46, 0.6, 0.74, 0.88],
     pads: [[0.12, 0], [0.22, 0], [0.5, 0.5], [0.66, -0.35], [0.94, 0]],
     ramps: [0.28, 0.46, 0.78, 0.9],
@@ -237,8 +245,8 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { model: 'bendera-rp', at: 0.66, side: 1, dist: 22 },
     ],
     theme: {
-      look: { sky: 'siang', ground: 'rumput', tint: '#b8ff7a', road: '#b89a7a', runoff: 'kerikil' },
-      sky: ['#7fd0ff', '#f3ffe9'], fog: '#d6f5d0', fogNear: 110, fogFar: 500,
+      look: { ground: 'rumput', tint: '#d8ff9a', road: '#c8a888', runoff: 'tanah' },
+      sky: ['#7fd0ff', '#f3ffe9'], fog: '#f3e8cc', fogNear: 130, fogFar: 560,
       ground: '#7ad35a', ground2: '#5cb845', road: '#8a6a4a', roadLine: '#f6dc9a', curb: ['#ffcc1f', '#43b929'], wall: '#5a3e24',
       sun: '#fff6e0', sunPower: 2.2, ambient: '#d6ffd0', night: false, offroad: 'rumput',
       props: [['padi', 8], ['orang-orangan', 2], ['pohon', 3], ['semak', 2], ['jerami', 1]],
@@ -250,6 +258,8 @@ export const TRACKS: Record<TrackId, TrackDef> = {
     line: 'Jamur raksasa melempar kart ke udara',
     points: road([[0, 0, 35], [300, 0, 14], [340, 80, 14], [440, 80, 20], [520, -20, 22], [660, 0, 26], [700, 140, 16], [600, 200, 14], [660, 290, 18], [780, 320, 24], [760, 460, 26], [620, 500, 16], [540, 420, 14], [440, 460, 18], [360, 560, 22], [200, 540, 14], [180, 420, 14], [60, 400, 20], [-60, 480, 24], [-160, 380, 26], [-120, 240, 14], [-40, 200, 14], [-110, 100, 22]]),
     width: 27,
+    // jalur hutan yang berkelok di antara akar, sempit di bagian rapat
+    profile: [[0, 24, 8], [0.1, 18, 5], [0.22, 16, 4], [0.3, 20, 6], [0.44, 24, 8], [0.52, 16, 4], [0.62, 18, 5], [0.7, 24, 8], [0.82, 16, 4], [0.92, 20, 6]],
     boxes: [0.05, 0.19, 0.33, 0.46, 0.58, 0.72, 0.86],
     pads: [[0.1, 0], [0.3, -0.5], [0.45, 0.3], [0.64, 0], [0.9, -0.3]],
     ramps: [0.38, 0.8],
@@ -279,10 +289,10 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { model: 'rumah-jamur', at: 0.9, side: 1, dist: 38 },
     ],
     theme: {
-      look: { sky: 'senja', ground: 'rumput', tint: '#8ff08a', road: '#a08070', runoff: 'kerikil' },
-      sky: ['#2b8a6a', '#d7ffe0'], fog: '#9fd8b4', fogNear: 80, fogFar: 400,
+      look: { ground: 'hutan', tint: '#b8f0b0', road: '#b0c0a0', runoff: 'hutan' },
+      sky: ['#2b8a6a', '#d7ffe0'], fog: '#256e62', fogNear: 55, fogFar: 300,
       ground: '#3f9b4a', ground2: '#2f7f3c', road: '#6a4a3a', roadLine: '#ffcae9', curb: ['#ff37a6', '#fff4fa'], wall: '#5a3a2a',
-      sun: '#fff0c0', sunPower: 1.8, ambient: '#b8ffd8', night: false, offroad: 'rumput',
+      sun: '#c8ffe8', sunPower: 0.9, ambient: '#b8ffd8', night: false, offroad: 'rumput',
       props: [['jamur-merah', 4], ['jamur-ungu', 3], ['pohon', 4], ['cemara-hijau', 2], ['semak', 3], ['batu', 1], ['kayu-tumbang', 1]],
     },
   },
@@ -292,6 +302,8 @@ export const TRACKS: Record<TrackId, TrackDef> = {
     line: 'Lompatan jauh di antara reruntuhan & badai pasir',
     points: road([[0, 0, 45, 0], [800, 0, 30, 0], [900, 120, 14, 4], [820, 240, 14, 8], [600, 240, 14, 10], [560, 320, 14, 10], [760, 420, 24, 6], [780, 600, 18, 2], [680, 660, 12, 0], [580, 560, 12, 0], [300, 560, 26, 2], [160, 700, 30, 4], [-60, 660, 16, 4], [-100, 520, 14, 2], [0, 420, 14, 0], [-140, 320, 24, 0], [-160, 120, 30, 0]]),
     width: 29,
+    // jalan raja lebar di dataran, sempit di celah ngarai
+    profile: [[0, 30], [0.12, 36], [0.24, 36], [0.3, 24, 9], [0.4, 22, 8], [0.5, 28, 10], [0.62, 36], [0.72, 24, 9], [0.84, 30], [0.92, 30]],
     boxes: [0.06, 0.2, 0.34, 0.48, 0.62, 0.76, 0.9],
     pads: [[0.03, 0], [0.2, 0], [0.52, 0.3], [0.78, -0.3], [0.86, 0.3]],
     ramps: [0.15, 0.29, 0.45, 0.6, 0.83],
@@ -320,7 +332,7 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { model: 'arca', at: 0.31, side: 1, dist: 24, scale: 2.2 },
     ],
     theme: {
-      look: { sky: 'senja', ground: 'pasir', tint: '#ffd08a', road: '#c09a78', runoff: 'cobble' },
+      look: { ground: 'pasir', tint: '#ffdca0', road: '#e0b898', runoff: 'pasir' },
       sky: ['#ffb85a', '#fff1d0'], fog: '#ffd9a0', fogNear: 90, fogFar: 450,
       ground: '#efc277', ground2: '#d9a75a', road: '#a0754a', roadLine: '#fff4fa', curb: ['#ff8a1c', '#fff4fa'], wall: '#b9844a',
       sun: '#fff0d0', sunPower: 2.6, ambient: '#ffe0b0', night: false, offroad: 'pasir',
@@ -331,8 +343,10 @@ export const TRACKS: Record<TrackId, TrackDef> = {
     id: 'neon',
     title: 'Kota Neon Malam',
     line: 'Jalan raya berlampu, mobil lalu-lalang di persimpangan',
-    points: road([[0, 0, 30], [520, 0, 14], [520, 160, 14], [660, 160, 14], [660, -40, 18], [820, -40, 20], [880, 60, 22], [880, 340, 14], [740, 340, 14], [740, 480, 16], [560, 480, 14], [560, 360, 14], [380, 360, 14], [380, 560, 18], [160, 560, 14], [160, 420, 14], [40, 420, 16], [-60, 520, 20], [-160, 440, 22], [-160, 200, 14], [-60, 200, 14], [-60, 80, 18], [-120, 20, 18]]),
+    points: road([[0, 0, 30], [520, 0, 14], [520, 160, 14], [660, 160, 14], [660, -40, 18], [820, -40, 20], [880, 60, 22, 9], [880, 340, 14, 9], [740, 340, 14], [740, 480, 16], [560, 480, 14], [560, 360, 14], [380, 360, 14], [380, 560, 18], [160, 560, 14], [160, 420, 14], [40, 420, 16], [-60, 520, 20], [-160, 440, 22], [-160, 200, 14], [-60, 200, 14], [-60, 80, 18], [-120, 20, 18]]),
     width: 30,
+    // bulevar lebar, gang sempit di antara gedung, dan ruas layang
+    profile: [[0, 34, 8], [0.06, 34, 8], [0.09, 26, 6], [0.2, 26, 6], [0.27, 34, 7], [0.33, 34, 7], [0.37, 24, 5], [0.44, 24, 5], [0.46, 18, 3], [0.58, 18, 3], [0.6, 28, 5], [0.64, 28, 5], [0.66, 18, 3], [0.71, 18, 3], [0.74, 26, 6], [0.78, 34, 8], [0.83, 34, 8], [0.86, 22, 5], [0.9, 26, 6], [0.94, 34, 8]],
     boxes: [0.06, 0.2, 0.34, 0.48, 0.62, 0.76, 0.9],
     pads: [[0.03, 0.4], [0.03, -0.4], [0.3, 0], [0.48, 0], [0.72, 0], [0.86, 0.4]],
     ramps: [0.27, 0.66],
@@ -362,11 +376,11 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { model: 'gedung-3', at: 0.88, side: 1, dist: 32, scale: 1.4 },
     ],
     theme: {
-      look: { sky: 'malam', ground: 'cobble', tint: '#6a6090', road: '#8a8aa0', runoff: 'cobble', dark: true },
+      look: { ground: 'paving', tint: '#6a6090', road: '#8a8aa0', runoff: 'paving', dark: true },
       sky: ['#120a33', '#3a1a66'], fog: '#24104a', fogNear: 90, fogFar: 460,
       ground: '#2a2440', ground2: '#221d36', road: '#2c2c3a', roadLine: '#5cf64a', curb: ['#ff37a6', '#2f7bff'], wall: '#8a55ff',
       sun: '#c0b0ff', sunPower: 0.55, ambient: '#9a8ae0', night: true, offroad: 'kota',
-      props: [['gedung', 8], ['lampu', 4], ['papan-neon', 1], ['pembatas', 1]],
+      props: [['gedung', 3], ['papan-neon', 2], ['pembatas', 1]],
     },
   },
   permen: {
@@ -375,6 +389,8 @@ export const TRACKS: Record<TrackId, TrackDef> = {
     line: 'Lantai cokelat lengket & ban berjalan bikin ngebut',
     points: road([[0, 0, 30], [380, 0, 12], [420, 80, 12], [300, 120, 12], [340, 220, 18], [500, 220, 20], [560, 120, 14], [700, 120, 22], [760, 260, 14], [660, 320, 12], [720, 420, 18], [640, 540, 26], [460, 540, 12], [440, 440, 12], [320, 460, 14], [260, 580, 22], [100, 580, 12], [60, 460, 12], [-40, 520, 16], [-140, 440, 22], [-120, 300, 12], [-20, 260, 12], [-60, 160, 16], [-140, 80, 20]]),
     width: 28,
+    // lantai pabrik lapang, ban berjalan menyempit di antara mesin
+    profile: [[0, 30], [0.1, 36], [0.2, 30], [0.3, 26, 10], [0.5, 28], [0.66, 36], [0.78, 26, 10], [0.9, 32]],
     boxes: [0.05, 0.19, 0.33, 0.47, 0.6, 0.73, 0.87],
     pads: [[0.15, 0], [0.16, 0], [0.4, -0.4], [0.62, 0], [0.63, 0], [0.92, 0.4]],
     ramps: [0.42, 0.7],
@@ -403,7 +419,7 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { model: 'kue', at: 0.6, side: -1, dist: 30, scale: 2.5 },
     ],
     theme: {
-      look: { sky: 'siang', ground: 'pasir', tint: '#ffc4ea', road: '#c89ab8', runoff: 'kerikil', water: '#6a3418' },
+      look: { ground: 'pasir', tint: '#fff0f8', road: '#ffffff', runoff: 'pasir', water: '#6a3418' },
       sky: ['#ffb0e0', '#fff4fa'], fog: '#ffd6ef', fogNear: 90, fogFar: 430,
       ground: '#ffcae9', ground2: '#ffb0dc', road: '#8a5a7a', roadLine: '#fff4fa', curb: ['#ff37a6', '#fff4fa'], wall: '#ff37a6',
       sun: '#fff0f8', sunPower: 2.2, ambient: '#ffe0f4', night: false, offroad: 'permen',
@@ -416,6 +432,8 @@ export const TRACKS: Record<TrackId, TrackDef> = {
     line: 'Es licin di tikungan, bola salju menggelinding',
     points: road([[0, 0, 40, 50], [400, 0, 20, 46], [460, 100, 14, 42], [100, 160, 14, 38], [60, 260, 14, 34], [460, 320, 14, 30], [500, 420, 14, 26], [100, 480, 14, 22], [60, 580, 14, 18], [460, 640, 20, 14], [520, 760, 26, 10], [380, 860, 30, 6], [-100, 860, 26, 2], [-220, 740, 20, 0], [-200, 400, 30, 10], [-220, 100, 26, 30]]),
     width: 28,
+    // jalan gunung dibajak: sempit di turunan zigzag, lebar di lembah
+    profile: [[0, 30], [0.1, 22, 8], [0.34, 20, 7], [0.5, 24, 9], [0.62, 20, 7], [0.74, 22], [0.86, 30]],
     boxes: [0.05, 0.18, 0.32, 0.46, 0.6, 0.74, 0.88],
     pads: [[0.08, 0], [0.26, 0.4], [0.48, 0], [0.7, 0.35], [0.92, -0.3]],
     ramps: [0.2, 0.4, 0.55, 0.78],
@@ -444,10 +462,10 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { model: 'manusia-salju', at: 0.12, side: -1, dist: 20, scale: 1.6 },
     ],
     theme: {
-      look: { sky: 'siang', ground: 'salju', tint: '#ffffff', road: '#a8b4c4', runoff: 'salju' },
-      sky: ['#8fc4ff', '#f4fbff'], fog: '#e4f2ff', fogNear: 80, fogFar: 420,
+      look: { ground: 'salju', tint: '#ffffff', road: '#b8c4d4', runoff: 'salju' },
+      sky: ['#8fc4ff', '#f4fbff'], fog: '#e6c8c4', fogNear: 110, fogFar: 520,
       ground: '#f4fbff', ground2: '#dcebfa', road: '#6a7a8a', roadLine: '#ff37a6', curb: ['#2f7bff', '#fff4fa'], wall: '#9ab8d8',
-      sun: '#ffffff', sunPower: 2.4, ambient: '#d0e6ff', night: false, offroad: 'salju',
+      sun: '#ffe6d4', sunPower: 2.5, ambient: '#d4e0ff', night: false, offroad: 'salju',
       props: [['cemara', 7], ['manusia-salju', 1], ['batu-es', 2], ['bola-salju', 1]],
     },
   },
@@ -457,6 +475,8 @@ export const TRACKS: Record<TrackId, TrackDef> = {
     line: 'Jatuh ke lava = balik ke jalan; batu api berjatuhan',
     points: road([[0, 0, 35, 0], [700, 0, 20, 4], [760, 100, 14, 8], [680, 160, 14, 12], [740, 240, 14, 16], [860, 260, 18, 20], [900, 400, 22, 24], [800, 500, 16, 22], [500, 500, 14, 18], [460, 400, 14, 14], [360, 440, 16, 10], [300, 560, 20, 6], [120, 580, 14, 4], [80, 460, 14, 2], [-60, 420, 20, 0], [-120, 280, 14, 2], [-40, 200, 14, 4], [-120, 100, 22, 2]]),
     width: 26,
+    // tanggul basal di atas lava: hampir selalu sempit, jatuh = balik ke jalan
+    profile: [[0, 24, 8], [0.1, 20, 6], [0.2, 18, 5], [0.36, 22, 7], [0.5, 18, 5], [0.6, 24, 8], [0.72, 20, 6], [0.86, 18, 5], [0.95, 24, 8]],
     boxes: [0.05, 0.19, 0.33, 0.47, 0.6, 0.73, 0.87],
     pads: [[0.12, 0], [0.25, 0], [0.5, -0.3], [0.76, 0.3], [0.94, 0]],
     ramps: [0.17, 0.4, 0.55, 0.68, 0.82],
@@ -486,10 +506,10 @@ export const TRACKS: Record<TrackId, TrackDef> = {
       { model: 'kristal', at: 0.9, side: -1, dist: 22, scale: 2 },
     ],
     theme: {
-      look: { sky: 'malam', ground: 'batu', tint: '#5a4040', road: '#8a7070', runoff: 'batu' },
-      sky: ['#3a0a12', '#ff6a2a'], fog: '#5a1a14', fogNear: 70, fogFar: 380,
+      look: { ground: 'batu', tint: '#8a6a60', road: '#b09898', runoff: 'batu' },
+      sky: ['#3a0a12', '#ff6a2a'], fog: '#6e2414', fogNear: 80, fogFar: 440,
       ground: '#ff5a1a', ground2: '#ffa21a', road: '#3a2a2a', roadLine: '#ffcc1f', curb: ['#121212', '#ff8a1c'], wall: '#2a1a1a',
-      sun: '#ffb070', sunPower: 1.6, ambient: '#ff8060', night: true, offroad: 'lava',
+      sun: '#ffc090', sunPower: 2.6, ambient: '#ffa080', night: true, offroad: 'lava',
       props: [['batu-api', 5], ['tulang', 1], ['kristal', 2], ['batu', 2]],
     },
   },

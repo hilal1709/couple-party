@@ -1,51 +1,15 @@
 import * as THREE from 'three'
-import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js'
 import { boxSpots, hazardPose } from '../sim/hazards'
-import { STEP, curvature, pointAt, type Track } from '../sim/track'
+import { STEP, hwAt, pointAt, type Track } from '../sim/track'
 import type { Ground, Theme } from '../tracks'
-import { instanced, placed, variants } from './models'
+import { groundOf, WATER_Y } from './ground'
+import { gantry, grandstands, trackside } from './kits'
+import { instanced, modelMaterials, placed, variants, withVariants } from './models'
 import type { Tier } from './quality'
-
-/** angka acak dengan seed untuk penempatan (sama di semua HP) */
-function seeded(seed: number) {
-  let s = seed >>> 0
-  return () => {
-    s = (s * 1664525 + 1013904223) >>> 0
-    return s / 4294967296
-  }
-}
-
-const TEX = import.meta.glob('/src/assets/kart/tex/*', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
-const texUrl = (name: string) => TEX[`/src/assets/kart/tex/${name}`]
-const texLoader = new THREE.TextureLoader()
-const texCache = new Map<string, THREE.Texture>()
-
-/** tekstur berulang (diffuse sRGB, normal linear) */
-function tex(name: string, color = true): THREE.Texture | null {
-  const url = texUrl(name)
-  if (!url) return null
-  let t = texCache.get(name)
-  if (!t) {
-    t = texLoader.load(url)
-    t.wrapS = t.wrapT = THREE.RepeatWrapping
-    t.anisotropy = 8
-    if (color) t.colorSpace = THREE.SRGBColorSpace
-    texCache.set(name, t)
-  }
-  return t
-}
-
-function canvasTex(w: number, h: number, draw: (c: CanvasRenderingContext2D) => void, repeat = true) {
-  const cv = document.createElement('canvas')
-  cv.width = w
-  cv.height = h
-  draw(cv.getContext('2d')!)
-  const t = new THREE.CanvasTexture(cv)
-  t.colorSpace = THREE.SRGBColorSpace
-  if (repeat) t.wrapS = t.wrapT = THREE.RepeatWrapping
-  t.anisotropy = 8
-  return t
-}
+import { recipeOf, type Recipe } from './recipe'
+import { WATER_FRAG, WATER_VERT, patchRoad, patchTerrain, patchWind, worldClock } from './shaders'
+import { bakeSky } from './sky'
+import { canvasTex, seeded, tex } from './tex'
 
 /** bahan tanah bertekstur dengan warna celup per tema */
 function groundMat(g: Ground, tint: string, tier: Tier, extra: Partial<THREE.MeshStandardMaterialParameters> = {}) {
@@ -62,67 +26,84 @@ function groundMat(g: Ground, tint: string, tier: Tier, extra: Partial<THREE.Mes
 // ---------------------------------------------------------------------------
 // Jalan: aspal, marka, kerb timbul, runoff
 
-/** pita mengikuti lintasan dari offset samping a ke b (meter), dengan UV dunia */
-function ribbon(t: Track, a: number, b: number, lift: number, uvScale: number, every = 1, ramp = true) {
+type Off = number | ((i: number) => number)
+
+/** pita mengikuti lintasan dari offset samping a ke b (meter, boleh per sampel), dengan UV dunia;
+ *  atribut `side` -1..1 memberi tahu shader posisi melintang */
+function ribbon(t: Track, a: Off, b: Off, lift: number, uvScale: number, every = 1, ramp = true, from = 0, to = t.n) {
   const n = t.n
+  const A = typeof a === 'number' ? () => a : a
+  const B = typeof b === 'number' ? () => b : b
   const pos: number[] = []
   const uv: number[] = []
+  const side: number[] = []
   const idx: number[] = []
   let k = 0
-  for (let i = 0; i <= n; i += every) {
+  for (let i = from; i <= to; i += every) {
     const s = i % n
     const rx = -t.tz[s]
     const rz = t.tx[s]
     const y = t.py[s] + (ramp ? t.ramp[s] : 0) + lift
-    pos.push(t.px[s] + rx * a, y, t.pz[s] + rz * a, t.px[s] + rx * b, y, t.pz[s] + rz * b)
+    const la = A(s)
+    const lb = B(s)
+    pos.push(t.px[s] + rx * la, y, t.pz[s] + rz * la, t.px[s] + rx * lb, y, t.pz[s] + rz * lb)
     const v = (i * STEP) / uvScale
-    uv.push(a / uvScale, v, b / uvScale, v)
-    if (i + every <= n) idx.push(k * 2, k * 2 + 1, k * 2 + 2, k * 2 + 1, k * 2 + 3, k * 2 + 2)
+    uv.push(la / uvScale, v, lb / uvScale, v)
+    side.push(-1, 1)
+    if (i + every <= to) idx.push(k * 2, k * 2 + 1, k * 2 + 2, k * 2 + 1, k * 2 + 3, k * 2 + 2)
     k++
   }
   const g = new THREE.BufferGeometry()
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
   g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
+  g.setAttribute('side', new THREE.Float32BufferAttribute(side, 1))
   g.setIndex(idx)
   g.computeVertexNormals()
   return g
 }
 
-function road(t: Track, theme: Theme, tier: Tier): THREE.Object3D[] {
+function road(t: Track, theme: Theme, recipe: Recipe, tier: Tier): THREE.Object3D[] {
   const look = theme.look
-  const asphalt = new THREE.Mesh(
-    ribbon(t, -t.half, t.half, 0.05, 9),
-    new THREE.MeshStandardMaterial({
-      map: tex('aspal_diff.webp'),
-      normalMap: tier.pbr ? tex('aspal_nor.webp', false) : null,
-      // tekstur aspal Poly Haven sangat gelap: dicerahkan lewat warna > 1
-      color: new THREE.Color(look.road).multiplyScalar(3.6),
-      roughness: 0.82,
-      // malam: aspal tampak diterangi lampu jalan tanpa lampu sungguhan yang mahal di HP
-      emissive: new THREE.Color(look.dark ? '#d8c8ff' : '#000000'),
-      emissiveMap: look.dark ? tex('aspal_diff.webp') : null,
-      emissiveIntensity: look.dark ? 2.2 : 0,
-    }),
-  )
+  const r = recipe.road
+  const city = recipe.fence === 'jersey'
+  const hw = (i: number) => t.hw[i]
+  const asphaltMat = new THREE.MeshStandardMaterial({
+    map: tex(`${r.tex}_diff.webp`),
+    normalMap: tier.pbr ? tex(`${r.tex}_nor.webp`, false) : null,
+    normalScale: new THREE.Vector2(r.normal ?? 1, r.normal ?? 1),
+    // tekstur aspal Poly Haven sangat gelap: dicerahkan lewat warna > 1
+    color: new THREE.Color(look.road).multiplyScalar(r.gain),
+    roughness: r.roughness,
+    // malam: aspal tampak diterangi lampu jalan tanpa lampu sungguhan yang mahal di HP
+    emissive: new THREE.Color(look.dark ? '#d8c8ff' : '#000000'),
+    emissiveIntensity: look.dark ? 0.07 : 0,
+  })
+  // Hemat tidak memakai tambalan, kecuali jalan yang teksturnya perlu dihaluskan
+  if (tier.pbr || r.soften) patchRoad(asphaltMat, r, tier.q === 'high')
+  const asphalt = new THREE.Mesh(ribbon(t, (i) => -hw(i), hw, 0.05, 9), asphaltMat)
   asphalt.receiveShadow = true
 
-  // marka: garis tepi putih + garis tengah putus-putus
+  // marka: garis tepi + garis tengah putus-putus; kota punya lajur tambahan di ruas lebar
   const line = new THREE.MeshStandardMaterial({ color: theme.roadLine, roughness: 0.6, polygonOffset: true, polygonOffsetFactor: -2 })
-  const edgeL = new THREE.Mesh(ribbon(t, -t.half + 0.6, -t.half + 1.1, 0.07, 9), line)
-  const edgeR = new THREE.Mesh(ribbon(t, t.half - 1.1, t.half - 0.6, 0.07, 9), line)
+  const edgeL = new THREE.Mesh(ribbon(t, (i) => -hw(i) + 0.6, (i) => -hw(i) + 1.1, 0.07, 9), line)
+  const edgeR = new THREE.Mesh(ribbon(t, (i) => hw(i) - 1.1, (i) => hw(i) - 0.6, 0.07, 9), line)
   const dash: number[] = []
   const dashIdx: number[] = []
   let q = 0
   for (let i = 0; i < t.n; i += 5) {
-    for (const j of [i, i + 2]) {
-      const s = j % t.n
-      const rx = -t.tz[s]
-      const rz = t.tx[s]
-      const y = t.py[s] + t.ramp[s] + 0.07
-      dash.push(t.px[s] - rx * 0.25, y, t.pz[s] - rz * 0.25, t.px[s] + rx * 0.25, y, t.pz[s] + rz * 0.25)
+    for (const lane of r.lines === 'kota' ? [-0.5, 0, 0.5] : [0]) {
+      if (lane && t.hw[i] < 13) continue
+      for (const j of [i, i + 2]) {
+        const s = j % t.n
+        const rx = -t.tz[s]
+        const rz = t.tx[s]
+        const y = t.py[s] + t.ramp[s] + 0.07
+        const off = lane * t.hw[s]
+        dash.push(t.px[s] + rx * (off - 0.25), y, t.pz[s] + rz * (off - 0.25), t.px[s] + rx * (off + 0.25), y, t.pz[s] + rz * (off + 0.25))
+      }
+      dashIdx.push(q, q + 1, q + 2, q + 1, q + 3, q + 2)
+      q += 4
     }
-    dashIdx.push(q, q + 1, q + 2, q + 1, q + 3, q + 2)
-    q += 4
   }
   const dg = new THREE.BufferGeometry()
   dg.setAttribute('position', new THREE.Float32BufferAttribute(dash, 3))
@@ -130,8 +111,50 @@ function road(t: Track, theme: Theme, tier: Tier): THREE.Object3D[] {
   dg.computeVertexNormals()
   const center = new THREE.Mesh(dg, line)
   for (const m of [edgeL, edgeR, center]) m.receiveShadow = true
+  const out: THREE.Object3D[] = [asphalt]
+  if (r.lines !== 'tanpa') out.push(edgeL, edgeR)
+  if (r.lines === 'kota' || r.lines === 'penuh') out.push(center)
 
-  // kerb timbul belang-belang di kedua tepi
+  if (recipe.kerb) out.push(kerb(t, theme))
+
+  if (city) {
+    // trotoar paving timbul sampai pembatas, dengan bibir beton
+    const walk = new THREE.MeshStandardMaterial({ map: tex('paving_diff.webp'), normalMap: tier.pbr ? tex('paving_nor.webp', false) : null, color: '#8d84aa', roughness: 0.6 })
+    const lip = new THREE.MeshStandardMaterial({ color: '#b6b2c6', roughness: 0.7 })
+    for (const s of [-1, 1]) {
+      const inner = (i: number) => s * (t.hw[i] + 0.3)
+      const outer = (i: number) => s * (t.wall[i] + 0.7)
+      const a = new THREE.Mesh(ribbon(t, s > 0 ? inner : outer, s > 0 ? outer : inner, 0.24, 4, 1, false), walk)
+      const b = new THREE.Mesh(ribbon(t, (i) => s * t.hw[i] - 0.15, (i) => s * t.hw[i] + 0.3, 0.26, 4, 1, false), lip)
+      a.receiveShadow = b.receiveShadow = true
+      out.push(a, b)
+    }
+    return out
+  }
+
+  // runoff di luar jalan; bahu sempit (jembatan) menghapusnya sama sekali
+  const inner = recipe.kerb ? 2.3 : 0
+  const outer = (i: number) => Math.max(inner + 0.01, Math.min(9, t.wall[i] - t.hw[i] - 5))
+  const runMat = groundMat(look.runoff, look.runoff === look.ground ? look.tint : '#d8d0c8', tier)
+  const runL = new THREE.Mesh(ribbon(t, (i) => -hw(i) - outer(i), (i) => -hw(i) - inner, 0.0, 7, 2, false), runMat)
+  const runR = new THREE.Mesh(ribbon(t, (i) => hw(i) + inner, (i) => hw(i) + outer(i), 0.0, 7, 2, false), runMat)
+  runL.receiveShadow = runR.receiveShadow = true
+  out.push(runL, runR)
+
+  // jembatan: lantai papan menutup jalan sampai pagar
+  if (recipe.deck) {
+    const deck = new THREE.MeshStandardMaterial({ map: tex(`${recipe.deck}_diff.webp`), normalMap: tier.pbr ? tex(`${recipe.deck}_nor.webp`, false) : null, color: '#e8d8bc', roughness: 0.85 })
+    for (const [from, to] of t.def.bridges ?? []) {
+      const m = new THREE.Mesh(ribbon(t, (i) => -t.wall[i] - 0.5, (i) => t.wall[i] + 0.5, 0.075, 6, 1, true, Math.floor(from * t.n), Math.ceil(to * t.n)), deck)
+      m.receiveShadow = true
+      out.push(m)
+    }
+  }
+  return out
+}
+
+/** kerb timbul belang-belang di kedua tepi */
+function kerb(t: Track, theme: Theme) {
   const cpos: number[] = []
   const ccol: number[] = []
   const ca = new THREE.Color(theme.curb[0])
@@ -142,16 +165,16 @@ function road(t: Track, theme: Theme, tier: Tier): THREE.Object3D[] {
     for (const side of [-1, 1]) {
       // profil: tepi jalan → punggung (naik 0.18) → tepi luar
       const prof = [
-        [t.half, 0.06],
-        [t.half + 1.1, 0.24],
-        [t.half + 2.4, 0.04],
+        [0, 0.06],
+        [1.1, 0.24],
+        [2.4, 0.04],
       ]
       for (let p = 0; p < 2; p++) {
         const quad = [i, i2].flatMap((s) => {
           const rx = -t.tz[s] * side
           const rz = t.tx[s] * side
           const y = t.py[s] + t.ramp[s]
-          return [prof[p], prof[p + 1]].map(([l, h]) => [t.px[s] + rx * l, y + h, t.pz[s] + rz * l])
+          return [prof[p], prof[p + 1]].map(([l, h]) => [t.px[s] + rx * (t.hw[s] + l), y + h, t.pz[s] + rz * (t.hw[s] + l)])
         })
         const [a0, a1, b0, b1] = quad
         const tri = side > 0 ? [a0, b0, a1, a1, b0, b1] : [a0, a1, b0, a1, b1, b0]
@@ -168,60 +191,32 @@ function road(t: Track, theme: Theme, tier: Tier): THREE.Object3D[] {
   cg.computeVertexNormals()
   const curb = new THREE.Mesh(cg, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, side: THREE.DoubleSide }))
   curb.receiveShadow = true
-
-  // runoff kerikil/pasir di luar kerb
-  const runMat = groundMat(look.runoff, look.runoff === look.ground ? look.tint : '#d8d0c8', tier)
-  const runL = new THREE.Mesh(ribbon(t, -t.half - 9, -t.half - 2.3, 0.0, 7, 2, false), runMat)
-  const runR = new THREE.Mesh(ribbon(t, t.half + 2.3, t.half + 9, 0.0, 7, 2, false), runMat)
-  runL.receiveShadow = runR.receiveShadow = true
-  return [asphalt, edgeL, edgeR, center, curb, runL, runR]
+  return curb
 }
 
 // ---------------------------------------------------------------------------
 // Tanah & langit
 
-/** tinggi tanah di (x, z): bahu jalan rata, lalu bukit / turun ke laut / ke lava menjauhi jalan */
-export function heightAt(t: Track, theme: Theme, x: number, z: number): number {
-  let bd = Infinity
-  let by = 0
-  for (let i = 0; i < t.n; i += 3) {
-    const dd = (t.px[i] - x) ** 2 + (t.pz[i] - z) ** 2
-    if (dd < bd) {
-      bd = dd
-      by = t.py[i]
-    }
-  }
-  const lava = theme.offroad === 'lava'
-  const sea = Boolean(theme.look.water)
-  const off = Math.max(0, Math.sqrt(bd) - (t.half + (lava ? 3 : 9)))
-  let h: number
-  if (lava) h = -Math.min(off, 1.5) * 4
-  else if (sea) h = -Math.min(off * 0.06, 9) + Math.sin(x * 0.02) * Math.min(off * 0.02, 2)
-  else h = Math.sin(x * 0.011) * Math.cos(z * 0.013) * Math.min(off * 0.14, 26) + Math.sin(x * 0.031 + z * 0.02) * Math.min(off * 0.04, 5)
-  return by - 0.15 + h
-}
-
-const WATER_Y = -2.6
 /** kotak item lebih jauh dari ini (meter) tidak digambar */
 const BOX_VIEW = 260
 
 /** landmark tema di posisi tetap, menghadap jalan; yang mengapung ikut ombak */
-function landmarks(t: Track, theme: Theme) {
+function landmarks(t: Track, height: Height) {
   const g = new THREE.Group()
   const floating: THREE.Object3D[] = []
   for (const l of t.def.landmarks ?? []) {
     const o = placed(l.model)
     if (l.arch) {
-      // gerbang / terowongan melintang di atas jalan (model membentang sumbu X)
+      // gerbang / terowongan melintang di atas jalan (model membentang sumbu X, dibuat untuk lebar `width`)
       const c = pointAt(t, l.at * t.length, 0)
       o.position.set(c.x, c.y, c.z)
       o.rotation.y = c.yaw + (l.turn ?? 0)
-      o.scale.setScalar(l.scale ?? 1)
+      o.scale.setScalar((l.scale ?? 1) * (hwAt(t, l.at * t.length) / t.half))
       g.add(o)
       continue
     }
-    const p = pointAt(t, l.at * t.length, l.side * (t.half + l.dist))
-    const y = l.float ? WATER_Y + 0.2 : heightAt(t, theme, p.x, p.z)
+    const p = pointAt(t, l.at * t.length, l.side * (hwAt(t, l.at * t.length) + l.dist))
+    const y = l.float ? WATER_Y + 0.2 : height(p.x, p.z)
     o.position.set(p.x, y, p.z)
     // menghadap ke jalan (depan model = +Z)
     o.rotation.y = p.yaw + (l.side > 0 ? -Math.PI / 2 : Math.PI / 2) + (l.turn ?? 0)
@@ -251,6 +246,8 @@ function landmarks(t: Track, theme: Theme) {
   return { group: g, floating, spin, blink, screens, smoke }
 }
 
+type Height = (x: number, z: number) => number
+
 /** kawanan burung berputar di langit dekat garis start */
 function birds(t: Track, model: string, n: number) {
   const g = new THREE.Group()
@@ -266,7 +263,7 @@ function birds(t: Track, model: string, n: number) {
   return { group: g, list, cx: c.x, cz: c.z, cy: c.y + 38 }
 }
 
-function terrain(t: Track, theme: Theme, tier: Tier) {
+function terrain(t: Track, theme: Theme, recipe: Recipe, tier: Tier, height: Height) {
   const look = theme.look
   let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity
   for (let i = 0; i < t.n; i++) {
@@ -276,7 +273,10 @@ function terrain(t: Track, theme: Theme, tier: Tier) {
   const pad = 420
   const w = maxX - minX + pad * 2
   const d = maxZ - minZ + pad * 2
-  const seg = tier.q === 'low' ? 90 : 140
+  const flat = recipe.ground === 'kota'
+  // bentuk bertepi tegas butuh kisi lebih rapat
+  const sharp = recipe.ground === 'terasering' || recipe.ground === 'ngarai' || recipe.ground === 'gunung'
+  const seg = flat ? 24 : tier.q === 'low' ? (sharp ? 130 : 90) : sharp ? 210 : 140
   const g = new THREE.PlaneGeometry(w, d, seg, seg)
   g.rotateX(-Math.PI / 2)
   g.translate((minX + maxX) / 2, 0, (minZ + maxZ) / 2)
@@ -287,7 +287,7 @@ function terrain(t: Track, theme: Theme, tier: Tier) {
   for (let v = 0; v < p.count; v++) {
     const x = p.getX(v)
     const z = p.getZ(v)
-    p.setY(v, heightAt(t, theme, x, z))
+    p.setY(v, height(x, z))
     // dunia: UV mengikuti meter supaya tekstur tidak melar
     uv.setXY(v, x / 9, z / 9)
     const n = 0.85 + 0.15 * Math.sin(x * 0.05 + z * 0.03) * Math.cos(z * 0.07)
@@ -297,10 +297,20 @@ function terrain(t: Track, theme: Theme, tier: Tier) {
   g.computeVertexNormals()
   const mat = groundMat(look.ground, look.tint, tier, {
     vertexColors: true,
-    emissive: lava ? new THREE.Color('#ff5a1a') : new THREE.Color('#000000'),
-    emissiveMap: lava ? lavaTex() : null,
-    emissiveIntensity: lava ? 1.3 : 0,
+    // grafis Hemat: retakan lava dari tekstur; selain itu aliran lava di shader
+    emissive: lava && !tier.pbr ? new THREE.Color('#ff5a1a') : new THREE.Color('#000000'),
+    emissiveMap: lava && !tier.pbr ? lavaTex() : null,
+    emissiveIntensity: lava && !tier.pbr ? 1.3 : 0,
   })
+  if (tier.pbr) {
+    const low = recipe.low
+    patchTerrain(mat, {
+      ...recipe.terrain,
+      low: low && { map: tex(`${low.tex}_diff.webp`)!, from: low.from, to: low.to, roughness: low.roughness },
+      steep: recipe.steep ? (tex(`${recipe.steep}_diff.webp`) ?? undefined) : undefined,
+      foamY: recipe.foam ? WATER_Y : undefined,
+    })
+  }
   const m = new THREE.Mesh(g, mat)
   m.receiveShadow = true
   return m
@@ -338,45 +348,26 @@ function lavaTex() {
   return lavaTexture
 }
 
-/** laut / sungai: gelombang di shader + pantulan langit (fresnel) + kilau */
-function water(color: string, y: number, size: number, skyTint = '#e8f8ff', waveK = 1) {
+/** laut / sungai: gelombang di vertex, shader di shaders.ts */
+function water(color: string, y: number, size: number, skyTint: string, waveK: number, sunDir: THREE.Vector3, sun: string) {
   const mat = new THREE.ShaderMaterial({
     transparent: true,
     uniforms: {
-      time: { value: 0 },
+      time: worldClock,
       deep: { value: new THREE.Color(color).multiplyScalar(0.55) },
       shallow: { value: new THREE.Color(color).lerp(new THREE.Color('#bff6ff'), 0.45) },
       sky: { value: new THREE.Color(skyTint) },
       waveK: { value: waveK },
+      sunDir: { value: sunDir },
+      sunCol: { value: new THREE.Color(sun) },
     },
-    vertexShader: `
-      uniform float time; uniform float waveK; varying vec3 wp; varying float wave;
-      void main(){
-        vec3 p = position;
-        vec4 w = modelMatrix * vec4(p,1.0);
-        wave = sin(w.x*0.06 + time*1.3)*0.5 + sin(w.z*0.05 - time*1.1)*0.5;
-        w.y += wave * 0.6 * waveK;
-        wp = w.xyz;
-        gl_Position = projectionMatrix * viewMatrix * w;
-      }`,
-    fragmentShader: `
-      uniform float time; uniform vec3 deep; uniform vec3 shallow; uniform vec3 sky;
-      varying vec3 wp; varying float wave;
-      void main(){
-        vec3 v = normalize(cameraPosition - wp);
-        float fres = pow(1.0 - max(v.y, 0.0), 3.0);
-        float ripple = sin(wp.x*0.35 + time*2.0) * sin(wp.z*0.31 - time*1.7);
-        vec3 c = mix(deep, shallow, 0.5 + 0.5*wave);
-        c = mix(c, sky, fres*0.55);
-        c += smoothstep(0.82, 1.0, ripple) * 0.35;
-        gl_FragColor = vec4(c, 0.92);
-        #include <colorspace_fragment>
-      }`,
+    vertexShader: WATER_VERT,
+    fragmentShader: WATER_FRAG,
   })
   const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size, 80, 80), mat)
   m.rotation.x = -Math.PI / 2
   m.position.y = y
-  return { mesh: m, mat }
+  return m
 }
 
 /** awan kartun mengambang di kejauhan */
@@ -406,259 +397,27 @@ function clouds(t: Track, night: boolean) {
 }
 
 // ---------------------------------------------------------------------------
-// Perlengkapan sirkuit: pembatas, ban, chevron, gerbang, tribun, spanduk
-
-const SPONSORS = ['COUPLE PARTY', 'KART KACAU', 'SAMBAL TURBO', 'KOPI JAHIL', 'MIE NGEBUT', 'BAJAJ MINI', 'ES TEH NGEGAS', 'PISANG LICIN']
-
-function banner(text: string, bg: string, fg: string) {
-  return canvasTex(512, 96, (c) => {
-    c.fillStyle = bg
-    c.fillRect(0, 0, 512, 96)
-    c.fillStyle = fg
-    c.fillRect(0, 0, 512, 8)
-    c.fillRect(0, 88, 512, 8)
-    c.font = '900 56px "Dela Gothic One", sans-serif'
-    c.textAlign = 'center'
-    c.textBaseline = 'middle'
-    c.fillText(text, 256, 52)
-  }, false)
-}
-
-function trackside(t: Track, theme: Theme) {
-  const g = new THREE.Group()
-  const lava = theme.offroad === 'lava'
-  const off = t.half + (lava ? 8 : 14)
-  const r = seeded(t.n * 13)
-
-  // pembatas beton bergaris di garis dinding fisik
-  const every = 3
-  const wallGeo = new THREE.BoxGeometry(1.1, 1.3, STEP * every + 0.2)
-  const wallMat = new THREE.MeshStandardMaterial({ color: '#f4f4f8', roughness: 0.7 })
-  const stripeGeo = new THREE.BoxGeometry(1.14, 0.42, STEP * every + 0.22)
-  const stripeMat = new THREE.MeshStandardMaterial({ color: theme.wall, roughness: 0.5 })
-  const mats: THREE.Matrix4[] = []
-  const q = new THREE.Quaternion()
-  const up = new THREE.Vector3(0, 1, 0)
-  for (let i = 0; i < t.n; i += every) {
-    q.setFromAxisAngle(up, Math.atan2(t.tx[i], t.tz[i]))
-    for (const side of [-1, 1]) {
-      const p = pointAt(t, i * STEP, side * off)
-      mats.push(new THREE.Matrix4().compose(new THREE.Vector3(p.x, p.y + 0.5, p.z), q.clone(), new THREE.Vector3(1, 1, 1)))
-    }
-  }
-  const walls = new THREE.InstancedMesh(wallGeo, wallMat, mats.length)
-  const stripes = new THREE.InstancedMesh(stripeGeo, stripeMat, mats.length)
-  mats.forEach((m, i) => {
-    walls.setMatrixAt(i, m)
-    stripes.setMatrixAt(i, m)
-  })
-  walls.castShadow = walls.receiveShadow = true
-  g.add(walls, stripes)
-
-  // tumpukan ban & papan chevron di sisi luar tikungan tajam
-  const tireMats: THREE.Matrix4[] = []
-  const signL: THREE.Matrix4[] = []
-  const signR: THREE.Matrix4[] = []
-  let lastSign = -999
-  for (let i = 0; i < t.n; i += 2) {
-    const c = curvature(t, i, 6)
-    if (Math.abs(c) < 0.02) continue
-    // sisi luar: belok kanan (c > 0) → luar di kiri
-    const side = c > 0 ? -1 : 1
-    for (let k = 0; k < 3; k++) {
-      const p = pointAt(t, i * STEP + k * 0.9, side * (off - 1.2))
-      tireMats.push(new THREE.Matrix4().compose(new THREE.Vector3(p.x, p.y + 0.3 + (k % 2) * 0.55, p.z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2), new THREE.Vector3(1, 1, 1)))
-    }
-    if (i - lastSign > 25) {
-      lastSign = i
-      // papan menghadap pengemudi yang datang, sedikit sebelum tikungan
-      const p = pointAt(t, i * STEP - 30, side * (t.half + 6))
-      const m = new THREE.Matrix4().compose(new THREE.Vector3(p.x, p.y, p.z), new THREE.Quaternion().setFromAxisAngle(up, p.yaw + Math.PI), new THREE.Vector3(3, 3, 3))
-      ;(c > 0 ? signR : signL).push(m)
-    }
-  }
-  if (tireMats.length) {
-    const tire = new THREE.InstancedMesh(new THREE.TorusGeometry(0.55, 0.25, 8, 14), new THREE.MeshStandardMaterial({ color: '#1c1c22', roughness: 0.9 }), tireMats.length)
-    tireMats.forEach((m, i) => tire.setMatrixAt(i, m))
-    tire.castShadow = true
-    g.add(tire)
-  }
-  if (signL.length && variants('kit-arah-kiri').length) g.add(instanced('kit-arah-kiri', signL))
-  if (signR.length && variants('kit-arah-kanan').length) g.add(instanced('kit-arah-kanan', signR))
-
-  // spanduk sponsor menempel di dinding sepanjang lurusan
-  const bannerMats = SPONSORS.map((s, i) => new THREE.MeshStandardMaterial({ map: banner(s, [theme.curb[0], '#121212', theme.wall, '#2f7bff'][i % 4], '#fff4fa'), roughness: 0.6 }))
-  const bannerGeo = new THREE.PlaneGeometry(10, 1.9)
-  let lastBanner = -999
-  for (let i = 0; i < t.n; i += 4) {
-    if (Math.abs(curvature(t, i, 10)) > 0.006 || i - lastBanner < 30) continue
-    lastBanner = i
-    for (const side of [-1, 1]) {
-      const p = pointAt(t, i * STEP, side * (off - 0.6))
-      const b = new THREE.Mesh(bannerGeo, bannerMats[Math.floor(r() * bannerMats.length)])
-      b.position.set(p.x, p.y + 1.6, p.z)
-      b.rotation.y = p.yaw + (side > 0 ? -Math.PI / 2 : Math.PI / 2)
-      g.add(b)
-    }
-  }
-
-  // bendera warna-warni di tiang sepanjang dinding
-  if (variants('kit-bendera').length) {
-    const flags: THREE.Matrix4[] = []
-    for (let i = 10; i < t.n; i += 22) {
-      for (const side of [-1, 1]) {
-        const p = pointAt(t, i * STEP, side * (off + 2))
-        flags.push(new THREE.Matrix4().compose(new THREE.Vector3(p.x, p.y, p.z), new THREE.Quaternion().setFromAxisAngle(up, r() * Math.PI * 2), new THREE.Vector3(2.4, 2.4, 2.4)))
-      }
-    }
-    g.add(instanced('kit-bendera', flags))
-  }
-  return g
-}
-
-/** gerbang start/finish dengan 5 lampu hitung mundur */
-function gantry(t: Track, theme: Theme) {
-  const g = new THREE.Group()
-  const p = pointAt(t, 0, 0)
-  g.position.set(p.x, p.y, p.z)
-  g.rotation.y = p.yaw
-  const W = t.half * 2 + 6
-  const steel = new THREE.MeshStandardMaterial({ color: '#2a2a34', metalness: 0.6, roughness: 0.35 })
-  for (const s of [-1, 1]) {
-    const leg = new THREE.Mesh(new THREE.BoxGeometry(1.4, 12, 1.4), steel)
-    leg.position.set((s * W) / 2, 6, 0)
-    leg.castShadow = true
-    g.add(leg)
-  }
-  const beam = new THREE.Mesh(new THREE.BoxGeometry(W + 1.4, 3, 1.6), steel)
-  beam.position.y = 12.5
-  beam.castShadow = true
-  g.add(beam)
-  const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(W * 0.7, 2.4),
-    new THREE.MeshStandardMaterial({ map: banner('START · FINISH', theme.curb[0], '#fff4fa'), roughness: 0.5 }),
-  )
-  label.position.set(0, 12.5, -0.82)
-  label.rotation.y = Math.PI
-  g.add(label)
-  const label2 = label.clone()
-  label2.position.z = 0.82
-  label2.rotation.y = 0
-  g.add(label2)
-  // lampu: merah menyala satu per satu, hijau saat GO
-  const lights: THREE.MeshStandardMaterial[] = []
-  for (let k = 0; k < 5; k++) {
-    const mat = new THREE.MeshStandardMaterial({ color: '#2a0a0a', emissive: new THREE.Color('#ff2a2a'), emissiveIntensity: 0, roughness: 0.3 })
-    const bulb = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.4, 16), mat)
-    bulb.rotation.x = Math.PI / 2
-    bulb.position.set((k - 2) * 1.6, 10.4, -0.9)
-    g.add(bulb)
-    lights.push(mat)
-  }
-  // kotak-kotak hitam putih di aspal
-  const checker = canvasTex(64, 16, (c) => {
-    for (let x = 0; x < 16; x++)
-      for (let y = 0; y < 4; y++) {
-        c.fillStyle = (x + y) % 2 ? '#121212' : '#f4f4f8'
-        c.fillRect(x * 4, y * 4, 4, 4)
-      }
-  }, false)
-  checker.magFilter = THREE.NearestFilter
-  const line = new THREE.Mesh(new THREE.PlaneGeometry(t.half * 2, 4), new THREE.MeshStandardMaterial({ map: checker, roughness: 0.7, polygonOffset: true, polygonOffsetFactor: -3 }))
-  line.rotation.x = -Math.PI / 2
-  line.position.y = 0.09
-  line.receiveShadow = true
-  g.add(line)
-  return { group: g, lights }
-}
-
-/** tribun di kedua sisi lurusan start, berisi penonton yang bergoyang */
-function grandstands(t: Track, theme: Theme, tier: Tier) {
-  const g = new THREE.Group()
-  const off = t.half + 20
-  const seat = new THREE.MeshStandardMaterial({ color: '#d8d8e4', roughness: 0.8 })
-  const roof = new THREE.MeshStandardMaterial({ color: theme.curb[0], roughness: 0.5 })
-  const crowd: THREE.Matrix4[] = []
-  const colors: number[] = []
-  const r = seeded(99)
-  const palette = ['#ff37a6', '#5cf64a', '#2f7bff', '#ffcc1f', '#8a55ff', '#ff8a1c', '#13bfae', '#ff3b5c', '#fff4fa'].map((h) => new THREE.Color(h))
-  const L = 70
-  for (const side of [-1, 1]) {
-    for (const s0 of [-60, 60]) {
-      const p = pointAt(t, s0, side * off)
-      const stand = new THREE.Group()
-      stand.position.set(p.x, p.y, p.z)
-      stand.rotation.y = p.yaw + (side > 0 ? Math.PI / 2 : -Math.PI / 2)
-      for (let row = 0; row < 5; row++) {
-        const step = new THREE.Mesh(new THREE.BoxGeometry(L, 1.2, 2.2), seat)
-        step.position.set(0, 0.6 + row * 1.2, row * 2.2)
-        step.castShadow = step.receiveShadow = true
-        stand.add(step)
-        for (let k = 0; k < (tier.q === 'low' ? 18 : 40); k++) {
-          const lx = (r() - 0.5) * (L - 2)
-          const v = new THREE.Vector3(lx, 1.2 + row * 1.2 + 0.7, row * 2.2 - 0.3)
-          stand.updateMatrixWorld(true)
-          crowd.push(new THREE.Matrix4().compose(v.applyMatrix4(stand.matrixWorld), new THREE.Quaternion(), new THREE.Vector3(1, 1, 1)))
-          const c = palette[Math.floor(r() * palette.length)]
-          colors.push(c.r, c.g, c.b)
-        }
-      }
-      const top = new THREE.Mesh(new THREE.BoxGeometry(L + 2, 0.5, 12), roof)
-      top.position.set(0, 9, 5)
-      top.castShadow = true
-      stand.add(top)
-      for (const x of [-L / 2, 0, L / 2]) {
-        const post = new THREE.Mesh(new THREE.BoxGeometry(0.5, 9, 0.5), roof)
-        post.position.set(x, 4.5, 10.6)
-        stand.add(post)
-      }
-      g.add(stand)
-    }
-  }
-  // penonton: kapsul + kepala, bergoyang lewat shader (satu draw call)
-  const body = new THREE.CapsuleGeometry(0.32, 0.6, 3, 8)
-  const mat = new THREE.MeshStandardMaterial({ roughness: 0.7 })
-  const uTime = { value: 0 }
-  mat.onBeforeCompile = (sh) => {
-    sh.uniforms.time = uTime
-    sh.vertexShader = sh.vertexShader
-      .replace('#include <common>', '#include <common>\nuniform float time;')
-      .replace(
-        '#include <begin_vertex>',
-        `#include <begin_vertex>
-         float ph = instanceMatrix[3].x * 0.7 + instanceMatrix[3].z * 0.3;
-         transformed.y += max(0.0, sin(time * 7.0 + ph)) * 0.35;
-         transformed.x += sin(time * 3.0 + ph) * 0.08;`,
-      )
-  }
-  const people = new THREE.InstancedMesh(body, mat, crowd.length)
-  crowd.forEach((m, i) => people.setMatrixAt(i, m))
-  people.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(colors), 3)
-  g.add(people)
-  return { group: g, time: uTime }
-}
-
-// ---------------------------------------------------------------------------
 // Prop tema, tersebar dan dipecah per wilayah supaya bisa di-cull
 
-function props(t: Track, theme: Theme, tier: Tier) {
+function props(t: Track, theme: Theme, tier: Tier, height: Height, sea: boolean, scatter: number) {
   const r = seeded(t.def.id.length * 97 + t.n)
   const group = new THREE.Group()
-  const total = Math.round((t.length / 3.5) * tier.props)
+  const total = Math.round((t.length / 3.5) * tier.props * (tier.q === 'low' ? Math.min(scatter, 0.6) : scatter))
   const weights = theme.props
   const sum = weights.reduce((a, [, w]) => a + w, 0)
-  const CH = 16
+  const CH = tier.q === 'low' ? 8 : 16
   // nama model (varian) → wilayah → matriks
   const spots = new Map<string, THREE.Matrix4[][]>()
-  const minGap = (t.half + 16) ** 2
   for (let k = 0; k < total; k++) {
     const i = Math.floor(r() * t.n)
     const side = r() > 0.5 ? 1 : -1
-    const lat = side * (t.half + 18 + r() ** 1.9 * 150)
+    const lat = side * (t.hw[i] + 18 + r() ** 1.9 * 150)
     const p = pointAt(t, i * STEP, lat)
     let ok = true
-    for (let j = 0; j < t.n && ok; j += 4) ok = (t.px[j] - p.x) ** 2 + (t.pz[j] - p.z) ** 2 >= minGap
+    for (let j = 0; j < t.n && ok; j += 4) ok = (t.px[j] - p.x) ** 2 + (t.pz[j] - p.z) ** 2 >= (t.hw[j] + 16) ** 2
     if (!ok) continue
+    const y = height(p.x, p.z)
+    if (sea && y < WATER_Y + 0.5) continue
     let pick = r() * sum
     let name = weights[0][0]
     for (const [nm, w] of weights) {
@@ -671,7 +430,7 @@ function props(t: Track, theme: Theme, tier: Tier) {
     const vs = variants(name)
     const model = vs.length ? vs[Math.floor(r() * vs.length)] : name
     const s = 0.75 + r() * 0.7
-    const m = new THREE.Matrix4().compose(new THREE.Vector3(p.x, p.y - 0.3 - Math.max(0, Math.abs(lat) - t.half - 9) * 0.02, p.z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), r() * Math.PI * 2), new THREE.Vector3(s, s, s))
+    const m = new THREE.Matrix4().compose(new THREE.Vector3(p.x, y - 0.1, p.z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), r() * Math.PI * 2), new THREE.Vector3(s, s, s))
     const chunk = Math.floor((i / t.n) * CH)
     const list = spots.get(model) ?? Array.from({ length: CH }, () => [])
     list[chunk].push(m)
@@ -682,9 +441,9 @@ function props(t: Track, theme: Theme, tier: Tier) {
 }
 
 /** rumput, bunga, kerikil kecil di dekat jalan (dikurangi di grafis Hemat) */
-function details(t: Track, theme: Theme, tier: Tier) {
+function details(t: Track, theme: Theme, tier: Tier, height: Height, sea: boolean) {
   const g = new THREE.Group()
-  const kinds = theme.look.ground === 'rumput' ? ['rumput-kecil', 'bunga', 'pakis'] : theme.look.ground === 'pasir' ? ['kerikil-kecil'] : theme.look.ground === 'salju' ? ['kerikil-kecil'] : []
+  const kinds = theme.look.ground === 'rumput' || theme.look.ground === 'hutan' ? ['rumput-kecil', 'bunga', 'pakis'] : theme.look.ground === 'pasir' ? ['kerikil-kecil'] : theme.look.ground === 'salju' ? ['kerikil-kecil'] : []
   const avail = kinds.filter((k) => variants(k).length)
   if (!avail.length || tier.detail <= 0) return g
   const r = seeded(4242)
@@ -694,13 +453,15 @@ function details(t: Track, theme: Theme, tier: Tier) {
   for (let k = 0; k < count; k++) {
     const i = Math.floor(r() * t.n)
     const side = r() > 0.5 ? 1 : -1
-    const lat = side * (t.half + 10 + r() * 40)
+    const lat = side * (t.hw[i] + 10 + r() * 40)
     const p = pointAt(t, i * STEP, lat)
+    const y = height(p.x, p.z)
+    if (sea && y < WATER_Y + 0.5) continue
     const vs = variants(avail[Math.floor(r() * avail.length)])
     const model = vs[Math.floor(r() * vs.length)]
     const s = 0.8 + r() * 0.8
     const list = buckets.get(model) ?? Array.from({ length: CH }, () => [])
-    list[Math.floor((i / t.n) * CH)].push(new THREE.Matrix4().compose(new THREE.Vector3(p.x, p.y - 0.2, p.z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), r() * 6.28), new THREE.Vector3(s, s, s)))
+    list[Math.floor((i / t.n) * CH)].push(new THREE.Matrix4().compose(new THREE.Vector3(p.x, y - 0.05, p.z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), r() * 6.28), new THREE.Vector3(s, s, s)))
     buckets.set(model, list)
   }
   for (const [name, chunks] of buckets) for (const list of chunks) if (list.length) g.add(instanced(name, list, false))
@@ -708,7 +469,7 @@ function details(t: Track, theme: Theme, tier: Tier) {
 }
 
 /** panel turbo (panah bergulir), zona grip, tanjakan */
-function markings(t: Track, theme: Theme) {
+function markings(t: Track, theme: Theme, recipe: Recipe) {
   const g = new THREE.Group()
   const decal = (s: number, lat: number, w: number, len: number, mat: THREE.Material, lift = 0.09) => {
     const p = pointAt(t, s, lat)
@@ -740,19 +501,47 @@ function markings(t: Track, theme: Theme) {
     }
   })
   const padMat = new THREE.MeshStandardMaterial({ map: arrow, emissive: new THREE.Color('#ff8a1c'), emissiveMap: arrow, emissiveIntensity: 0.9, roughness: 0.4, polygonOffset: true, polygonOffsetFactor: -3 })
-  for (const [at, lane] of t.def.pads) decal(at * t.length, lane * t.half * 0.6, 7, 9, padMat)
+  for (const [at, lane] of t.def.pads) decal(at * t.length, lane * hwAt(t, at * t.length) * 0.6, 7, 9, padMat)
   for (const h of t.def.hazards) {
     if (h.kind !== 'grip') continue
     const mat = new THREE.MeshStandardMaterial({ color: h.color, transparent: true, opacity: 0.85, roughness: h.grip < 0.6 ? 0.1 : 0.9, metalness: h.grip < 0.6 ? 0.2 : 0, polygonOffset: true, polygonOffsetFactor: -2 })
-    for (let s = h.from * t.length; s < h.to * t.length; s += 8) decal(s, 0, t.half * 2 - 1, 8.4, mat, 0.08)
+    for (let s = h.from * t.length; s < h.to * t.length; s += 8) decal(s, 0, hwAt(t, s) * 2 - 1, 8.4, mat, 0.08)
   }
   const rampMat = new THREE.MeshStandardMaterial({ color: theme.curb[0], roughness: 0.5 })
   const rampStripe = new THREE.MeshStandardMaterial({ color: theme.curb[1], roughness: 0.5 })
   for (const end of t.rampAt) {
-    decal(end * STEP - 2, 0, t.half * 1.4, 4, rampMat, 0.1)
-    decal(end * STEP - 7, 0, t.half * 1.4, 2, rampStripe, 0.1)
+    decal(end * STEP - 2, 0, t.hw[end] * 1.4, 4, rampMat, 0.1)
+    decal(end * STEP - 7, 0, t.hw[end] * 1.4, 2, rampStripe, 0.1)
   }
+  if (recipe.fence === 'jersey') crossingsDecals(t, g, decal)
   return { group: g, pad: arrow }
+}
+
+/** persimpangan kota: zebra cross di kedua sisi dan jalan samping tempat kendaraan melintas */
+function crossingsDecals(t: Track, g: THREE.Group, decal: (s: number, lat: number, w: number, len: number, mat: THREE.Material, lift?: number) => THREE.Mesh) {
+  const zebra = canvasTex(256, 32, (c) => {
+    c.clearRect(0, 0, 256, 32)
+    c.fillStyle = '#ece8f4'
+    for (let x = 8; x < 256; x += 32) c.fillRect(x, 0, 16, 32)
+  })
+  const zebraMat = new THREE.MeshStandardMaterial({ map: zebra, transparent: true, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -3 })
+  const lane = new THREE.MeshStandardMaterial({ map: tex('aspal-kota_diff.webp'), color: '#5e5c70', roughness: 0.7 })
+  for (const h of t.def.hazards) {
+    if (h.kind !== 'roller') continue
+    const s = h.at * t.length
+    const hw = hwAt(t, s)
+    for (const d of [-13, 13]) decal(s + d, 0, hw * 2 - 2, 4.4, zebraMat, 0.09)
+    const p = pointAt(t, s, 0)
+    for (const side of [-1, 1]) {
+      const c = pointAt(t, s, side * (hw + 60))
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(120, 18), lane)
+      m.rotation.order = 'YXZ'
+      m.rotation.set(-Math.PI / 2, p.yaw + Math.PI / 2, 0)
+      m.position.set(c.x, p.y + 0.29, c.z)
+      m.receiveShadow = true
+      g.add(m)
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -804,34 +593,27 @@ export type World = {
   smoke: THREE.Vector3[]
 }
 
-const hdrLoader = new HDRLoader()
-
 export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRenderer): Promise<World> {
   const th = t.def.theme
   const look = th.look
+  const recipe = recipeOf(t.def)
   const scene = new THREE.Scene()
   scene.fog = new THREE.Fog(th.fog, th.fogNear * 2 * tier.far, th.fogFar * 2.4 * tier.far)
+  const sunDir = new THREE.Vector3(120, 220, 80).normalize()
 
-  // langit HDRI: latar + cahaya lingkungan (pantulan PBR)
-  let hdr: THREE.Texture | null = null
-  const bakeSky = (r: THREE.WebGLRenderer) => {
-    if (!hdr) return
+  // langit digambar sendiri lalu di-bake, jadi latar + cahaya lingkungan (pantulan PBR)
+  let cube: THREE.WebGLCubeRenderTarget | null = null
+  const bakeEnv = (r: THREE.WebGLRenderer) => {
     const pmrem = new THREE.PMREMGenerator(r)
     scene.environment?.dispose()
-    scene.environment = pmrem.fromEquirectangular(hdr).texture
+    cube?.dispose()
+    cube = bakeSky(r, recipe.sky, sunDir, tier.q === 'low' ? 256 : 512, tier.post)
+    scene.background = cube.texture
+    scene.environment = pmrem.fromCubemap(cube.texture).texture
     pmrem.dispose()
   }
-  try {
-    hdr = await hdrLoader.loadAsync(texUrl(`langit-${look.sky}.hdr`))
-    hdr.mapping = THREE.EquirectangularReflectionMapping
-    bakeSky(renderer)
-    scene.background = look.dark ? nightSky(th.sky) : hdr
-    // Kota Neon benar-benar gelap; Kawah tetap terang karena disinari lava
-    scene.backgroundIntensity = look.sky !== 'malam' ? 1 : look.dark ? 1.1 : 2.2
-    scene.environmentIntensity = look.sky !== 'malam' ? 0.55 : look.dark ? 0.3 : 1.2
-  } catch {
-    scene.background = new THREE.Color(th.sky[1])
-  }
+  bakeEnv(renderer)
+  scene.environmentIntensity = recipe.env
 
   scene.add(new THREE.HemisphereLight(th.ambient, th.ground, look.dark ? 0.45 : th.night ? 1.0 : 0.35))
   const sun = new THREE.DirectionalLight(th.sun, th.sunPower * (th.night ? 1 : 1.5))
@@ -849,25 +631,30 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
   }
   scene.add(sun, sun.target)
 
-  const propGroup = props(t, th, tier)
-  const detailGroup = details(t, th, tier)
-  scene.add(terrain(t, th, tier), ...road(t, th, tier), trackside(t, th), propGroup, detailGroup, clouds(t, th.night))
-  const mk = markings(t, th)
-  scene.add(mk.group)
-  const gate = gantry(t, th)
-  scene.add(gate.group)
-  const stands = grandstands(t, th, tier)
-  scene.add(stands.group)
-
-  let waterMat: THREE.ShaderMaterial | null = null
-  if (look.water) {
-    const w = water(look.water, WATER_Y, 9000, t.def.id === 'permen' ? '#ffd0a0' : '#e8f8ff', t.def.id === 'permen' ? 0.35 : 1)
-    waterMat = w.mat
-    scene.add(w.mesh)
+  const height = groundOf(t, recipe.ground)
+  const sea = Boolean(look.water)
+  const propGroup = props(t, th, tier, height, sea, recipe.scatter ?? 1)
+  const detailGroup = details(t, th, tier, height, sea)
+  scene.add(terrain(t, th, recipe, tier, height), ...road(t, th, recipe, tier), trackside(t, th, recipe, tier), propGroup, detailGroup)
+  if (recipe.clouds) scene.add(clouds(t, th.night))
+  // daun bergoyang hanya di grafis Tinggi
+  if (tier.q === 'high') {
+    for (const [name, h, push] of recipe.wind) for (const v of withVariants([name])) for (const m of modelMaterials(v)) patchWind(m, h, push)
   }
-  const marks = landmarks(t, th)
+  const mk = markings(t, th, recipe)
+  scene.add(mk.group)
+  const gate = gantry(t, th, recipe, tier)
+  scene.add(gate.group)
+  const stands = recipe.stands ? grandstands(t, th, tier) : null
+  if (stands) scene.add(stands.group)
+
+  if (look.water) {
+    const permen = t.def.id === 'permen'
+    scene.add(water(look.water, WATER_Y, 9000, permen ? '#ffd0a0' : recipe.sky.horizon, permen ? 0.35 : 1, sunDir, th.sun))
+  }
+  const marks = landmarks(t, height)
   scene.add(marks.group)
-  const flock = variants('camar').length ? birds(t, 'camar', 7) : null
+  const flock = recipe.birds && variants('camar').length ? birds(t, 'camar', 7) : null
   if (flock) scene.add(flock.group)
 
   // kotak item: kubus kaca berbingkai pelangi + "?" 3D (scripts/blender/kart_items.py),
@@ -898,13 +685,13 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
       mesh.add(rope)
       const p = pointAt(t, h.at * t.length, 0)
       const steel = new THREE.MeshStandardMaterial({ color: th.wall, roughness: 0.5, metalness: 0.3 })
-      const beam = new THREE.Mesh(new THREE.BoxGeometry(t.half * 2 + 8, 1, 1), steel)
+      const beam = new THREE.Mesh(new THREE.BoxGeometry(hwAt(t, h.at * t.length) * 2 + 8, 1, 1), steel)
       beam.position.set(p.x, p.y + 17, p.z)
       beam.rotation.y = p.yaw + Math.PI / 2
       beam.castShadow = true
       scene.add(beam)
       for (const side of [-1, 1]) {
-        const pp = pointAt(t, h.at * t.length, side * (t.half + 4))
+        const pp = pointAt(t, h.at * t.length, side * (hwAt(t, h.at * t.length) + 4))
         const post = new THREE.Mesh(new THREE.BoxGeometry(1, 17, 1), steel)
         post.position.set(pp.x, pp.y + 8.5, pp.z)
         post.castShadow = true
@@ -940,8 +727,8 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
 
   const update = (time: number, now: number, view: THREE.Vector3) => {
     const sec = now / 1000
-    stands.time.value = sec
-    if (waterMat) waterMat.uniforms.time.value = sec
+    worldClock.value = sec
+    if (stands) stands.time.value = sec
     if (lavaTexture) lavaTexture.offset.set(Math.sin(sec * 0.05) * 0.2, sec * 0.01)
     for (const b of marks.spin) b.rotation.y = sec * 2.5
     for (const b of marks.blink) b.visible = Math.sin(sec * 4) > 0
@@ -1024,39 +811,10 @@ export async function buildWorld(t: Track, tier: Tier, renderer: THREE.WebGLRend
       }
     })
     scene.environment?.dispose()
-    hdr?.dispose()
-    if (scene.background instanceof THREE.Texture) scene.background.dispose()
+    cube?.dispose()
   }
 
-  return { scene, sun, boxes, hazards, setLights, update, setTier, restore: bakeSky, dispose, smoke: marks.smoke }
-}
-
-/** langit malam digambar sendiri: gradasi tema, bintang, dan bulan (HDRI malam masih seterang mendung) */
-function nightSky([top, horizon]: [string, string]) {
-  const c = document.createElement('canvas')
-  c.width = 2048
-  c.height = 1024
-  const g = c.getContext('2d')!
-  const grad = g.createLinearGradient(0, 0, 0, c.height / 2)
-  grad.addColorStop(0, top)
-  grad.addColorStop(1, horizon)
-  g.fillStyle = grad
-  g.fillRect(0, 0, c.width, c.height)
-  const r = seeded(1987)
-  for (let k = 0; k < 420; k++) {
-    g.fillStyle = `rgba(255,255,255,${0.25 + r() * 0.7})`
-    g.fillRect(r() * c.width, r() * c.height * 0.42, 1 + r() * 2, 1 + r() * 2)
-  }
-  g.shadowColor = '#d8d0ff'
-  g.shadowBlur = 40
-  g.fillStyle = '#f4f0ff'
-  g.beginPath()
-  g.arc(c.width * 0.72, c.height * 0.2, 34, 0, Math.PI * 2)
-  g.fill()
-  const sky = new THREE.CanvasTexture(c)
-  sky.colorSpace = THREE.SRGBColorSpace
-  sky.mapping = THREE.EquirectangularReflectionMapping
-  return sky
+  return { scene, sun, boxes, hazards, setLights, update, setTier, restore: bakeEnv, dispose, smoke: marks.smoke }
 }
 
 /** tampilkan sebagian salinan saja; urutan matriksnya acak, jadi penjarangannya merata */

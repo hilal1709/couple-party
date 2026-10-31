@@ -33,6 +33,7 @@ export type Kart = {
   spinT: number
   slowT: number
   shieldT: number
+  guardT: number
   magnetT: number
   /** sedang di luar aspal */
   offroad: boolean
@@ -51,13 +52,13 @@ export function spawnKart(t: Track, slot: number): Kart {
   const col = slot % 2 ? 1 : -1
   const s = t.length - 8 - row * 7
   const i = Math.round(s / STEP) % t.n
-  const lateral = col * t.half * 0.4
+  const lateral = col * t.hw[i] * 0.4
   const x = t.px[i] - t.tz[i] * lateral
   const z = t.pz[i] + t.tx[i] * lateral
   return {
     x, y: t.py[i], z, vy: 0, yaw: Math.atan2(t.tx[i], t.tz[i]), speed: 0,
     i, s, lateral, airborne: false, drift: 0, driftT: 0, slide: 0, boostT: 0,
-    spinT: 0, slowT: 0, shieldT: 0, magnetT: 0, offroad: false, pushX: 0, pushZ: 0, half: true, fallT: 0,
+    spinT: 0, slowT: 0, shieldT: 0, guardT: 0, magnetT: 0, offroad: false, pushX: 0, pushZ: 0, half: true, fallT: 0,
   }
 }
 
@@ -116,6 +117,7 @@ export function stepKart(k: Kart, inp: Input, st: Stats, t: Track, dt: number, m
   k.boostT = Math.max(0, k.boostT - dt)
   k.slowT = Math.max(0, k.slowT - dt)
   k.shieldT = Math.max(0, k.shieldT - dt)
+  k.guardT = Math.max(0, k.guardT - dt)
   k.magnetT = Math.max(0, k.magnetT - dt)
 
   // ---- belok & drift ----
@@ -166,8 +168,8 @@ export function stepKart(k: Kart, inp: Input, st: Stats, t: Track, dt: number, m
   k.i = near.i
   k.lateral = near.lateral
   k.s = near.s
-  const wall = t.half + (lava ? 8 : 14)
-  k.offroad = Math.abs(near.lateral) > t.half
+  const wall = t.wall[k.i]
+  k.offroad = Math.abs(near.lateral) > t.hw[k.i]
   if (Math.abs(near.lateral) > wall) {
     // dinding: dorong balik & redam
     const over = Math.abs(near.lateral) - wall
@@ -199,7 +201,7 @@ export function stepKart(k: Kart, inp: Input, st: Stats, t: Track, dt: number, m
       ev.jump = true
     } else k.y = ground
   }
-  if (lava && k.offroad && !k.airborne && Math.abs(near.lateral) > t.half + 2) {
+  if (lava && k.offroad && !k.airborne && Math.abs(near.lateral) > t.hw[k.i] + 2) {
     k.fallT = 1.2
     k.boostT = 0
     k.drift = 0
@@ -228,12 +230,30 @@ export function bounce(k: Kart, power: number) {
   k.vy = 14 * power
 }
 
+/** kart masih kebal setelah perisai pecah (detik): rintangan menyentuh kart berkali-kali, serangan bisa bertumpuk */
+export const SHIELD_GRACE = 1
+
+export const isShielded = (k: Kart) => k.shieldT > 0 || k.guardT > 0
+
+/** perisai menelan satu serangan; true kalau serangan tertahan */
+function absorbHit(k: Kart): boolean {
+  if (k.guardT > 0) return true
+  if (k.shieldT <= 0) return false
+  k.shieldT = 0
+  k.guardT = SHIELD_GRACE
+  return true
+}
+
+/** kart kena awan: melambat, kecuali perisai aktif */
+export function rainKart(k: Kart, seconds = 4): boolean {
+  if (absorbHit(k)) return false
+  k.slowT = seconds
+  return true
+}
+
 /** kart kena item / rintangan: muter, kecuali perisai aktif */
 export function hitKart(k: Kart, seconds = 1.1): boolean {
-  if (k.shieldT > 0) {
-    k.shieldT = 0
-    return false
-  }
+  if (absorbHit(k)) return false
   if (k.spinT > 0 || k.fallT > 0) return false
   k.spinT = seconds
   k.drift = 0

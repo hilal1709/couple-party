@@ -19,8 +19,11 @@ export type Track = {
   /** arah maju (dx, dz ternormalisasi) */
   tx: Float32Array
   tz: Float32Array
-  /** setengah lebar jalan */
+  /** setengah lebar jalan nominal */
   half: number
+  /** setengah lebar jalan & jarak dinding dari garis tengah, per sampel */
+  hw: Float32Array
+  wall: Float32Array
   /** grip & hambatan per sampel (dari hazard 'grip') */
   grip: Float32Array
   drag: Float32Array
@@ -91,11 +94,39 @@ export function buildTrack(def: TrackDef): Track {
     rampAt.push(end)
     for (let k = 0; k < up; k++) ramp[(end - up + k + n) % n] = ((k + 1) / up) * 2.2
   }
-  return { def, length, n, px, py, pz, tx, tz, half: def.width / 2, grip, drag, ramp, rampAt }
+  const { hw, wall } = widths(def, n)
+  return { def, length, n, px, py, pz, tx, tz, half: def.width / 2, hw, wall, grip, drag, ramp, rampAt }
+}
+
+/** setengah lebar & dinding per sampel: antar titik profil dihaluskan, sambungan akhir-awal lap ikut mulus */
+function widths(def: TrackDef, n: number) {
+  const shoulder = def.theme.offroad === 'lava' ? 8 : 14
+  const hw = new Float32Array(n).fill(def.width / 2)
+  const wall = new Float32Array(n).fill(def.width / 2 + shoulder)
+  const p = def.profile
+  if (!p?.length) return { hw, wall }
+  for (let i = 0; i < n; i++) {
+    const at = i / n
+    let b = p.findIndex(([x]) => x > at)
+    if (b < 0) b = 0
+    const a = (b + p.length - 1) % p.length
+    const gap = (p[b][0] - p[a][0] + 1) % 1 || 1
+    const f = ((at - p[a][0] + 1) % 1) / gap
+    const e = f * f * (3 - 2 * f)
+    const w = p[a][1] + (p[b][1] - p[a][1]) * e
+    const sa = p[a][2] ?? shoulder
+    const s = sa + ((p[b][2] ?? shoulder) - sa) * e
+    hw[i] = w / 2
+    wall[i] = w / 2 + s
+  }
+  return { hw, wall }
 }
 
 /** indeks sampel di jarak s (meter, boleh di luar 0..length) */
 export const indexAt = (t: Track, s: number) => ((Math.round(s / STEP) % t.n) + t.n) % t.n
+
+/** setengah lebar jalan di jarak s */
+export const hwAt = (t: Track, s: number) => t.hw[indexAt(t, s)]
 
 /** posisi dunia dari jarak s & offset samping (meter, + = kanan) */
 export function pointAt(t: Track, s: number, lateral: number): { x: number; y: number; z: number; yaw: number } {

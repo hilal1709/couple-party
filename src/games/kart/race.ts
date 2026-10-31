@@ -15,8 +15,11 @@ import { Skids } from './render/skids'
 import { buildWorld, type World } from './render/world'
 import { botInput, newBrain, type BotBrain } from './sim/bots'
 import { BOX_RESPAWN, blockPush, entityPose, hazardContact, onPad, ownerSafe } from './sim/hazards'
-import { bounce, collide, driftLevel, hitKart, magnetPull, spawnKart, stepKart, type Input, type Kart } from './sim/physics'
+import { bounce, collide, driftLevel, hitKart, isShielded, magnetPull, rainKart, spawnKart, stepKart, type Input, type Kart } from './sim/physics'
+import { hermite, syncClock } from './sim/interp'
 import { buildTrack, pointAt, type Track } from './sim/track'
+import { recipeOf } from './render/recipe'
+import { setMaxAnisotropy } from './render/tex'
 import { TRACKS } from './tracks'
 import type { Entity, KartAction, KartState } from './types'
 
@@ -24,7 +27,8 @@ const DT = 1 / 60
 /** detik kamera intro menyusuri lintasan sebelum hitung mundur (sama di semua HP) */
 const INTRO = 4.5
 const SEND_EVERY = 0.1
-const INTERP_DELAY = 130
+/** kart HP lain ditampilkan selambat ini (ms): cukup untuk dua paket + jitter jaringan */
+const INTERP_DELAY = 200
 
 export type Hud = {
   /** detik tersisa hitung mundur (≤ 0 = sudah jalan) */
@@ -52,7 +56,7 @@ export type Sound = 'go' | 'count' | 'lap' | 'final' | 'boost' | 'drift' | 'hit'
 
 export type Controls = Input & { item: boolean }
 
-type Remote = { buf: { t: number; p: number[] }[] }
+type Remote = { buf: { t: number; p: number[] }[]; off: number | null }
 
 /** pose ringkas yang dikirim ke HP lain: [kart, x, y, z, yaw, kecepatan, slide, flags, kemajuan, setir] */
 type Pose = [number, number, number, number, number, number, number, number, number, number]
@@ -94,9 +98,9 @@ const SANITIZE = {
 
 /** color grading akhir: saturasi & kontras naik sedikit supaya warna kartun lebih tegas */
 const GRADE = {
-  uniforms: { tDiffuse: { value: null }, sat: { value: 1.22 }, contrast: { value: 1.08 } },
+  uniforms: { tDiffuse: { value: null }, sat: { value: 1.22 }, contrast: { value: 1.08 }, tint: { value: new THREE.Vector3(1, 1, 1) } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-  fragmentShader: `uniform sampler2D tDiffuse; uniform float sat; uniform float contrast; varying vec2 vUv;
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float sat; uniform float contrast; uniform vec3 tint; varying vec2 vUv;
     void main(){
       vec4 c = texture2D(tDiffuse, vUv);
       float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
@@ -104,7 +108,7 @@ const GRADE = {
       g = (g - 0.5) * contrast + 0.5;
       // vinyet tipis
       float v = smoothstep(1.15, 0.45, length(vUv - 0.5));
-      gl_FragColor = vec4(g * mix(0.82, 1.0, v), c.a);
+      gl_FragColor = vec4(g * tint * mix(0.82, 1.0, v), c.a);
     }`,
 }
 /** dev: kart sendiri disetir AI (?autopilot=1) untuk tangkapan layar */
@@ -144,6 +148,8 @@ export class Race {
   private startAt = performance.now()
   private goAt: number
   private acc = 0
+  /** pose kart lokal sebelum tick terakhir: layar menggambar di antara dua tick */
+  private before = new Map<number, { x: number; y: number; z: number; yaw: number }>()
   private sendAcc = 0
   private hudAcc = 0
   private raf = 0
@@ -196,7 +202,9 @@ export class Race {
     this.mine = o.state.racers.findIndex((r) => r.seat === o.seat)
     this.tier = initialTier()
     this.ratio = Math.min(this.tier.ratio, window.devicePixelRatio || 1)
-    this.renderer = new THREE.WebGLRenderer({ canvas: o.canvas, antialias: !this.tier.post, powerPreference: 'high-performance' })
+    // antialias hanya bisa dipilih saat renderer dibuat; selalu nyala supaya tetap ada setelah turun ke Hemat
+    this.renderer = new THREE.WebGLRenderer({ canvas: o.canvas, antialias: true, powerPreference: 'high-performance' })
+    setMaxAnisotropy(this.renderer.capabilities.getMaxAnisotropy())
     this.renderer.setPixelRatio(this.ratio)
     this.renderer.outputColorSpace = THREE.SRGBColorSpace
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
@@ -217,7 +225,7 @@ export class Race {
       this.stats.push(statsFor(r.char, r.body))
       const local = i === this.mine || (r.seat === null && o.seat === 0)
       if (local) this.local.add(i)
-      else this.remotes.set(i, { buf: [] })
+      else this.remotes.set(i, { buf: [], off: null })
       if (r.seat === null) this.brains.set(i, newBrain(i * 7919 + 13))
     })
     // masuk balapan yang sudah jalan (muat ulang): benda & kejadian lama jangan diputar lagi
@@ -242,6 +250,8 @@ export class Race {
     const th = this.t.def
     await loadModels([
       ...withVariants(th.theme.props.map(([n]) => n)),
+      ...(recipeOf(th).models ?? []),
+      ...withVariants(recipeOf(th).wind.map(([n]) => n)),
       ...withVariants(['rumput-kecil', 'bunga', 'pakis', 'kerikil-kecil', 'kit-arah-kiri', 'kit-arah-kanan', 'kit-bendera']),
       ...(th.landmarks ?? []).map((l) => l.model),
       'camar',
@@ -285,21 +295,25 @@ export class Race {
     this.loop()
   }
 
-  /** bloom + tone mapping akhir + FXAA (grafis Sedang/Tinggi) */
+  /** MSAA + bloom + tone mapping akhir (grafis Sedang/Tinggi); FXAA hanya menambal MSAA 2x di Sedang */
   private setupPost() {
     this.dropPost()
     if (!this.tier.post) return
-    const night = this.t.def.theme.night
-    const c = new EffectComposer(this.renderer)
+    const recipe = recipeOf(this.t.def)
+    const samples = Math.min(this.tier.samples, this.renderer.capabilities.maxSamples)
+    const c = new EffectComposer(this.renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples }))
     c.addPass(new RenderPass(this.world.scene, this.camera))
     // buang piksel NaN & batasi kecerahan sebelum bloom; satu piksel rusak bisa memutihkan seluruh layar
     c.addPass(new ShaderPass(SANITIZE))
-    // lava: tanah luas menyala, bloom harus jauh lebih selektif supaya tidak jadi kabut putih
-    const lava = this.t.def.theme.offroad === 'lava'
-    c.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), lava ? 0.18 : night ? 0.6 : 0.16, lava ? 0.25 : 0.4, lava ? 1.6 : night ? 0.75 : 0.97))
+    const [strength, radius, threshold] = recipe.bloom
+    c.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), strength, radius, threshold))
     c.addPass(new OutputPass())
-    c.addPass(new ShaderPass(GRADE))
-    c.addPass(new FXAAPass())
+    const grade = new ShaderPass(GRADE)
+    grade.uniforms.sat.value = recipe.grade.sat
+    grade.uniforms.contrast.value = recipe.grade.contrast
+    grade.uniforms.tint.value.fromArray(recipe.grade.tint)
+    c.addPass(grade)
+    if (samples < 4) c.addPass(new FXAAPass())
     this.composer = c
   }
 
@@ -381,14 +395,17 @@ export class Race {
       this.seenEvents = Math.max(this.seenEvents, ev.id)
       if (ev.kind === 'awan') {
         const ranks = this.ranks()
+        const now = performance.now()
+        const dry = new Set<number>()
         for (const i of this.local) {
           if (i !== ev.by && ranks.indexOf(i) < ranks.indexOf(ev.by) && this.state.times[i] === null) {
-            this.karts[i].slowT = 4
-            if (i === this.mine) this.o.onSound('rain')
+            const wet = rainKart(this.karts[i])
+            if (!wet) dry.add(i)
+            if (i === this.mine) this.o.onSound(wet ? 'rain' : 'shield')
           }
         }
-        // semua HP menampilkan awan di atas kart yang kena
-        ranks.slice(0, ranks.indexOf(ev.by)).forEach((i) => this.showCloud(i))
+        // semua HP menampilkan awan di atas kart yang kena; perisai menahannya
+        ranks.slice(0, ranks.indexOf(ev.by)).filter((i) => !dry.has(i) && !((this.remotePose(i, now)?.flags ?? 0) & F_SHIELD)).forEach((i) => this.showCloud(i))
       }
     }
     // kotak item: begitu item datang, mainkan bunyi
@@ -398,13 +415,16 @@ export class Race {
   private lastItem: KartState['items'][number] = null
 
   private onLive(d: unknown) {
-    const m = d as { p?: Pose[] }
+    const m = d as { p?: Pose[]; at?: number }
     if (!m.p) return
     const now = performance.now()
+    const at = m.at ?? now
     for (const p of m.p) {
       const r = this.remotes.get(p[0])
       if (!r) continue
-      r.buf.push({ t: now, p })
+      r.off = syncClock(r.off, now - at)
+      const last = r.buf[r.buf.length - 1]
+      r.buf.push({ t: Math.max(at + r.off, last ? last.t + 1 : 0), p })
       if (r.buf.length > 12) r.buf.shift()
       this.prog[p[0]] = p[8]
     }
@@ -474,6 +494,10 @@ export class Race {
     this.acc += frame
     let steps = 0
     while (this.acc >= DT && steps < 5) {
+      for (const i of this.local) {
+        const k = this.karts[i]
+        this.before.set(i, { x: k.x, y: k.y, z: k.z, yaw: k.yaw })
+      }
       this.tick(now)
       this.acc -= DT
       steps++
@@ -563,12 +587,15 @@ export class Race {
       if (hz === 'bounce' && !k.airborne) {
         bounce(k, 1)
         if (me) this.o.onSound('jump', { rate: 1.3 })
-      } else if (hz === 'hit' && hitKart(k, 1.2)) {
-        this.particles?.burst('star', 10, k.x, k.y + 2.5, k.z, 0, 3, 0, 7, ['#ffcc1f', '#fff4fa'])
-        if (me) {
-          this.o.onSound('hit')
-          this.shake = 0.8
-        }
+      } else if (hz === 'hit') {
+        const fresh = k.shieldT > 0
+        if (hitKart(k, 1.2)) {
+          this.particles?.burst('star', 10, k.x, k.y + 2.5, k.z, 0, 3, 0, 7, ['#ffcc1f', '#fff4fa'])
+          if (me) {
+            this.o.onSound('hit')
+            this.shake = 0.8
+          }
+        } else if (fresh && me) this.o.onSound('shield')
       }
       const push = blockPush(this.t, k.x, k.z)
       if (push) {
@@ -666,7 +693,7 @@ export class Race {
     if (ownerSafe(e, i, age)) return
     if ((p.x - k.x) ** 2 + (p.z - k.z) ** 2 > (p.r + 1.3) ** 2 || Math.abs(p.y - k.y) > 4) return
     this.handled.add(key)
-    const shielded = k.shieldT > 0
+    const shielded = isShielded(k)
     const hit = hitKart(k, e.kind === 'petasan' ? 1.5 : 1.15)
     if (hit) this.particles?.burst('star', 12, k.x, k.y + 2.5, k.z, 0, 3, 0, 8, ['#ffcc1f', '#fff4fa', '#ff37a6'])
     if (hit && i === this.mine) this.shake = e.kind === 'petasan' ? 1.4 : 0.8
@@ -694,12 +721,15 @@ export class Race {
       const p = b.p
       return { x: p[1] + Math.sin(p[4]) * p[5] * dt, y: p[2], z: p[3] + Math.cos(p[4]) * p[5] * dt, yaw: p[4], slide: p[6], flags: p[7], speed: p[5], steer: p[9] ?? 0 }
     }
-    const f = b.t === a.t ? 1 : (t - a.t) / (b.t - a.t)
+    const f = b.t === a.t ? 1 : Math.max(0, (t - a.t) / (b.t - a.t))
     let dy = b.p[4] - a.p[4]
     while (dy > Math.PI) dy -= Math.PI * 2
     while (dy < -Math.PI) dy += Math.PI * 2
     const L = (u: number, v: number) => u + (v - u) * f
-    return { x: L(a.p[1], b.p[1]), y: L(a.p[2], b.p[2]), z: L(a.p[3], b.p[3]), yaw: a.p[4] + dy * f, slide: L(a.p[6], b.p[6]), flags: b.p[7], speed: b.p[5], steer: b.p[9] ?? 0 }
+    const h = (b.t - a.t) / 1000
+    const x = hermite(a.p[1], Math.sin(a.p[4]) * a.p[5], b.p[1], Math.sin(b.p[4]) * b.p[5], f, h)
+    const z = hermite(a.p[3], Math.cos(a.p[4]) * a.p[5], b.p[3], Math.cos(b.p[4]) * b.p[5], f, h)
+    return { x, y: L(a.p[2], b.p[2]), z, yaw: a.p[4] + dy * f, slide: L(a.p[6], b.p[6]), flags: b.p[7], speed: b.p[5], steer: b.p[9] ?? 0 }
   }
 
   private render(now: number, frame: number) {
@@ -710,8 +740,16 @@ export class Race {
       const m = this.meshes[i]
       let x = k.x, y = k.y, z = k.z, yaw = k.yaw, slide = k.slide, flags = 0, speed = k.speed
       if (this.local.has(i)) {
-        flags = (k.drift ? F_DRIFT : 0) | (k.boostT > 0 ? F_BOOST : 0) | (k.spinT > 0 ? F_SPIN : 0) | (k.shieldT > 0 ? F_SHIELD : 0) | (k.airborne ? F_AIR : 0) | (k.slowT > 0 ? F_SLOW : 0) | (k.offroad ? F_OFF : 0) | (this.isBraking(i) ? F_BRAKE : 0)
+        flags = (k.drift ? F_DRIFT : 0) | (k.boostT > 0 ? F_BOOST : 0) | (k.spinT > 0 ? F_SPIN : 0) | (isShielded(k) ? F_SHIELD : 0) | (k.airborne ? F_AIR : 0) | (k.slowT > 0 ? F_SLOW : 0) | (k.offroad ? F_OFF : 0) | (this.isBraking(i) ? F_BRAKE : 0)
         poses.push([i, r2(x), r2(y), r2(z), r2(yaw), r2(speed), r2(slide), flags | (driftLevel(k) << 8), Math.round(this.prog[i]), r2(this.steers[i])])
+        const q = this.before.get(i)
+        if (q) {
+          const f = this.acc / DT
+          x = q.x + (x - q.x) * f
+          y = q.y + (y - q.y) * f
+          z = q.z + (z - q.z) * f
+          yaw = q.yaw + (yaw - q.yaw) * f
+        }
         if (k.fallT > 0) y -= (1.2 - k.fallT) * 6
       } else {
         const p = this.remotePose(i, now)
@@ -747,8 +785,8 @@ export class Race {
     // kirim pose ke HP lain
     this.sendAcc += frame
     if (this.o.live && this.sendAcc >= SEND_EVERY && poses.length) {
-      this.sendAcc = 0
-      this.o.live.send({ p: poses })
+      this.sendAcc = Math.min(this.sendAcc - SEND_EVERY, SEND_EVERY)
+      this.o.live.send({ p: poses, at: Math.round(now) })
     }
 
     this.renderEntities(now, frame)
@@ -944,10 +982,16 @@ export class Race {
           p.emit('snow', x, y, z, 1.5, -2, 0.5, '#ffffff', 0.45)
         }
         break
+      case 'neon':
+        for (let j = 0; j < 4; j++) if (rate(45)) {
+          const [x, y, z] = around(70, 4, 26)
+          p.emit('rain', x, y, z, 1, -46, 0.6, '#c4d0ff', 0.5)
+        }
+        break
       case 'candi':
         if (rate(25)) {
           const [x, y, z] = around(80, 0, 6)
-          p.emit('dust', x, y, z, 9, 0.4, 3, '#f2d79a', 2.2)
+          p.emit('dust', x, y, z, 9, 0.4, 3, '#f2d79a', 1)
         }
         break
       case 'jamur':

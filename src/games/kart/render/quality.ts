@@ -9,8 +9,10 @@ export type Tier = {
   ratio: number
   /** ukuran peta bayangan matahari; 0 = blob shadow saja */
   shadow: number
-  /** bloom + FXAA lewat EffectComposer */
+  /** bloom & color grading lewat EffectComposer */
   post: boolean
+  /** MSAA pada gambar 3D di dalam EffectComposer (0 = tanpa composer, MSAA bawaan kanvas) */
+  samples: number
   /** kerapatan rumput/bunga/kerikil kecil (0..1) */
   detail: number
   /** kerapatan prop di luar jalan (0..1) */
@@ -24,9 +26,9 @@ export type Tier = {
 }
 
 export const TIERS: Record<Quality, Tier> = {
-  low: { q: 'low', ratio: 1, shadow: 0, post: false, detail: 0.25, props: 0.35, particles: 120, far: 0.75, pbr: false },
-  med: { q: 'med', ratio: 1.25, shadow: 1024, post: true, detail: 0.6, props: 0.8, particles: 260, far: 1, pbr: true },
-  high: { q: 'high', ratio: 1.75, shadow: 2048, post: true, detail: 1, props: 1, particles: 420, far: 1.25, pbr: true },
+  low: { q: 'low', ratio: 1.25, shadow: 0, post: false, samples: 0, detail: 0.25, props: 0.35, particles: 120, far: 0.75, pbr: false },
+  med: { q: 'med', ratio: 1.5, shadow: 1024, post: true, samples: 2, detail: 0.6, props: 0.8, particles: 260, far: 1, pbr: true },
+  high: { q: 'high', ratio: 2, shadow: 2048, post: true, samples: 4, detail: 1, props: 1, particles: 420, far: 1.25, pbr: true },
 }
 
 export const QUALITY_INFO: Record<Quality, { title: string; line: string }> = {
