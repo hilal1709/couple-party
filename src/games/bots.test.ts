@@ -104,6 +104,32 @@ function spyHost(s: Any, now: number, mem: Record<string, Any>) {
   return s.phase === 'clue' || s.phase === 'vote' || s.phase === 'guess' ? { type: 'timeUp' } : { type: 'next' }
 }
 
+/** Meniru jam di SportBoard: lemparan selesai diputar. */
+function sportHost(s: Any, now: number, mem: Record<string, Any>) {
+  return s.m.phase === 'roll' && after(mem, s.m.roll.id, now, 6000) ? { type: 'next', id: s.m.roll.id } : null
+}
+
+/** Meniru jam di ArcheryBoard & PenaltyBoard: tutup animasi tembakan. */
+function shotHost(s: Any, now: number, mem: Record<string, Any>) {
+  const id = s.m.shot?.id ?? s.m.result?.id
+  return (s.m.phase === 'fly' || s.m.phase === 'shot') && after(mem, id, now, 4000) ? { type: 'next', id } : null
+}
+
+/** Meniru jam di RacketBoard: servis diam, bola jatuh, jeda antar poin. */
+function racketHost(s: Any, now: number, mem: Record<string, Any>) {
+  const m = s.m
+  if (m.phase === 'rally') return after(mem, m.ball.id, now, m.ball.ms + 900) ? { type: 'land', id: m.ball.id } : null
+  if (m.phase === 'serve') return after(mem, m.phaseId, now, 8000) ? { type: 'auto', id: m.phaseId } : null
+  return m.phase === 'point' && after(mem, m.phaseId, now, 2400) ? { type: 'next', id: m.phaseId } : null
+}
+
+/** Meniru jam di BoxingBoard: perkenalan, bel ronde, dan jeda antar ronde. */
+function boxingHost(s: Any, now: number, mem: Record<string, Any>) {
+  const m = s.m
+  if (m.phase === 'fight') return after(mem, m.phaseId, now, 45000) ? { type: 'bell', id: m.phaseId } : null
+  return m.phase !== 'end' && after(mem, m.phaseId, now, 3000) ? { type: 'next', id: m.phaseId } : null
+}
+
 /** Meniru jam di DrawBoard. */
 function drawHost(s: Any, now: number, mem: Record<string, Any>) {
   if (s.phase === 'choose' || s.phase === 'draw') return after(mem, s.phaseId, now, s.phase === 'choose' ? 15000 : s.opts.seconds * 1000) ? { type: 'timeUp' } : null
@@ -158,6 +184,14 @@ const cases: Case[] = [
   { name: 'Mata-mata lokasi 5 pemain', id: 'spy', n: 5, options: { mode: 'lokasi', rounds: 3 }, over: ended, host: spyHost },
   { name: 'Tebak Gambar 2 pemain', id: 'draw', n: 2, options: { rounds: 2, seconds: 60 }, over: ended, host: drawHost },
   { name: 'Tebak Gambar 6 pemain', id: 'draw', n: 6, options: { rounds: 4, seconds: 60 }, over: ended, host: drawHost },
+  { name: 'Bowling 2 pemain', id: 'sport', n: 2, options: { frames: 5 }, over: (s) => s.m.phase === 'end', host: sportHost },
+  { name: 'Bowling 8 pemain', id: 'sport', n: 8, options: { frames: 3 }, over: (s) => s.m.phase === 'end', host: sportHost },
+  { name: 'Tinju 3 ronde', id: 'sport', n: 2, options: { sport: 'tinju', rounds: 3 }, over: (s) => s.m.phase === 'end', host: boxingHost },
+  { name: 'Panahan 2 pemain', id: 'sport', n: 2, options: { sport: 'panahan', ends: 3 }, over: (s) => s.m.phase === 'end', host: shotHost },
+  { name: 'Panahan 8 pemain', id: 'sport', n: 8, options: { sport: 'panahan', ends: 3 }, over: (s) => s.m.phase === 'end', host: shotHost },
+  { name: 'Penalti', id: 'sport', n: 2, options: { sport: 'penalti' }, over: (s) => s.m.phase === 'end', host: shotHost },
+  { name: 'Tenis 7 poin', id: 'sport', n: 2, options: { sport: 'tenis', points: 7 }, over: (s) => s.m.phase === 'end', host: racketHost },
+  { name: 'Badminton 11 poin', id: 'sport', n: 2, options: { sport: 'badminton', points: 11 }, over: (s) => s.m.phase === 'end', host: racketHost },
 ]
 
 describe('semua kursi bot: game selalu tamat', () => {

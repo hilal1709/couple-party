@@ -8,6 +8,7 @@ Jalankan:  python -I scripts/audio/build.py          (semua)
            python -I scripts/audio/build.py ludo     (hanya musik & SFX Ludo)
            python -I scripts/audio/build.py spy      (hanya musik & SFX Siapa Mata-mata)
            python -I scripts/audio/build.py bom      (hanya musik & SFX Bom Waktu)
+           python -I scripts/audio/build.py sport    (hanya musik & SFX Sport Kacau)
            python -I scripts/audio/build.py kart     (hanya musik & SFX Kart Kacau)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
@@ -197,6 +198,88 @@ def kart_music():
     m = SRC / 'music' / 'technobyte' / 'x' / 'Deliverables'
     write_ogg(load(m / 'TechnoByte_1.wav'), OUT / 'music' / 'kart.ogg', 80, lufs=-20)
     write_ogg(load(m / 'TechnoByte_5.wav'), OUT / 'music' / 'kart-tense.ogg', 80, lufs=-19)
+
+
+def sport_music():
+    # "Beach Sports Theme (Loop)" (trex0n, CC0): ceria seperti acara olahraga, genre yang belum dipakai game lain.
+    # Versi tegang untuk frame terakhir: dipercepat sedikit lewat atempo.
+    m = SRC / 'music' / 'sport'
+    x = load(m / 'ogg_beachtheme_3.ogg')
+    write_ogg(x, OUT / 'music' / 'sport.ogg', 80, lufs=-20)
+    raw = OUT / 'music' / 'sport-loop.tmp.f32'
+    raw.write_bytes(x.astype('<f4').tobytes())
+    ff('-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', str(raw), '-af', 'atempo=1.12,loudnorm=I=-19:TP=-1.5:LRA=11',
+       '-ar', str(SR), '-c:a', 'libvorbis', '-b:a', '80k', str(OUT / 'music' / 'sport-tense.ogg'))
+    raw.unlink()
+
+
+def sport_synth():
+    """SFX bowling yang disintesis sendiri: gelinding bola dan benturan pin kayu."""
+    rng = np.random.default_rng(11)
+    out = OUT / 'sfx'
+    # gelinding: dengung rendah + desis lantai kayu, memudar di ujung
+    n = int(SR * 3.6)
+    t = np.arange(n) / SR
+    noise = np.convolve(rng.standard_normal(n), np.ones(40) / 40, 'same') * 6
+    wobble = 0.8 + 0.2 * np.sin(2 * np.pi * 7 * t)
+    roll = (np.sin(2 * np.pi * 62 * t) * 0.6 + np.sin(2 * np.pi * 95 * t) * 0.3 + noise * 0.5) * wobble
+    fade = np.minimum(1, t / 0.15) * np.minimum(1, (t[-1] - t) / 0.6)
+    write_ogg(_st(roll * fade), out / 'sport-roll.ogg', 64, mono=True, lufs=-20)
+
+    def clack(buf, at, freq, gain):
+        """satu pin kena: dua nada kayu pendek + letupan noise"""
+        n = int(SR * 0.12)
+        t = np.arange(n) / SR
+        tone = np.sin(2 * np.pi * freq * t) + 0.6 * np.sin(2 * np.pi * freq * 2.76 * t) + rng.standard_normal(n) * 0.5
+        s = int(at * SR)
+        buf[s:s + n] += (tone * np.exp(-t / 0.02) * gain)[: len(buf) - s]
+
+    for name, hits, spread in (('sport-pins', 26, 0.55), ('sport-pins-few', 5, 0.3)):
+        buf = np.zeros(int(SR * 1.3))
+        for i in range(hits):
+            at = spread * (i / hits) ** 1.5 + rng.random() * 0.03
+            clack(buf, at, 480 + rng.random() * 900, 0.5 + rng.random() * 0.5)
+        write_ogg(_st(buf), out / f'{name}.ogg', 64, mono=True, lufs=-15)
+
+    def body(n, freq, decay, noise=0.5):
+        """dentum pendek: nada turun + noise"""
+        t = np.arange(n) / SR
+        tone = np.sin(2 * np.pi * (freq * t - freq * 2.2 * t ** 2))
+        return (tone + rng.standard_normal(n) * noise) * np.exp(-t / decay)
+
+    # bel ring: beberapa harmonik tak bulat yang berdering lama
+    n = int(SR * 1.6)
+    t = np.arange(n) / SR
+    bell = sum(a * np.sin(2 * np.pi * f * t) * np.exp(-t / d) for f, a, d in ((830, 1, 0.5), (1907, 0.6, 0.3), (2960, 0.35, 0.2), (4210, 0.2, 0.12)))
+    write_ogg(_st(bell), out / 'sport-bell.ogg', 64, mono=True, lufs=-15)
+    # ayunan: desis naik-turun
+    n = int(SR * 0.18)
+    noise = np.convolve(rng.standard_normal(n), np.ones(8) / 8, 'same')
+    write_ogg(_st(noise * np.sin(np.pi * np.arange(n) / n) ** 2), out / 'sport-swing.ogg', 64, mono=True, lufs=-20)
+    write_ogg(_st(body(int(SR * 0.22), 150, 0.05)), out / 'sport-hit.ogg', 64, mono=True, lufs=-14)
+    write_ogg(_st(body(int(SR * 0.4), 95, 0.11, 0.7)), out / 'sport-hit-big.ogg', 64, mono=True, lufs=-13)
+    write_ogg(_st(body(int(SR * 0.14), 320, 0.025, 0.9)), out / 'sport-block.ogg', 64, mono=True, lufs=-17)
+    # hindar: siul turun
+    n = int(SR * 0.22)
+    t = np.arange(n) / SR
+    write_ogg(_st(np.sin(2 * np.pi * (1100 * t - 1500 * t ** 2)) * _env(n, 0.01, 0.1)), out / 'sport-dodge.ogg', 64, mono=True, lufs=-20)
+    # KO: tiga dentum bel cepat
+    n = int(SR * 1.5)
+    t = np.arange(n) / SR
+    ding = sum(a * np.sin(2 * np.pi * f * t) * np.exp(-t / 0.3) for f, a in ((830, 1), (1907, 0.6)))
+    buf = np.zeros(n)
+    for at in (0.0, 0.22, 0.44):
+        s = int(at * SR)
+        buf[s:] += ding[: n - s]
+    write_ogg(_st(buf), out / 'sport-ko.ogg', 64, mono=True, lufs=-14)
+    # tali busur: nada bergetar pendek
+    n = int(SR * 0.3)
+    t = np.arange(n) / SR
+    write_ogg(_st(np.sin(2 * np.pi * (240 + 40 * np.sin(2 * np.pi * 34 * t)) * t) * np.exp(-t / 0.07)), out / 'sport-bowstring.ogg', 64, mono=True, lufs=-17)
+    write_ogg(_st(body(int(SR * 0.16), 210, 0.03, 0.8)), out / 'sport-thunk.ogg', 64, mono=True, lufs=-15)
+    write_ogg(_st(body(int(SR * 0.18), 180, 0.035, 0.6)), out / 'sport-kick.ogg', 64, mono=True, lufs=-15)
+    write_ogg(_st(body(int(SR * 0.12), 520, 0.02, 0.7)), out / 'sport-racket.ogg', 64, mono=True, lufs=-15)
+    write_ogg(_st(body(int(SR * 0.09), 1400, 0.012, 0.9)), out / 'sport-shuttle.ogg', 64, mono=True, lufs=-17)
 
 
 def _env(n, a=0.005, r=0.2):
@@ -426,6 +509,13 @@ SFX = {
     'kart-throw': 'interface/x/Audio/minimize_003.ogg',
     'kart-champion': 'jingles/x/OGG/jingles_NES/jingles_NES13.ogg',
     'kart-lose': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA08.ogg',
+    'sport-turn': 'interface/x/Audio/question_003.ogg',
+    'sport-throw': 'interface/x/Audio/drop_001.ogg',
+    'sport-strike': 'jingles/x/OGG/jingles_NES/jingles_NES06.ogg',
+    'sport-spare': 'jingles/x/OGG/jingles_NES/jingles_NES03.ogg',
+    'sport-gutter': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA03.ogg',
+    'sport-champion': 'jingles/x/OGG/jingles_NES/jingles_NES15.ogg',
+    'sport-lose': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA05.ogg',
 }
 
 LOUD = {'draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-reveal', 'draw-turn',
@@ -436,7 +526,8 @@ LOUD = {'draw-correct', 'draw-champion', 'draw-lose', 'draw-timeup', 'draw-revea
         'ludo-bomb', 'ludo-capture', 'ludo-six', 'ludo-home', 'ludo-champion', 'ludo-lose',
         'spy-stamp', 'spy-caught', 'spy-escape', 'spy-guess-right', 'spy-champion', 'spy-lose',
         'bom-boom', 'bom-out', 'bom-champion', 'bom-lose',
-        'kart-final', 'kart-finish', 'kart-blast', 'kart-champion', 'kart-lose'}
+        'kart-final', 'kart-finish', 'kart-blast', 'kart-champion', 'kart-lose',
+        'sport-strike', 'sport-spare', 'sport-gutter', 'sport-champion', 'sport-lose'}
 
 
 def sfx(prefix=''):
@@ -478,6 +569,10 @@ if __name__ == '__main__':
         kart_music()
         kart_synth()
         sfx('kart-')
+    elif sys.argv[1:] == ['sport']:
+        sport_music()
+        sport_synth()
+        sfx('sport-')
     else:
         music()
         draw_music()
@@ -489,6 +584,8 @@ if __name__ == '__main__':
         bom_music()
         kart_music()
         kart_synth()
+        sport_music()
+        sport_synth()
         sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))
     print(f'Selesai: {len(list(OUT.rglob("*.ogg")))} file, {total / 1024 / 1024:.2f} MB di {OUT}')

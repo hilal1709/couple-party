@@ -2,7 +2,7 @@ import { Howl, Howler } from 'howler'
 import { useEffect, useSyncExternalStore } from 'react'
 import { store } from '@/net/transport'
 
-export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense'
+export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense' | 'sport' | 'sport-tense'
 
 export type SfxName =
   | 'card-place-1'
@@ -174,6 +174,28 @@ export type SfxName =
   | 'kart-throw'
   | 'kart-champion'
   | 'kart-lose'
+  | 'sport-turn'
+  | 'sport-throw'
+  | 'sport-roll'
+  | 'sport-pins'
+  | 'sport-pins-few'
+  | 'sport-strike'
+  | 'sport-spare'
+  | 'sport-gutter'
+  | 'sport-champion'
+  | 'sport-lose'
+  | 'sport-bell'
+  | 'sport-swing'
+  | 'sport-hit'
+  | 'sport-hit-big'
+  | 'sport-block'
+  | 'sport-dodge'
+  | 'sport-ko'
+  | 'sport-bowstring'
+  | 'sport-thunk'
+  | 'sport-kick'
+  | 'sport-racket'
+  | 'sport-shuttle'
 
 export type AudioSettings = { music: number; sfx: number; muted: boolean }
 

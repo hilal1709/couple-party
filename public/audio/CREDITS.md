@@ -32,4 +32,10 @@ Tekstur tanah/jalan (asphalt_track, coast_sand_01, sparse_grass, snow_02, gravel
 
 Pembalap, kart, item, dan landmark (mercusuar, dermaga, perahu, pondok, payung, rak selancar, camar, pelampung) dimodel sendiri di Blender: `scripts/blender/kart_hd.py`, `kart.py`, `kart_world.py`.
 
+Musik Sport Kacau: **Beach Sports Theme (Loop)** oleh trex0n (CC0, OpenGameArt). Suara gelinding bola dan benturan pin disintesis sendiri di `scripts/audio/build.py`.
+
+Model pelacakan badan: **MediaPipe Pose Landmarker** (Google, Apache-2.0), berjalan di HP, video tidak dikirim ke mana pun.
+
+Karakter dan semua arena Sport Kacau dimodel sendiri di Blender: `scripts/blender/sport_chars.py`, `sport_world.py`.
+
 Pengolahan (potong, loop mulus, normalisasi loudness, OGG) dilakukan dengan `scripts/audio/build.py`.

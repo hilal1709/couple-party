@@ -34,6 +34,10 @@ import type { SnakesOptions } from './snakes/types'
 import { spy } from './spy'
 import type { SpyOptions } from './spy/types'
 import { summary as spySummary } from './spy/ui/copy'
+import { sport } from './sport'
+import type { SportOptions } from './sport/types'
+import { summary as sportSummary } from './sport/ui/copy'
+import { sprite as sportSprite } from './sport/ui/art'
 import { kart } from './kart'
 import type { KartOptions } from './kart/types'
 import { summary as kartSummary } from './kart/ui/copy'
@@ -176,6 +180,17 @@ export const GAMES: GameEntry[] = [
     Lobby: lazy(() => import('./kart/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: KartOptions) => kartSummary(o),
     nativeBots: true,
+  },
+  {
+    game: sport,
+    category: 'lainnya',
+    blurb: '6 cabang 3D: main pakai tombol atau gerakkan badan di depan kamera',
+    minPlayers: 2,
+    maxPlayers: 8,
+    art: sportSprite('tile-sport') ?? bomArt,
+    Lobby: lazy(() => import('./sport/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: SportOptions) => sportSummary(o),
+    playersFor: (o: SportOptions) => (o.sport === 'bowling' || o.sport === 'panahan' ? [2, 8] : [2, 2]),
   },
 ]
 
