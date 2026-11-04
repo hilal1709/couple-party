@@ -79,6 +79,18 @@ function LevelScreen({ s, seat, names, online, act, live, auto, back }: ScreenPr
 
   useKeyboard(round)
   const partner = 1 - seat
+  const bot = s.opts.bot
+  const partnerName = bot ? 'Bot' : names[partner] ?? '?'
+  const partnerOnline = bot || online[partner]
+  // gelembung ucapan bot: muncul tiap ada kalimat baru, hilang sendiri
+  const [bubble, setBubble] = useState<string | null>(null)
+  const said = hud?.say ?? null
+  useEffect(() => {
+    if (!said) return
+    setBubble(said)
+    const t = setTimeout(() => setBubble(null), 6500)
+    return () => clearTimeout(t)
+  }, [said])
 
   return (
     <div className="absolute inset-0">
@@ -109,8 +121,8 @@ function LevelScreen({ s, seat, names, online, act, live, auto, back }: ScreenPr
               🍭 {hud.candy}/{hud.candyOf}
             </div>
             <div className="ml-auto flex items-center gap-1.5 border-[3px] border-ink bg-paper px-2 py-0.5 text-sm font-bold">
-              <span className={cn('size-2.5 rounded-full border-2 border-ink', online[partner] && hud.partner ? 'bg-electric' : 'bg-rose')} />
-              {CHAR_NAME[partner]}: {names[partner] ?? '?'}
+              <span className={cn('size-2.5 rounded-full border-2 border-ink', partnerOnline && hud.partner ? 'bg-electric' : 'bg-rose')} />
+              {CHAR_NAME[partner]}: {partnerName}
             </div>
           </div>
           {hud.tip && (
@@ -120,7 +132,15 @@ function LevelScreen({ s, seat, names, online, act, live, auto, back }: ScreenPr
               </Tape>
             </div>
           )}
-          {!hud.partner && !auto && (
+          {bubble && (
+            <div className="pointer-events-none absolute inset-x-0 top-[6.5rem] flex justify-center px-24">
+              <div className="relative max-w-sm rounded-2xl border-[3px] border-ink bg-paper px-3 py-1.5 text-sm font-bold text-ink shadow-slab-sm">
+                <span className="mr-1 font-display text-xs text-fern uppercase">{CHAR_NAME[partner]}:</span>
+                {bubble}
+              </div>
+            </div>
+          )}
+          {!hud.partner && !auto && !bot && (
             <p className="pointer-events-none absolute inset-x-0 top-24 text-center text-sm font-bold text-paper drop-shadow">Menunggu {names[partner] ?? 'pasangan'} tersambung…</p>
           )}
           {hud.waiting && <p className="pointer-events-none absolute inset-x-0 top-24 text-center font-display text-lg text-paper uppercase drop-shadow">Tunggu {CHAR_NAME[partner]} di gerbang!</p>}

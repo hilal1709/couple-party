@@ -7,7 +7,7 @@ import type { TaliOptions } from '../types'
 import { savedStars } from './copy'
 
 export function Lobby({ players, cta, initial, onSubmit }: LobbyProps<TaliOptions>) {
-  const [opts, setOpts] = useState<TaliOptions>(() => ({ ...defaultOptions(), ...initial }))
+  const [opts, setOpts] = useState<TaliOptions>(() => ({ ...defaultOptions(), ...initial, ...(players !== undefined ? { bot: players < 2 } : {}) }))
   const stars = savedStars()
   const set = (p: Partial<TaliOptions>) => setOpts({ ...opts, ...p })
   return (
@@ -16,12 +16,24 @@ export function Lobby({ players, cta, initial, onSubmit }: LobbyProps<TaliOption
         <h2 className="font-display text-2xl leading-none">
           <Tape tone="electric">Tali Jodoh</Tape> {players !== undefined && <span className="text-base">· {players} pemain</span>}
         </h2>
-        <Slab tone="rose" size="lg" className="ml-auto" disabled={players !== undefined && players !== 2} onClick={() => onSubmit(opts)}>
+        <Slab tone="rose" size="lg" className="ml-auto" disabled={players !== undefined && players > 2} onClick={() => onSubmit(opts)}>
           {cta}
         </Slab>
       </div>
       <p className="text-sm text-ink/80">Onde dan Klepon terikat satu tali. Lompat, gelantungan, tarik pasanganmu, dan jangan saling tinggal. Harus berdua!</p>
-      {players !== undefined && players !== 2 && <p className="text-sm font-bold text-rose">Game ini pas untuk tepat 2 pemain.</p>}
+      {players !== undefined && players > 2 && <p className="text-sm font-bold text-rose">Game ini untuk 2 pemain, atau main sendiri bareng bot.</p>}
+      <div className="flex items-center gap-2">
+        <span className="font-display text-sm uppercase">Pasangan</span>
+        <div className="flex gap-1.5" role="radiogroup" aria-label="Pasangan">
+          <Slab tone={!opts.bot ? 'electric' : 'paper'} active={!opts.bot} size="sm" role="radio" aria-checked={!opts.bot} disabled={players === 1} onClick={() => set({ bot: false })}>
+            Berdua (2 HP)
+          </Slab>
+          <Slab tone={opts.bot ? 'electric' : 'paper'} active={opts.bot} size="sm" role="radio" aria-checked={opts.bot} disabled={players === 2} onClick={() => set({ bot: true })}>
+            Sendiri + bot Klepon
+          </Slab>
+        </div>
+      </div>
+      {opts.bot && <p className="text-xs text-ink/70">Kamu jadi Onde. Klepon dijalankan bot: dia menunggumu, ikut melompat, dan bilang apa yang perlu kamu lakukan.</p>}
       <div>
         <span className="font-display text-sm uppercase">Mulai dari level</span>
         <ul className="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="Level">

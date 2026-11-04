@@ -456,12 +456,12 @@ function PetakDemo() {
 
 /**
  * Tali Jodoh lokal: ?demo=tali &level=0..7 &seat=0|1 &duo=1 (dua tab berbagi state lewat BroadcastChannel)
- * &auto=1 (kedua karakter memainkan rute otomatis di satu tab) &phase=clear|end &q=low|med|high.
+ * &auto=1 (kedua karakter memainkan rute otomatis di satu tab) &bot=1 (main sendiri, Klepon bot) &phase=clear|end &q=low|med|high.
  */
 function TaliDemo() {
   const q = new URLSearchParams(location.search)
   const [s, setS] = useState<TaliState>(() => {
-    let st = taliEngine.init(1, { start: Number(q.get('level') ?? 0), run: q.get('run') !== '0' })
+    let st = taliEngine.init(1, { start: Number(q.get('level') ?? 0), run: q.get('run') !== '0', bot: q.get('bot') === '1' })
     // &phase=clear|end: langsung ke layar hasil
     if (q.get('phase')) {
       st = { ...st, candy: st.candy.map((_, i) => i % 3 !== 2) }

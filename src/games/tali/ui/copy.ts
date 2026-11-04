@@ -4,7 +4,7 @@ import type { TaliOptions } from '../types'
 export const CHAR_NAME = ['Onde', 'Klepon'] as const
 
 export function summary(o: TaliOptions) {
-  return `Mulai ${LEVELS[o.start]?.title ?? 'Sawah'} · ${o.run ? 'lanjut terus' : 'satu level'}`
+  return `Mulai ${LEVELS[o.start]?.title ?? 'Sawah'} · ${o.run ? 'lanjut terus' : 'satu level'}${o.bot ? ' · bareng bot' : ''}`
 }
 
 export const clock = (secs: number) => `${Math.floor(secs / 60)}:${String(Math.floor(secs) % 60).padStart(2, '0')}`

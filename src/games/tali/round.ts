@@ -16,6 +16,7 @@ import { Client, poseOf, type ClientEvent, type Pose } from './sim/client'
 import { Duo } from './sim/duo'
 import { ROUTES } from './sim/routes'
 import { NO_INPUT, type Hold, type Input } from './sim/physics'
+import { Runner } from './sim/runner'
 import type { TaliAction, TaliState } from './types'
 
 const DT = 1 / 60
@@ -40,6 +41,8 @@ export type Hud = {
   reel: boolean
   fallen: boolean
   fps: number
+  /** ucapan bot pasangan terbaru */
+  say: string | null
 }
 
 type Packet = { k: 'p'; lv: number; at: number; p: number[] }
@@ -74,6 +77,8 @@ export class Round {
   private stage: Stage | null = null
   private client: Client
   private duo: Duo | null = null
+  /** mode main sendiri: Klepon dijalankan di HP ini */
+  private bot: { client: Client; runner: Runner } | null = null
   private auto: Generator<void, boolean> | null = null
   private state: TaliState
   private input: Input = { ...NO_INPUT }
@@ -109,6 +114,11 @@ export class Round {
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, this.tier.ratio))
     const def = LEVELS[o.state.level]
     this.client = new Client(def, o.seat, o.state, (a) => this.o.act(a), (e) => this.onEvent(e, true))
+    if (o.state.opts.bot && !o.auto) {
+      const botSeat = o.seat === 0 ? 1 : 0
+      const client = new Client(def, botSeat, o.state, (a) => this.o.act({ ...a, as: botSeat }))
+      this.bot = { client, runner: new Runner(botSeat as 0 | 1, ROUTES[def.id] ?? [], true) }
+    }
     if (o.auto) {
       this.duo = new Duo(o.state, 6)
       this.auto = this.duo.play(ROUTES[def.id] ?? [])
@@ -166,6 +176,7 @@ export class Round {
   setState(s: TaliState) {
     this.state = s
     this.client.setState(s)
+    this.bot?.client.setState(s)
   }
 
   setInput(p: Partial<Input>) {
@@ -252,12 +263,17 @@ export class Round {
         this.o.auto?.(this.duo.state)
         continue
       }
+      if (this.bot) {
+        other = this.stepBot()
+        continue
+      }
       other = this.partner(wall)
       this.client.step(this.input, this.shared(), DT, other && !other.gone ? other.p : null)
     }
-    if (!this.duo) other = this.partner(wall)
+    if (this.bot) other = { p: poseOf(this.bot.client.body, this.bot.client.reeling), gone: this.bot.client.fallen >= 0 }
+    else if (!this.duo) other = this.partner(wall)
     this.sendAcc += frame
-    if (this.sendAcc >= SEND_EVERY && this.o.live && !this.duo) {
+    if (this.sendAcc >= SEND_EVERY && this.o.live && !this.duo && !this.bot) {
       this.sendAcc = 0
       const pkt: Packet = { k: 'p', lv: this.state.levelId, at: Date.now(), p: pack(poseOf(this.client.body, this.client.reeling), this.client.fallen >= 0) }
       this.o.live.send(pkt)
@@ -267,8 +283,24 @@ export class Round {
       this.fps = this.frames / this.hudAcc
       this.frames = 0
       this.hudAcc = 0
-      this.emitHud(!!other || !!this.duo)
+      this.emitHud(!!other || !!this.duo || !!this.bot)
     }
+  }
+
+  /** satu langkah mode bot: badan sendiri dan Klepon bot saling melihat tanpa jeda jaringan */
+  private stepBot(): { p: Pose; gone: boolean } {
+    const b = this.bot!
+    const me = this.client
+    const t = this.shared()
+    const mine = me.fallen >= 0 ? null : poseOf(me.body, me.reeling)
+    const input = b.runner.step(
+      { me: b.client.body, other: me.body, rt: b.client.rt, rope: b.client.rope, levers: this.state.levers, spawnId: this.state.spawnId, checkpoint: this.state.checkpoint },
+      DT,
+    )
+    b.client.step(input, t, DT, mine)
+    const theirs = { p: poseOf(b.client.body, b.client.reeling), gone: b.client.fallen >= 0 }
+    me.step(this.input, t, DT, theirs.gone ? null : theirs.p)
+    return theirs
   }
 
   private render(dt: number, other: { p: Pose; gone: boolean } | null) {
@@ -331,6 +363,7 @@ export class Round {
       reel: cl.reeling,
       fallen: cl.fallen >= 0,
       fps: Math.round(this.fps),
+      say: this.bot?.runner.say ?? null,
     })
   }
 

@@ -4,9 +4,13 @@ import { reduce } from '../engine'
 import { LEVELS } from '../levels'
 import type { TaliAction, TaliState } from '../types'
 import { Client, poseOf, type Pose } from './client'
-import { NO_INPUT, type Input } from './physics'
+import type { LevelRuntime } from './level'
+import { NO_INPUT, type Body, type Input } from './physics'
 
 export type Who = 0 | 1
+
+/** yang dibutuhkan syarat `until`: badan kedua pemain dan keadaan level */
+export type DuoLike = { clients: { body: Body; rt: LevelRuntime }[] }
 
 export type Cmd =
   /** jalan ke x lalu berhenti */
@@ -20,7 +24,9 @@ export type Cmd =
   | { wait: number }
   /** jalankan bersamaan sampai semuanya selesai */
   | { par: Cmd[] }
-  | { until: (d: Duo) => boolean; max?: number }
+  | { until: (d: DuoLike) => boolean; max?: number }
+  /** ucapan bot di gelembung (diabaikan saat simulasi berdua) */
+  | { say: string }
 
 type Task = { cmd: Cmd; t: number; jumped?: boolean; dir?: number }
 
@@ -147,6 +153,7 @@ export class Duo {
   /** isi input satu langkah; true = tugas selesai */
   private drive(task: Task, ins: [Input, Input]): boolean {
     const c = task.cmd
+    if ('say' in c) return true
     if ('wait' in c) return task.t >= c.wait
     if ('until' in c) return c.until(this)
     if ('par' in c) throw new Error('par bersarang tidak didukung')

@@ -45,3 +45,18 @@ describe('Tali Jodoh: reducer', () => {
     expect(scoreLevel(0, 1000, 3, def.candy.length).stars).toBe(3)
   })
 })
+
+describe('Tali Jodoh: mode bot', () => {
+  it('sendirian di room menyalakan bot', () => {
+    expect(init(1, { players: 1 }).opts.bot).toBe(true)
+    expect(init(1, { players: 2 }).opts.bot).toBe(false)
+  })
+
+  it('host boleh beraksi atas nama bot, tamu tidak', () => {
+    let s = init(1, { players: 1 })
+    s = reduce(s, { type: 'goal', on: true, ms: 1, as: 1 }, 0)
+    expect(s.goal).toBe(0b10)
+    const off = init(1, { players: 2 })
+    expect(reduce(off, { type: 'goal', on: true, ms: 1, as: 1 }, 0).goal).toBe(0b01)
+  })
+})

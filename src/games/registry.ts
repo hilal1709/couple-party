@@ -214,12 +214,14 @@ export const GAMES: GameEntry[] = [
   {
     game: tali,
     category: 'lainnya',
-    blurb: 'Co-op berdua terikat tali: lompat, gelantungan, tarik pasangan di 8 level',
-    minPlayers: 2,
+    blurb: 'Co-op terikat tali: lompat, gelantungan, tarik pasangan di 8 level. Bisa main sendiri bareng bot',
+    minPlayers: 1,
     maxPlayers: 2,
     art: taliArt,
     Lobby: lazy(() => import('./tali/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: TaliOptions) => taliSummary(o),
+    playersFor: (o: TaliOptions) => (o.bot ? [1, 1] : [2, 2]),
+    nativeBots: true,
   },
 ]
 

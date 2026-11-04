@@ -9,6 +9,10 @@ export type TaliOptions = {
   start: number
   /** true = setelah level selesai lanjut ke level berikutnya; false = satu level saja */
   run: boolean
+  /** main sendiri: Klepon dijalankan bot di HP host */
+  bot: boolean
+  /** jumlah pemain di room (diisi saat game dimulai) */
+  players?: number
 }
 
 export type Phase = 'play' | 'clear' | 'end'
@@ -49,7 +53,10 @@ export type TaliState = {
   lastFall: { id: number; seat: Seat } | null
 }
 
-export type TaliAction =
+/** `as` = kursi bot; hanya berlaku dari host saat mode bot */
+export type TaliAction = TaliActionBody & { as?: Seat }
+
+type TaliActionBody =
   | { type: 'press'; i: number; on: boolean }
   | { type: 'lever'; i: number }
   | { type: 'checkpoint'; i: number }

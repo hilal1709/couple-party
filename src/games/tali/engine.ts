@@ -6,7 +6,7 @@ export const PLAYERS = 2
 const BOTH = 0b11
 
 export function defaultOptions(): TaliOptions {
-  return { start: 0, run: true }
+  return { start: 0, run: true, bot: false }
 }
 
 function freshLevel(s: Omit<TaliState, 'press' | 'levers' | 'candy'> & Partial<TaliState>, level: number): TaliState {
@@ -32,6 +32,8 @@ function freshLevel(s: Omit<TaliState, 'press' | 'levers' | 'candy'> & Partial<T
 export function init(_seed: number, options?: Partial<TaliOptions>): TaliState {
   const opts = { ...defaultOptions(), ...options }
   opts.start = Math.max(0, Math.min(LEVELS.length - 1, Math.floor(opts.start)))
+  // sendirian di room: Klepon jadi bot
+  if (options?.players !== undefined) opts.bot = options.players < 2
   return freshLevel(
     { opts, phase: 'play', level: opts.start, levelId: 0, checkpoint: -1, spawnId: 0, falls: 0, goal: 0, goalMs: [0, 0], ready: 0, results: LEVELS.map(() => null), lastFall: null },
     opts.start,
@@ -52,7 +54,9 @@ function better(a: LevelResult | null, b: LevelResult): LevelResult {
   return b.ms < a.ms ? b : a
 }
 
-export function reduce(s: TaliState, a: TaliAction, by: Seat): TaliState {
+export function reduce(s: TaliState, a: TaliAction, from: Seat): TaliState {
+  // host menjalankan bot dan mengirim aksinya atas nama kursi bot
+  const by = a.as !== undefined && s.opts.bot && from === 0 ? a.as : from
   if (by < 0 || by >= PLAYERS) return s
   const bit = 1 << by
   const def = LEVELS[s.level]
@@ -84,8 +88,8 @@ export function reduce(s: TaliState, a: TaliAction, by: Seat): TaliState {
     }
     case 'fall': {
       if (s.phase !== 'play') return s
-      // tombol dilepas semua: kedua badan dipindah ke checkpoint
-      return { ...s, falls: s.falls + 1, spawnId: s.spawnId + 1, press: s.press.map(() => 0), goal: 0, lastFall: { id: s.spawnId + 1, seat: by } }
+      // tombol dilepas dan tuas kembali semula (lift turun lagi): kedua badan dipindah ke checkpoint
+      return { ...s, falls: s.falls + 1, spawnId: s.spawnId + 1, press: s.press.map(() => 0), levers: s.levers.map(() => false), goal: 0, lastFall: { id: s.spawnId + 1, seat: by } }
     }
     case 'goal': {
       if (s.phase !== 'play') return s
@@ -102,7 +106,8 @@ export function reduce(s: TaliState, a: TaliAction, by: Seat): TaliState {
     case 'next': {
       if (s.phase === 'end') return s
       if (s.phase !== 'clear') return s
-      const ready = s.ready | bit
+      // bot selalu siap lanjut
+      const ready = s.ready | bit | (s.opts.bot ? BOTH : 0)
       if (ready !== BOTH) return { ...s, ready }
       const last = s.level >= LEVELS.length - 1
       if (!s.opts.run || last) return { ...s, ready, phase: 'end' }
