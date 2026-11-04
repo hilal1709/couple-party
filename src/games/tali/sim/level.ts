@@ -64,7 +64,10 @@ export class LevelRuntime {
   private t: number | null = null
   private groups: boolean[] = []
 
-  constructor(readonly def: LevelDef) {
+  readonly def: LevelDef
+
+  constructor(def: LevelDef) {
+    this.def = def
     this.live = def.solids.map((d) => ({ def: d, b: [...d.b] as Box, vx: 0, vy: 0, open: 0, crumble: -1, gone: -1, solid: true }))
   }
 
@@ -78,7 +81,7 @@ export class LevelRuntime {
     for (let i = 0; i < this.live.length; i++) {
       const s = this.live[i]
       const d = s.def
-      const [x0, y0, w, h] = d.b
+      const [x0, y0, , h] = d.b
       let ox = 0
       let oy = 0
       if (d.move || d.orbit) [ox, oy] = moveOffset(d, t)

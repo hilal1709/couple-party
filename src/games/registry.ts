@@ -8,6 +8,7 @@ import petakArt from '@/assets/petak/tile-petak.webp'
 import remiArt from '@/assets/remi/tile-remi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import spyArt from '@/assets/spy/tile-spy.webp'
+import taliArt from '@/assets/tali/tile-tali.webp'
 import unoArt from '@/assets/snakes/tile-uno.webp'
 import type { AnyGame, LobbyProps } from './types'
 import { bom } from './bom'
@@ -46,6 +47,9 @@ import { sprite as kartSprite } from './kart/ui/art'
 import { petak } from './petak'
 import type { PetakOptions } from './petak/types'
 import { summary as petakSummary } from './petak/ui/copy'
+import { tali } from './tali'
+import type { TaliOptions } from './tali/types'
+import { summary as taliSummary } from './tali/ui/copy'
 import { uno } from './uno'
 import type { UnoOptions } from './uno/types'
 import { VARIANT_INFO } from './uno/ui/copy'
@@ -206,6 +210,16 @@ export const GAMES: GameEntry[] = [
     Lobby: lazy(() => import('./petak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: PetakOptions) => petakSummary(o),
     nativeBots: true,
+  },
+  {
+    game: tali,
+    category: 'lainnya',
+    blurb: 'Co-op berdua terikat tali: lompat, gelantungan, tarik pasangan di 8 level',
+    minPlayers: 2,
+    maxPlayers: 2,
+    art: taliArt,
+    Lobby: lazy(() => import('./tali/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: TaliOptions) => taliSummary(o),
   },
 ]
 

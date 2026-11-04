@@ -46,13 +46,16 @@ export class Client {
   private holdHeld = false
   reeling = false
 
-  constructor(
-    readonly def: LevelDef,
-    readonly seat: Seat,
-    state: TaliState,
-    private emit: (a: TaliAction) => void,
-    private onEvent: (e: ClientEvent) => void = () => {},
-  ) {
+  readonly def: LevelDef
+  readonly seat: Seat
+  private emit: (a: TaliAction) => void
+  private onEvent: (e: ClientEvent) => void
+
+  constructor(def: LevelDef, seat: Seat, state: TaliState, emit: (a: TaliAction) => void, onEvent: (e: ClientEvent) => void = () => {}) {
+    this.def = def
+    this.seat = seat
+    this.emit = emit
+    this.onEvent = onEvent
     this.state = state
     this.spawnSeen = state.spawnId
     this.rt = new LevelRuntime(def)
@@ -172,5 +175,10 @@ export class Client {
 
   inGoal() {
     return this.atGoal
+  }
+
+  /** tombol yang sedang diinjak badan sendiri dan permen yang sudah diambil (sebelum host menjawab) */
+  get local() {
+    return { pressed: this.pressed, got: this.got }
   }
 }

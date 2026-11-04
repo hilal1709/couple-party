@@ -11,6 +11,7 @@ Jalankan:  python -I scripts/audio/build.py          (semua)
            python -I scripts/audio/build.py sport    (hanya musik & SFX Sport Kacau)
            python -I scripts/audio/build.py kart     (hanya musik & SFX Kart Kacau)
            python -I scripts/audio/build.py petak    (hanya musik & SFX Petak Cat)
+           python -I scripts/audio/build.py tali     (hanya musik & SFX Tali Jodoh, disintesis tanpa sumber)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
 import subprocess
@@ -396,6 +397,115 @@ def petak_synth():
     write_ogg(_st((rumble + clack) * np.sin(np.pi * t / 8) ** 1.2 + horn), out / 'petak-kereta.ogg', 64, mono=True, lufs=-17)
 
 
+def tali_synth():
+    """SFX Tali Jodoh yang disintesis sendiri: lompat, mendarat, kait, permen, bendera, jatuh, tombol, tuas, finis, gulung."""
+    out = OUT / 'sfx'
+    rng = np.random.default_rng(31)
+
+    def t(n):
+        return np.arange(n) / SR
+
+    def tone(n, f0, f1=None, kind='sin'):
+        f = np.linspace(f0, f1 or f0, n)
+        ph = 2 * np.pi * np.cumsum(f) / SR
+        return np.sin(ph) if kind == 'sin' else np.sign(np.sin(ph)) * 0.3 + np.sin(ph) * 0.7
+
+    def bell(n, f, decay=0.6):
+        x = t(n)
+        return (np.sin(2 * np.pi * f * x) + 0.45 * np.sin(2 * np.pi * f * 2.76 * x) + 0.2 * np.sin(2 * np.pi * f * 5.4 * x)) * np.exp(-x / decay)
+
+    def noise(n, k=1):
+        x = rng.standard_normal(n)
+        if k > 1:
+            x = np.convolve(x, np.ones(k) / k, mode='same')
+        return x
+
+    def w(x, name, lufs=-18):
+        write_ogg(_st(x.astype(np.float32)), out / f'tali-{name}.ogg', 64, mono=True, lufs=lufs)
+
+    n = int(0.22 * SR)
+    w(tone(n, 260, 620) * _env(n, 0.004, 0.08) + noise(n, 30) * 0.15 * _env(n, 0.002, 0.03), 'jump')
+    n = int(0.16 * SR)
+    w(noise(n, 40) * _env(n, 0.002, 0.04) * 3 + tone(n, 110, 70) * 0.6 * _env(n, 0.002, 0.05), 'land', -20)
+    n = int(0.25 * SR)
+    w(bell(n, 820, 0.06) * 0.6 + noise(n, 6) * 0.2 * _env(n, 0.001, 0.02), 'hook')
+    n = int(0.2 * SR)
+    w(noise(n, 80) * 2.5 * _env(n, 0.01, 0.06) + tone(n, 150, 120) * 0.4 * _env(n, 0.005, 0.08), 'brace', -21)
+    n = int(0.45 * SR)
+    w(bell(n, 1318, 0.18) + bell(n, 1760, 0.14) * np.r_[np.zeros(int(0.07 * SR)), np.ones(n - int(0.07 * SR))], 'candy', -17)
+    n = int(0.9 * SR)
+    seq = np.zeros(n)
+    for i, f in enumerate([523, 659, 784, 1046]):
+        a = int(i * 0.11 * SR)
+        seq[a:] += bell(n - a, f, 0.25)[: n - a]
+    w(seq, 'checkpoint', -16)
+    n = int(0.6 * SR)
+    w(noise(n, 12) * _env(n, 0.005, 0.25) * 1.2 + tone(n, 520, 140) * 0.5 * _env(n, 0.005, 0.3), 'fall', -17)
+    n = int(0.12 * SR)
+    w(tone(n, 900, 600) * _env(n, 0.001, 0.025) + noise(n, 4) * 0.3 * _env(n, 0.001, 0.01), 'press', -19)
+    n = int(0.3 * SR)
+    w(noise(n, 20) * _env(n, 0.002, 0.05) * 2 + tone(n, 200, 90) * _env(n, 0.002, 0.12), 'lever', -18)
+    n = int(1.6 * SR)
+    seq = np.zeros(n)
+    for i, f in enumerate([523, 587, 659, 784, 880, 1046, 1318]):
+        a = int(i * 0.09 * SR)
+        seq[a:] += bell(n - a, f, 0.4 if i == 6 else 0.18)[: n - a] * (1.3 if i == 6 else 1)
+    w(seq, 'goal', -15)
+    n = int(0.12 * SR)
+    w(noise(n, 3) * _env(n, 0.002, 0.03) * 0.6 + tone(n, 1400, 1100) * 0.2 * _env(n, 0.001, 0.02), 'reel', -22)
+
+
+def tali_music():
+    """Lagu Tali Jodoh: loop riang bernada slendro (bonang + saron + kendang + bas), disintesis sendiri."""
+    bpm = 112
+    beat = 60 / bpm
+    bars = 16
+    n = int(bars * 4 * beat * SR)
+    mix = np.zeros(n)
+    # slendro kira-kira: 1 2 3 5 6 dari D
+    scale = [293.7, 330.0, 370.0, 440.0, 494.0, 587.3, 660.0, 740.0, 880.0]
+
+    def place(x, at):
+        a = int(at * SR)
+        e = min(n, a + len(x))
+        mix[a:e] += x[: e - a]
+
+    def bell(f, dur, decay, partials=((1, 1), (2.76, 0.4), (5.4, 0.15))):
+        m = int(dur * SR)
+        tt = np.arange(m) / SR
+        x = sum(a * np.sin(2 * np.pi * f * k * tt) for k, a in partials)
+        return x * np.exp(-tt / decay) * np.minimum(1, tt / 0.003)
+
+    melody = [4, 5, 6, 5, 4, 2, 3, 4, 5, 6, 8, 6, 5, 4, 3, 2, 3, 4, 5, 3, 2, 1, 2, 3, 4, 5, 4, 2, 1, 0, 1, 2]
+    for i in range(bars * 8):
+        deg = melody[i % len(melody)]
+        if i % 16 == 15:
+            continue
+        place(bell(scale[deg], 0.6, 0.22) * 0.28, i * beat / 2)
+        if i % 2 == 0:
+            place(bell(scale[deg] * 2, 0.3, 0.08, ((1, 1), (3.0, 0.2))) * 0.08, i * beat / 2 + beat / 4)
+    roots = [0, 0, 3, 3, 2, 2, 4, 1]
+    for b in range(bars):
+        f = scale[roots[b % len(roots)]] / 4
+        for k in range(4):
+            m = int(beat * 0.9 * SR)
+            tt = np.arange(m) / SR
+            place(np.sin(2 * np.pi * f * tt) * np.exp(-tt / 0.35) * 0.35, (b * 4 + k) * beat)
+        # gong besar tiap 4 birama
+        if b % 4 == 0:
+            place(bell(scale[0] / 4, 4.0, 1.6, ((1, 1), (1.5, 0.3), (2.0, 0.2))) * 0.35, b * 4 * beat)
+    rng = np.random.default_rng(5)
+    for i in range(bars * 8):
+        m = int(0.12 * SR)
+        tt = np.arange(m) / SR
+        if i % 4 in (0, 3):
+            place(np.sin(2 * np.pi * (140 - 60 * tt / 0.12) * tt) * np.exp(-tt / 0.05) * 0.4, i * beat / 2)
+        else:
+            place(rng.standard_normal(m) * np.exp(-tt / 0.02) * 0.06, i * beat / 2)
+    st = np.stack([mix, np.roll(mix, int(0.012 * SR)) * 0.92 + mix * 0.08], axis=1)
+    write_ogg(seamless_loop(st.astype(np.float32), 1.0), OUT / 'music' / 'tali.ogg', 80, lufs=-21)
+
+
 def _env(n, a=0.005, r=0.2):
     """Amplop attack/release sederhana untuk n sampel."""
     t = np.arange(n) / SR
@@ -696,6 +806,9 @@ if __name__ == '__main__':
         petak_music()
         petak_synth()
         sfx('petak-')
+    elif sys.argv[1:] == ['tali']:
+        tali_music()
+        tali_synth()
     else:
         music()
         draw_music()
@@ -711,6 +824,8 @@ if __name__ == '__main__':
         sport_synth()
         petak_music()
         petak_synth()
+        tali_music()
+        tali_synth()
         sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))
     print(f'Selesai: {len(list(OUT.rglob("*.ogg")))} file, {total / 1024 / 1024:.2f} MB di {OUT}')

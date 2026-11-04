@@ -1,4 +1,4 @@
-import { block, ground, ledge, plank } from './kit'
+import { block, ground, ledge } from './kit'
 import type { LevelDef } from './types'
 
 /** Level 3: atap kota. Lompat antar genteng, bergelantung di tali jemuran, lift menara air. */

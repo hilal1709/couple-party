@@ -35,11 +35,11 @@ export class Duo {
   private holdOn = [false, false]
   private reelOn = [false, false]
 
-  constructor(
-    state: TaliState,
-    /** jeda jaringan dalam langkah 1/60 detik */
-    readonly lag = 6,
-  ) {
+  /** jeda jaringan dalam langkah 1/60 detik */
+  readonly lag: number
+
+  constructor(state: TaliState, lag = 6) {
+    this.lag = lag
     this.state = state
     this.clients = [0, 1].map((seat) => new Client(LEVELS[state.level], seat, state, (a) => this.dispatch(a, seat)))
   }
@@ -84,14 +84,25 @@ export class Duo {
 
   /** jalankan skrip; mengembalikan true kalau level selesai */
   run(script: Cmd[], max = 600): boolean {
+    const it = this.play(script, max)
+    let r = it.next()
+    while (!r.done) r = it.next()
+    return r.value
+  }
+
+  /** skrip langkah demi langkah: satu `next()` = satu langkah 1/60 detik (untuk demo main otomatis) */
+  *play(script: Cmd[], max = 600): Generator<void, boolean> {
     for (const cmd of script) {
-      const ok = this.exec(cmd, max)
-      if (this.trace) this.log.push(`${this.t.toFixed(2)} selesai ${JSON.stringify(cmd, (k, v) => (typeof v === 'function' ? 'fn' : v))} → ${this.clients.map((c) => `(${c.body.x.toFixed(2)}, ${c.body.y.toFixed(2)} h${c.body.hold})`).join(' ')}`)
+      const ok = yield* this.exec(cmd, max)
+      if (this.trace) this.log.push(`${this.t.toFixed(2)} selesai ${JSON.stringify(cmd, (_k, v) => (typeof v === 'function' ? 'fn' : v))} → ${this.clients.map((c) => `(${c.body.x.toFixed(2)}, ${c.body.y.toFixed(2)} h${c.body.hold})`).join(' ')}`)
       if (!ok) return this.state.phase !== 'play'
       if (this.state.phase !== 'play') return true
     }
     // beri waktu reducer menerima laporan finis
-    for (let i = 0; i < 30 && this.state.phase === 'play'; i++) this.idle()
+    for (let i = 0; i < 30 && this.state.phase === 'play'; i++) {
+      this.idle()
+      yield
+    }
     return this.state.phase !== 'play'
   }
 
@@ -104,18 +115,18 @@ export class Duo {
   }
 
   /** satu perintah sampai selesai; false = waktu habis */
-  private exec(cmd: Cmd, max: number): boolean {
+  private *exec(cmd: Cmd, max: number): Generator<void, boolean> {
     const tasks: Task[] = 'par' in cmd ? cmd.par.map((c) => ({ cmd: c, t: 0 })) : [{ cmd, t: 0 }]
     const limit = 'until' in cmd && cmd.max ? cmd.max : max
     let spent = 0
     const spawn = this.state.spawnId
     while (tasks.length) {
       if (spent > limit) {
-        this.log.push(`waktu habis: ${JSON.stringify(cmd, (k, v) => (typeof v === 'function' ? 'fn' : v))}`)
+        this.log.push(`waktu habis: ${JSON.stringify(cmd, (_k, v) => (typeof v === 'function' ? 'fn' : v))}`)
         return false
       }
       if (this.state.spawnId !== spawn) {
-        this.log.push(`jatuh saat ${JSON.stringify(cmd, (k, v) => (typeof v === 'function' ? 'fn' : v))}`)
+        this.log.push(`jatuh saat ${JSON.stringify(cmd, (_k, v) => (typeof v === 'function' ? 'fn' : v))}`)
         return false
       }
       const ins: [Input, Input] = [this.input(0, 0, false), this.input(1, 0, false)]
@@ -127,6 +138,7 @@ export class Duo {
       }
       this.step(ins)
       spent += 1 / 60
+      yield
       if (this.state.phase !== 'play') return true
     }
     return true

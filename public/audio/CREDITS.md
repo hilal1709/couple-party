@@ -43,4 +43,6 @@ Karakter dan semua arena Sport Kacau dimodel sendiri di Blender: `scripts/blende
 
 Petak Cat: tekstur dinding, genteng, seng, bata, kayu, marmer, kain, dan lantai dari **Poly Haven** (CC0), langit dari Poly Haven; tanaman dari **Quaternius — Stylized Nature MegaKit** (CC0); model scan 3D perabot, patung, makanan, fasad gedung, dan kapal semua map dari **Poly Haven** (CC0), diunduh oleh `scripts/blender/petak_fetch.py`; mobil Kota Terbalik dari **KayKit City Builder Bits** (CC0); bunglon, makhluk, bangunan, wahana, kapal, dan perabot lain dimodel sendiri di Blender: `scripts/blender/petak*.py`. Lukisan Museum Seni dan pola permen dibuat prosedural di skrip yang sama.
 
+Tali Jodoh: musik bernada slendro dan semua SFX disintesis sendiri (`tali_music`, `tali_synth` di `scripts/audio/build.py`, tanpa sampel). Karakter Onde & Klepon, kit level, dan dekorasi dimodel sendiri di Blender (`scripts/blender/tali_*.py`); tekstur genteng, anyaman bambu, dan batik di-bake prosedural di Blender (`tali_textures.py`); tekstur tanah, batu, kayu, logam, dan langit dipakai ulang dari aset **Poly Haven** (CC0) milik Kart Kacau dan Sport Kacau.
+
 Pengolahan (potong, loop mulus, normalisasi loudness, OGG) dilakukan dengan `scripts/audio/build.py`.

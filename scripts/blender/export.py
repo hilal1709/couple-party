@@ -40,7 +40,7 @@ def main():
         im.save(dest, 'WEBP', quality=88, method=6)
         meta = {
             'prompt': f'Origin: hand-modeled in Blender 5.2.2 (no generative AI). Source script scripts/blender/{GAME}.py, asset "{name}"; '
-                      f'Eevee render with Freestyle ink lines, transparent background; exported by scripts/blender/export.py. '
+                      f'{"Cycles render, transparent background" if GAME == "tali" else "Eevee render with Freestyle ink lines, transparent background"}; exported by scripts/blender/export.py. '
                       f'Master PNG: brand/illustrations/{GAME}/{name}.png.\n',
             'createdAt': datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'),
         }
