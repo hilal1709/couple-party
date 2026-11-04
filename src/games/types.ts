@@ -61,9 +61,12 @@ export type GameDef<S, A, O = unknown> = {
   View: ComponentType<GameProps<S, A>>
   /** otak bot; kosong = game ini tidak memakai kursi bot */
   bot?: BotPolicy<S, A>
-  /** true = tombol emote di kiri bawah, bukan kiri tengah, kalau di sana ada kontrol game */
-  emoteLow?: boolean
+  /** letak tombol emote supaya tidak menutupi kontrol game; bawaan kiri tengah */
+  emoteSpot?: EmoteSpot
 }
+
+/** mid = kiri tengah, low = kiri bawah, top = kiri atas di sebelah tombol keluar, corner = pojok kiri atas */
+export type EmoteSpot = 'mid' | 'low' | 'top' | 'corner'
 
 /** Layar pengaturan game sebelum mulai (dipakai di Home sebelum room ada, dan di room saat ganti game). */
 export type LobbyProps<O> = {

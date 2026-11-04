@@ -43,6 +43,14 @@ export class Painter {
     this.bump(patch)
   }
 
+  /** warna pilihan sendiri (hex sRGB). Dipakai sebagai warna dasar cat, seperti badan putih bawaan. */
+  setColor(hex: string) {
+    const c = new THREE.Color(hex)
+    this.color.set(c.r, c.g, c.b)
+    this.pattern = null
+    this.bump({ swatch: hex, hasPattern: false, tool: 'kuas' })
+  }
+
   private brush() {
     const v = this.view
     this.surface.setBrush({

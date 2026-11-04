@@ -37,8 +37,15 @@ function ScoreChip({ seat, name, total, on, me }: { seat: number; name: string; 
   )
 }
 
-function ScoreTable({ m, names, seat }: { m: BowlingMatch; names: string[]; seat: number }) {
-  const { rolls, frames } = m
+/** skor sementara: lemparan yang pinnya sudah jatuh langsung dihitung, tanpa menunggu host menutup lemparan */
+function liveRolls(m: BowlingMatch, counted: number): BowlingMatch['rolls'] {
+  const r = m.roll
+  if (m.phase !== 'roll' || !r || r.id !== counted) return m.rolls
+  return m.rolls.map((p, i) => (i === r.by ? [...p.slice(0, m.frame), [...(p[m.frame] ?? []), r.knocked.length]] : p))
+}
+
+function ScoreTable({ m, names, seat, rolls = m.rolls }: { m: BowlingMatch; names: string[]; seat: number; rolls?: BowlingMatch['rolls'] }) {
+  const { frames } = m
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-center text-[12px]">
@@ -99,6 +106,8 @@ export function BowlingBoard({ state: s, seat, names, online, act, exit }: GameP
   const cfg = useSportSettings(act)
   const [call, setCall] = useState<RollCall | null>(null)
   const [scores, setScores] = useState(false)
+  /** id lemparan yang pinnya sudah selesai jatuh di layar ini */
+  const [counted, setCounted] = useState(0)
 
   const myTurn = m.phase === 'aim' && m.turn === seat
   const lastFrame = m.frame === m.frames - 1
@@ -142,11 +151,15 @@ export function BowlingBoard({ state: s, seat, names, online, act, exit }: GameP
     scene.current?.setPlayer(look, SHIRTS[look.shirt])
   }, [s.looks, m.turn])
 
+  // ganti baju terpisah: aksi `look` (dikirim tiap papan saat terbuka) tidak boleh mengembalikan posisi ke tengah
+  useEffect(() => {
+    if (ready) dressThrower()
+  }, [ready, dressThrower])
+
   // ikuti state: tiap giliran baru menyiapkan adegan, tiap lemparan baru diputar sekali
   useEffect(() => {
     const sc = scene.current
     if (!ready || !sc) return
-    dressThrower()
     if (m.phase === 'aim') {
       setCall(null)
       sc.setRack(m.standing)
@@ -157,7 +170,8 @@ export function BowlingBoard({ state: s, seat, names, online, act, exit }: GameP
       playRoll(sc, m.roll)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, m.phase, m.rollId, myTurn, dressThrower])
+  }, [ready, m.phase, m.rollId, myTurn])
+
 
   const playRoll = (sc: BowlingScene, r: BowlRoll) => {
     const hit = () => sfx(r.knocked.length >= 7 ? 'sport-pins' : 'sport-pins-few', { volume: 0.5 + r.knocked.length * 0.05 })
@@ -166,6 +180,7 @@ export function BowlingBoard({ state: s, seat, names, online, act, exit }: GameP
       onFirstHit: hit,
     })
     sfx('sport-throw', { delay: WINDUP_MS - 200 })
+    window.setTimeout(() => setCounted(r.id), WINDUP_MS + r.ms * 0.8)
     if (CALL_WORD[r.call]) {
       window.setTimeout(() => {
         setCall(r.call)
@@ -203,7 +218,8 @@ export function BowlingBoard({ state: s, seat, names, online, act, exit }: GameP
   }
 
   const frameLabel = useMemo(() => `Frame ${m.frame + 1}/${m.frames}`, [m.frame, m.frames])
-  const totals = m.rolls.map((p) => totalScore(p, m.frames))
+  const rolls = liveRolls(m, counted)
+  const totals = rolls.map((p) => totalScore(p, m.frames))
 
   return (
     <main className="fixed inset-0 overflow-hidden bg-[#0d0a18]">
@@ -244,7 +260,7 @@ export function BowlingBoard({ state: s, seat, names, online, act, exit }: GameP
       )}
 
       <Modal open={scores} onOpenChange={setScores} title="Papan skor" tone="electric" className="w-[min(680px,calc(100vw-32px))]">
-        <ScoreTable m={m} names={names} seat={seat} />
+        <ScoreTable m={m} names={names} seat={seat} rolls={rolls} />
       </Modal>
 
       <SportMenu cfg={cfg} stage={stage.current} exit={exit} />

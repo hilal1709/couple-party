@@ -145,11 +145,16 @@ export function ArcheryBoard({ state: s, seat, names, online, act, exit }: GameP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // ganti baju pemanah terpisah: aksi `look` tidak boleh mengembalikan bidikan ke tengah
+  useEffect(() => {
+    if (ready) scene.current?.setArcher(s.looks[m.turn])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, s.looks, m.turn])
+
   const taken = (m.scores[m.turn]?.[m.end] ?? []).length
   useEffect(() => {
     const sc = scene.current
     if (!ready || !sc) return
-    sc.setArcher(s.looks[m.turn])
     if (m.phase === 'aim') {
       setScore(null)
       if (taken === 0) sc.clearStuck()
@@ -166,7 +171,7 @@ export function ArcheryBoard({ state: s, seat, names, online, act, exit }: GameP
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, m.phase, m.shotId, myTurn, s.looks])
+  }, [ready, m.phase, m.shotId, myTurn])
 
   const host = seat === 0
   useEffect(() => {

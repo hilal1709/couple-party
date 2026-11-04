@@ -303,7 +303,7 @@ function Room({ me, room, onLeave }: { me: Peer; room: RoomInfo; onLeave: () => 
   const onlineBySeat = players.map((p) => p.bot || online.some((o) => o.id === p.id))
   const game = entryById(session?.gameId ?? null)?.game ?? null
   const picked = entryById(session?.pick?.gameId ?? null)
-  const emotes = session && seat !== -1 && <EmoteLayer channel={emote} seat={seat} names={players.map((p) => p.name)} low={game?.emoteLow} />
+  const emotes = session && seat !== -1 && <EmoteLayer channel={emote} seat={seat} names={players.map((p) => p.name)} spot={game?.emoteSpot} />
   const inGame = Boolean(session && seat !== -1 && game)
   const isHost = seat === 0
   const humans = players.filter((p) => !p.bot).length

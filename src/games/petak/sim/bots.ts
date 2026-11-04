@@ -6,6 +6,8 @@ import { canSee, type Walker } from './walk'
 /** jarak tangkap pemain dan bot; host memberi toleransi kecil untuk jeda jaringan */
 export const CATCH_RANGE = 4
 export const CATCH_TOLERANCE = 1.2
+/** beda tinggi terjauh pencari (di tanah) ke hider yang terbang/naik atap yang masih bisa ditangkap */
+export const CATCH_UP = 6.2
 /** bot pencari hanya melihat sejauh ini, dalam kerucut di depannya */
 const SIGHT = 15
 const FOV_COS = Math.cos((60 * Math.PI) / 180)

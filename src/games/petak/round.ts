@@ -10,8 +10,8 @@ import { decodePaint, projectPaint } from './render/paint'
 import { Painter } from './render/painter'
 import { POSES, type PoseId } from './render/poses'
 import { World } from './render/world'
-import { CATCH_RANGE, CATCH_TOLERANCE, hiderBot, newBrain, seekerBot, type Brain, type Sighting } from './sim/bots'
-import { canSee, HIDER_SPEED, rayHit, SEEKER_SPEED, spawnWalker, step, type Walker } from './sim/walk'
+import { CATCH_RANGE, CATCH_TOLERANCE, CATCH_UP, hiderBot, newBrain, seekerBot, type Brain, type Sighting } from './sim/bots'
+import { canSee, canSee3, HIDER_SPEED, rayHit, SEEKER_SPEED, spawnWalker, step, type Walker } from './sim/walk'
 import type { PetakAction, PetakState } from './types'
 
 /** jeda salah tangkap (detik) */
@@ -43,6 +43,10 @@ export type Hud = {
   /** aktor yang sedang dibuka di fase reveal */
   showing: number | null
   fps: number
+  /** hider sedang terbang */
+  flying: boolean
+  /** pencari memakai kamera mata (orang pertama) */
+  firstPerson: boolean
 }
 
 type Remote = { x: number; y: number; z: number; yaw: number; moving: boolean; pose: PoseId }
@@ -51,6 +55,36 @@ type Pose = [number, number, number, number, number, number, number]
 type Wire = { k: 'pose'; a: Pose[] } | { k: 'grab'; target: number; seeker: number }
 
 const r2 = (v: number) => Math.round(v * 100) / 100
+const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
+/** batas dongak kamera: orang pertama bisa melihat hampir lurus ke atas/bawah */
+const PITCH_FP: [number, number] = [-1.4, 1.4]
+const PITCH_TP: [number, number] = [-0.85, 1.25]
+const CATCH_COS = Math.cos((30 * Math.PI) / 180)
+
+/** label nama di atas kepala; ukurannya tetap di layar berapa pun jaraknya */
+function nameTag(text: string, bg: string, fg: string) {
+  const c = document.createElement('canvas')
+  c.width = 256
+  c.height = 64
+  const g = c.getContext('2d')!
+  g.font = 'bold 30px system-ui, sans-serif'
+  const w = Math.min(244, g.measureText(text).width + 28)
+  g.fillStyle = '#121212'
+  g.fillRect((256 - w) / 2 - 3, 5, w + 6, 54)
+  g.fillStyle = bg
+  g.fillRect((256 - w) / 2, 8, w, 48)
+  g.fillStyle = fg
+  g.textAlign = 'center'
+  g.textBaseline = 'middle'
+  g.fillText(text, 128, 33, 230)
+  const tex = new THREE.CanvasTexture(c)
+  tex.colorSpace = THREE.SRGBColorSpace
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, depthWrite: false, transparent: true, toneMapped: false, sizeAttenuation: false }))
+  sp.scale.set(0.24, 0.06, 1)
+  sp.renderOrder = 20
+  sp.visible = false
+  return sp
+}
 
 let blobTex: THREE.CanvasTexture | null = null
 
@@ -82,6 +116,8 @@ export type RoundOptions = {
   onHud: (h: Hud) => void
   onSound: (s: Sound, volume: number) => void
   onPainter: () => void
+  /** nama tiap aktor untuk label di atas kepala */
+  names?: string[]
 }
 
 /** satu ronde dari sudut satu HP: dunia, badan semua pemain, kendali, jaringan, dan bot (kalau HP ini host) */
@@ -114,6 +150,10 @@ export class Round {
   private lastT = 0
   private time = 0
   private input = { x: 0, y: 0 }
+  private rise = 0
+  private tags: THREE.Sprite[] = []
+  private firstPerson = true
+  private hidSelf = false
   private camYaw = Math.PI
   private camPitch = 0.28
   private orbitDist = 3
@@ -178,6 +218,13 @@ export class Round {
       this.remotes.set(i, { x, y: 0, z, yaw: w.yaw, moving: false, pose: 'tegak' })
     }
     if (!this.alive) return
+    const tagGroup = new THREE.Group()
+    s.actors.forEach((_, i) => {
+      const t = nameTag(this.o.names?.[i] ?? `Pemain ${i + 1}`, isSeeker(s, i) ? '#ff37a6' : '#fff4fa', '#121212')
+      this.tags.push(t)
+      tagGroup.add(t)
+    })
+    this.world.actors.add(tagGroup)
     if (this.world.shadows) this.life.group.traverse((o) => (o.castShadow = (o as THREE.Mesh).isMesh && !(o as THREE.Points).isPoints))
     if (this.me >= 0) {
       this.camYaw = this.walkers[this.me].yaw + Math.PI
@@ -247,6 +294,7 @@ export class Round {
     const a = this.posOf(seeker)
     const b = this.posOf(target)
     if (Math.hypot(a.x - b.x, a.z - b.z) > CATCH_RANGE + CATCH_TOLERANCE) return
+    if (Math.abs(a.y - b.y) > CATCH_UP + CATCH_TOLERANCE) return
     this.o.act({ type: 'catch', target, seeker, t: Math.floor(this.elapsed()), nyali: this.nyali })
   }
 
@@ -262,7 +310,10 @@ export class Round {
       this.o.onSound('catch', 1)
       const body = this.bodies[s.lastCatch.target]
       if (body) body.root.visible = false
-      if (s.lastCatch.target === this.me) this.setPainting(false)
+      if (s.lastCatch.target === this.me) {
+        this.setPainting(false)
+        this.setFly(false)
+      }
     }
   }
 
@@ -283,6 +334,8 @@ export class Round {
     this.phaseAt = performance.now()
     this.fired = false
     if (s.phase === 'hunt') {
+      // pencari keluar pos ronda dengan mata lurus ke depan
+      if (this.me >= 0 && isSeeker(s, this.me)) this.camPitch = 0.05
       this.setPainting(false)
       this.o.onSound('hunt', 1)
       this.publishPaint()
@@ -290,6 +343,7 @@ export class Round {
     }
     if (s.phase === 'reveal') {
       this.setPainting(false)
+      this.setFly(false)
       this.showing = 0
       this.o.onSound('reveal', 1)
       for (let i = 0; i < this.bodies.length; i++) this.bodies[i].root.visible = true
@@ -316,7 +370,30 @@ export class Round {
 
   look(dx: number, dy: number) {
     this.camYaw -= dx * 0.006
-    this.camPitch = Math.max(-0.2, Math.min(1.15, this.camPitch + dy * 0.005))
+    const [lo, hi] = this.usingFirstPerson() ? PITCH_FP : PITCH_TP
+    this.camPitch = clamp(this.camPitch + dy * 0.005, lo, hi)
+  }
+
+  /** hider: mulai/berhenti terbang. Berhenti = jatuh ke pijakan di bawahnya (atap, lemari, lantai). */
+  setFly(on: boolean) {
+    if (this.me < 0) return
+    const s = this.s
+    if (on && (isSeeker(s, this.me) || s.caught[this.me] !== null || (s.phase !== 'hide' && s.phase !== 'hunt'))) return
+    this.walkers[this.me].fly = on
+    if (!on) this.rise = 0
+  }
+
+  toggleFly() {
+    if (this.me >= 0) this.setFly(!this.walkers[this.me].fly)
+  }
+
+  /** naik (1) / turun (-1) saat terbang */
+  setRise(v: number) {
+    this.rise = clamp(v, -1, 1)
+  }
+
+  private usingFirstPerson() {
+    return this.me >= 0 && this.firstPerson && isSeeker(this.s, this.me) && this.s.phase === 'hunt'
   }
 
   /** mode cat: kamera mengorbit badan sendiri dengan dunia tetap terlihat */
@@ -344,6 +421,16 @@ export class Round {
 
   /** tombol Zoom: pindah ke jarak kamera berikutnya, berlaku untuk HP ini saja */
   cycleZoom() {
+    // pencari: mata → dekat → sedang → jauh → mata
+    if (this.me >= 0 && isSeeker(this.s, this.me)) {
+      if (this.firstPerson) {
+        this.firstPerson = false
+        this.zoomIdx = 0
+        this.camPitch = clamp(this.camPitch, ...PITCH_TP)
+      } else if (this.zoomIdx < ZOOMS.length - 1) this.zoomIdx++
+      else this.firstPerson = true
+      return
+    }
     this.zoomIdx = (this.zoomIdx + 1) % ZOOMS.length
   }
 
@@ -378,21 +465,36 @@ export class Round {
     else this.o.live?.send({ k: 'grab', target, seeker: this.me } satisfies Wire)
   }
 
-  /** hider terdekat di tengah pandangan, dalam jangkauan dan tidak terhalang */
+  /** tinggi mata di atas kaki */
+  private eyeH() {
+    return 1.05 * Math.max(this.scale, 0.85)
+  }
+
+  /** hider terdekat di tengah bidikan (arah kamera, termasuk ke atas), dalam jangkauan dan tidak terhalang */
   private aim(): number | null {
     const w = this.walkers[this.me]
-    const fx = -Math.sin(this.camYaw)
-    const fz = -Math.cos(this.camYaw)
+    const cam = this.world.camera
+    const dir = cam.getWorldDirection(new THREE.Vector3())
+    const ex = w.x
+    const ey = w.y + this.eyeH()
+    const ez = w.z
     let best: number | null = null
-    let bestD = CATCH_RANGE
+    let bestD = Infinity
     for (const i of freeHiders(this.s)) {
       const p = this.posOf(i)
-      const dx = p.x - w.x
-      const dz = p.z - w.z
-      const d = Math.hypot(dx, dz)
-      if (d > bestD || d < 0.01) continue
-      if ((dx * fx + dz * fz) / d < Math.cos((30 * Math.PI) / 180)) continue
-      if (!canSee(this.map.boxes, w.x, w.z, p.x, p.z, 0.6)) continue
+      const ty = p.y + 0.55 * this.scale
+      if (Math.hypot(p.x - w.x, p.z - w.z) > CATCH_RANGE || Math.abs(p.y - w.y) > CATCH_UP) continue
+      // dari kamera: yang ada di tanda bidik tengah layar
+      const vx = p.x - cam.position.x
+      const vy = ty - cam.position.y
+      const vz = p.z - cam.position.z
+      const vd = Math.hypot(vx, vy, vz)
+      if (vd < 0.01 || (vx * dir.x + vy * dir.y + vz * dir.z) / vd < CATCH_COS) continue
+      // dari mata pencari: target harus di depan dan tidak tertutup
+      if ((p.x - ex) * dir.x + (ty - ey) * dir.y + (p.z - ez) * dir.z < 0) continue
+      if (!canSee3(this.map.boxes, ex, ey, ez, p.x, ty, p.z)) continue
+      const d = Math.hypot(p.x - ex, ty - ey, p.z - ez)
+      if (d >= bestD) continue
       best = i
       bestD = d
     }
@@ -418,7 +520,10 @@ export class Round {
       mx = -sin * f + cos * r
       mz = -cos * f - sin * r
     }
-    step(w, mx, mz, seeker ? SEEKER_SPEED : HIDER_SPEED, dt, this.map)
+    if (locked && w.fly && s.phase !== 'hide' && s.phase !== 'hunt') w.fly = false
+    step(w, mx, mz, seeker ? SEEKER_SPEED : HIDER_SPEED, dt, this.map, locked ? 0 : this.rise)
+    // kamera mata: badan pencari menghadap ke arah pandangan, supaya pandangannya juga dihitung benar di HP lain
+    if (this.usingFirstPerson()) w.yaw = this.camYaw + Math.PI
     if (w.moving && this.poses[this.me] !== 'tegak') this.poses[this.me] = 'tegak'
   }
 
@@ -510,6 +615,18 @@ export class Round {
       else b.setPose(pose)
       b.update(dt)
     })
+    this.updateTags()
+  }
+
+  /** hider melihat label teman & pencari; pencari tidak melihat label siapa pun */
+  private updateTags() {
+    const s = this.s
+    const show = this.me >= 0 && !isSeeker(s, this.me) && (s.phase === 'hide' || s.phase === 'hunt') && !this.painting
+    this.tags.forEach((t, i) => {
+      const b = this.bodies[i]
+      t.visible = show && i !== this.me && !!b && b.root.visible && (isSeeker(s, i) || s.caught[i] === null)
+      if (t.visible) t.position.set(b.root.position.x, b.root.position.y + 1.3 * this.scale + 0.3, b.root.position.z)
+    })
   }
 
   private camera(dt: number) {
@@ -526,6 +643,20 @@ export class Round {
       const d = Math.max(1.1, 2.8 * hit - 0.2)
       cam.position.set(p.x + Math.sin(yaw) * d, p.y + 1.25, p.z + Math.cos(yaw) * d)
       cam.lookAt(p.x, p.y + 0.6, p.z)
+      return
+    }
+    const fp = this.usingFirstPerson()
+    if (this.hidSelf !== fp && this.me >= 0) {
+      this.hidSelf = fp
+      this.bodies[this.me].root.visible = !fp
+    }
+    if (fp) {
+      const w = this.walkers[this.me]
+      const eye = w.y + this.eyeH()
+      const cp = Math.cos(this.camPitch)
+      cam.position.set(w.x, eye, w.z)
+      cam.lookAt(w.x - Math.sin(this.camYaw) * cp, eye - Math.sin(this.camPitch), w.z - Math.cos(this.camYaw) * cp)
+      this.world.follow(w.x, w.z)
       return
     }
     // tertangkap: ikut melihat pencari pertama
@@ -654,6 +785,8 @@ export class Round {
       penalty: this.penalty,
       showing: s.phase === 'reveal' ? this.showing : null,
       fps: this.fps,
+      flying: this.me >= 0 && !!this.walkers[this.me]?.fly,
+      firstPerson: this.usingFirstPerson(),
     })
   }
 
@@ -674,6 +807,10 @@ export class Round {
     this.sync?.dispose()
     this.painter?.dispose()
     for (const b of this.bodies) b.dispose()
+    for (const t of this.tags) {
+      t.material.map?.dispose()
+      t.material.dispose()
+    }
     for (const rt of this.paintOwned) rt.dispose()
     this.white.dispose()
     this.rose.dispose()

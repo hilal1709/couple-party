@@ -5,19 +5,22 @@ import fxKo from '@/assets/lottie/sport-ko.json'
 import { Tape } from '@/components/memphis/Slab'
 import type { GameProps } from '../../types'
 import { savedQuality, Stage } from '../render/stage'
-import { BoxingScene, type Who } from '../sports/boxing/scene'
-import { BREAK_MS, CAMERA_GRACE_MS, defend, EXPIRE_MS, IMPACT_MS, INTRO_MS, MAX_HP, ROUND_MS } from '../sports/boxing/engine'
+import { BoxingScene, PUNCH_RANGE, type Who } from '../sports/boxing/scene'
+import { BREAK_MS, CAMERA_GRACE_MS, damage, defend, EXPIRE_MS, IMPACT_MS, INTRO_MS, MAX_HP, ROUND_MS } from '../sports/boxing/engine'
 import type { BoxHand, BoxingMatch, BoxResult, SportAction, SportState, Stance } from '../types'
 import { BoxButtons } from './BoxButtons'
 import { BoxCamera } from './BoxCamera'
 import { savedLook } from './lookStore'
 import { EndCard, SportMenu, StageCover } from './shared'
+import { MoveStick } from './MoveStick'
 import { useSportSettings } from './useSportSettings'
 
 /** jeda antar pukulan sendiri */
 const PUNCH_GAP_MS = 480
-/** pukulan sendiri terlihat lebih cepat daripada telegraf lawan */
-const MY_REACH_MS = 170
+/** tangan sendiri terentang mendekati saat HP lawan menilai pukulan, supaya reaksi & darah tidak terasa telat */
+const MY_REACH_MS = Math.round(IMPACT_MS * 0.8)
+/** kirim posisi kaki ke HP lawan sesering ini */
+const POS_EVERY_MS = 90
 /** hindar lewat tombol: lama badan tetap miring, lalu jeda sebelum bisa lagi */
 const DODGE_HOLD_MS = 620
 const DODGE_GAP_MS = 900
@@ -39,7 +42,7 @@ function HpBar({ seat, name, hp, wins, side }: { seat: number; name: string; hp:
   )
 }
 
-export function BoxingBoard({ state: s, seat, names, online, act, exit }: GameProps<SportState, SportAction>) {
+export function BoxingBoard({ state: s, seat, names, online, act, exit, live }: GameProps<SportState, SportAction>) {
   const m = s.m as BoxingMatch
   const me = seat
   const foe = 1 - seat
@@ -61,6 +64,10 @@ export function BoxingBoard({ state: s, seat, names, online, act, exit }: GamePr
   const seen = useRef(new Set<number>())
   const judged = useRef(new Set<ReturnType<typeof setTimeout>>())
   const lastResult = useRef(0)
+  /** hasil yang sudah diputar duluan di HP ini (pukulan yang kita nilai sendiri) */
+  const shown = useRef(new Set<number>())
+  /** darah yang sudah dikurangi di layar sebelum state dari host sampai */
+  const [pending, setPending] = useState<Record<number, number>>({})
   const lastPhase = useRef(0)
   const latest = useRef(m)
   useEffect(() => {
@@ -104,6 +111,50 @@ export function BoxingBoard({ state: s, seat, names, online, act, exit }: GamePr
   useEffect(() => {
     if (ready) scene.current?.setLooks(s.looks[me], s.looks[foe])
   }, [ready, s.looks, me, foe])
+
+  // langkah kaki: tombol = analog sendiri, kamera badan = diam di sudut
+  const manual = cfg.input === 'buttons'
+  useEffect(() => {
+    const sc = scene.current
+    if (!ready || !sc) return
+    sc.manual = manual
+    if (!manual) sc.steer(0, 0)
+  }, [ready, manual])
+  const steer = useCallback((x: number, y: number) => scene.current?.steer(x, y), [])
+
+  // posisi dikirim lewat saluran live (bukan state) supaya ringan; ring kursi 1 terbalik
+  useEffect(() => {
+    if (!ready || !live) return
+    const flip = seat === 1 ? -1 : 1
+    const off = live.on((d, from) => {
+      const p = d as { k?: string; x?: number; z?: number }
+      if (from !== foe || p?.k !== 'box' || typeof p.x !== 'number' || typeof p.z !== 'number') return
+      scene.current?.setFoePos(p.x * flip, p.z * flip)
+    })
+    let lx = NaN
+    let lz = NaN
+    const t = setInterval(() => {
+      const sc = scene.current
+      if (!sc) return
+      const { x, z } = sc.mePos()
+      if (Math.abs(x - lx) < 0.02 && Math.abs(z - lz) < 0.02) return
+      lx = x
+      lz = z
+      live.send({ k: 'box', x: Math.round(x * flip * 100) / 100, z: Math.round(z * flip * 100) / 100 })
+    }, POS_EVERY_MS)
+    return () => {
+      off()
+      clearInterval(t)
+    }
+  }, [ready, live, seat, foe])
+
+  // darah sementara dibuang begitu state host sudah memuat hasilnya
+  useEffect(() => {
+    setPending((cur) => {
+      const keep = Object.entries(cur).filter(([id]) => m.attacks.some((a) => a.id === Number(id)))
+      return keep.length === Object.keys(cur).length ? cur : Object.fromEntries(keep)
+    })
+  }, [m.attacks])
 
   // tiap ganti fase: kamera, bel, dan hitung mundur ronde
   useEffect(() => {
@@ -170,7 +221,15 @@ export function BoxingBoard({ state: s, seat, names, online, act, exit }: GamePr
       sfx('sport-swing', { volume: 0.6 })
       const t = setTimeout(() => {
         setIncoming(null)
-        act({ type: 'resolve', id: a.id, outcome: defend(a.hand, stance.current) })
+        // terlalu jauh dari lawan: pukulannya cuma kena angin
+        const far = (scene.current?.gap() ?? 0) > PUNCH_RANGE
+        const outcome = far ? 'dodge' : defend(a.hand, stance.current)
+        act({ type: 'resolve', id: a.id, outcome })
+        // putar hasilnya sekarang juga; state dari host menyusul
+        const dmg = damage(a, outcome)
+        shown.current.add(a.id)
+        if (dmg) setPending((cur) => ({ ...cur, [a.id]: dmg }))
+        showResult({ id: a.id, by: a.by, hand: a.hand, outcome, dmg, counter: a.counter, ko: false })
       }, impact)
       judged.current.add(t)
     }
@@ -207,6 +266,7 @@ export function BoxingBoard({ state: s, seat, names, online, act, exit }: GamePr
   useEffect(() => {
     if (!ready || !m.last || m.last.id === lastResult.current) return
     lastResult.current = m.last.id
+    if (shown.current.delete(m.last.id)) return
     showResult(m.last)
   }, [ready, m.last, showResult])
 
@@ -254,6 +314,8 @@ export function BoxingBoard({ state: s, seat, names, online, act, exit }: GamePr
       lastPunch.current = now
       scene.current?.punch('me', hand, MY_REACH_MS)
       sfx('sport-swing', { volume: 0.8 })
+      // kejauhan: cuma mengayun angin, tidak jadi pukulan
+      if ((scene.current?.gap() ?? 0) > PUNCH_RANGE) return
       act({ type: 'punch', hand, power })
     },
     [act, me],
@@ -277,7 +339,7 @@ export function BoxingBoard({ state: s, seat, names, online, act, exit }: GamePr
       {hurt > 0 && <div key={hurt} aria-hidden className="pointer-events-none absolute inset-0 animate-out fade-out-0 bg-rose/40 duration-300 fill-mode-forwards" />}
 
       <header className="absolute inset-x-2 top-2 flex items-start gap-2">
-        <HpBar seat={me} name={names[me] ?? 'Kamu'} hp={m.hp[me]} wins={m.wins[me]} side="l" />
+        <HpBar seat={me} name={names[me] ?? 'Kamu'} hp={Math.max(0, m.hp[me] - Object.values(pending).reduce((a, b) => a + b, 0))} wins={m.wins[me]} side="l" />
         <div className="flex shrink-0 flex-col items-center">
           <span className="border-[3px] border-ink bg-paper px-2 font-display text-lg leading-tight">{fightOn ? left : '—'}</span>
           <span className="text-[11px] font-bold text-paper">
@@ -303,6 +365,7 @@ export function BoxingBoard({ state: s, seat, names, online, act, exit }: GamePr
         </p>
       )}
 
+      {ready && manual && fightOn && <MoveStick onMove={steer} />}
       {ready && cfg.input === 'buttons' && fightOn && <BoxButtons onStance={setStance} onPunch={punch} />}
       {ready && cfg.input === 'camera' && <BoxCamera active={m.phase === 'fight' || m.phase === 'intro'} onStance={setStance} onPunch={punch} onButtons={() => cfg.choose('buttons')} />}
 

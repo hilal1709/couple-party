@@ -16,6 +16,15 @@ import type { BoxHand, BoxOutcome, Look, Stance } from '../../types'
 const GAP = 0.82
 /** frame 9 dari klip jab pada 24 fps: saat tangan terentang penuh */
 const JAB_REACH = 9 / 24
+/** jangkauan pukulan: lebih jauh dari ini pukulan cuma kena angin */
+export const PUNCH_RANGE = 2
+/** setengah lebar kanvas yang bisa diinjak (di dalam tali) */
+const RING_HALF = 1.9
+/** jarak terdekat dua petinju */
+const MIN_GAP = 0.65
+const STEP_SPEED = 1.9
+/** titik awal tiap sudut, koordinat ring kursi 0 (kursi 1 melihat ring terbalik) */
+const HOME = { me: [-0.3, GAP], foe: [0.18, -GAP] } as const
 
 export type Who = 'me' | 'foe'
 
@@ -91,6 +100,10 @@ export class BoxingScene {
   private koAt = new THREE.Vector3()
   private camPos = new THREE.Vector3(3.2, 2.2, 3.6)
   private camLook = new THREE.Vector3(0, 0.9, 0)
+  private stick = { x: 0, y: 0 }
+  private foeTo = new THREE.Vector2(HOME.foe[0], HOME.foe[1])
+  /** true = pemain HP ini melangkah pakai analog */
+  manual = false
 
   constructor(stage: Stage) {
     this.stage = stage
@@ -155,8 +168,8 @@ export class BoxingScene {
     sc.updateProjectionMatrix()
 
     // sedikit serong supaya badan sendiri tidak menutupi lawan dari kamera belakang bahu
-    this.me = this.spawn(gltf, me, -0.3, GAP, Math.PI)
-    this.foe = this.spawn(gltf, foe, 0.18, -GAP, 0)
+    this.me = this.spawn(gltf, me, HOME.me[0], HOME.me[1], Math.PI)
+    this.foe = this.spawn(gltf, foe, HOME.foe[0], HOME.foe[1], 0)
 
     const tex = sparkTexture()
     for (let i = 0; i < 6; i++) {
@@ -187,11 +200,36 @@ export class BoxingScene {
     return who === 'me' ? this.me : this.foe
   }
 
+  /** analog: x = kanan layar, y = maju ke arah lawan; masing-masing -1..1 */
+  steer(x: number, y: number) {
+    this.stick.x = x
+    this.stick.y = y
+  }
+
+  /** posisi lawan terbaru dari jaringan, koordinat dunia layar ini */
+  setFoePos(x: number, z: number) {
+    this.foeTo.set(x, z)
+  }
+
+  mePos() {
+    const p = this.me.c.root.position
+    return { x: p.x, z: p.z }
+  }
+
+  /** jarak dua petinju; dipakai menilai pukulan kena atau tidak */
+  gap() {
+    const a = this.me.c.root.position
+    return Math.hypot(a.x - this.foeTo.x, a.z - this.foeTo.y)
+  }
+
   /** Ronde baru: kamera memutar dari samping ring. */
   intro() {
     this.view = 'intro'
     this.clock = 0
     this.camPos.set(2.6, 2.5, 2.6)
+    this.me.c.root.position.set(HOME.me[0], 0, HOME.me[1])
+    this.foe.c.root.position.set(HOME.foe[0], 0, HOME.foe[1])
+    this.foeTo.set(HOME.foe[0], HOME.foe[1])
     for (const f of [this.me, this.foe]) {
       f.stance = 'none'
       f.busy = 0
@@ -240,6 +278,39 @@ export class BoxingScene {
       // lawan bot tidak mengirim sikap; hindarannya digambar dari hasil
       f.c.play(`dodge_${hand}`, { once: true, fade: 0.05, speed: 1.5 })
       f.busy = 0.4
+    }
+  }
+
+  /** langkah kaki: pemain sendiri lewat analog, lawan mengikuti posisi kiriman; keduanya saling berhadapan */
+  private footwork(dt: number) {
+    const a = this.me.c.root.position
+    const b = this.foe.c.root.position
+    if (this.view === 'fight') {
+      if (this.manual && this.me.busy < 1e5) {
+        const dx = b.x - a.x
+        const dz = b.z - a.z
+        const d = Math.hypot(dx, dz) || 1
+        // maju = ke arah lawan, kanan = tegak lurus di layar
+        const fx = dx / d
+        const fz = dz / d
+        const vx = fx * this.stick.y - fz * this.stick.x
+        const vz = fz * this.stick.y + fx * this.stick.x
+        let nx = Math.max(-RING_HALF, Math.min(RING_HALF, a.x + vx * STEP_SPEED * dt))
+        let nz = Math.max(-RING_HALF, Math.min(RING_HALF, a.z + vz * STEP_SPEED * dt))
+        const g = Math.hypot(nx - b.x, nz - b.z)
+        if (g < MIN_GAP) {
+          nx = b.x + ((nx - b.x) / (g || 1)) * MIN_GAP
+          nz = b.z + ((nz - b.z) / (g || 1)) * MIN_GAP
+        }
+        a.x = nx
+        a.z = nz
+      }
+      b.x += (this.foeTo.x - b.x) * (1 - Math.exp(-dt * 10))
+      b.z += (this.foeTo.y - b.z) * (1 - Math.exp(-dt * 10))
+    }
+    if (this.view !== 'ko') {
+      this.me.c.root.rotation.y = Math.atan2(b.x - a.x, b.z - a.z)
+      this.foe.c.root.rotation.y = Math.atan2(a.x - b.x, a.z - b.z)
     }
   }
 
@@ -292,6 +363,7 @@ export class BoxingScene {
       this.haze = 0.35
       this.fx.emit('smoke', (Math.random() - 0.5) * 7, 3.6, (Math.random() - 0.5) * 7, 0.1, 0.05, 0, '#3a3548', 1.4)
     }
+    this.footwork(dt)
     for (const f of [this.me, this.foe]) {
       f.c.update(dt)
       if (f.busy > 0 && f.busy < 1e5) {
@@ -316,10 +388,22 @@ export class BoxingScene {
       this.camPos.lerp(new THREE.Vector3(this.koAt.x + 2.4, 0.9, this.koAt.z + 0.8), k)
       this.camLook.lerp(new THREE.Vector3(this.koAt.x, 0.4, this.koAt.z), k)
     } else {
-      // dari belakang bahu sendiri; kamera ikut sedikit saat menghindar
-      const lean = this.me.stance === 'dodgeL' ? -0.34 : this.me.stance === 'dodgeR' ? 0.34 : 0
-      this.camPos.lerp(new THREE.Vector3(0.5 + lean, 2.05, 3.5), 1 - Math.exp(-dt * 8))
-      this.camLook.lerp(new THREE.Vector3(0.1 + lean * 0.3, 0.72, -GAP), 1 - Math.exp(-dt * 8))
+      // dari belakang bahu sendiri, searah garis ke lawan; kamera ikut sedikit saat menghindar
+      const a = this.me.c.root.position
+      const b = this.foe.c.root.position
+      const dx = a.x - b.x
+      const dz = a.z - b.z
+      const d = Math.hypot(dx, dz) || 1
+      const bx = dx / d
+      const bz = dz / d
+      // kanan layar = tegak lurus garis pandang
+      const rx = -bz
+      const rz = bx
+      const dodge = this.me.stance === 'dodgeL' ? -0.34 : this.me.stance === 'dodgeR' ? 0.34 : 0
+      const side = 0.72 + dodge
+      const back = 3.5 - GAP
+      this.camPos.lerp(new THREE.Vector3(a.x + bx * back + rx * side, 2.1, a.z + bz * back + rz * side), 1 - Math.exp(-dt * 8))
+      this.camLook.lerp(new THREE.Vector3(b.x + rx * (0.1 + dodge * 0.3), 0.72, b.z + rz * (0.1 + dodge * 0.3)), 1 - Math.exp(-dt * 8))
     }
 
     this.shake = Math.max(0, this.shake - dt * 0.5)
