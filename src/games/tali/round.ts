@@ -43,6 +43,8 @@ export type Hud = {
   fps: number
   /** ucapan bot pasangan terbaru */
   say: string | null
+  /** sudah dekat gerbang finis: musik dipercepat */
+  finale: boolean
 }
 
 type Packet = { k: 'p'; lv: number; at: number; p: number[] }
@@ -364,6 +366,7 @@ export class Round {
       fallen: cl.fallen >= 0,
       fps: Math.round(this.fps),
       say: this.bot?.runner.say ?? null,
+      finale: x > cl.def.goal[0] - 25,
     })
   }
 

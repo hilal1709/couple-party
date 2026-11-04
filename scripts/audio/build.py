@@ -456,54 +456,16 @@ def tali_synth():
 
 
 def tali_music():
-    """Lagu Tali Jodoh: loop riang bernada slendro (bonang + saron + kendang + bas), disintesis sendiri."""
-    bpm = 112
-    beat = 60 / bpm
-    bars = 16
-    n = int(bars * 4 * beat * SR)
-    mix = np.zeros(n)
-    # slendro kira-kira: 1 2 3 5 6 dari D
-    scale = [293.7, 330.0, 370.0, 440.0, 494.0, 587.3, 660.0, 740.0, 880.0]
-
-    def place(x, at):
-        a = int(at * SR)
-        e = min(n, a + len(x))
-        mix[a:e] += x[: e - a]
-
-    def bell(f, dur, decay, partials=((1, 1), (2.76, 0.4), (5.4, 0.15))):
-        m = int(dur * SR)
-        tt = np.arange(m) / SR
-        x = sum(a * np.sin(2 * np.pi * f * k * tt) for k, a in partials)
-        return x * np.exp(-tt / decay) * np.minimum(1, tt / 0.003)
-
-    melody = [4, 5, 6, 5, 4, 2, 3, 4, 5, 6, 8, 6, 5, 4, 3, 2, 3, 4, 5, 3, 2, 1, 2, 3, 4, 5, 4, 2, 1, 0, 1, 2]
-    for i in range(bars * 8):
-        deg = melody[i % len(melody)]
-        if i % 16 == 15:
-            continue
-        place(bell(scale[deg], 0.6, 0.22) * 0.28, i * beat / 2)
-        if i % 2 == 0:
-            place(bell(scale[deg] * 2, 0.3, 0.08, ((1, 1), (3.0, 0.2))) * 0.08, i * beat / 2 + beat / 4)
-    roots = [0, 0, 3, 3, 2, 2, 4, 1]
-    for b in range(bars):
-        f = scale[roots[b % len(roots)]] / 4
-        for k in range(4):
-            m = int(beat * 0.9 * SR)
-            tt = np.arange(m) / SR
-            place(np.sin(2 * np.pi * f * tt) * np.exp(-tt / 0.35) * 0.35, (b * 4 + k) * beat)
-        # gong besar tiap 4 birama
-        if b % 4 == 0:
-            place(bell(scale[0] / 4, 4.0, 1.6, ((1, 1), (1.5, 0.3), (2.0, 0.2))) * 0.35, b * 4 * beat)
-    rng = np.random.default_rng(5)
-    for i in range(bars * 8):
-        m = int(0.12 * SR)
-        tt = np.arange(m) / SR
-        if i % 4 in (0, 3):
-            place(np.sin(2 * np.pi * (140 - 60 * tt / 0.12) * tt) * np.exp(-tt / 0.05) * 0.4, i * beat / 2)
-        else:
-            place(rng.standard_normal(m) * np.exp(-tt / 0.02) * 0.06, i * beat / 2)
-    st = np.stack([mix, np.roll(mix, int(0.012 * SR)) * 0.92 + mix * 0.08], axis=1)
-    write_ogg(seamless_loop(st.astype(np.float32), 1.0), OUT / 'music' / 'tali.ogg', 80, lufs=-21)
+    """Lagu Tali Jodoh: satu lagu berbeda per level (scripts/audio/tali_songs.py), sudah melingkar mulus."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from tali_songs import SONGS
+    old = OUT / 'music' / 'tali.ogg'
+    if old.exists():
+        old.unlink()
+    for name, make in SONGS.items():
+        x = make()
+        write_ogg(x, OUT / 'music' / f'tali-{name}.ogg', 72, lufs=-20)
+        print('lagu', name, f'{len(x) / SR:.1f} dtk', flush=True)
 
 
 def _env(n, a=0.005, r=0.2):

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useMusic } from '@/audio/audio'
+import { setMusicRate, useMusic } from '@/audio/audio'
 import { LoadingScreen } from '@/components/feedback/Loader'
 import { ConfirmModal } from '@/components/feedback/Modal'
 import { Slab, Tape } from '@/components/memphis/Slab'
@@ -17,7 +17,7 @@ type Props = GameProps<TaliState, TaliAction> & { auto?: (s: TaliState) => void 
 
 export function TaliBoard({ state: s, seat, names, online, act, exit, live, auto }: Props) {
   const [confirmExit, setConfirmExit] = useState(false)
-  useMusic('tali')
+  useMusic(`tali-${LEVELS[s.level].id}`)
   useEffect(() => {
     s.results.forEach((r, i) => r && saveStars(i, r.stars))
   }, [s.results])
@@ -78,6 +78,12 @@ function LevelScreen({ s, seat, names, online, act, live, auto, back }: ScreenPr
   }, [fallId])
 
   useKeyboard(round)
+  // menjelang gerbang finis lagunya dipercepat sedikit
+  const finale = !!hud?.finale && s.phase === 'play'
+  useEffect(() => {
+    setMusicRate(finale ? 1.08 : 1)
+    return () => setMusicRate(1)
+  }, [finale])
   const partner = 1 - seat
   const bot = s.opts.bot
   const partnerName = bot ? 'Bot' : names[partner] ?? '?'
