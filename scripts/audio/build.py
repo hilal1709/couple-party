@@ -11,6 +11,7 @@ Jalankan:  python -I scripts/audio/build.py          (semua)
            python -I scripts/audio/build.py sport    (hanya musik & SFX Sport Kacau)
            python -I scripts/audio/build.py kart     (hanya musik & SFX Kart Kacau)
            python -I scripts/audio/build.py petak    (hanya musik & SFX Petak Cat)
+           python -I scripts/audio/build.py tali     (hanya musik & SFX Tali Jodoh, disintesis tanpa sumber)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
 import subprocess
@@ -649,6 +650,77 @@ def puncak_music():
     write_ogg(seamless_loop(x, 1.5), OUT / 'music' / 'puncak.ogg', 80, lufs=-21)
 
 
+def tali_synth():
+    """SFX Tali Jodoh yang disintesis sendiri: lompat, mendarat, kait, permen, bendera, jatuh, tombol, tuas, finis, gulung."""
+    out = OUT / 'sfx'
+    rng = np.random.default_rng(31)
+
+    def t(n):
+        return np.arange(n) / SR
+
+    def tone(n, f0, f1=None, kind='sin'):
+        f = np.linspace(f0, f1 or f0, n)
+        ph = 2 * np.pi * np.cumsum(f) / SR
+        return np.sin(ph) if kind == 'sin' else np.sign(np.sin(ph)) * 0.3 + np.sin(ph) * 0.7
+
+    def bell(n, f, decay=0.6):
+        x = t(n)
+        return (np.sin(2 * np.pi * f * x) + 0.45 * np.sin(2 * np.pi * f * 2.76 * x) + 0.2 * np.sin(2 * np.pi * f * 5.4 * x)) * np.exp(-x / decay)
+
+    def noise(n, k=1):
+        x = rng.standard_normal(n)
+        if k > 1:
+            x = np.convolve(x, np.ones(k) / k, mode='same')
+        return x
+
+    def w(x, name, lufs=-18):
+        write_ogg(_st(x.astype(np.float32)), out / f'tali-{name}.ogg', 64, mono=True, lufs=lufs)
+
+    n = int(0.22 * SR)
+    w(tone(n, 260, 620) * _env(n, 0.004, 0.08) + noise(n, 30) * 0.15 * _env(n, 0.002, 0.03), 'jump')
+    n = int(0.16 * SR)
+    w(noise(n, 40) * _env(n, 0.002, 0.04) * 3 + tone(n, 110, 70) * 0.6 * _env(n, 0.002, 0.05), 'land', -20)
+    n = int(0.25 * SR)
+    w(bell(n, 820, 0.06) * 0.6 + noise(n, 6) * 0.2 * _env(n, 0.001, 0.02), 'hook')
+    n = int(0.2 * SR)
+    w(noise(n, 80) * 2.5 * _env(n, 0.01, 0.06) + tone(n, 150, 120) * 0.4 * _env(n, 0.005, 0.08), 'brace', -21)
+    n = int(0.45 * SR)
+    w(bell(n, 1318, 0.18) + bell(n, 1760, 0.14) * np.r_[np.zeros(int(0.07 * SR)), np.ones(n - int(0.07 * SR))], 'candy', -17)
+    n = int(0.9 * SR)
+    seq = np.zeros(n)
+    for i, f in enumerate([523, 659, 784, 1046]):
+        a = int(i * 0.11 * SR)
+        seq[a:] += bell(n - a, f, 0.25)[: n - a]
+    w(seq, 'checkpoint', -16)
+    n = int(0.6 * SR)
+    w(noise(n, 12) * _env(n, 0.005, 0.25) * 1.2 + tone(n, 520, 140) * 0.5 * _env(n, 0.005, 0.3), 'fall', -17)
+    n = int(0.12 * SR)
+    w(tone(n, 900, 600) * _env(n, 0.001, 0.025) + noise(n, 4) * 0.3 * _env(n, 0.001, 0.01), 'press', -19)
+    n = int(0.3 * SR)
+    w(noise(n, 20) * _env(n, 0.002, 0.05) * 2 + tone(n, 200, 90) * _env(n, 0.002, 0.12), 'lever', -18)
+    n = int(1.6 * SR)
+    seq = np.zeros(n)
+    for i, f in enumerate([523, 587, 659, 784, 880, 1046, 1318]):
+        a = int(i * 0.09 * SR)
+        seq[a:] += bell(n - a, f, 0.4 if i == 6 else 0.18)[: n - a] * (1.3 if i == 6 else 1)
+    w(seq, 'goal', -15)
+    n = int(0.12 * SR)
+    w(noise(n, 3) * _env(n, 0.002, 0.03) * 0.6 + tone(n, 1400, 1100) * 0.2 * _env(n, 0.001, 0.02), 'reel', -22)
+
+
+def tali_music():
+    """Lagu Tali Jodoh: satu lagu berbeda per level (scripts/audio/tali_songs.py), sudah melingkar mulus."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from tali_songs import SONGS
+    old = OUT / 'music' / 'tali.ogg'
+    if old.exists():
+        old.unlink()
+    for name, make in SONGS.items():
+        x = make()
+        write_ogg(x, OUT / 'music' / f'tali-{name}.ogg', 72, lufs=-20)
+        print('lagu', name, f'{len(x) / SR:.1f} dtk', flush=True)
+
+
 def _env(n, a=0.005, r=0.2):
     """Amplop attack/release sederhana untuk n sampel."""
     t = np.arange(n) / SR
@@ -949,6 +1021,9 @@ if __name__ == '__main__':
     elif sys.argv[1:] == ['kart']:
         kart_music()
         kart_synth()
+    elif sys.argv[1:] == ['tali']:
+        tali_music()
+        tali_synth()
         sfx('kart-')
     elif sys.argv[1:] == ['sport']:
         sport_music()
@@ -964,6 +1039,8 @@ if __name__ == '__main__':
         sfx('masak-')
     elif sys.argv[1:] == ['puncak']:
         puncak_synth()
+        tali_music()
+        tali_synth()
         puncak_music()
     else:
         music()

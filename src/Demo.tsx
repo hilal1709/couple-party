@@ -45,6 +45,9 @@ import type { LiveChannel } from './games/types'
 import * as petakEngine from './games/petak/engine'
 import type { PetakAction, PetakOptions, PetakState } from './games/petak/types'
 import { PetakBoard } from './games/petak/ui/PetakBoard'
+import * as taliEngine from './games/tali/engine'
+import type { TaliAction, TaliState } from './games/tali/types'
+import { TaliBoard } from './games/tali/ui/TaliBoard'
 import * as masakEngine from './games/masak/engine'
 import type { MasakAction, MasakOptions, MasakState } from './games/masak/types'
 import { MasakBoard } from './games/masak/ui/MasakBoard'
@@ -58,7 +61,8 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' | 'masak' | 'puncak' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' | 'masak' | 'puncak' | 'tali' }) {
+  if (variant === 'tali') return <TaliDemo />
   if (variant === 'puncak') return new URLSearchParams(location.search).get('tile') ? <PuncakTile /> : <PuncakDemo />
   if (variant === 'petak') return <PetakDemo />
   if (variant === 'masak') return <MasakDemo />
@@ -600,4 +604,55 @@ function PuncakTile() {
     })
   }, [])
   return <canvas ref={ref} className="size-full bg-[repeating-conic-gradient(#ddd_0_25%,#fff_0_50%)] bg-[length:20px_20px]" />
+}
+
+/**
+ * Tali Jodoh lokal: ?demo=tali &level=0..7 &seat=0|1 &duo=1 (dua tab berbagi state lewat BroadcastChannel)
+ * &auto=1 (kedua karakter memainkan rute otomatis di satu tab) &bot=1 (main sendiri, Klepon bot) &phase=clear|end &q=low|med|high.
+ */
+function TaliDemo() {
+  const q = new URLSearchParams(location.search)
+  const [s, setS] = useState<TaliState>(() => {
+    let st = taliEngine.init(1, { start: Number(q.get('level') ?? 0), run: q.get('run') !== '0', bot: q.get('bot') === '1' })
+    // &phase=clear|end: langsung ke layar hasil
+    if (q.get('phase')) {
+      st = { ...st, candy: st.candy.map((_, i) => i % 3 !== 2) }
+      st = taliEngine.reduce(taliEngine.reduce(st, { type: 'goal', on: true, ms: 98000 }, 0), { type: 'goal', on: true, ms: 101000 }, 1)
+      if (q.get('phase') === 'end') st = { ...st, phase: 'end' }
+    }
+    return st
+  })
+  const seat = Number(q.get('seat') ?? 0)
+  const autoplay = q.get('auto') === '1'
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const bus = useMemo(() => (q.get('duo') ? new BroadcastChannel('tali-duo') : null), [])
+  useEffect(() => {
+    if (!bus) return
+    const fn = (e: MessageEvent) => {
+      const m = e.data
+      if (m.state && seat !== 0) setS(m.state)
+      if (m.action && seat === 0) setS((cur) => taliEngine.reduce(cur, m.action, m.by))
+    }
+    bus.addEventListener('message', fn)
+    return () => bus.removeEventListener('message', fn)
+  }, [bus, seat])
+  useEffect(() => {
+    if (bus && seat === 0) bus.postMessage({ state: s })
+  }, [bus, s, seat])
+  const live = useMemo<LiveChannel | undefined>(() => {
+    if (!bus) return undefined
+    return {
+      send: (d) => bus.postMessage({ live: d, from: seat }),
+      on: (cb) => {
+        const fn = (e: MessageEvent) => e.data.live !== undefined && cb(e.data.live, e.data.from)
+        bus.addEventListener('message', fn)
+        return () => bus.removeEventListener('message', fn)
+      },
+    }
+  }, [bus, seat])
+  const act = (a: TaliAction) => {
+    if (bus && seat !== 0) bus.postMessage({ action: a, by: seat })
+    else setS((cur) => taliEngine.reduce(cur, a, seat))
+  }
+  return <TaliBoard state={s} seat={seat} names={NAMES.slice(0, 2)} online={[true, true]} act={act} exit={() => {}} live={live} auto={autoplay ? (st) => setS(st) : undefined} />
 }

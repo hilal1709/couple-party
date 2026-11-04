@@ -5,6 +5,7 @@ Kumpulan game untuk 2–8 pemain di Android (landscape) — main dari HP masing-
 ## Game
 - 🃏 **Warna Warni** — game kartu cocokkan warna/angka (aturan 2 pemain: Skip/Reverse/+2/+4 = main lagi).
 - 🐍 **Ular Tangga Tantangan** — papan 10x10 + kotak Truth/Dare (dinilai lawan), kotak efek, item/power-up, dan mini-kuis.
+- 🪢 **Tali Jodoh** — co-op berdua: Onde & Klepon terikat satu tali; lompat, gelantungan di kait, kuda-kuda & gulung tali buat menarik pasangan, 8 level 3D (Sawah sampai Pasar Malam). Bisa main sendiri: Klepon dijalankan bot yang menunggu, ikut melompat, dan memberi petunjuk.
 - 🏔️ **Puncak Berdua** — mendaki gunung co-op 3D (1–4 pendaki + bot): 8 gunung raksasa bertingkat, stamina & lelah, memanjat tebing, tali/tangga/kait, 24 item, saling tarik & bangunkan, api unggun sebagai checkpoint, cuaca & bahaya per gunung.
 - 🕺 Gerak! (kamera) — *segera*
 

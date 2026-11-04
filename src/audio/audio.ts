@@ -2,7 +2,7 @@ import { Howl, Howler } from 'howler'
 import { useEffect, useSyncExternalStore } from 'react'
 import { store } from '@/net/transport'
 
-export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense' | 'sport' | 'sport-tense' | 'petak' | 'petak-tense' | 'masak' | 'masak-tense' | 'puncak'
+export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense' | 'sport' | 'sport-tense' | 'petak' | 'petak-tense' | 'masak' | 'masak-tense' | 'puncak' | `tali-${'sawah' | 'apung' | 'atap' | 'pabrik' | 'gua' | 'candi' | 'bromo' | 'malam'}`
 
 export type SfxName =
   | 'card-place-1'
@@ -206,6 +206,17 @@ export type SfxName =
   | 'petak-reveal'
   | 'petak-cat'
   | 'petak-kereta'
+  | 'tali-jump'
+  | 'tali-land'
+  | 'tali-hook'
+  | 'tali-brace'
+  | 'tali-candy'
+  | 'tali-checkpoint'
+  | 'tali-fall'
+  | 'tali-press'
+  | 'tali-lever'
+  | 'tali-goal'
+  | 'tali-reel'
   | 'masak-served'
   | 'masak-order'
   | 'masak-wrong'
@@ -333,6 +344,12 @@ export function useAudioSettings(): AudioSettings {
 }
 
 /** Layar menyatakan musik latarnya (null = biarkan layar anak yang menentukan). */
+/** kecepatan putar musik yang sedang jalan (1 = normal); dipakai untuk menaikkan semangat menjelang finis */
+export function setMusicRate(rate: number) {
+  const h = current ? music.get(current) : undefined
+  if (h && Math.abs(h.rate() - rate) > 0.001) h.rate(rate)
+}
+
 export function useMusic(t: Track | null) {
   useEffect(() => {
     if (t) playMusic(t)

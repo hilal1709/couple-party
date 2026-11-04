@@ -49,6 +49,8 @@ Petak Cat: tekstur dinding, genteng, seng, bata, kayu, marmer, kain, dan lantai 
 
 Dapur Kacau: tekstur lantai, dinding, kayu, bata, logam, aspal, dan batu dari **Poly Haven** (CC0), langit dari Poly Haven; model scan 3D wajan, panci, talenan, peti kayu, tong sampah, alat pemadam, roti burger, rak, teko, tanaman pot, lentera, pelampung, dan tong anggur dari **Poly Haven** (CC0); dapur, makanan, hidangan, topi koki, dan tile menu dimodel sendiri di Blender: `scripts/blender/masak*.py`.
 
+Tali Jodoh: delapan lagu (satu per level: suling & angklung, marimba, piano elektrik jazz, mesin pabrik, gua pelog, gamelan candi, gendang Bromo, dangdut pasar malam) dan semua SFX disintesis sendiri (`scripts/audio/tali_songs.py`, `tali_synth` di `scripts/audio/build.py`, tanpa sampel). Karakter Onde & Klepon, kit level, dan dekorasi dimodel sendiri di Blender (`scripts/blender/tali_*.py`); tekstur genteng, anyaman bambu, dan batik di-bake prosedural di Blender (`tali_textures.py`); tekstur tanah, batu, kayu, logam, dan langit dipakai ulang dari aset **Poly Haven** (CC0) milik Kart Kacau dan Sport Kacau.
+
 Pengolahan (potong, loop mulus, normalisasi loudness, OGG) dilakukan dengan `scripts/audio/build.py`.
 
 Semua suara & musik Puncak Berdua (`music/puncak.ogg`, `sfx/puncak-*`) disintesis sendiri di `scripts/audio/build.py` (`puncak_synth`, `puncak_music`), bukan sampel.
