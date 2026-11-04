@@ -1,3 +1,4 @@
+import { Course } from './course'
 import { block, ground, hazard, plank } from './kit'
 import type { LevelDef } from './types'
 
@@ -6,7 +7,7 @@ export const gua: LevelDef = {
   id: 'gua',
   title: 'Gua Kelelawar',
   line: 'Gelap, licin, dan batunya rapuh',
-  par: 150,
+  par: 95,
   spawn: [2, 0],
   killY: -4,
   bounds: [-4, 80],
@@ -56,3 +57,6 @@ export const gua: LevelDef = {
   ],
   props: [],
 }
+
+/** bagian lanjutan (stage diperpanjang): geometri + rute buktinya */
+export const guaExtra = new Course(gua, 'batu', 'duri').crumble(4).checkpoint().hooks(3).wall(2.2).crumble(3).checkpoint().gap(2.7).finish().route

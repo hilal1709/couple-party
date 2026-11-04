@@ -9,14 +9,15 @@ export const RUN = 5.2
 export const JUMP = 9.6
 /** tinggi lompatan dari kait (lebih kecil, supaya tetap butuh pasangan untuk dinding tinggi) */
 export const HOOK_JUMP = 8.4
-export const HOOK_REACH = 0.95
+/** sedikit lebih jauh dari badan supaya ramah layar sentuh */
+export const HOOK_REACH = 1.05
 /** jarak pusat badan di bawah kait saat bergantung */
 export const HANG = 0.55
 export const ROPE_MAX = 6
 export const ROPE_MIN = 1.3
 export const REEL_SPEED = 3.2
 export const UNREEL_SPEED = 4.5
-const COYOTE = 0.1
+const COYOTE = 0.13
 const BUFFER = 0.12
 const GROUND_ACCEL = 46
 const AIR_ACCEL = 24

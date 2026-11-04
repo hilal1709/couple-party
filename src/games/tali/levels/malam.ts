@@ -1,3 +1,4 @@
+import { Course } from './course'
 import { block, door, ground, hazard, ledge, plank } from './kit'
 import type { LevelDef } from './types'
 
@@ -9,7 +10,7 @@ export const malam: LevelDef = {
   id: 'malam',
   title: 'Pasar Malam',
   line: 'Finale: bianglala sampai kembang api',
-  par: 170,
+  par: 160,
   spawn: [2, 0],
   killY: -4,
   bounds: [-4, 72],
@@ -59,3 +60,6 @@ export const malam: LevelDef = {
   ],
   props: [],
 }
+
+/** bagian lanjutan (stage diperpanjang): geometri + rute buktinya */
+export const malamExtra = new Course(malam, 'kayu', 'listrik').mover(9, 'kain').heavy('kain').checkpoint().hooks(4).crumble(4).checkpoint().door('kain').lift(4).wall(2.3).gap(2.8).finish().route

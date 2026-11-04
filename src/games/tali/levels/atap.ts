@@ -1,3 +1,4 @@
+import { Course } from './course'
 import { block, ground, ledge } from './kit'
 import type { LevelDef } from './types'
 
@@ -6,7 +7,7 @@ export const atap: LevelDef = {
   id: 'atap',
   title: 'Atap Kota',
   line: 'Jemuran tetangga jadi jembatan',
-  par: 150,
+  par: 130,
   spawn: [2, 4],
   killY: -3,
   bounds: [-4, 76],
@@ -54,3 +55,6 @@ export const atap: LevelDef = {
   ],
   props: [],
 }
+
+/** bagian lanjutan (stage diperpanjang): geometri + rute buktinya */
+export const atapExtra = new Course(atap, 'genteng', 'air').gap(2.6).up(1.2).hooks(3).checkpoint().wall(2.2).gap(2.6).down(1.5).lift(4).checkpoint().gap(2.7).finish().route

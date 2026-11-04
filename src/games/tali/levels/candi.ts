@@ -1,3 +1,4 @@
+import { Course } from './course'
 import { block, door, ground, hazard, plank } from './kit'
 import type { LevelDef } from './types'
 
@@ -6,7 +7,7 @@ export const candi: LevelDef = {
   id: 'candi',
   title: 'Candi',
   line: 'Tuas kuno dan pintu batu',
-  par: 170,
+  par: 130,
   spawn: [1, 0],
   killY: -4,
   bounds: [-5, 92],
@@ -66,3 +67,6 @@ export const candi: LevelDef = {
   ],
   props: [],
 }
+
+/** bagian lanjutan (stage diperpanjang): geometri + rute buktinya */
+export const candiExtra = new Course(candi, 'batu', 'duri').door('batu').wall(2.3).checkpoint().hooks(3).crumble(3).lift(4).checkpoint().gap(2.8).finish().route

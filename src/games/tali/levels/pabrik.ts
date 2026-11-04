@@ -1,3 +1,4 @@
+import { Course } from './course'
 import { block, door, ground, hazard, plank } from './kit'
 import type { LevelDef } from './types'
 
@@ -6,7 +7,7 @@ export const pabrik: LevelDef = {
   id: 'pabrik',
   title: 'Pabrik Kerupuk',
   line: 'Ban berjalan dan pintu yang pelit',
-  par: 160,
+  par: 125,
   spawn: [2, 0],
   killY: -4,
   bounds: [-4, 92],
@@ -55,3 +56,6 @@ export const pabrik: LevelDef = {
   ],
   props: [],
 }
+
+/** bagian lanjutan (stage diperpanjang): geometri + rute buktinya */
+export const pabrikExtra = new Course(pabrik, 'logam', 'listrik').heavy().mover(8, 'logam').checkpoint().wall(2.2).hooks(2).heavy().checkpoint().gap(2.7).finish().route

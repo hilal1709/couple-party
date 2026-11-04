@@ -1,3 +1,4 @@
+import { Course } from './course'
 import { block, door, ground, hazard } from './kit'
 import type { LevelDef } from './types'
 
@@ -6,7 +7,7 @@ export const sawah: LevelDef = {
   id: 'sawah',
   title: 'Sawah',
   line: 'Belajar kompak di pematang',
-  par: 120,
+  par: 130,
   spawn: [2, 0.5],
   killY: -4,
   bounds: [-4, 72],
@@ -52,3 +53,6 @@ export const sawah: LevelDef = {
   ],
   props: [],
 }
+
+/** bagian lanjutan (stage diperpanjang): geometri + rute buktinya */
+export const sawahExtra = new Course(sawah, 'tanah', 'air').checkpoint().gap(2.2).up(1.1).wall(2).checkpoint().hooks(1).door().gap(2.4).finish().route

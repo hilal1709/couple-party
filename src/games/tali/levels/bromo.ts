@@ -1,3 +1,4 @@
+import { Course } from './course'
 import { ground, hazard, plank } from './kit'
 import type { LevelDef } from './types'
 
@@ -6,7 +7,7 @@ export const bromo: LevelDef = {
   id: 'bromo',
   title: 'Kawah Bromo',
   line: 'Angin kencang, uap panas',
-  par: 150,
+  par: 80,
   spawn: [2, 0],
   killY: -4,
   bounds: [-4, 84],
@@ -52,3 +53,6 @@ export const bromo: LevelDef = {
   ],
   props: [],
 }
+
+/** bagian lanjutan (stage diperpanjang): geometri + rute buktinya */
+export const bromoExtra = new Course(bromo, 'batu', 'lava').gap(2.7).crumble(4).checkpoint().hooks(3).wall(2.3).checkpoint().crumble(3).gap(2.8).finish().route

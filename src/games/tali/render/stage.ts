@@ -227,7 +227,8 @@ export class Stage {
       } else {
         const g = solidGeometry(s.b, i * 3.1 + 2, s.door !== undefined ? 0.45 : 0.8, s.door !== undefined ? -0.45 : -0.8)
         g.translate(-top.x, -top.y, 0)
-        const mesh = new THREE.Mesh(g, s.crumble ? this.looks(s.k).mat.clone() : this.looks(s.k).mat)
+        // bahan dipakai bersama: salinan (clone) kehilangan tambalan shader triplanar
+        const mesh = new THREE.Mesh(g, this.looks(s.k).mat)
         mesh.castShadow = sh
         mesh.receiveShadow = sh
         obj = mesh

@@ -1,12 +1,20 @@
 // Rute main otomatis per level: bukti di tes bahwa level bisa diselesaikan berdua,
 // sekaligus dipakai demo ?demo=tali&auto=1.
 import type { LevelId } from '../types'
+import { apungExtra } from '../levels/apung'
+import { atapExtra } from '../levels/atap'
+import { bromoExtra } from '../levels/bromo'
+import { candiExtra } from '../levels/candi'
+import { guaExtra } from '../levels/gua'
+import { malamExtra } from '../levels/malam'
+import { pabrikExtra } from '../levels/pabrik'
+import { sawahExtra } from '../levels/sawah'
 import type { Cmd, DuoLike } from './duo'
 
 /** posisi kiri benda ke-i saat ini */
 const left = (d: DuoLike, i: number) => d.clients[0].rt.live[i].b[0]
 
-export const ROUTES: Partial<Record<LevelId, Cmd[]>> = {
+const BASE: Record<LevelId, Cmd[]> = {
   sawah: [
     { say: 'Hai! Aku ikut ya. Lompati paritnya bareng aku!' },
     { par: [{ w: 0, to: 18.5, at: 13.4 }, { w: 1, to: 17.4, at: 13.4 }] },
@@ -292,3 +300,10 @@ export const ROUTES: Partial<Record<LevelId, Cmd[]>> = {
     { par: [{ w: 0, go: 66.4 }, { w: 1, go: 65.6 }] },
   ],
 }
+
+const EXTRA: Record<LevelId, Cmd[]> = { sawah: sawahExtra, apung: apungExtra, atap: atapExtra, pabrik: pabrikExtra, gua: guaExtra, candi: candiExtra, bromo: bromoExtra, malam: malamExtra }
+
+/** rute lengkap: bagian awal (langkah terakhirnya, jalan ke gerbang lama, dibuang) lalu bagian lanjutan */
+export const ROUTES: Partial<Record<LevelId, Cmd[]>> = Object.fromEntries(
+  (Object.keys(BASE) as LevelId[]).map((id) => [id, [...BASE[id].slice(0, -1), ...EXTRA[id]]]),
+)

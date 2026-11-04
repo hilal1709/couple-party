@@ -1,3 +1,4 @@
+import { Course } from './course'
 import { block, ground, hazard, plank } from './kit'
 import type { LevelDef } from './types'
 
@@ -55,3 +56,6 @@ export const apung: LevelDef = {
   ],
   props: [],
 }
+
+/** bagian lanjutan (stage diperpanjang): geometri + rute buktinya */
+export const apungExtra = new Course(apung, 'kayu', 'air').mover(8, 'perahu').checkpoint().hooks(2).gap(2.4).lift(3.5).checkpoint().gap(2.6).finish().route
