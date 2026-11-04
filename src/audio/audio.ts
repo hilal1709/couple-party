@@ -2,7 +2,7 @@ import { Howl, Howler } from 'howler'
 import { useEffect, useSyncExternalStore } from 'react'
 import { store } from '@/net/transport'
 
-export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense' | 'sport' | 'sport-tense' | 'petak' | 'petak-tense'
+export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense' | 'sport' | 'sport-tense' | 'petak' | 'petak-tense' | 'masak' | 'masak-tense'
 
 export type SfxName =
   | 'card-place-1'
@@ -206,6 +206,21 @@ export type SfxName =
   | 'petak-reveal'
   | 'petak-cat'
   | 'petak-kereta'
+  | 'masak-served'
+  | 'masak-order'
+  | 'masak-wrong'
+  | 'masak-missed'
+  | 'masak-grab'
+  | 'masak-burnt'
+  | 'masak-win'
+  | 'masak-lose'
+  | 'masak-potong'
+  | 'masak-desis'
+  | 'masak-api'
+  | 'masak-semprot'
+  | 'masak-cuci'
+  | 'masak-dash'
+  | 'masak-slip'
 
 export type AudioSettings = { music: number; sfx: number; muted: boolean }
 

@@ -12,9 +12,11 @@ const idx = (cx: number, cz: number) => cz * SIZE + cx
 const cell = (v: number) => Math.max(0, Math.min(SIZE - 1, Math.floor((v - MIN) / CELL)))
 const center = (c: number) => MIN + (c + 0.5) * CELL
 
-const cache = new WeakMap<MapData, Nav>()
+type Walls = Pick<MapData, 'boxes'>
 
-export function buildNav(map: MapData): Nav {
+const cache = new WeakMap<Walls, Nav>()
+
+export function buildNav(map: Walls): Nav {
   const hit = cache.get(map)
   if (hit) return hit
   const free = new Uint8Array(SIZE * SIZE)

@@ -2473,6 +2473,10 @@ const out = {
   'petak-tutup': petakTutup(),
   'petak-ketangkap': petakKetangkap(),
   'petak-lolos': petakLolos(),
+  // Dapur Kacau paling akhir, supaya acakan efek lain tidak berubah
+  'masak-bintang': sportBurst('masak-bintang', 14, ['#ffcc1f', '#fff4fa', '#ff37a6']),
+  'masak-saji': sportBurst('masak-saji', 9, ['#5cf64a', '#ffcc1f']),
+  'masak-menang': sportBurst('masak-menang', 18, PALETTE.slice(0, 5)),
 }
 for (const [name, json] of Object.entries(out)) writeFileSync(`src/assets/lottie/${name}.json`, JSON.stringify(json))
 console.log('Lottie dibuat:', Object.keys(out).join(', '))

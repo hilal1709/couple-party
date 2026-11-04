@@ -48,7 +48,8 @@ export class Chibi {
   private current: THREE.AnimationAction | null = null
   private mats = new Map<string, THREE.MeshStandardMaterial>()
 
-  constructor(gltf: GLTF, look: Look) {
+  /** `pbr` = tekstur kain; bawaan mengikuti pengaturan grafis Sport, game lain memberi tingkatnya sendiri */
+  constructor(gltf: GLTF, look: Look, pbr = DETAIL[savedQuality()].pbr) {
     this.root = cloneSkinned(gltf.scene)
     this.mixer = new THREE.AnimationMixer(this.root)
     this.clips = Object.fromEntries(gltf.animations.map((c) => [c.name, c]))
@@ -65,7 +66,7 @@ export class Chibi {
     // tepi bercahaya memisahkan karakter dari latar; kain hanya kalau grafis mengizinkan
     for (const [name, m] of this.mats) {
       addRim(m, '#fff0dc', name === 'skin' ? 0.22 : 0.3)
-      if (DETAIL[savedQuality()].pbr && (name === 'shirt' || name === 'pants')) void applyCloth(m)
+      if (pbr && (name === 'shirt' || name === 'pants')) void applyCloth(m)
     }
   }
 

@@ -8,6 +8,7 @@ import { ConfirmModal } from '@/components/feedback/Modal'
 import { Slab, Tape } from '@/components/memphis/Slab'
 import { dots, terrazzo } from '@/components/memphis/patterns'
 import { Switch } from '@/components/ui/switch'
+import { HoldButton } from '@/components/controls/HoldButton'
 import { cn } from '@/lib/utils'
 import { store } from '@/net/transport'
 import type { GameProps, Seat } from '../../types'
@@ -288,29 +289,6 @@ function useTilt(race: React.RefObject<Race | null>, on: boolean) {
     window.addEventListener('deviceorientation', h)
     return () => window.removeEventListener('deviceorientation', h)
   }, [race, on])
-}
-
-function HoldButton({ label, onHold, className, children }: { label: string; onHold: (v: boolean) => void; className?: string; children: ReactNode }) {
-  const [on, setOn] = useState(false)
-  const set = (v: boolean) => {
-    setOn(v)
-    onHold(v)
-  }
-  return (
-    <button
-      aria-label={label}
-      onPointerDown={(e) => {
-        e.currentTarget.setPointerCapture(e.pointerId)
-        set(true)
-      }}
-      onPointerUp={() => set(false)}
-      onPointerCancel={() => set(false)}
-      onContextMenu={(e) => e.preventDefault()}
-      className={cn('grid touch-none select-none place-items-center border-[3px] border-ink font-display uppercase text-ink shadow-slab-sm', on && 'translate-y-0.5 shadow-none brightness-90', className)}
-    >
-      {children}
-    </button>
-  )
 }
 
 function ItemSlot({ item, uses, rolling, onUse }: { item: ItemKind | null; uses: number; rolling: boolean; onUse: () => void }) {

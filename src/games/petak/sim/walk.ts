@@ -84,7 +84,7 @@ export function isClear(boxes: Box[], x: number, z: number, y: number, r: number
 }
 
 /** satu langkah simulasi; (mx, mz) = arah dunia, panjang 0..1 */
-export function step(w: Walker, mx: number, mz: number, speed: number, dt: number, map: MapData) {
+export function step(w: Walker, mx: number, mz: number, speed: number, dt: number, map: Pick<MapData, 'boxes'>) {
   const len = Math.hypot(mx, mz)
   w.moving = len > 0.05
   if (w.moving) {
