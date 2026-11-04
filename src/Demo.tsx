@@ -335,7 +335,10 @@ function SportDemo() {
     if (q.has('q')) store.setItem('couple-party:sport-quality', q.get('q')!)
     if (!q.has('maker') && !savedLook()) saveLook(randomLook(5)[0])
     const sport = (q.get('s') ?? 'bowling') as SportId
-    let st = sportEngine.init(42, { sport, ends: (Number(q.get('ends') ?? 3) as 3 | 5) || 3, points: (Number(q.get('points') ?? 5) as 5 | 7 | 11) || 5, players: sport === 'bowling' || sport === 'panahan' ? n : 2, frames: (Number(q.get('frames') ?? 3) as 3 | 5 | 10) || 3, rounds: (Number(q.get('rounds') ?? 3) as 1 | 3 | 5) || 3 })
+    const players = sport === 'bowling' || sport === 'panahan' ? n : 2
+    // kursi selain kursi sendiri dimainkan bot, sama seperti room sungguhan yang mengisi kursi kosong
+    const botSeats = Array.from({ length: players }, (_, i) => i).filter((i) => auto || i !== seat)
+    let st = sportEngine.init(42, { sport, botSeats, ends: (Number(q.get('ends') ?? 3) as 3 | 5) || 3, points: (Number(q.get('points') ?? 5) as 5 | 7 | 11) || 5, players, frames: (Number(q.get('frames') ?? 3) as 3 | 5 | 10) || 3, rounds: (Number(q.get('rounds') ?? 3) as 1 | 3 | 5) || 3 })
     if (q.has('end') && st.m.kind === 'bowling') {
       for (let i = 0; i < 200 && st.m.phase !== 'end'; i++) {
         const b = st.m as BowlingMatch

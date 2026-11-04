@@ -23,6 +23,8 @@ const RING_HALF = 1.9
 /** jarak terdekat dua petinju */
 const MIN_GAP = 0.65
 const STEP_SPEED = 1.9
+/** bot sedikit lebih lambat supaya pemain bisa kabur dengan langkah mundur */
+const BOT_SPEED = 1.35
 /** titik awal tiap sudut, koordinat ring kursi 0 (kursi 1 melihat ring terbalik) */
 const HOME = { me: [-0.3, GAP], foe: [0.18, -GAP] } as const
 
@@ -104,6 +106,11 @@ export class BoxingScene {
   private foeTo = new THREE.Vector2(HOME.foe[0], HOME.foe[1])
   /** true = pemain HP ini melangkah pakai analog */
   manual = false
+  /** true = lawan dimainkan bot; langkahnya digerakkan di HP ini */
+  foeBot = false
+  private botT = 0
+  private botSide = 1
+  private botTurnIn = 2
 
   constructor(stage: Stage) {
     this.stage = stage
@@ -230,6 +237,7 @@ export class BoxingScene {
     this.me.c.root.position.set(HOME.me[0], 0, HOME.me[1])
     this.foe.c.root.position.set(HOME.foe[0], 0, HOME.foe[1])
     this.foeTo.set(HOME.foe[0], HOME.foe[1])
+    this.botT = 0
     for (const f of [this.me, this.foe]) {
       f.stance = 'none'
       f.busy = 0
@@ -305,6 +313,7 @@ export class BoxingScene {
         a.x = nx
         a.z = nz
       }
+      if (this.foeBot) this.botStep(dt)
       b.x += (this.foeTo.x - b.x) * (1 - Math.exp(-dt * 10))
       b.z += (this.foeTo.y - b.z) * (1 - Math.exp(-dt * 10))
     }
@@ -312,6 +321,53 @@ export class BoxingScene {
       this.me.c.root.rotation.y = Math.atan2(b.x - a.x, b.z - a.z)
       this.foe.c.root.rotation.y = Math.atan2(a.x - b.x, a.z - b.z)
     }
+  }
+
+  /**
+   * Langkah bot: menjaga jarak pukul yang naik-turun (maju menekan, lalu mundur sedikit),
+   * sambil memutari pemain dan sesekali berganti arah. Saat memukul atau terkena, langkahnya melambat.
+   */
+  private botStep(dt: number) {
+    const a = this.me.c.root.position
+    const p = this.foeTo
+    this.botT += dt
+    this.botTurnIn -= dt
+    if (this.botTurnIn <= 0) {
+      this.botSide = Math.random() < 0.5 ? -1 : 1
+      this.botTurnIn = 1.6 + Math.random() * 2.4
+    }
+    if (this.foe.busy > 1e5) return
+    // sambil memukul / terkena tetap bergeser, tapi pelan
+    const speed = BOT_SPEED * (this.foe.busy > 0 ? 0.45 : 1)
+    const dx = p.x - a.x
+    const dy = p.y - a.z
+    const d = Math.hypot(dx, dy) || 1
+    // jarak yang diincar selalu di dalam jangkauan pukul
+    const want = 1.35 + Math.sin(this.botT * 0.8) * 0.3
+    const ux = dx / d
+    const uy = dy / d
+    const radial = Math.max(-1, Math.min(1, (want - d) * 2))
+    let vx = ux * radial - uy * this.botSide * 0.45
+    let vy = uy * radial + ux * this.botSide * 0.45
+    const len = Math.hypot(vx, vy)
+    if (len > 1) {
+      vx /= len
+      vy /= len
+    }
+    let nx = p.x + vx * speed * dt
+    let ny = p.y + vy * speed * dt
+    // mentok tali: putar ke arah sebaliknya
+    if (Math.abs(nx) > RING_HALF || Math.abs(ny) > RING_HALF) {
+      this.botSide = -this.botSide
+      nx = Math.max(-RING_HALF, Math.min(RING_HALF, nx))
+      ny = Math.max(-RING_HALF, Math.min(RING_HALF, ny))
+    }
+    const g = Math.hypot(nx - a.x, ny - a.z)
+    if (g < MIN_GAP) {
+      nx = a.x + ((nx - a.x) / (g || 1)) * MIN_GAP
+      ny = a.z + ((ny - a.z) / (g || 1)) * MIN_GAP
+    }
+    p.set(nx, ny)
   }
 
   private spark(f: Fighter, color: string, size: number) {

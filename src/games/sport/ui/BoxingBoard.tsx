@@ -88,6 +88,7 @@ export function BoxingBoard({ state: s, seat, names, online, act, exit, live }: 
       .then(() => {
         if (!alive) return
         scene.current = sc
+        if (import.meta.env.DEV) (window as unknown as { __box?: BoxingScene }).__box = sc
         st.start()
         setReady(true)
       })
@@ -120,6 +121,12 @@ export function BoxingBoard({ state: s, seat, names, online, act, exit, live }: 
     sc.manual = manual
     if (!manual) sc.steer(0, 0)
   }, [ready, manual])
+
+  // lawan bot tidak punya HP sendiri: langkahnya digerakkan di sini
+  const foeBot = s.opts.botSeats.includes(foe)
+  useEffect(() => {
+    if (ready && scene.current) scene.current.foeBot = foeBot
+  }, [ready, foeBot])
   const steer = useCallback((x: number, y: number) => scene.current?.steer(x, y), [])
 
   // posisi dikirim lewat saluran live (bukan state) supaya ringan; ring kursi 1 terbalik
