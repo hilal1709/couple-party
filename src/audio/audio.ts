@@ -2,7 +2,7 @@ import { Howl, Howler } from 'howler'
 import { useEffect, useSyncExternalStore } from 'react'
 import { store } from '@/net/transport'
 
-export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense' | 'sport' | 'sport-tense' | 'petak' | 'petak-tense' | 'masak' | 'masak-tense'
+export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense' | 'sport' | 'sport-tense' | 'petak' | 'petak-tense' | 'masak' | 'masak-tense' | 'puncak'
 
 export type SfxName =
   | 'card-place-1'
@@ -221,6 +221,26 @@ export type SfxName =
   | 'masak-cuci'
   | 'masak-dash'
   | 'masak-slip'
+  | 'puncak-langkah'
+  | 'puncak-lompat'
+  | 'puncak-pegang'
+  | 'puncak-napas'
+  | 'puncak-jatuh'
+  | 'puncak-cebur'
+  | 'puncak-peti'
+  | 'puncak-ambil'
+  | 'puncak-makan'
+  | 'puncak-tali'
+  | 'puncak-api'
+  | 'puncak-pingsan'
+  | 'puncak-bangun'
+  | 'puncak-peluit'
+  | 'puncak-batu'
+  | 'puncak-uap'
+  | 'puncak-sengat'
+  | 'puncak-pakai'
+  | 'puncak-menang'
+  | 'puncak-kalah'
 
 export type AudioSettings = { music: number; sfx: number; muted: boolean }
 

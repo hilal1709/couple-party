@@ -6,6 +6,7 @@ import ludoArt from '@/assets/ludo/tile-ludo.webp'
 import monopolyArt from '@/assets/monopoly/tile-monopoly.webp'
 import masakArt from '@/assets/masak/tile-masak.webp'
 import petakArt from '@/assets/petak/tile-petak.webp'
+import puncakArt from '@/assets/puncak/tile-puncak.webp'
 import remiArt from '@/assets/remi/tile-remi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import spyArt from '@/assets/spy/tile-spy.webp'
@@ -50,6 +51,9 @@ import { summary as masakSummary } from './masak/ui/copy'
 import { petak } from './petak'
 import type { PetakOptions } from './petak/types'
 import { summary as petakSummary } from './petak/ui/copy'
+import { puncak } from './puncak'
+import type { PuncakOptions } from './puncak/types'
+import { summary as puncakSummary } from './puncak/ui/copy'
 import { uno } from './uno'
 import type { UnoOptions } from './uno/types'
 import { VARIANT_INFO } from './uno/ui/copy'
@@ -220,6 +224,17 @@ export const GAMES: GameEntry[] = [
     art: masakArt,
     Lobby: lazy(() => import('./masak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: MasakOptions) => masakSummary(o),
+    nativeBots: true,
+  },
+  {
+    game: puncak,
+    category: 'lainnya',
+    blurb: 'Panjat 8 gunung raksasa berdua: stamina, tali, saling tarik & bangunkan',
+    minPlayers: 1,
+    maxPlayers: 4,
+    art: puncakArt,
+    Lobby: lazy(() => import('./puncak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: PuncakOptions) => puncakSummary(o),
     nativeBots: true,
   },
 ]
