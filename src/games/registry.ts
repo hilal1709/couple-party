@@ -8,6 +8,7 @@ import petakArt from '@/assets/petak/tile-petak.webp'
 import remiArt from '@/assets/remi/tile-remi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import spyArt from '@/assets/spy/tile-spy.webp'
+import sunyiArt from '@/assets/sunyi/tile-sunyi.webp'
 import unoArt from '@/assets/snakes/tile-uno.webp'
 import type { AnyGame, LobbyProps } from './types'
 import { bom } from './bom'
@@ -46,6 +47,9 @@ import { sprite as kartSprite } from './kart/ui/art'
 import { petak } from './petak'
 import type { PetakOptions } from './petak/types'
 import { summary as petakSummary } from './petak/ui/copy'
+import { sunyi } from './sunyi'
+import type { SunyiOptions } from './sunyi/types'
+import { summary as sunyiSummary } from './sunyi/ui/copy'
 import { uno } from './uno'
 import type { UnoOptions } from './uno/types'
 import { VARIANT_INFO } from './uno/ui/copy'
@@ -206,6 +210,16 @@ export const GAMES: GameEntry[] = [
     Lobby: lazy(() => import('./petak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: PetakOptions) => petakSummary(o),
     nativeBots: true,
+  },
+  {
+    game: sunyi,
+    category: 'lainnya',
+    blurb: 'Horor berdua wajib mic: bisik aman, bicara keras Penunggu datang',
+    minPlayers: 2,
+    maxPlayers: 2,
+    art: sunyiArt,
+    Lobby: lazy(() => import('./sunyi/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: SunyiOptions) => sunyiSummary(o),
   },
 ]
 

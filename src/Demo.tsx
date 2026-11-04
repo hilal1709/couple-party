@@ -45,6 +45,9 @@ import type { LiveChannel } from './games/types'
 import * as petakEngine from './games/petak/engine'
 import type { PetakAction, PetakOptions, PetakState } from './games/petak/types'
 import { PetakBoard } from './games/petak/ui/PetakBoard'
+import * as sunyiEngine from './games/sunyi/engine'
+import type { SunyiAction, SunyiOptions, SunyiState } from './games/sunyi/types'
+import { SunyiBoard } from './games/sunyi/ui/SunyiBoard'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -52,7 +55,8 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' | 'sunyi' }) {
+  if (variant === 'sunyi') return <SunyiDemo />
   if (variant === 'petak') return <PetakDemo />
 
   if (variant === 'draw') return <DrawDemo />
@@ -448,4 +452,55 @@ function PetakDemo() {
     else setS((cur) => petakEngine.reduce(cur, a, seat))
   }
   return <PetakBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} live={live} />
+}
+
+/**
+ * Sunyi lokal: ?demo=sunyi &n=1|2 &seat= &diff=santai|normal|seram &items=3|5|7 &phase=play (lewati cek mic) &q=low|med|high
+ * &duo=1: dua tab berbagi state, saluran live, dan voice chat lewat BroadcastChannel, seperti room dua HP.
+ */
+function SunyiDemo() {
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(2, Math.max(1, Number(q.get('n') ?? 1)))
+  const seat = Number(q.get('seat') ?? 0)
+  const [s, setS] = useState<SunyiState>(() => {
+    const o: Partial<SunyiOptions> = {
+      players: n,
+      difficulty: (q.get('diff') ?? 'normal') as SunyiOptions['difficulty'],
+      items: (Number(q.get('items') ?? 5) as SunyiOptions['items']) || 5,
+    }
+    let st = sunyiEngine.init(Number(q.get('seed') ?? 42), o)
+    if (q.get('phase') === 'play') st = { ...st, phase: 'play', ready: st.ready.map(() => true) }
+    return st
+  })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const bus = useMemo(() => (q.get('duo') ? new BroadcastChannel('sunyi-duo') : null), [])
+  useEffect(() => {
+    if (!bus) return
+    const fn = (e: MessageEvent) => {
+      const m = e.data
+      if (m.state && seat !== 0) setS(m.state)
+      if (m.action && seat === 0) setS((cur) => sunyiEngine.reduce(cur, m.action, m.by))
+    }
+    bus.addEventListener('message', fn)
+    return () => bus.removeEventListener('message', fn)
+  }, [bus, seat])
+  useEffect(() => {
+    if (bus && seat === 0) bus.postMessage({ state: s })
+  }, [bus, s, seat])
+  const live = useMemo<LiveChannel | undefined>(() => {
+    if (!bus) return undefined
+    return {
+      send: (d) => bus.postMessage({ live: d, from: seat }),
+      on: (cb) => {
+        const fn = (e: MessageEvent) => e.data.live !== undefined && cb(e.data.live, e.data.from)
+        bus.addEventListener('message', fn)
+        return () => bus.removeEventListener('message', fn)
+      },
+    }
+  }, [bus, seat])
+  const act = (a: SunyiAction) => {
+    if (bus && seat !== 0) bus.postMessage({ action: a, by: seat })
+    else setS((cur) => sunyiEngine.reduce(cur, a, seat))
+  }
+  return <SunyiBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} live={live} />
 }
