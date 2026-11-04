@@ -8,6 +8,7 @@ import masakArt from '@/assets/masak/tile-masak.webp'
 import petakArt from '@/assets/petak/tile-petak.webp'
 import puncakArt from '@/assets/puncak/tile-puncak.webp'
 import remiArt from '@/assets/remi/tile-remi.webp'
+import sunyiArt from '@/assets/sunyi/tile-sunyi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import spyArt from '@/assets/spy/tile-spy.webp'
 import taliArt from '@/assets/tali/tile-tali.webp'
@@ -46,6 +47,9 @@ import { kart } from './kart'
 import type { KartOptions } from './kart/types'
 import { summary as kartSummary } from './kart/ui/copy'
 import { sprite as kartSprite } from './kart/ui/art'
+import { sunyi } from './sunyi'
+import type { SunyiOptions } from './sunyi/types'
+import { summary as sunyiSummary } from './sunyi/ui/copy'
 import { masak } from './masak'
 import type { MasakOptions } from './masak/types'
 import { summary as masakSummary } from './masak/ui/copy'
@@ -252,6 +256,16 @@ export const GAMES: GameEntry[] = [
     summary: (o: TaliOptions) => taliSummary(o),
     playersFor: (o: TaliOptions) => (o.bot ? [1, 1] : [2, 2]),
     nativeBots: true,
+  },
+  {
+    game: sunyi,
+    category: 'lainnya',
+    blurb: 'Horor berdua wajib mic: bisik aman, bicara keras Penunggu datang',
+    minPlayers: 2,
+    maxPlayers: 2,
+    art: sunyiArt,
+    Lobby: lazy(() => import('./sunyi/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: SunyiOptions) => sunyiSummary(o),
   },
 ]
 
