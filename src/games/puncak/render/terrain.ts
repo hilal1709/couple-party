@@ -129,6 +129,9 @@ export type TerrainUniforms = {
   uScale: { value: number }
   uCliffScale: { value: number }
   uWet: { value: number }
+  uRock: { value: THREE.Color[] }
+  uSoil: { value: THREE.Color[] }
+  uLedge: { value: THREE.Color[] }
 }
 
 /**
@@ -136,6 +139,12 @@ export type TerrainUniforms = {
  * bukan gradasi buram), tebing triplanar (tanpa tekstur melar di dinding), dan salju yang menumpuk di
  * permukaan menghadap ke atas. AO horizon dari medan meredupkan cahaya langit di lembah.
  */
+const zonesOf = (t: Terrain) => {
+  const z = t.m.zones.slice(0, t.zones)
+  while (z.length < 4) z.push(z[z.length - 1])
+  return z
+}
+
 export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean) {
   const layers = layersOf(t)
   while (layers.length < 4) layers.push(layers[layers.length - 1])
@@ -148,6 +157,9 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean) {
     uScale: { value: 3.4 },
     uCliffScale: { value: 7 },
     uWet: { value: t.m.id === 'rimba' || t.m.id === 'teh' ? 1 : 0 },
+    uRock: { value: zonesOf(t).map((z) => new THREE.Color(z.rock)) },
+    uSoil: { value: zonesOf(t).map((z) => new THREE.Color(z.soil)) },
+    uLedge: { value: zonesOf(t).map((z) => new THREE.Color(z.ledge)) },
   }
   const m = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.9, metalness: 0 })
   const nrm = !!tex.nrm
@@ -174,6 +186,7 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean) {
          uniform highp sampler2DArray uDiff;
          ${nrm ? 'uniform highp sampler2DArray uNrm;' : ''}
          uniform vec4 uGround[4]; uniform float uCliff[4]; uniform float uSnowL; uniform float uScale; uniform float uCliffScale; uniform float uWet;
+         uniform vec3 uRock[4]; uniform vec3 uSoil[4]; uniform vec3 uLedge[4];
          varying vec3 vTW; varying vec3 vTN; varying vec4 vW; varying float vSnow; flat varying int vZone; varying float vAO;
          ${NOISE}
          float lum(vec3 c){ return dot(c, vec3(0.3, 0.55, 0.15)); }
@@ -215,10 +228,25 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean) {
            float lift = mix(dot(vec4(d0.a, d1.a, d2.a, d3.a), bw), cliffD.a, cliffW);
            snowW = smoothstep(0.42, 0.62, vSnow + (macro - 0.5) * 0.35 - lift * 0.25) * smoothstep(0.42, 0.72, wn.y);
          }
-         vec3 albedo = mix(mix(groundC, cliffD.rgb, cliffW), snowD.rgb, snowW);
-         albedo *= 0.86 + macro * 0.28;
+         // gaya referensi: warna batu & tanah per zona, tekstur hanya jadi detail tipis
+         float gl = dot(vec4(d0.a, d1.a, d2.a, d3.a), bw);
+         vec3 soilC = uSoil[zi] * (0.78 + gl * 0.45);
+         // rumput & teh tetap berwarna teksturnya sendiri, pasir/tanah ikut palet
+         float green = clamp((groundC.g - max(groundC.r, groundC.b)) * 6.0, 0.0, 1.0);
+         vec3 styGround = mix(mix(soilC, groundC, 0.3), groundC * 1.05, green * 0.7);
+         // jalan setapak sedikit lebih terang
+         styGround = mix(styGround, uLedge[zi] * (0.85 + gl * 0.3), bw.y * 0.35);
+         float hgt = clamp(vTW.y / 150.0, 0.0, 1.0);
+         vec3 rockC = uRock[zi] * (0.72 + cliffD.a * 0.5) * (0.88 + hgt * 0.18);
+         vec3 styCliff = mix(rockC, cliffD.rgb, 0.18);
+         vec3 albedo = mix(mix(styGround, styCliff, cliffW), snowD.rgb, snowW);
+         albedo *= 0.9 + macro * 0.2;
          diffuseColor.rgb *= albedo;
          float tRough = 0.92;
+         // segi batu dipertegas: campur normal datar per segitiga di muka batu
+         vec3 fN = normalize(cross(dFdx(vTW), dFdy(vTW)));
+         fN *= sign(dot(fN, wn));
+         wn = normalize(mix(wn, fN, cliffW * 0.45));
          vec3 tWN = wn;
          ${
            nrm
@@ -228,12 +256,12 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean) {
            vec3 n2 = bw.z > 0.01 ? sampN(uvg * 1.07 + 0.71, L.z, gdx, gdy) : vec3(0.5, 0.5, 0.9);
            vec3 n3 = bw.w > 0.01 ? sampN(uvg * 0.81 + 0.19, L.w, gdx, gdy) : vec3(0.5, 0.5, 0.9);
            vec3 gN = n0 * bw.x + n1 * bw.y + n2 * bw.z + n3 * bw.w;
-           vec2 gt = (gN.xy * 2.0 - 1.0) * 1.1;
+           vec2 gt = (gN.xy * 2.0 - 1.0) * 0.55;
            vec3 groundW = normalize(vec3(gt.x + wn.x, wn.y, gt.y + wn.z));
            vec3 nx = tw.x > 0.02 ? sampN(ux, cl, xdx, xdy) : vec3(0.5, 0.5, 0.9);
            vec3 nz = tw.z > 0.02 ? sampN(uz, cl, zdx, zdy) : vec3(0.5, 0.5, 0.9);
            vec3 ny = tw.y > 0.02 ? sampN(uy, cl, ydx, ydy) : vec3(0.5, 0.5, 0.9);
-           vec2 tx = (nx.xy * 2.0 - 1.0) * 1.3; vec2 tz = (nz.xy * 2.0 - 1.0) * 1.3; vec2 ty = (ny.xy * 2.0 - 1.0) * 1.3;
+           vec2 tx = (nx.xy * 2.0 - 1.0) * 0.6; vec2 tz = (nz.xy * 2.0 - 1.0) * 0.6; vec2 ty = (ny.xy * 2.0 - 1.0) * 0.6;
            vec3 cW = normalize(
              vec3(0.0, tx.y, tx.x) * tw.x + vec3(tz.x, tz.y, 0.0) * tw.z + vec3(ty.x, 0.0, ty.y) * tw.y + wn);
            tWN = normalize(mix(groundW, cW, cliffW));
@@ -248,7 +276,7 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean) {
          tRough = mix(tRough, tRough * 0.6, uWet * (1.0 - snowW) * smoothstep(0.4, 0.8, macro));`,
       )
       .replace('#include <roughnessmap_fragment>', 'float roughnessFactor = tRough;')
-      .replace('#include <normal_fragment_maps>', nrm ? 'normal = normalize((viewMatrix * vec4(tWN, 0.0)).xyz);' : '')
+      .replace('#include <normal_fragment_maps>', 'normal = normalize((viewMatrix * vec4(tWN, 0.0)).xyz);')
       .replace(
         '#include <aomap_fragment>',
         `float tAO = vAO;

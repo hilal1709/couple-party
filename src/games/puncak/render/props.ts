@@ -176,10 +176,31 @@ const hash = (x: number, z: number) => {
 
 export type PropMats = { bark: THREE.MeshStandardMaterial; leaf: THREE.MeshStandardMaterial; rock: THREE.MeshStandardMaterial; crystal: THREE.MeshStandardMaterial; coral: THREE.MeshStandardMaterial; wood: THREE.MeshStandardMaterial; grass: THREE.MeshStandardMaterial }
 
+/**
+ * Kartu daun/rumput dua sisi: normal TIDAK dibalik untuk sisi belakang (bawaan three membaliknya,
+ * sehingga separuh kartu jadi hitam). Semua kartu diterangi dari arah normalnya.
+ */
+function noFlip(m: THREE.Material) {
+  const prev = m.onBeforeCompile
+  const key = m.customProgramCacheKey()
+  m.onBeforeCompile = (sh, r) => {
+    prev.call(m, sh, r)
+    sh.fragmentShader = sh.fragmentShader.replace(
+      '#include <normal_fragment_begin>',
+      `float faceDirection = 1.0;
+       vec3 normal = normalize( vNormal );
+       vec3 nonPerturbedNormal = normal;`,
+    )
+  }
+  m.customProgramCacheKey = () => `${key}|noflip`
+  m.needsUpdate = true
+}
+
 export async function propMaterials(clock: Clock, pbr: boolean, snowy: boolean): Promise<PropMats> {
   const bark = await packedPbr(new THREE.MeshStandardMaterial({ roughness: 1 }), 'kulit_kayu', 1, pbr)
   const leaf = new THREE.MeshStandardMaterial({ map: await loadTex('daun.webp', true), alphaTest: 0.45, side: THREE.DoubleSide, roughness: 0.75 })
   addWind(leaf, clock, { strength: 0.18, height: 14 })
+  noFlip(leaf)
   // tembus cahaya palsu: daun sedikit menyala dari warnanya sendiri
   leaf.emissive.set('#1c3510')
   leaf.emissiveIntensity = 0.35
@@ -191,7 +212,8 @@ export async function propMaterials(clock: Clock, pbr: boolean, snowy: boolean):
   const wood = await packedPbr(new THREE.MeshStandardMaterial({ color: '#c8a27a', roughness: 1 }), 'kulit_kayu', 1, pbr)
   const grass = new THREE.MeshStandardMaterial({ map: await loadTex('helai.webp', true), alphaTest: 0.4, side: THREE.DoubleSide, roughness: 0.9 })
   addWind(grass, clock, { strength: 0.12, height: 0.7 })
-  grass.emissive.set('#1a3010')
+  noFlip(grass)
+  grass.emissive.set('#2a2618')
   grass.emissiveIntensity = 0.25
   return { bark, leaf, rock, crystal, coral, wood, grass }
 }
@@ -263,6 +285,11 @@ export function forest(solids: Solid[], mats: PropMats, shadows: boolean, snow: 
 /** rumput instans per potongan medan; hanya potongan dekat kamera yang digambar */
 export function meadow(t: Terrain, mats: PropMats, density: number, grassLayer: number) {
   const blade = mergeGeometries([new THREE.PlaneGeometry(0.75, 0.55).translate(0, 0.27, 0), new THREE.PlaneGeometry(0.75, 0.55).translate(0, 0.27, 0).rotateY(Math.PI / 2)])!
+  // normal menghadap atas: rumput diterangi seperti tanah di bawahnya, tidak gelap dari belakang
+  {
+    const nn = blade.attributes.normal as THREE.BufferAttribute
+    for (let i = 0; i < nn.count; i++) nn.setXYZ(i, 0, 1, 0)
+  }
   const patches: THREE.InstancedMesh[] = []
   const CH = 24
   const cells = Math.ceil(t.size / CH)
@@ -274,7 +301,7 @@ export function meadow(t: Terrain, mats: PropMats, density: number, grassLayer: 
   const per = Math.round(CH * CH * 1.1 * density)
   for (let cj = 0; cj < cells; cj++) {
     for (let ci = 0; ci < cells; ci++) {
-      const pts: [number, number, number, number][] = []
+      const pts: [number, number, number, number, number][] = []
       for (let k = 0; k < per; k++) {
         const x = ci * CH - t.half + r() * CH
         const z = cj * CH - t.half + r() * CH
@@ -283,27 +310,28 @@ export function meadow(t: Terrain, mats: PropMats, density: number, grassLayer: 
         if (i < 1 || j < 1 || i >= t.n - 1 || j >= t.n - 1) continue
         const idx = j * t.n + i
         const zone = t.zone[idx]
-        const layers = t.m.zones[zone].ground
-        // bobot slot yang bertekstur rumput
-        let w = 0
-        layers.forEach((l, s) => {
-          if (l === 'rumput') w += t.w[idx * 4 + s] / 255
-        })
-        if (w < 0.35 || t.snow[idx] > 90) continue
+        const zn = t.m.zones[zone]
+        if (!zn.grass || t.snow[idx] > 90) continue
+        // tidak di tengah jalan setapak (slot 1 tinggi), tidak di muka batu
+        const w = 1 - t.w[idx * 4 + 1] / 255
+        if (w < 0.45) continue
         const h = t.h[idx]
         const gx = (t.h[idx + 1] - t.h[idx - 1]) / (2 * CELL)
         const gz = (t.h[idx + t.n] - t.h[idx - t.n]) / (2 * CELL)
-        if (Math.hypot(gx, gz) > 1.1 || (t.m.sea && h < t.m.sea.y + 0.3)) continue
-        pts.push([x, h, z, w])
+        if (Math.hypot(gx, gz) > 0.8 || (t.m.sea && h < t.m.sea.y + 0.3)) continue
+        if (r() > (zn.grass === 'kering' ? 0.85 : 0.6)) continue
+        pts.push([x, h, z, w, zn.grass === 'kering' ? 1 : 0])
       }
       if (!pts.length) continue
       const im = new THREE.InstancedMesh(blade, mats.grass, pts.length)
-      pts.forEach(([x, y, z, w], i) => {
+      pts.forEach(([x, y, z, w, dry], i) => {
         q.setFromAxisAngle(up, r() * 6.28)
-        const s = 0.55 + r() * 0.55 * w
-        m4.compose(new THREE.Vector3(x, y - 0.05, z), q, new THREE.Vector3(s, s * (0.8 + r() * 0.5), s))
+        // rumput kering: rumpun tinggi keemasan seperti gambar referensi
+        const s = (0.55 + r() * 0.55 * w) * (dry ? 1.35 : 1)
+        m4.compose(new THREE.Vector3(x, y - 0.05, z), q, new THREE.Vector3(s, s * (dry ? 1.5 + r() * 0.6 : 0.8 + r() * 0.5), s))
         im.setMatrixAt(i, m4)
-        col.setHSL(0.24 + r() * 0.06, 0.55, 0.42 + r() * 0.14)
+        if (dry) col.setHSL(0.11 + r() * 0.025, 0.55 + r() * 0.15, 0.4 + r() * 0.1)
+        else col.setHSL(0.24 + r() * 0.06, 0.55, 0.42 + r() * 0.14)
         im.setColorAt(i, col)
       })
       im.computeBoundingSphere()

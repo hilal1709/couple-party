@@ -162,16 +162,8 @@ export class MountainScene {
     if (m.id === 'teh' || m.id === 'rimba' || m.id === 'salju') {
       for (let k = 1; k < t.zones; k++) this.scene.add(await clouds(t.base[k] - 6, t.size * 1.6, m.fog, this.clock, m.id === 'teh' ? 0.5 : 0.25, 0.01, ground))
     }
-    // air terjun dari bibir tebing ke cincin di bawahnya
-    if (m.id === 'karang' || m.id === 'rimba') {
-      for (let k = 1; k < Math.min(3, t.zones); k++) {
-        const th = t.theta[k] + Math.PI * 1.1
-        const r = t.radii[k] + 1.2
-        const x = Math.cos(th) * r
-        const z = Math.sin(th) * r
-        this.scene.add(await waterfall(t, x - Math.cos(th) * 2.4, z - Math.sin(th) * 2.4, Math.cos(th), Math.sin(th), 3.4, this.clock))
-      }
-    }
+    // air terjun di sisi tebing panjat
+    for (const f of t.falls) this.scene.add(await waterfall(t, f.x, f.z, f.dx, f.dz, 3.4, this.clock))
 
     // pohon, batu, rumput
     this.scene.add(forest(t.solids, mats, this.shadows, m.zones[0].snow))

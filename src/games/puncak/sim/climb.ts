@@ -226,10 +226,14 @@ export function stepBody(b: Body, inp: Input, env: Env, dt: number): BodyEvent[]
       const slope = Math.hypot(gx, gz)
       const rising = f - b.y
       // terjal di depan: berhenti; tahan Pegang = mulai memanjat
-      if (!swim && rising > STEP * 0.4 && slope > STEEP && heightAt(t, nx, nz) >= f - 0.01) {
+      if (!swim && rising > 0.005 && slope > STEEP && heightAt(t, nx, nz) >= f - 0.01) {
         if (inp.grip && b.stamina > 0.02) {
+          // menempel ke dinding di depan (titik kaki masih landai, dinding mulai tepat di depan)
           b.mode = 'climb'
           b.vx = b.vz = 0
+          b.x = nx
+          b.z = nz
+          b.y = heightAt(t, nx, nz)
           ev.push({ k: 'grab' })
         } else {
           // geser menyusuri tebing
@@ -424,6 +428,24 @@ export function stepBody(b: Body, inp: Input, env: Env, dt: number): BodyEvent[]
       const ux = gx / s
       const uz = gz / s
       b.yaw = Math.atan2(ux, uz)
+      // tepian datar tepat di depan tangan: naik ke atasnya (mantle)
+      if (inp.up > 0.2) {
+        for (const reach of [0.6, 1.1]) {
+          const ax = b.x + ux * reach
+          const az = b.z + uz * reach
+          const ah = heightAt(t, ax, az)
+          if (ah - b.y < 1.1 && ah >= b.y - 0.2 && slopeAt2(t, ax, az) < STEEP * 0.85) {
+            b.x = ax
+            b.z = az
+            b.y = floorAt(env, ax, az, ah + 0.3)
+            b.mode = 'ground'
+            b.peak = b.y
+            ev.push({ k: 'top' })
+            break
+          }
+        }
+        if (b.mode !== 'climb') break
+      }
       const slip = b.surface === 'es' && b.buffs.sepatu <= 0 ? 0.35 : b.surface === 'kristal' ? 0.18 : 0
       let up = inp.up
       if (b.lunge > 0) up = 3.2

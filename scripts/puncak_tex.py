@@ -317,7 +317,8 @@ def blades():
         cx = bx + lean * t ** 2
         w = 0.022 * (1 - t) + 0.002
         m = (np.abs(xx - cx) < w) & (1 - yy < h)
-        c = np.array([0.18, 0.4, 0.1]) * (0.55 + t[..., None] * 0.6) + np.array([0.1, 0.12, 0.02]) * t[..., None]
+        # warna netral terang: warna akhir dari warna instans (hijau atau kering keemasan)
+        c = np.array([0.78, 0.8, 0.72]) * (0.5 + t[..., None] * 0.6)
         img[m] = np.dstack([c, np.ones((256, 256))])[m]
     Image.fromarray((np.clip(img, 0, 1) * 255).astype(np.uint8), 'RGBA').save(OUT / 'helai.webp', quality=90, method=6)
     print('tex helai')

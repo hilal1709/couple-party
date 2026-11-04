@@ -1,6 +1,6 @@
 import { MOUNTAINS, SURFACE_OF, texIndex, type Creature, type Mountain, type Surface, type Tree } from '../mountains'
 import type { MountainId } from '../types'
-import { fbm, loopNoise, noise2, ridge, rng } from './noise'
+import { fbm, loopNoise, noise2, rng } from './noise'
 
 /** jarak antar sampel tinggi (m) */
 export const CELL = 0.5
@@ -32,15 +32,18 @@ export type Terrain = {
   w: Uint8Array
   snow: Uint8Array
   zone: Uint8Array
-  radii: number[]
+  /** ketinggian batas zona (base[k] = awal zona k di jalur; base[zones] = puncak) */
   base: number[]
-  theta: number[]
+  /** pusat massif */
+  center: { x: number; z: number }
   solids: Solid[]
   decks: Deck[]
   vines: Rope[]
   camps: Camp[]
   chests: Chest[]
   route: Waypoint[]
+  /** air terjun: bibir (x,z) dan arah jatuh */
+  falls: { x: number; z: number; dx: number; dz: number }[]
   start: { x: number; y: number; z: number; yaw: number }
   summit: { x: number; y: number; z: number }
   /** jalur batu menggelinding: dari tebing (x,z) keluar ke arah (a = sudut, b = panjang) */
@@ -59,116 +62,372 @@ const smooth = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)))
   return t * t * (3 - 2 * t)
 }
-const wrap01 = (v: number) => v - Math.floor(v)
+const lerp = (a: number, b: number, k: number) => a + (b - a) * k
 
-/** Bangun satu gunung dari benih. Sama di semua HP (tanpa Math.random). */
+/** hash sel 2D → 0..1 */
+function cellHash(ix: number, iz: number, seed: number, k: number) {
+  let h = Math.imul(ix, 374761393) ^ Math.imul(iz, 668265263) ^ Math.imul(seed + k * 1013, 2147483647)
+  h = Math.imul(h ^ (h >>> 13), 1274126177)
+  h ^= h >>> 16
+  return (h >>> 0) / 4294967296
+}
+
+const TREE_DIMS: Record<Tree, [number, number]> = {
+  palem: [0.3, 9],
+  jati: [0.45, 11],
+  beringin: [1.3, 16],
+  pinus: [0.4, 12],
+  kering: [0.3, 7],
+  semak: [0.9, 1.3],
+  teh: [0.75, 1.1],
+  kristal: [0.9, 5],
+  karang: [0.8, 2.2],
+}
+
+/**
+ * Bangun satu gunung dari benih. Sama di semua HP (tanpa Math.random).
+ *
+ * Bentuk: satu massif batu tak beraturan dari bongkahan bersegi (sel Voronoi yang tiap selnya
+ * jadi balok bertepian datar dengan sisi miring 60–70°), dikelilingi pilar & bongkahan lepas di kaki.
+ * Jalur pendakian berupa pita spiral yang dipahat ke lereng: landai untuk jalan, diselingi
+ * tebing panjat pendek. Zona = pita ketinggian di sepanjang jalur.
+ */
 export function buildTerrain(id: MountainId, zones: number, seed: number): Terrain {
   const m = MOUNTAINS[id]
   const Z = Math.max(1, Math.min(m.zones.length, zones))
-  const R0 = Z >= 4 ? 120 : Z === 3 ? 102 : 86
-  const RS = Z >= 4 ? 22 : 20
-  // jari-jari cincin: menyusut dari luar ke puncak
-  const radii = Array.from({ length: Z + 1 }, (_, k) => R0 + ((RS - R0) * k) / Z)
-  const size = Math.ceil((R0 + 26) * 2)
+  const rand = rng(seed * 7 + 3)
+  // tinggi & tapak massif
+  const HT = 10 + Z * (m.ramp + m.cliff)
+  const R0 = Z >= 4 ? 118 : Z === 3 ? 100 : 82
+  const size = Math.ceil((R0 + 30) * 2)
   const n = Math.round(size / CELL) + 1
   const half = size / 2
-  const rand = rng(seed * 7 + 3)
   const theta0 = rand() * TAU
-  const theta: number[] = []
-  const base: number[] = []
-  for (let k = 0; k <= Z; k++) {
-    theta.push(theta0 + k * TAU * 0.97)
-    base.push(2 + k * (m.ramp + m.cliff))
+  // puncak sedikit bergeser dari tengah
+  const cx = (rand() - 0.5) * R0 * 0.18
+  const cz = (rand() - 0.5) * R0 * 0.18
+  const footR = (th: number) => R0 * (1 + 0.13 * loopNoise(th, 4, seed + 5) + 0.05 * loopNoise(th, 11, seed + 6))
+  const tOf = (x: number, z: number) => {
+    const dx = x - cx
+    const dz = z - cz
+    return { t: Math.hypot(dx, dz) / footR(Math.atan2(dz, dx)), th: Math.atan2(dz, dx) }
   }
-  const ringR = (k: number, th: number) => radii[k] * (1 + (k === 0 ? 0.07 : 0.06) * loopNoise(th, 5 + k, seed + k * 17))
-  const uOf = (k: number, th: number) => wrap01((th - theta[k]) / TAU)
-
-  // celah pulau (Pulau Langit) & jurang (Ngarai Kristal): sudut u di tiap cincin
-  const gapCount = m.islands ?? (id === 'kristal' ? 2 : 0)
-  const gaps: { k: number; u: number; w: number }[] = []
-  for (let k = 0; k < Z; k++) {
-    for (let g = 0; g < gapCount; g++) {
-      const u = 0.18 + ((g + 0.2 + rand() * 0.6) / gapCount) * 0.64
-      gaps.push({ k, u, w: 7 + rand() * 4 })
-    }
-  }
-  const gapDepth = id === 'langit' ? -60 : -13
-
-  // pilar menjulang (Ngarai Merah, Ngarai Kristal)
-  const pillars: { x: number; z: number; r: number; hgt: number }[] = []
-  for (let i = 0; i < (m.pillars ?? 0) * (Z / 4); i++) {
-    const k = Math.floor(rand() * Z)
-    const u = 0.12 + rand() * 0.76
-    const th = theta[k] + u * TAU
-    const rr = (ringR(k, th) + ringR(k + 1, th)) / 2 + (rand() - 0.5) * (radii[k] - radii[k + 1]) * 0.5
-    // jangan menutup jalur tengah cincin
-    const mid = (ringR(k, th) + ringR(k + 1, th)) / 2
-    const off = Math.abs(rr - mid) < 6 ? (rr < mid ? -6 : 6) : 0
-    pillars.push({ x: Math.cos(th) * (rr + off), z: Math.sin(th) * (rr + off), r: 2.6 + rand() * 3, hgt: 7 + rand() * 13 })
-  }
-
-  const plateau = (k: number, x: number, z: number, th: number) => {
-    const u = uOf(k, th)
-    let rampH = m.ramp * u
-    if (m.terrace > 0) {
-      const q = rampH / m.terrace
+  /** kubah dasar: kerucut sedikit cembung, kaki melandai jadi pelataran */
+  const dome = (x: number, z: number) => {
+    const { t } = tOf(x, z)
+    const u = Math.max(0, 1 - t)
+    let d = HT * (u ** 1.05) * (0.92 + 0.08 * u)
+    if (m.terrace > 0 && d < HT * 0.62) {
+      // kebun teh: teras-teras di lereng bawah
+      const step = 2.6
+      const q = d / step
       const f = q - Math.floor(q)
-      rampH = (Math.floor(q) + smooth(0.8, 1, f)) * m.terrace
+      d = lerp(d, (Math.floor(q) + smooth(0.78, 1, f)) * step, smooth(HT * 0.62, HT * 0.5, d))
     }
-    const bumps = fbm(x * 0.045, z * 0.045, seed + 300 + k, 4) * 1.4 * m.rough + fbm(x * 0.16, z * 0.16, seed + 400, 2) * 0.35 * m.rough
-    return base[k] + rampH + (m.terrace > 0 ? bumps * 0.25 : bumps)
+    return d + 2
   }
+  const blockSize = m.block ?? 11
+  const faceSlope = 3.1
+  const jag = m.jag ?? 3
 
-  const summitH = (x: number, z: number, r: number) => {
-    const b = base[Z]
-    const t = r / radii[Z]
-    if (m.crater) {
-      // bibir kawah di 0,6 R lalu turun tajam ke danau lava
-      const rim = Math.exp(-((t - 0.62) ** 2) / 0.03) * 9
-      const pit = smooth(0.5, 0.3, t) * 16
-      return b + rim - pit + fbm(x * 0.1, z * 0.1, seed + 9, 3) * 0.6
+  // data sel bongkahan disimpan: kubah dihitung sekali per sel, bukan per sampel
+  const cellCache = new Map<number, { sx: number; sz: number; top: number; tx: number; tz: number }>()
+  const cellOf = (ix: number, iz: number, bs: number) => {
+    const q = Math.round(bs * 4)
+    const key = (ix * 73856093) ^ (iz * 19349663) ^ (q * 83492791)
+    let c = cellCache.get(key)
+    if (!c) {
+      const sx = (ix + 0.15 + cellHash(ix, iz, seed, 1) * 0.7) * bs
+      const sz = (iz + 0.15 + cellHash(ix, iz, seed, 2) * 0.7) * bs
+      const dc = dome(sx, sz)
+      c = { sx, sz, top: dc + (cellHash(ix, iz, seed, 3) - 0.35) * jag * 2, tx: (dome(sx + 1, sz) - dc) * 0.22, tz: (dome(sx, sz + 1) - dc) * 0.22 }
+      cellCache.set(key, c)
     }
-    return b + Math.max(0, 1 - t) ** 1.6 * 14 + fbm(x * 0.08, z * 0.08, seed + 9, 3) * 0.8
+    return c
   }
-
-  const raw = (x: number, z: number) => {
-    const r = Math.hypot(x, z)
-    const th = Math.atan2(z, x)
-    let H = summitH(x, z, r)
-    for (let k = Z - 1; k >= 0; k--) {
-      const Rb = ringR(k + 1, th)
-      // tebing: profil curam dengan bibir; lapisan strata membuat pegangan
-      // lebar tebing 4,8 m: cukup curam untuk dipanjat, cukup lebar supaya tidak bergerigi mengikuti grid
-      const w = 2.4
-      const t = smooth(Rb - w, Rb + w, r)
-      let P = plateau(k, x, z, th)
-      // celah di cincin ini
-      for (const g of gaps) {
-        if (g.k !== k) continue
-        const arc = Math.abs(((uOf(k, th) - g.u + 0.5 + 1) % 1) - 0.5) * TAU * r
-        const inBand = smooth(Rb + 1, Rb + 4, r) * smooth(ringR(k, th) + (k === 0 ? 8 : 2), ringR(k, th) - 1, r)
-        const cut = smooth(g.w * 0.5 + 1.2, g.w * 0.5 - 0.6, arc) * inBand
-        // Pulau Langit: jatuh ke awan; Ngarai Kristal: jurang yang bisa dipanjat keluar
-        P = P * (1 - cut) + (id === 'langit' ? gapDepth : P + gapDepth) * cut
+  /** bongkahan: sel Voronoi pada domain yang dibengkokkan; tinggi tiap titik = balok tertinggi yang menaunginya */
+  const blocks = (x: number, z: number) => {
+    const wx = x + fbm(x * 0.02, z * 0.02, seed + 31, 3) * 7
+    const wz = z + fbm(x * 0.02 + 40, z * 0.02, seed + 32, 3) * 7
+    // ukuran sel 3 tingkat: besar di kaki, kecil di atas
+    const lvl = Math.min(2, Math.floor((dome(x, z) / HT) * 3))
+    const bs = blockSize * [1.1, 0.9, 0.72][lvl]
+    const gx = Math.floor(wx / bs)
+    const gz = Math.floor(wz / bs)
+    const cells: { sx: number; sz: number; top: number; d2: number }[] = []
+    for (let oz = -1; oz <= 1; oz++) {
+      for (let ox = -1; ox <= 1; ox++) {
+        const ix = gx + ox
+        const iz = gz + oz
+        const c = cellOf(ix, iz, bs)
+        const d2 = (wx - c.sx) ** 2 + (wz - c.sz) ** 2
+        // tepian atas sedikit miring mengikuti lereng
+        const top = c.top + c.tx * (wx - c.sx) + c.tz * (wz - c.sz)
+        cells.push({ sx: c.sx, sz: c.sz, top, d2 })
       }
-      H = H + (P - H) * t
     }
-    // pinggir pulau: pantai landai, atau tebing ke awan
-    const R0t = ringR(0, th)
-    if (id === 'langit') {
-      H = H + (-60 - H) * smooth(R0t - 1, R0t + 3, r)
-    } else {
-      const edge = base[0] - (r - R0t) * (m.sea?.kind === 'air' ? 0.22 : 0.3) + fbm(x * 0.05, z * 0.05, seed + 77, 3) * 1.2
-      H = H + (Math.max(edge, -9) - H) * smooth(R0t - 6, R0t + 6, r)
+    let near = cells[0]
+    for (const c of cells) if (c.d2 < near.d2) near = c
+    // tepi atas sedikit membulat: turun pelan 0,6 m di dekat batas sel
+    let edge = Infinity
+    for (const c of cells) {
+      if (c === near) continue
+      const sep = Math.hypot(c.sx - near.sx, c.sz - near.sz) || 1
+      edge = Math.min(edge, (c.d2 - near.d2) / (2 * sep))
     }
-    // permukaan tebing berlapis
-    const cliffy = fbm(x * 0.3, z * 0.3, seed + 501, 2) * 0.35 + ridge(x * 0.12, z * 0.12, seed + 502, 2) * 0.25
-    H += cliffy
+    // bongkahan membulat: tepi atas melengkung turun ±1,8 m seperti batu besar, bukan balok tajam
+    let H = near.top - 1.8 * (1 - smooth(0, 4, edge)) ** 2
+    for (const c of cells) {
+      if (c === near) continue
+      // jarak ke garis bagi dua sel = jarak ke wilayah sel tetangga
+      const sep = Math.hypot(c.sx - near.sx, c.sz - near.sz) || 1
+      const bis = (c.d2 - near.d2) / (2 * sep)
+      H = Math.max(H, c.top - bis * faceSlope)
+    }
+    return H
+  }
+
+  // pilar batu di kaki gunung (seperti tiang-tiang batu di sekitar massif)
+  const pillars: { x: number; z: number; r: number; hgt: number; rot: number }[] = []
+  const pillarCount = 10 + (m.pillars ?? 0) * 2
+  for (let i = 0; i < pillarCount; i++) {
+    const th = rand() * TAU
+    const t = 0.78 + rand() * 0.3
+    const r = footR(th) * t
+    pillars.push({ x: cx + Math.cos(th) * r, z: cz + Math.sin(th) * r, r: 1.6 + rand() * 2.6, hgt: 5 + rand() * (m.pillars ? 16 : 9), rot: rand() * TAU })
+  }
+
+  // ---------- jalur spiral ----------
+  const turns = Z >= 4 ? 2.3 : Z === 3 ? 1.9 : 1.45
+  const tStart = 0.9
+  const tEnd = m.crater ? 0.115 : 0.0
+  const pathPts: { x: number; z: number; s: number; d: number }[] = []
+  {
+    const N = 4000
+    let acc = 0
+    let px = 0
+    let pz = 0
+    for (let i = 0; i <= N; i++) {
+      const s = i / N
+      const th = theta0 + turns * TAU * s
+      const tt = lerp(tStart, tEnd, s ** 0.92) + 0.025 * Math.sin(s * 37 + seed) * (1 - s)
+      const r = footR(th) * tt
+      const x = cx + Math.cos(th) * r
+      const z = cz + Math.sin(th) * r
+      if (i > 0) acc += Math.hypot(x - px, z - pz)
+      px = x
+      pz = z
+      pathPts.push({ x, z, s, d: acc })
+    }
+  }
+  const pathLen = pathPts[pathPts.length - 1].d
+  // titik setiap ~0,75 m
+  const trail: { x: number; z: number; d: number; y: number; dx: number; dz: number }[] = []
+  {
+    let k = 0
+    for (let d = 0; d <= pathLen; d += 0.75) {
+      while (k < pathPts.length - 2 && pathPts[k + 1].d < d) k++
+      const a = pathPts[k]
+      const b = pathPts[k + 1]
+      const f = (d - a.d) / Math.max(1e-6, b.d - a.d)
+      const x = lerp(a.x, b.x, f)
+      const z = lerp(a.z, b.z, f)
+      const l = Math.hypot(b.x - a.x, b.z - a.z) || 1
+      trail.push({ x, z, d, y: 0, dx: (b.x - a.x) / l, dz: (b.z - a.z) / l })
+    }
+  }
+  const T = trail.length
+
+  // celah (Pulau Langit: celah ke awan; Ngarai Kristal: jurang): pita radial di sudut tertentu
+  const gapCount = m.islands ?? (id === 'kristal' ? 2 : 0)
+  const gaps = Array.from({ length: gapCount }, (_, g) => ({ phi: theta0 + ((g + 0.5) / gapCount) * TAU + (rand() - 0.5) * 0.4, w: 7 + rand() * 3 }))
+  const gapDepth = id === 'langit' ? -60 : -13
+  const angDist = (a: number, b: number) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)))
+  const gapAt = (x: number, z: number) => {
+    const { t, th } = tOf(x, z)
+    if (t < 0.16) return null
+    const r = t * footR(th)
+    for (const g of gaps) if (angDist(th, g.phi) * r < g.w * 0.5 + 5.5) return { g, arc: angDist(th, g.phi) * r }
+    return null
+  }
+
+  // ketinggian jalur: landai pelan, lalu tebing panjat pendek setiap kali tertinggal dari lereng.
+  // Dua kali: pertama untuk tahu ketinggian, lalu api unggun ditaruh merata menurut ketinggian
+  // (bukan jarak) dan tebing tidak boleh jatuh di dekatnya.
+  let campD: number[] = []
+  let steps: { d0: number; d1: number }[] = []
+  const layTrail = (avoid: number[], salt: number) => {
+    const r2 = rng(seed * 13 + salt)
+    const out: { d0: number; d1: number }[] = []
+    let y = dome(trail[0].x, trail[0].z)
+    let stepEnd = -1
+    let stepFrom = 0
+    let stepTo = 0
+    let stepAt = 0
+    let want = 5.5 + r2() * 3.5
+    for (let i = 0; i < T; i++) {
+      const p = trail[i]
+      const nat = dome(p.x, p.z)
+      if (stepEnd > p.d) {
+        // naik di tebing panjat: kemiringan ±2,3 (lebih curam dari batas jalan)
+        y = lerp(stepFrom, stepTo, smooth(stepAt, stepEnd, p.d))
+      } else {
+        y += 0.75 * 0.05
+        const nearCamp = avoid.some((c) => Math.abs(c - p.d) < 12)
+        const nearGap = gaps.length > 0 && (gapAt(p.x, p.z) || gapAt(p.x + p.dx * 9, p.z + p.dz * 9) || gapAt(p.x - p.dx * 9, p.z - p.dz * 9))
+        // menjelang puncak tebingnya lebih sering supaya tidak tersisa satu tebing raksasa
+        const need = p.d > pathLen - 70 ? 3 : want
+        if (nat - y > need && !nearCamp && !nearGap && p.d < pathLen - 6) {
+          stepFrom = y
+          stepTo = Math.min(nat, y + 10)
+          stepAt = p.d
+          stepEnd = p.d + (stepTo - stepFrom) / 2.3
+          out.push({ d0: stepAt, d1: stepEnd })
+          want = 5.5 + r2() * 3.5
+        }
+        if (y > nat + 1.5) y = nat + 1.5
+      }
+      p.y = y
+    }
+    return out
+  }
+  const pickCamps = () => {
+    const y0 = trail[0].y
+    const y1 = trail[T - 1].y
+    return Array.from({ length: Z }, (_, k) => {
+      if (k === 0) return 6
+      const goal = y0 + ((y1 - y0) * k) / Z
+      const i = trail.findIndex((p) => p.y >= goal)
+      return trail[Math.max(0, i)].d + 8
+    })
+  }
+  layTrail([], 1)
+  campD = pickCamps()
+  steps = layTrail(campD, 1)
+  {
+    // ujung jalur menuju puncak
+    // sisa ketinggian dibagi jadi beberapa tebing ≤ 8,5 m dengan pijakan di antaranya
+    const last = trail[T - 1]
+    const summitY = Math.max(last.y, dome(last.x, last.z))
+    if (summitY - last.y > 0.5) {
+      const yAt = (d: number) => trail[Math.max(0, Math.min(T - 1, Math.round(d / 0.75)))].y
+      // tiap anak tangga: tebing ≤ 8,5 m + pijakan 5 m; mundur sampai cukup tempat & tidak memotong tebing lama
+      const CH = 8.5 / 2.3 + 5
+      let dStart = last.d - Math.ceil((summitY - last.y) / 8.5) * CH
+      for (let it = 0; it < 8; it++) {
+        const hit = steps.filter((st) => st.d1 + 1 > dStart)
+        if (hit.length) {
+          dStart = Math.min(...hit.map((st) => st.d0 - 1))
+          steps = steps.filter((st) => st.d1 + 1 <= dStart)
+        }
+        const need = Math.ceil((summitY - yAt(dStart)) / 8.5) * CH
+        if (last.d - dStart >= need || dStart <= trail[0].d) break
+        dStart = last.d - need
+      }
+      dStart = Math.max(trail[0].d, dStart)
+      const base0 = yAt(dStart)
+      const count = Math.max(1, Math.ceil((summitY - base0) / 8.5))
+      const each = (summitY - base0) / count
+      const run = each / 2.3
+      const chunk = (last.d - dStart) / count
+      const ups: { d0: number; d1: number }[] = []
+      for (let c = 0; c < count; c++) {
+        const d1 = Math.min(last.d, dStart + (c + 1) * chunk)
+        ups.push({ d0: d1 - run, d1 })
+      }
+      for (const p of trail) {
+        if (p.d < dStart) continue
+        let y = base0
+        for (const u of ups) y += each * smooth(u.d0, u.d1, p.d)
+        p.y = y
+      }
+      steps.push(...ups)
+    }
+  }
+  const trailYAt = (d: number) => trail[Math.max(0, Math.min(T - 1, Math.round(d / 0.75)))].y
+
+  // indeks ruang untuk mencari titik jalur terdekat dari sampel medan
+  const HC = 8
+  const hgrid = new Map<number, number[]>()
+  const hkey = (ix: number, iz: number) => ix * 100003 + iz
+  trail.forEach((p, i) => {
+    const k = hkey(Math.floor(p.x / HC), Math.floor(p.z / HC))
+    const list = hgrid.get(k)
+    if (list) list.push(i)
+    else hgrid.set(k, [i])
+  })
+  const nearestTrail = (x: number, z: number) => {
+    const ix = Math.floor(x / HC)
+    const iz = Math.floor(z / HC)
+    let best = -1
+    let bd = Infinity
+    for (let oz = -1; oz <= 1; oz++) {
+      for (let ox = -1; ox <= 1; ox++) {
+        const list = hgrid.get(hkey(ix + ox, iz + oz))
+        if (!list) continue
+        for (const i of list) {
+          const p = trail[i]
+          const d = (p.x - x) ** 2 + (p.z - z) ** 2
+          if (d < bd) {
+            bd = d
+            best = i
+          }
+        }
+      }
+    }
+    return { i: best, d: Math.sqrt(bd) }
+  }
+
+  const WIDTH = 2.3
+  const FADE = 3.2
+  const raw = (x: number, z: number) => {
+    const { t, th } = tOf(x, z)
+    // massif bongkahan, menyatu ke pelataran kaki gunung
+    let H = t < 1.08 ? blocks(x, z) : dome(x, z)
+    const apron = dome(x, z) + fbm(x * 0.05, z * 0.05, seed + 77, 3) * 0.8
+    H = lerp(H, apron, smooth(0.86, 1.04, t))
+    H += fbm(x * 0.35, z * 0.35, seed + 501, 2) * 0.22
+    // pilar
     for (const p of pillars) {
-      const d = Math.hypot(x - p.x, z - p.z)
-      if (d > p.r + 3) continue
-      const top = smooth(p.r + 1.2, p.r - 0.6, d)
-      H = Math.max(H, H + top * p.hgt + (d < p.r ? fbm(x * 0.4, z * 0.4, seed + 61, 2) * 0.5 : 0))
+      const dx = x - p.x
+      const dz = z - p.z
+      if (Math.abs(dx) > p.r + 4 || Math.abs(dz) > p.r + 4) continue
+      // penampang segi enam: sisi datar bersegi
+      const a = Math.atan2(dz, dx) - p.rot
+      const seg = Math.PI / 3
+      const hex = Math.hypot(dx, dz) * Math.cos(((a % seg) + seg) % seg - seg / 2) / Math.cos(seg / 2)
+      const base = dome(p.x, p.z)
+      const top = base + p.hgt
+      H = Math.max(H, top - Math.max(0, hex - p.r) * 3.2)
+    }
+    // pinggir: pantai landai, atau jurang ke awan
+    if (id === 'langit') H = lerp(H, -60, smooth(1.0, 1.08, t))
+    else {
+      const edge = 2 - (t - 1) * R0 * (m.sea?.kind === 'air' ? 0.2 : 0.28) + fbm(x * 0.05, z * 0.05, seed + 78, 3) * 1.2
+      H = lerp(H, Math.max(edge, -9), smooth(1.0, 1.12, t))
+    }
+    // jalur dipahat ke lereng
+    const nt = nearestTrail(x, z)
+    if (nt.i >= 0) {
+      const ty = trail[nt.i].y
+      // dinding potongan jalur tidak lebih curam dari muka bongkahan (±67°)
+      const fade = Math.min(9, Math.max(FADE, Math.abs(H - ty) / 2.4))
+      if (nt.d < WIDTH + fade) H = lerp(H, ty + fbm(x * 0.4, z * 0.4, seed + 88, 2) * 0.12, smooth(WIDTH + fade, WIDTH, nt.d))
+    }
+    // kawah lava di puncak
+    if (m.crater) {
+      const dc = Math.hypot(x - cx, z - cz)
+      const rim = footR(th) * 0.115
+      const pit = smooth(rim * 0.85, rim * 0.45, dc)
+      H = lerp(H, HT - 14, pit)
+    }
+    // celah: dipotong paling akhir (jalur menyeberang lewat jembatan)
+    const g = gaps.length ? gapAt(x, z) : null
+    if (g) {
+      // jurang kristal: dinding miring yang bisa dipanjat keluar; celah awan: tebing pulau
+      const soft = id === 'langit' ? 1.8 : 5.5
+      const cut = smooth(g.g.w * 0.5 - 0.6 + soft, g.g.w * 0.5 - 0.6, g.arc)
+      H = lerp(H, id === 'langit' ? gapDepth : H + gapDepth, cut)
     }
     return H
   }
@@ -178,6 +437,8 @@ export function buildTerrain(id: MountainId, zones: number, seed: number): Terra
     for (let i = 0; i < n; i++) h[j * n + i] = raw(i * CELL - half, j * CELL - half)
   }
 
+  // batas zona = ketinggian jalur di tiap seperempat
+  const base = Array.from({ length: Z + 1 }, (_, k) => (k === Z ? trail[T - 1].y : trailYAt(campD[k])))
   const terrain: Terrain = {
     id,
     m,
@@ -189,15 +450,15 @@ export function buildTerrain(id: MountainId, zones: number, seed: number): Terra
     w: new Uint8Array(n * n * 4),
     snow: new Uint8Array(n * n),
     zone: new Uint8Array(n * n),
-    radii,
     base,
-    theta,
+    center: { x: cx, z: cz },
     solids: [],
     decks: [],
     vines: [],
     camps: [],
     chests: [],
     route: [],
+    falls: [],
     start: { x: 0, y: 0, z: 0, yaw: 0 },
     summit: { x: 0, y: 0, z: 0 },
     rocks: [],
@@ -206,100 +467,141 @@ export function buildTerrain(id: MountainId, zones: number, seed: number): Terra
     crabs: [],
     bats: [],
     updrafts: [],
-    lavaY: m.crater ? base[Z] - 2.5 : null,
-    craterR: m.crater ? radii[Z] * 0.42 : 0,
+    lavaY: m.crater ? HT - 13 : null,
+    craterR: m.crater ? footR(0) * 0.1 : 0,
+  }
+  const zoneOfY = (y: number) => {
+    let k = 0
+    for (let q = 1; q < Z; q++) if (y >= base[q] - 1.5) k = q
+    return k
   }
 
-  const zoneAt = (x: number, z: number) => {
-    const r = Math.hypot(x, z)
-    const th = Math.atan2(z, x)
-    for (let k = 0; k < Z; k++) if (r >= ringR(k + 1, th)) return k
-    return Z - 1
-  }
-  const midR = (k: number, th: number) => (ringR(k, th) + ringR(k + 1, th)) / 2
-  const at = (k: number, u: number, dr = 0) => {
-    const th = theta[k] + u * TAU
-    const r = midR(k, th) + dr
-    const x = Math.cos(th) * r
-    const z = Math.sin(th) * r
-    return { x, z, th }
-  }
-  const inGap = (k: number, u: number, pad = 0.02) => gaps.some((g) => g.k === k && Math.abs(((u - g.u + 0.5 + 1) % 1) - 0.5) < g.w / (TAU * midR(k, theta[k] + u * TAU)) + pad)
-
-  // api unggun: awal tiap cincin (cincin 0 = titik mulai), tanah diratakan
+  // api unggun di jalur
   for (let k = 0; k < Z; k++) {
-    const u = k === 0 ? 0.03 : wrap01((theta[k - 1] + TAU * 0.982 - theta[k]) / TAU) + 0.03
-    const p = at(k, u)
-    flatten(terrain, p.x, p.z, 4.5)
-    terrain.camps.push({ zone: k, x: p.x, y: heightAt(terrain, p.x, p.z), z: p.z })
+    const p = trail[Math.min(T - 1, Math.round(campD[k] / 0.75))]
+    const x = p.x - p.dz * 1.2
+    const z = p.z + p.dx * 1.2
+    flatten(terrain, x, z, 4)
+    terrain.camps.push({ zone: k, x, y: heightAt(terrain, x, z), z })
   }
-  // puncak
   {
-    const th = theta[Z - 1] + TAU * 0.982
-    const r = m.crater ? radii[Z] * 0.62 : 0
-    const x = Math.cos(th) * r
-    const z = Math.sin(th) * r
-    flatten(terrain, x, z, 3.5)
-    terrain.summit = { x, y: heightAt(terrain, x, z), z }
+    const p = trail[T - 1]
+    flatten(terrain, p.x, p.z, 3.2)
+    terrain.summit = { x: p.x, y: heightAt(terrain, p.x, p.z), z: p.z }
   }
-  const c0 = terrain.camps[0]
-  const s0 = at(0, 0.06)
-  terrain.start = { x: s0.x, y: heightAt(terrain, s0.x, s0.z), z: s0.z, yaw: Math.atan2(s0.x - c0.x, s0.z - c0.z) }
+  {
+    const p = trail[Math.round(3 / 0.75)]
+    terrain.start = { x: p.x, y: heightAt(terrain, p.x, p.z), z: p.z, yaw: Math.atan2(p.dx, p.dz) }
+  }
 
-  // jembatan di atas celah
+  // jembatan di tempat jalur menyeberangi celah
   let deckId = 0
-  for (const g of gaps) {
-    const th = theta[g.k] + g.u * TAU
-    const r = midR(g.k, th)
-    const x = Math.cos(th) * r
-    const z = Math.sin(th) * r
-    const top = plateau(g.k, x, z, th) + 0.15
-    // dua jembatan: lurus di tengah, dan satu lagi lebih dalam untuk jalan pintas
-    // sumbu panjang (hz) searah garis singgung cincin; ujung papan menempel ke tanah di kedua sisi
-    const yaw = Math.atan2(-Math.sin(th), Math.cos(th))
-    const hz = g.w * 0.5 + 2.6
-    const end = (s: number) => heightAt(terrain, x + Math.sin(yaw) * s, z + Math.cos(yaw) * s) + 0.12
-    const y0 = end(-hz)
-    const y1 = end(hz)
-    terrain.decks.push({ id: deckId++, x, z, hx: 1.3, hz, yaw, top: Math.max(y0, y1), y0, y1, fragile: id === 'kristal' })
-    terrain.updrafts.push({ x, y: top - 10, z, r: 3.2, a: top + 5, b: 0 })
-  }
-
-  // rute bot: keliling tiap cincin lalu panjat tebing di sambungan
-  for (let k = 0; k < Z; k++) {
-    const u0 = k === 0 ? 0.04 : wrap01((theta[k - 1] + TAU * 0.982 - theta[k]) / TAU) + 0.04
-    const len = TAU * midR(k, theta[k] + TAU / 2)
-    const steps = Math.ceil(((0.976 - u0) * len) / 7)
-    for (let s = 0; s <= steps; s++) {
-      const u = u0 + ((0.976 - u0) * s) / steps
-      const p = at(k, u)
-      terrain.route.push({ x: p.x, y: groundTop(terrain, p.x, p.z), z: p.z, climb: false })
+  if (gaps.length) {
+    let inside = false
+    let enter = 0
+    for (let i = 0; i < T; i++) {
+      const p = trail[i]
+      const g = gapAt(p.x, p.z)
+      const cutHere = g !== null && g.arc < g.g.w * 0.5 + (id === 'langit' ? 0.6 : 4.6)
+      if (cutHere && !inside) {
+        inside = true
+        enter = i
+      } else if (!cutHere && inside) {
+        inside = false
+        const a = trail[Math.max(0, enter - 4)]
+        const b = trail[Math.min(T - 1, i + 3)]
+        const x = (a.x + b.x) / 2
+        const z = (a.z + b.z) / 2
+        const yaw = Math.atan2(b.x - a.x, b.z - a.z)
+        const hz = Math.hypot(b.x - a.x, b.z - a.z) / 2
+        const y0 = heightAt(terrain, a.x, a.z) + 0.12
+        const y1 = heightAt(terrain, b.x, b.z) + 0.12
+        terrain.decks.push({ id: deckId++, x, z, hx: 1.3, hz, yaw, top: Math.max(y0, y1), y0, y1, fragile: id === 'kristal' })
+        terrain.updrafts.push({ x, y: (y0 + y1) / 2 - 12, z, r: 3.2, a: (y0 + y1) / 2 + 5, b: 0 })
+      }
     }
-    // titik panjat ke cincin dalam (atau ke puncak)
-    const th = theta[k] + TAU * 0.982
-    const Rb = ringR(k + 1, th)
-    const foot = { x: Math.cos(th) * (Rb + 2.6), z: Math.sin(th) * (Rb + 2.6) }
-    const top = { x: Math.cos(th) * (Rb - 2.6), z: Math.sin(th) * (Rb - 2.6) }
-    terrain.route.push({ x: foot.x, y: heightAt(terrain, foot.x, foot.z), z: foot.z, climb: false })
-    terrain.route.push({ x: top.x, y: heightAt(terrain, top.x, top.z), z: top.z, climb: true })
   }
-  terrain.route.push({ ...terrain.summit, climb: false })
 
-  // sulur tergantung di tebing (jalan pintas)
+  // rute bot: titik jalur tiap ~6 m; titik puncak tebing ditandai panjat
+  {
+    const inStep = (d: number) => steps.find((s) => d >= s.d0 - 0.5 && d <= s.d1 + 0.5)
+    let last = -Infinity
+    for (let i = 0; i < T; i++) {
+      const p = trail[i]
+      const st = inStep(p.d)
+      if (st) {
+        if (p.d <= st.d0 + 0.75 && p.d > st.d0 - 0.25) {
+          // kaki tebing & bibir atasnya
+          const f = trail[Math.max(0, Math.round((st.d0 - 1.5) / 0.75))]
+          const top = trail[Math.min(T - 1, Math.round((st.d1 + 1.8) / 0.75))]
+          terrain.route.push({ x: f.x, y: groundTop(terrain, f.x, f.z), z: f.z, climb: false })
+          terrain.route.push({ x: top.x, y: groundTop(terrain, top.x, top.z), z: top.z, climb: true })
+          last = top.d
+        }
+        continue
+      }
+      if (p.d - last < 6 && i < T - 1) continue
+      if (p.d < last) continue
+      // di atas jembatan: titik rute digeser ke garis tengah papan (jalur melengkung, papan lurus)
+      let px = p.x
+      let pz = p.z
+      for (const d of terrain.decks) {
+        const along = (px - d.x) * Math.sin(d.yaw) + (pz - d.z) * Math.cos(d.yaw)
+        const across = (px - d.x) * Math.cos(d.yaw) - (pz - d.z) * Math.sin(d.yaw)
+        if (Math.abs(along) <= d.hz && Math.abs(across) < 5) {
+          px = d.x + Math.sin(d.yaw) * along
+          pz = d.z + Math.cos(d.yaw) * along
+        }
+      }
+      terrain.route.push({ x: px, y: groundTop(terrain, px, pz), z: pz, climb: false })
+      last = p.d
+    }
+    const s = terrain.summit
+    const end = terrain.route[terrain.route.length - 1]
+    if (Math.hypot(end.x - s.x, end.z - s.z) > 0.5) terrain.route.push({ ...s, climb: false })
+  }
+
+  // air terjun di beberapa tebing panjat
+  if (m.id === 'karang' || m.id === 'rimba') {
+    for (let q = 1; q < steps.length - 1 && terrain.falls.length < 3; q += Math.max(2, Math.floor(steps.length / 3))) {
+      const st = steps[q]
+      const top = trail[Math.min(T - 1, Math.round(st.d1 / 0.75))]
+      // menghadap ke luar gunung, di samping jalur
+      const ox = top.x - cx
+      const oz = top.z - cz
+      const ol = Math.hypot(ox, oz) || 1
+      terrain.falls.push({ x: top.x - top.dz * 5, z: top.z + top.dx * 5, dx: ox / ol, dz: oz / ol })
+    }
+  }
+
+  // sulur di muka bongkahan dekat jalur (jalan pintas ke tikungan di atas)
   let ropeId = 0
-  for (let i = 0; i < (m.vines ?? 0) * Math.max(1, Z - 1); i++) {
-    const k = Math.floor(rand() * Z)
-    const u = 0.15 + rand() * 0.7
-    const th = theta[k] + u * TAU
-    const Rb = ringR(k + 1, th)
-    const tx = Math.cos(th) * (Rb - 1.2)
-    const tz = Math.sin(th) * (Rb - 1.2)
-    const bx = Math.cos(th) * (Rb + 2.4)
-    const bz = Math.sin(th) * (Rb + 2.4)
-    const top = heightAt(terrain, tx, tz)
-    const bottom = heightAt(terrain, bx, bz)
-    if (top - bottom < 6) continue
-    terrain.vines.push({ id: ropeId++, x: Math.cos(th) * (Rb + 1.4), z: Math.sin(th) * (Rb + 1.4), top: top + 0.2, bottom: bottom + 0.3, nx: Math.cos(th), nz: Math.sin(th), tx, tz, kind: 'sulur' })
+  for (let i = 0; i < (m.vines ?? 0) * Z * 2 && terrain.vines.length < (m.vines ?? 0) * Z; i++) {
+    const p = trail[Math.floor(rand() * T)]
+    if (steps.some((s) => Math.abs(s.d0 - p.d) < 10)) continue
+    // dari jalur ke arah puncak: cari kaki tebing lalu bibirnya
+    const ux = cx - p.x
+    const uz = cz - p.z
+    const ul = Math.hypot(ux, uz) || 1
+    const dx = ux / ul
+    const dz = uz / ul
+    let foot: [number, number] | null = null
+    let top: [number, number] | null = null
+    for (let d = 2; d < 16; d += 0.5) {
+      const x = p.x + dx * d
+      const z = p.z + dz * d
+      const sl = slopeAt(terrain, x, z)
+      if (!foot && sl > 1.3) foot = [x, z]
+      else if (foot && sl < 0.6) {
+        top = [x + dx, z + dz]
+        break
+      }
+    }
+    if (!foot || !top) continue
+    const bottom = heightAt(terrain, foot[0], foot[1])
+    const topY = heightAt(terrain, top[0], top[1])
+    if (topY - bottom < 5) continue
+    terrain.vines.push({ id: ropeId++, x: foot[0] - dx * 0.5, z: foot[1] - dz * 0.5, top: topY + 0.2, bottom: bottom + 0.3, nx: -dx, nz: -dz, tx: top[0], tz: top[1], kind: 'sulur' })
   }
 
   // bobot tekstur, salju, zona per sampel
@@ -308,7 +610,8 @@ export function buildTerrain(id: MountainId, zones: number, seed: number): Terra
       const x = i * CELL - half
       const z = j * CELL - half
       const idx = j * n + i
-      const k = zoneAt(x, z)
+      const hy = h[idx]
+      const k = zoneOfY(hy)
       const zn = m.zones[k]
       terrain.zone[idx] = k
       const a = noise2(x * 0.06, z * 0.06, seed + 11)
@@ -316,148 +619,134 @@ export function buildTerrain(id: MountainId, zones: number, seed: number): Terra
       const c = noise2(x * 0.03, z * 0.03 + 4, seed + 13)
       let w1 = smooth(0.45, 0.7, a)
       let w2 = smooth(0.55, 0.78, b)
-      let w3 = smooth(0.6, 0.85, c)
-      // dekat kaki tebing: slot 2 (biasanya lembap/berbatu) lebih banyak
+      const w3 = smooth(0.6, 0.85, c)
       const [gx, gz] = gradAt(terrain, x, z)
       const slope = Math.hypot(gx, gz)
       w2 = Math.min(1, w2 + smooth(0.3, 0.9, slope) * 0.6)
-      // jalur tengah cincin: lebih banyak tanah injakan (slot 1)
-      const r = Math.hypot(x, z)
-      const th = Math.atan2(z, x)
-      const md = Math.abs(r - midR(k, th))
-      w1 = Math.max(w1, smooth(2.2, 0.6, md) * 0.75)
-      let w0 = 1
-      w0 = Math.max(0, w0 - w1 - w2 * 0.8 - w3 * 0.6)
+      // jalan setapak: slot 1 (tanah injakan)
+      const nt = nearestTrail(x, z)
+      if (nt.i >= 0) w1 = Math.max(w1, smooth(WIDTH, WIDTH * 0.35, nt.d) * 0.8)
+      const w0 = Math.max(0, 1 - w1 - w2 * 0.8 - w3 * 0.6)
       const sum = w0 + w1 + w2 + w3 || 1
       terrain.w[idx * 4] = Math.round((w0 / sum) * 255)
       terrain.w[idx * 4 + 1] = Math.round((w1 / sum) * 255)
       terrain.w[idx * 4 + 2] = Math.round((w2 / sum) * 255)
       terrain.w[idx * 4 + 3] = Math.round((w3 / sum) * 255)
-      // salju: zona bersalju, lebih tebal di dataran dan makin tinggi makin penuh
-      const hy = h[idx]
       let s = zn.snow
-      if (k < Z - 1 && m.zones[k + 1].snow > 0) s += smooth(0.7, 1, uOf(k, th)) * 0.3
+      if (k < Z - 1 && m.zones[k + 1].snow > 0) s += smooth(base[k + 1] - 12, base[k + 1], hy) * 0.3
       s *= 0.75 + noise2(x * 0.08, z * 0.08, seed + 14) * 0.5
       s *= 1 - smooth(0.7, 1.6, slope) * 0.85
-      if (id === 'salju' && hy > base[Z]) s = 1
+      if (id === 'salju' && hy > base[Z] - 6) s = 1
       terrain.snow[idx] = Math.round(Math.min(1, Math.max(0, s)) * 255)
     }
   }
 
-  const routeNear = (x: number, z: number, pad: number) => {
+  const nearRoute = (x: number, z: number, pad: number) => {
     for (const c of terrain.camps) if (Math.hypot(c.x - x, c.z - z) < 6 + pad) return true
     if (Math.hypot(terrain.summit.x - x, terrain.summit.z - z) < 5 + pad) return true
-    const r = Math.hypot(x, z)
-    const th = Math.atan2(z, x)
-    const k = zoneAt(x, z)
-    if (Math.abs(r - midR(k, th)) < 2.6 + pad) return true
-    // koridor panjat
-    for (let q = 0; q < Z; q++) {
-      const ct = theta[q] + TAU * 0.982
-      const cx = Math.cos(ct) * ringR(q + 1, ct)
-      const cz = Math.sin(ct) * ringR(q + 1, ct)
-      if (Math.hypot(cx - x, cz - z) < 7 + pad) return true
-    }
+    const nt = nearestTrail(x, z)
+    if (nt.i >= 0 && nt.d < WIDTH + 1.4 + pad) return true
     return false
   }
+  const randomSpot = () => {
+    const th = rand() * TAU
+    const t = Math.sqrt(rand()) * (id === 'langit' ? 1.0 : 1.15)
+    const r = t * footR(th)
+    return { x: cx + Math.cos(th) * r, z: cz + Math.sin(th) * r }
+  }
+  const dry = (y: number) => y < (m.sea?.y ?? -99) + 0.4
 
-  // pohon & batu besar
-  for (let k = 0; k < Z; k++) {
-    const zn = m.zones[k]
-    const area = Math.PI * (radii[k] ** 2 - radii[k + 1] ** 2) + (k === 0 && id !== 'langit' ? 3500 : 0)
-    const count = Math.round((area / 100) * zn.density)
-    for (let i = 0; i < count && zn.trees.length; i++) {
-      const th = rand() * TAU
-      const rr = ringR(k + 1, th) + 3 + rand() * (ringR(k, th) - ringR(k + 1, th) - 3 + (k === 0 && id !== 'langit' ? 14 : -2))
-      const x = Math.cos(th) * rr
-      const z = Math.sin(th) * rr
-      const y = heightAt(terrain, x, z)
-      const [gx, gz] = gradAt(terrain, x, z)
-      if (Math.hypot(gx, gz) > 0.55 || routeNear(x, z, 0) || y < (m.sea?.y ?? -99) + 0.4) continue
-      if (inGap(k, uOf(k, th), 0.01)) continue
-      const kind = zn.trees[Math.floor(rand() * zn.trees.length)]
-      const scale = 0.8 + rand() * 0.5
-      const dims: Record<Tree, [number, number]> = {
-        palem: [0.3, 9],
-        jati: [0.45, 11],
-        beringin: [1.3, 16],
-        pinus: [0.4, 12],
-        kering: [0.3, 7],
-        semak: [0.9, 1.3],
-        teh: [0.75, 1.1],
-        kristal: [0.9, 5],
-        karang: [0.8, 2.2],
-      }
-      const [r, top] = dims[kind]
-      terrain.solids.push({ x, z, r: r * scale, y, top: y + top * scale, kind })
-    }
-    // batu besar: bisa dipijak
-    const boulders = Math.round(area / 900)
-    for (let i = 0; i < boulders; i++) {
-      const th = rand() * TAU
-      const rr = ringR(k + 1, th) + 3 + rand() * (ringR(k, th) - ringR(k + 1, th) - 5)
-      const x = Math.cos(th) * rr
-      const z = Math.sin(th) * rr
-      if (routeNear(x, z, 0.5) || inGap(k, uOf(k, th), 0.01)) continue
-      const y = heightAt(terrain, x, z)
-      if (y < (m.sea?.y ?? -99)) continue
-      const r = 0.6 + rand() * 1.5
-      terrain.solids.push({ x, z, r, y, top: y + r * 1.1, kind: 'batu' })
-    }
+  // pohon & batu lepas
+  const area = Math.PI * R0 * R0
+  for (let tries = 0; tries < (area / 100) * 3.2; tries++) {
+    const { x, z } = randomSpot()
+    const y = heightAt(terrain, x, z)
+    if (dry(y)) continue
+    const zn = m.zones[zoneOfY(y)]
+    if (!zn.trees.length || rand() > zn.density / 3.2) continue
+    if (slopeAt(terrain, x, z) > 0.55 || nearRoute(x, z, 0)) continue
+    const kind = zn.trees[Math.floor(rand() * zn.trees.length)]
+    const scale = 0.8 + rand() * 0.5
+    const [r, top] = TREE_DIMS[kind]
+    terrain.solids.push({ x, z, r: r * scale, y, top: y + top * scale, kind })
+  }
+  for (let i = 0; i < area / 700; i++) {
+    const { x, z } = randomSpot()
+    const y = heightAt(terrain, x, z)
+    if (dry(y) || nearRoute(x, z, 0.5) || slopeAt(terrain, x, z) > 0.7) continue
+    const r = 0.6 + rand() * 1.7
+    terrain.solids.push({ x, z, r, y, top: y + r * 1.1, kind: 'batu' })
   }
 
-  // peti, sarang burung, tas pendaki yang tertinggal
+  // peti, sarang burung, tas pendaki: separuh di dekat jalur, separuh di tepian bongkahan
   let chestId = 0
   for (let k = 0; k < Z; k++) {
     const per = 7
-    for (let i = 0; i < per * 3; i++) {
-      if (terrain.chests.filter((c) => c.zone === k).length >= per) break
-      const u = 0.08 + rand() * 0.86
-      if (inGap(k, u, 0.03)) continue
-      const th = theta[k] + u * TAU
-      const span = ringR(k, th) - ringR(k + 1, th)
-      const p = at(k, u, (rand() - 0.5) * span * 0.6)
-      const [gx, gz] = gradAt(terrain, p.x, p.z)
-      if (Math.hypot(gx, gz) > 0.45) continue
-      const y = heightAt(terrain, p.x, p.z)
-      if (y < (m.sea?.y ?? -99) + 0.3) continue
-      if (terrain.solids.some((s) => Math.hypot(s.x - p.x, s.z - p.z) < s.r + 1)) continue
+    let got = 0
+    for (let tries = 0; tries < 400 && got < per; tries++) {
+      let x: number
+      let z: number
+      if (got % 2 === 0) {
+        const lo = k === 0 ? 0 : campD[k]
+        const hi = k + 1 < Z ? campD[k + 1] : pathLen
+        const p = trail[Math.min(T - 1, Math.round((lo + rand() * (hi - lo)) / 0.75))]
+        const off = (rand() < 0.5 ? -1 : 1) * (WIDTH + 1.5 + rand() * 6)
+        x = p.x - p.dz * off
+        z = p.z + p.dx * off
+      } else {
+        const s = randomSpot()
+        x = s.x
+        z = s.z
+      }
+      const y = heightAt(terrain, x, z)
+      if (zoneOfY(y) !== k || dry(y) || slopeAt(terrain, x, z) > 0.45) continue
+      if (terrain.solids.some((s) => Math.hypot(s.x - x, s.z - z) < s.r + 1)) continue
+      if (gaps.length && gapAt(x, z)) continue
       const roll = rand()
       const kind: ChestKind = roll < 0.6 ? 'peti' : roll < 0.8 ? 'tas' : 'sarang'
-      terrain.chests.push({ id: chestId++, kind, zone: k, x: p.x, y, z: p.z, yaw: rand() * TAU })
+      terrain.chests.push({ id: chestId++, kind, zone: k, x, y, z, yaw: rand() * TAU })
+      got++
     }
   }
   // hadiah di atas pilar: harus dipanjat
-  for (const p of pillars) {
+  for (const p of pillars.slice(0, 6 + (m.pillars ?? 0))) {
     const y = heightAt(terrain, p.x, p.z)
-    terrain.chests.push({ id: chestId++, kind: 'peti', zone: zoneAt(p.x, p.z), x: p.x, y, z: p.z, yaw: rand() * TAU })
+    if (dry(y)) continue
+    terrain.chests.push({ id: chestId++, kind: 'peti', zone: zoneOfY(y), x: p.x, y, z: p.z, yaw: rand() * TAU })
   }
 
-  // bahaya: batu menggelinding dari bibir tebing ke luar
-  for (let k = 0; k < Z; k++) {
-    for (let i = 0; i < 4; i++) {
-      const u = 0.1 + rand() * 0.8
-      const th = theta[k] + u * TAU
-      const Rb = ringR(k + 1, th)
-      // mulai dari bibir atas tebing, menggelinding ke luar melewati wajah tebing
-      const x = Math.cos(th) * (Rb - 1.8)
-      const z = Math.sin(th) * (Rb - 1.8)
-      terrain.rocks.push({ x, y: heightAt(terrain, x, z), z, r: 0.9, a: th, b: ringR(k, th) - Rb + 1.8 + (k === 0 ? 10 : 0) })
-    }
+  // batu menggelinding: dari bongkahan di atas jalur, melintasi jalur ke arah luar
+  for (let q = 0; q < Z * 4; q++) {
+    const p = trail[Math.floor((0.05 + rand() * 0.9) * T)]
+    const ox = p.x - cx
+    const oz = p.z - cz
+    const a = Math.atan2(oz, ox)
+    const x = p.x - Math.cos(a) * 9
+    const z = p.z - Math.sin(a) * 9
+    terrain.rocks.push({ x, y: heightAt(terrain, x, z), z, r: 0.9, a, b: 20 })
+  }
+  const along = (k: number, off: number) => {
+    const lo = k === 0 ? 0 : campD[k]
+    const hi = k + 1 < Z ? campD[k + 1] : pathLen
+    const p = trail[Math.min(T - 1, Math.round((lo + rand() * (hi - lo)) / 0.75))]
+    const o = (rand() - 0.5) * off
+    return { x: p.x - p.dz * o, z: p.z + p.dx * o }
   }
   if (m.hazards.includes('uap')) {
     for (let k = 1; k < Z; k++) {
       for (let i = 0; i < 7; i++) {
-        const u = 0.08 + rand() * 0.86
-        const p = at(k, u, (rand() - 0.5) * 8)
+        const p = along(k, 6)
         terrain.vents.push({ x: p.x, y: heightAt(terrain, p.x, p.z), z: p.z, r: 1.6, a: rand() * 8, b: 6 + rand() * 4 })
       }
     }
   }
   const critters = (c: Creature, k: number, count: number, out: Spot[], r: [number, number]) => {
     for (let i = 0; i < count; i++) {
-      const u = 0.06 + rand() * 0.9
-      const p = at(k, u, (rand() - 0.5) * 12)
+      const p = c === 'kepiting' ? (() => {
+        const th = rand() * TAU
+        const rr = footR(th) * (0.98 + rand() * 0.1)
+        return { x: cx + Math.cos(th) * rr, z: cz + Math.sin(th) * rr }
+      })() : along(k, 14)
       out.push({ x: p.x, y: heightAt(terrain, p.x, p.z), z: p.z, r: r[0] + rand() * (r[1] - r[0]), a: rand() * TAU, b: c === 'kepiting' ? 0.5 : 1.2 })
     }
   }
