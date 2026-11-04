@@ -180,7 +180,7 @@ export type PropMats = { bark: THREE.MeshStandardMaterial; leaf: THREE.MeshStand
  * Kartu daun/rumput dua sisi: normal TIDAK dibalik untuk sisi belakang (bawaan three membaliknya,
  * sehingga separuh kartu jadi hitam). Semua kartu diterangi dari arah normalnya.
  */
-function noFlip(m: THREE.Material) {
+export function noFlip(m: THREE.Material) {
   const prev = m.onBeforeCompile
   const key = m.customProgramCacheKey()
   m.onBeforeCompile = (sh, r) => {

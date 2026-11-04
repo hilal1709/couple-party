@@ -43,3 +43,20 @@ export class WindLoop {
     this.h.unload()
   }
 }
+
+/** derau hujan terus-menerus, keras-pelannya mengikuti kekuatan hujan (suara hujan CC0 dari Kart) */
+export class RainLoop {
+  private h: Howl
+  constructor() {
+    this.h = new Howl({ src: [`${import.meta.env.BASE_URL}audio/sfx/kart-rain.ogg`], loop: true, volume: 0 })
+    this.h.play()
+  }
+  set(strength: number) {
+    const st = getSettings()
+    const v = st.muted ? 0 : st.sfx * Math.min(0.8, strength * 0.7)
+    if (Math.abs(this.h.volume() - v) > 0.02) this.h.fade(this.h.volume(), v, 600)
+  }
+  stop() {
+    this.h.unload()
+  }
+}

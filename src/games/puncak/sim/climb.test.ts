@@ -63,6 +63,51 @@ describe('fisika memanjat', () => {
     expect(b.mode).not.toBe('climb')
   })
 
+  it('lompat sambil lari: langsung melayang dan laju larinya tetap', () => {
+    const c = t.camps[0]
+    const b = newBody(c.x, c.y, c.z, 0)
+    const env = envOf(t)
+    const go = { ...still, mx: 1, mz: 0, sprint: true }
+    run(b, go, env, 0.4)
+    expect(b.mode).toBe('ground')
+    const before = Math.hypot(b.vx, b.vz)
+    expect(before).toBeGreaterThan(4)
+    stepBody(b, { ...go, jump: true }, env, 1 / 60)
+    expect(b.mode).toBe('air')
+    expect(b.vy).toBeGreaterThan(0)
+    run(b, go, env, 0.3)
+    expect(Math.hypot(b.vx, b.vz)).toBeGreaterThan(before * 0.9)
+  })
+
+  it('lunge di dinding punya jeda; turun lebih hemat dari naik', () => {
+    const { b, dir } = atCliff(t)
+    const env = envOf(t)
+    run(b, { ...still, mx: dir[0], mz: dir[1], grip: true, up: 0.01 }, env, 1)
+    expect(b.mode).toBe('climb')
+    const hold = { ...still, grip: true }
+    const y0 = b.y
+    const s0 = b.stamina
+    stepBody(b, { ...hold, jump: true }, env, 1 / 60)
+    run(b, hold, env, 0.5)
+    expect(b.y).toBeGreaterThan(y0 + 1)
+    expect(s0 - b.stamina).toBeGreaterThan(0.15)
+    // langsung lunge lagi: ditolak jeda
+    const s1 = b.stamina
+    const y1 = b.y
+    stepBody(b, { ...hold, jump: true }, env, 1 / 60)
+    run(b, hold, env, 0.3)
+    expect(s1 - b.stamina).toBeLessThan(0.05)
+    expect(b.y - y1).toBeLessThan(0.3)
+    // naik vs turun 1 detik
+    b.stamina = 1
+    run(b, { ...hold, up: 1 }, env, 1)
+    const upCost = 1 - b.stamina
+    b.stamina = 1
+    run(b, { ...hold, up: -1 }, env, 1)
+    const downCost = 1 - b.stamina
+    expect(downCost).toBeLessThan(upCost * 0.5)
+  })
+
   it('jatuh dari tinggi melukai, sangat tinggi membuat pingsan', () => {
     const c = t.camps[0]
     const low = newBody(c.x, c.y + 10, c.z, 0)

@@ -1,14 +1,14 @@
 import * as THREE from 'three'
 import { initialTier, TIERS, type Quality } from '@/games/kart/render/quality'
-import { Chibi, loadChibi } from '@/games/sport/render/chibi'
-import { randomLook } from '@/games/sport/look'
-import type { Look } from '@/games/sport/types'
+import { puncakTier } from './render/quality'
+import { randomLook, type PuncakLook } from './look'
+import { Climber, loadClimber, type ClimbClip } from './render/climber'
 import type { LiveChannel, Seat } from '../types'
 import { actorOf } from './engine'
 import { MountainScene } from './render/scene'
 import { newBot, routeIndexNear, thinkBot, type Bot } from './sim/bots'
 import { maxStamina, newBody, stepBody, type Body, type BodyEvent, type Env, type Input, type Mode } from './sim/climb'
-import { hitHazards, stormAt, windAt } from './sim/hazards'
+import { hitHazards, stormAt, weatherAt, windAt, type Sky } from './sim/hazards'
 import { applyToBody, ITEMS, planRope, type ItemId } from './sim/items'
 import { cloneMount, dropItem, give, LIVES, lightCamp, newMount, openChest, pick, pull, REACH, revive, setDown, tickDown, spendItem, type Fx, type Mount } from './sim/mount'
 import { buildTerrain, gradAt, groundTop, zoneAt, type Terrain } from './sim/terrain'
@@ -64,6 +64,9 @@ export type Hud = {
   compass: [number, number] | null
   downLeft: number | null
   storm: number
+  /** cuaca yang sedang berlangsung & kekuatannya */
+  sky: Sky
+  skyK: number
   wind: number
   umbrella: boolean
   summit: boolean
@@ -77,7 +80,9 @@ export type RoundOptions = {
   canvas: HTMLCanvasElement
   state: PuncakState
   seat: Seat
-  look: Look | null
+  look: PuncakLook | null
+  /** mulai dengan kamera orang pertama */
+  fp?: boolean
   act: (a: PuncakAction) => void
   live?: LiveChannel
   onHud: (h: Hud) => void
@@ -87,6 +92,17 @@ export type RoundOptions = {
 }
 
 type Remote = { x: number; y: number; z: number; yaw: number; mode: Mode; moving: boolean; umbrella: boolean }
+
+const SKY_POP: Record<Sky, string> = {
+  cerah: 'Langit cerah lagi',
+  berawan: 'Mendung datang',
+  hujan: 'Hujan! Tebing licin',
+  badai: 'Badai petir! Pegangan boros',
+  pasir: 'Badai pasir!',
+  abu: 'Hujan abu kawah',
+  salju: 'Salju turun, makin dingin',
+  kabut: 'Kabut tebal turun',
+}
 
 /** satu ronde pendakian di satu HP */
 export class Round {
@@ -100,7 +116,14 @@ export class Round {
   private bodies: Body[] = []
   private remotes: Remote[] = []
   private bots: (Bot | null)[] = []
-  private chibis: (Chibi | null)[] = []
+  private chibis: (Climber | null)[] = []
+  /** kecepatan datar teramati per aktor (m/s), untuk memilih jalan/lari */
+  private speeds: number[] = []
+  private lastPos: THREE.Vector3[] = []
+  /** kamera orang pertama */
+  private fp = false
+  private fpPitch = 0
+  private eyeV = new THREE.Vector3()
   private roots: THREE.Group[] = []
   private anims: string[] = []
   private stopLive: (() => void) | undefined
@@ -108,7 +131,7 @@ export class Round {
   private alive = true
   private ro: ResizeObserver | null = null
   private lastT = 0
-  private input = { x: 0, y: 0, jump: false, grip: false }
+  private input = { x: 0, y: 0, jump: false, grip: false, run: false }
   private camYaw = 0
   private camPitch = 0.32
   private camDist = 6.5
@@ -136,12 +159,13 @@ export class Round {
 
   constructor(o: RoundOptions) {
     this.o = o
+    this.fp = !!o.fp
     this.s = o.state
     this.t = buildTerrain(o.state.mountain, o.state.opts.zones, o.state.seed)
     this.me = actorOf(o.state, o.seat)
     this.host = o.seat === 0
     const url = import.meta.env.DEV ? (new URLSearchParams(location.search).get('q') as Quality | null) : null
-    const tier = url && TIERS[url] ? TIERS[url] : initialTier()
+    const tier = puncakTier(url && TIERS[url] ? TIERS[url] : initialTier())
     this.scene = new MountainScene(o.canvas, tier)
     const n = o.state.actors.length
     this.mount = newMount(this.t, n, LIVES[o.state.opts.weather], o.state.opts.loot, o.state.seed)
@@ -178,18 +202,18 @@ export class Round {
     this.ro = new ResizeObserver(size)
     this.ro.observe(el)
     size()
-    const [gltf] = await Promise.all([loadChibi(), this.scene.load(this.t)])
+    const [gltf] = await Promise.all([loadClimber(), this.scene.load(this.t)])
     if (!this.alive) return
     this.s.actors.forEach((_, i) => {
       const look = (i === this.me ? this.o.look : null) ?? this.s.looks[i] ?? randomLook(i * 977 + 13)[0]
-      const c = new Chibi(gltf, look, this.scene.shadows)
+      const c = new Climber(gltf, look, this.scene.shadows, this.scene.quality !== 'low')
+      if (i === this.me) c.setHeadless(this.fp)
       if (i === 0 || this.chibiScale === 1) {
         const box = new THREE.Box3().setFromObject(c.root)
         const h = box.max.y - box.min.y
         if (h > 0.1) this.chibiScale = 1.45 / h
       }
       c.root.scale.setScalar(this.chibiScale)
-      if (!this.scene.shadows) c.root.traverse((m) => ((m as THREE.Mesh).castShadow = false))
       this.roots[i].add(c.root)
       this.chibis[i] = c
     })
@@ -203,7 +227,7 @@ export class Round {
     this.s = s
     s.looks.forEach((l, i) => {
       const c = this.chibis[i]
-      if (l && l !== prev.looks[i] && i !== this.me && c) c.setLook(l)
+      if (l && l !== prev.looks[i] && c) c.setLook(l)
     })
   }
 
@@ -218,13 +242,27 @@ export class Round {
   grip(on: boolean) {
     this.input.grip = on
   }
+  /** tombol Lari: ditahan = lari; ditekan saat memanjat = lunge ke atas */
+  run(on: boolean) {
+    const b = this.body
+    if (on && !this.input.run && b && b.mode === 'climb') this.input.jump = true
+    this.input.run = on
+  }
   /** geser kamera (piksel layar) */
   look(dx: number, dy: number) {
     this.camYaw -= dx * 0.006
-    this.camPitch = Math.max(-0.35, Math.min(1.25, this.camPitch + dy * 0.004))
+    if (this.fp) this.fpPitch = Math.max(-1.3, Math.min(1.3, this.fpPitch - dy * 0.004))
+    else this.camPitch = Math.max(-0.35, Math.min(1.25, this.camPitch + dy * 0.004))
     this.lookAt = performance.now()
   }
+  /** pindah kamera orang pertama / ketiga */
+  setFirstPerson(on: boolean) {
+    this.fp = on
+    this.fpPitch = 0
+    this.chibis[this.me]?.setHeadless(on)
+  }
   zoom(f: number) {
+    if (this.fp) return
     this.camDist = Math.max(3.2, Math.min(14, this.camDist * f))
   }
 
@@ -395,15 +433,18 @@ export class Round {
     let lift = 0
     for (const u of this.t.updrafts) if (Math.hypot(u.x - b.x, u.z - b.z) < u.r && b.y < u.a && b.y > u.y - 40) lift = 9
     const storm = stormAt(this.t, this.s.opts.weather, secs)
+    const w = this.skyNow(secs)
+    const wind = windAt(this.t, this.s.opts.weather, secs, b.y)
     return {
       t: this.t,
       ropes: [...this.t.vines, ...this.mount.ropes],
       heads,
       broken: new Set(this.broken.keys()),
-      wind: windAt(this.t, this.s.opts.weather, secs, b.y),
-      coldK: 1 + storm * 2.5 + (this.s.opts.weather === 'ekstrem' ? 0.5 : 0),
+      wind: [wind[0] * w.gust, wind[1] * w.gust],
+      coldK: (1 + storm * 2.5 + (this.s.opts.weather === 'ekstrem' ? 0.5 : 0)) * w.cold,
       warm,
       lift,
+      wet: w.wet,
     }
   }
 
@@ -420,7 +461,7 @@ export class Round {
       side = mx * (-gz / l) + mz * (gx / l)
     }
     const len = Math.hypot(this.input.x, this.input.y)
-    return { mx, mz, up: this.input.y, side, jump: this.input.jump, grip: this.input.grip, sprint: len > 0.93 }
+    return { mx, mz, up: this.input.y, side, jump: this.input.jump, grip: this.input.grip, sprint: len > 0.3 && (this.input.run || len > 0.93) }
   }
 
   private stepMe(dt: number, secs: number) {
@@ -764,47 +805,58 @@ export class Round {
       const c = this.chibis[i]
       if (!c) return
       const moving = local ? this.bodies[i].moving : this.remotes[i].moving
-      const summit = this.s.phase === 'end'
-      const clip = summit ? 'cheer' : mode === 'down' ? 'ko' : mode === 'ground' || mode === 'swim' ? (moving ? 'walk' : 'idle') : mode === 'climb' || mode === 'rope' ? 'walk' : mode === 'slide' ? 'sad' : 'ready'
-      const key = `${clip}${mode}`
-      if (key !== this.anims[i]) {
-        this.anims[i] = key
-        c.play(clip, { once: clip === 'ko', speed: mode === 'climb' || mode === 'rope' ? (moving ? 0.9 : 0.0001) : clip === 'walk' ? 1.4 : 1 })
+      // laju teramati dari pergeseran badan (sama untuk pemain lokal & jarak jauh)
+      const last = (this.lastPos[i] ??= root.position.clone())
+      const dx = root.position.x - last.x
+      const dz = root.position.z - last.z
+      const dy = root.position.y - last.y
+      last.copy(root.position)
+      const sp = dt > 0 ? Math.min(12, Math.hypot(dx, dz) / dt) : 0
+      const vy = dt > 0 ? dy / dt : 0
+      this.speeds[i] = (this.speeds[i] ?? 0) + (sp - (this.speeds[i] ?? 0)) * Math.min(1, dt * 8)
+      const lunge = local && this.bodies[i].lunge > 0
+      const sideways = local && i === this.me && Math.abs(this.input.x) > Math.abs(this.input.y) + 0.2
+      const pick = (): [ClimbClip, number, boolean] => {
+        if (this.s.phase === 'end') return ['cheer', 1, false]
+        switch (mode) {
+          case 'down':
+            return ['ko', 1, true]
+          case 'ground':
+            if (!moving) return ['idle', 1, false]
+            return this.speeds[i] > 4.6 ? ['run', 1.1, false] : ['walk', Math.max(0.8, this.speeds[i] / 2.4), false]
+          case 'swim':
+            return ['swim', 1, false]
+          case 'climb':
+            if (lunge) return ['lunge', 1, true]
+            if (!moving) return ['climb_idle', 1, false]
+            return [sideways ? 'climb_side' : 'climb_up', 1, false]
+          case 'rope':
+            return moving ? ['climb_up', 0.8, false] : ['hang', 1, false]
+          case 'slide':
+            return ['slide', 1, false]
+          default:
+            return [vy > 0.5 ? 'jump' : 'fall', 1, vy > 0.5]
+        }
       }
+      const [clip, speed, once] = pick()
+      if (clip !== this.anims[i]) {
+        this.anims[i] = clip
+        c.play(clip, { once, speed })
+      } else c.speed(speed)
       c.update(dt)
-      if (mode === 'climb' || mode === 'rope' || mode === 'air') this.armsUp(i, c, mode, moving)
     })
   }
 
-  private arms: ({ uL: THREE.Object3D; uR: THREE.Object3D; fL: THREE.Object3D; fR: THREE.Object3D } | null)[] = []
   private time = 0
-  private static Q = new THREE.Quaternion()
-  private static X = new THREE.Vector3(1, 0, 0)
-  private static Z = new THREE.Vector3(0, 0, 1)
-
-  /** pose memanjat: kedua lengan ke atas bergantian; melayang: tangan terbuka */
-  private armsUp(i: number, c: Chibi, mode: Mode, moving: boolean) {
-    const b = (this.arms[i] ??= (() => {
-      const uL = c.bone('upper_L')
-      const uR = c.bone('upper_R')
-      const fL = c.bone('fore_L')
-      const fR = c.bone('fore_R')
-      return uL && uR && fL && fR ? { uL, uR, fL, fR } : null
-    })())
-    if (!b) return
-    const Q = Round.Q
-    const t = this.time * (moving ? 5 : 0)
-    if (mode === 'air') {
-      b.uL.quaternion.multiply(Q.setFromAxisAngle(Round.Z, 1.1))
-      b.uR.quaternion.multiply(Q.setFromAxisAngle(Round.Z, -1.1))
-      return
-    }
-    const a = Math.sin(t) * 0.45
-    b.uL.quaternion.multiply(Q.setFromAxisAngle(Round.X, -2.5 + a))
-    b.uR.quaternion.multiply(Q.setFromAxisAngle(Round.X, -2.5 - a))
-    b.fL.quaternion.multiply(Q.setFromAxisAngle(Round.X, -0.4 - a * 0.5))
-    b.fR.quaternion.multiply(Q.setFromAxisAngle(Round.X, -0.4 + a * 0.5))
+  /** dev: ?wx=hujan|badai|pasir|abu|salju|kabut|berawan memaksa cuaca penuh (screenshot & uji) */
+  private forced = import.meta.env.DEV ? (new URLSearchParams(location.search).get('wx') as Sky | null) : null
+  private skyNow(secs: number) {
+    const w = weatherAt(this.t, this.s.opts.weather, secs)
+    if (!this.forced) return w
+    const rainy = this.forced === 'hujan' || this.forced === 'badai'
+    return { ...w, sky: this.forced, k: 1, wet: rainy ? 1 : 0, cold: this.forced === 'salju' ? 2.2 : 1, gust: this.forced === 'badai' || this.forced === 'pasir' ? 1.9 : 1 }
   }
+  private sky: Sky | null = null
 
   private frame = (now: number) => {
     if (!this.alive) return
@@ -832,18 +884,36 @@ export class Round {
     this.send(dt)
     this.applyBodies(dt)
     const focus = this.me >= 0 ? this.body : this.bodies[0]
-    this.scene.follow(focus.x, focus.y, focus.z, this.camYaw, this.camPitch, this.camDist, dt)
+    const mine = this.me >= 0 ? this.chibis[this.me] : null
+    if (this.fp && mine && this.body.mode !== 'down') {
+      mine.eye(this.eyeV)
+      // tulang kepala ada di leher: mata ±0,24 m di atasnya (skala model)
+      this.eyeV.y += 0.24 * this.chibiScale
+      // memanjat: pandangan pelan-pelan mendongak ke tebing
+      if ((this.body.mode === 'climb' || this.body.mode === 'rope') && performance.now() - this.lookAt > 1500) this.fpPitch += (0.62 - this.fpPitch) * Math.min(1, dt * 1.2)
+      this.scene.followFP(this.eyeV.x, this.eyeV.y, this.eyeV.z, this.camYaw, this.fpPitch, dt)
+    } else this.scene.follow(focus.x, focus.y, focus.z, this.camYaw, this.camPitch, this.camDist, dt)
     const storm = stormAt(this.t, this.s.opts.weather, secs)
-    const wind = windAt(this.t, this.s.opts.weather, secs, focus.y)
+    const w = this.skyNow(secs)
+    const w0 = windAt(this.t, this.s.opts.weather, secs, focus.y)
+    const wind: [number, number] = [w0[0] * w.gust, w0[1] * w.gust]
+    if (w.sky !== this.sky && (w.k > 0.05 || w.sky === 'cerah')) {
+      if (w.sky !== 'cerah' || this.sky !== null) this.o.onPop({ text: SKY_POP[w.sky], tone: w.sky === 'cerah' ? 'electric' : w.sky === 'badai' ? 'rose' : 'paper' })
+      this.sky = w.sky
+    }
     this.scene.sync(this.mount, secs, new Set(this.broken.keys()), dt, this.me >= 0 ? { x: focus.x, y: focus.y, z: focus.z, torch: focus.buffs.obor > 0 || this.t.m.sky === 'malam' } : null)
-    this.scene.weather(storm, wind, dt)
+    this.scene.weather(storm, wind, dt, w, secs)
+    if (this.scene.thunder) {
+      this.scene.thunder = false
+      this.o.onSound('batu', 0.7)
+    }
     this.sounds(dt, focus)
     this.scene.render(dt)
     this.watchFps(now)
     this.hudIn -= dt
     if (this.hudIn <= 0) {
       this.hudIn = 0.1
-      this.pushHud(storm, Math.hypot(...wind))
+      this.pushHud(storm, Math.hypot(...wind), w.sky, w.k)
     }
   }
 
@@ -878,7 +948,7 @@ export class Round {
     }
   }
 
-  private pushHud(storm: number, wind: number) {
+  private pushHud(storm: number, wind: number, sky: Sky, skyK: number) {
     const m = this.mount
     const b = this.me >= 0 ? this.body : this.bodies[0]
     const cam = this.scene.camera
@@ -927,6 +997,8 @@ export class Round {
       compass,
       downLeft: d !== null && d !== undefined ? Math.max(0, Math.ceil(30 - (m.t - d) / 1000)) : null,
       storm,
+      sky,
+      skyK,
       wind,
       umbrella: b.umbrella,
       summit: Math.hypot(this.t.summit.x - b.x, this.t.summit.z - b.z) < SUMMIT_R,

@@ -116,3 +116,76 @@ function knock(b: Body, vx: number, vy: number, vz: number) {
   b.rope = null
   b.peak = b.y
 }
+
+// ---------- cuaca yang berganti ----------
+
+/** jenis langit; 'cerah' = tanpa kejadian */
+export type Sky = 'cerah' | 'berawan' | 'hujan' | 'badai' | 'pasir' | 'abu' | 'salju' | 'kabut'
+export type WeatherNow = {
+  sky: Sky
+  /** kekuatan 0..1 (naik di awal, turun di akhir giliran) */
+  k: number
+  /** tebing basah 0..1: pegangan lebih boros */
+  wet: number
+  /** pengali dingin & angin tambahan */
+  cold: number
+  gust: number
+}
+
+/** cuaca yang mungkin di tiap gunung (urutan diundi per giliran) */
+export const SKY_POOL: Record<Terrain['id'], Sky[]> = {
+  karang: ['berawan', 'hujan', 'hujan', 'badai'],
+  rimba: ['hujan', 'kabut', 'hujan', 'badai'],
+  ngarai: ['pasir', 'berawan', 'pasir'],
+  kawah: ['abu', 'berawan', 'abu'],
+  salju: ['salju', 'kabut', 'salju'],
+  teh: ['kabut', 'hujan', 'kabut'],
+  kristal: ['kabut', 'berawan'],
+  langit: ['berawan', 'hujan', 'badai'],
+}
+/** lama satu giliran cuaca (detik) */
+export const SKY_SEG = 64
+const CHANCE: Record<Weather, number> = { cerah: 0.35, angin: 0.55, ekstrem: 0.85 }
+
+const skyHash = (i: number, s: number) => {
+  let h = Math.imul(i + 1, 374761393) ^ Math.imul(s + 7, 668265263)
+  h = Math.imul(h ^ (h >>> 13), 1274126177)
+  h ^= h >>> 16
+  return (h >>> 0) / 4294967296
+}
+
+/** langit di giliran ke-i (giliran 0 selalu cerah supaya awal pendakian enak) */
+export function skyOf(t: Terrain, weather: Weather, i: number): Sky {
+  if (i <= 0) return 'cerah'
+  const salt = t.id.length * 131 + t.id.charCodeAt(0)
+  if (skyHash(i, salt) >= CHANCE[weather]) return 'cerah'
+  const pool = SKY_POOL[t.id]
+  let s = pool[Math.floor(skyHash(i, salt + 9) * pool.length) % pool.length]
+  // badai hanya kalau cuaca lobby bukan cerah
+  if (s === 'badai' && weather === 'cerah') s = 'hujan'
+  if (s === 'hujan' && weather === 'ekstrem' && skyHash(i, salt + 3) < 0.4) s = 'badai'
+  return s
+}
+
+/** Cuaca saat ini dari jam ronde; sama di semua HP, tanpa jaringan. */
+export function weatherAt(t: Terrain, weather: Weather, secs: number): WeatherNow {
+  const i = Math.floor(secs / SKY_SEG)
+  const f = (secs % SKY_SEG) / SKY_SEG
+  const sky = skyOf(t, weather, i)
+  const ramp = (a: number, b: number, x: number) => {
+    const u = Math.min(1, Math.max(0, (x - a) / (b - a)))
+    return u * u * (3 - 2 * u)
+  }
+  const k = sky === 'cerah' ? 0 : ramp(0, 0.18, f) * (1 - ramp(0.82, 1, f))
+  const rainy = sky === 'hujan' || sky === 'badai'
+  // tebing tetap basah sebentar setelah hujan reda
+  const prevRain = skyOf(t, weather, i - 1)
+  const after = (prevRain === 'hujan' || prevRain === 'badai') && !rainy ? (1 - ramp(0, 0.35, f)) * 0.7 : 0
+  return {
+    sky,
+    k,
+    wet: Math.max(rainy ? k : 0, after),
+    cold: sky === 'salju' ? 1 + k * 1.2 : rainy ? 1 + k * 0.4 : 1,
+    gust: sky === 'badai' || sky === 'pasir' ? 1 + k * 0.9 : 1,
+  }
+}

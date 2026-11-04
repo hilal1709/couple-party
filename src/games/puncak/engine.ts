@@ -1,5 +1,5 @@
 import { nextRand } from '../rng'
-import { cleanLook, randomLook } from '../sport/look'
+import { cleanLook, randomLook } from './look'
 import type { Seat } from '../types'
 import { MOUNTAIN_IDS } from './mountains'
 import type { MountainId, PuncakAction, PuncakOptions, PuncakState } from './types'

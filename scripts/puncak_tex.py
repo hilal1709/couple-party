@@ -14,7 +14,9 @@ import numpy as np
 from PIL import Image
 
 OUT = Path(__file__).resolve().parents[1] / 'src' / 'assets' / 'puncak' / 'tex'
-N = 512
+# 1024 px: tier Tinggi memakai penuh, Sedang/Hemat diperkecil saat dimuat (256/512)
+import os
+N = int(os.environ.get('PUNCAK_TEX_N', '1024'))
 RNG = np.random.default_rng(20261104)
 
 
@@ -111,7 +113,8 @@ def save(name, color, height, rough, strength=6.0, ao=None):
     OUT.mkdir(parents=True, exist_ok=True)
     h = (height - height.min()) / (np.ptp(height) + 1e-9)
     rough = np.broadcast_to(np.asarray(rough, dtype=float), h.shape)
-    nx, ny, _ = normal_from(h, strength)
+    # gradien per piksel mengecil di resolusi tinggi: kekuatan normal disesuaikan supaya tampilan sama
+    nx, ny, _ = normal_from(h, strength * N / 512)
     a = ao_from(h) if ao is None else ao
     color = color * (0.55 + 0.45 * a[..., None])
     # tinggi ikut menerangi sedikit: bagian menonjol lebih terang (dibaca shader sebagai tinggi)
@@ -167,10 +170,11 @@ def rock():
     cid = warp(cid, 0.04, 140)
     base = spectral(beta=1.9, seed=15)
     fine = band(lo=30, hi=200, seed=16)
-    h = base * 0.55 + edge * 0.35 + fine * 0.2 + cid * 0.15
+    crack = warp(np.clip(1 - (f2 - f1) * 20, 0, 1) ** 2, 0.03, 141) * (spectral(beta=2.0, seed=142) > 0.5)
+    h = base * 0.55 + edge * 0.35 + fine * 0.2 + cid * 0.15 - crack * 0.25
     lichen = np.clip((spectral(beta=2.3, seed=17) - 0.66) * 6, 0, 1) * (fine > 0.45)
     col = ramp(base * 0.6 + cid * 0.4, [(0, '#4c4a47'), (0.5, '#77736c'), (1, '#a39d92')])
-    col *= (0.82 + edge * 0.18)[..., None]
+    col *= (0.82 + edge * 0.18 - crack * 0.3)[..., None]
     col = col * (1 - lichen[..., None]) + lichen[..., None] * np.array([0.62, 0.66, 0.38])
     save('batu', col, h, 0.8 + fine * 0.15, 8)
 
@@ -186,9 +190,15 @@ def cliff():
     crack = warp(np.clip(1 - (f2 - f1) * 14, 0, 1) ** 3, 0.05, 119) * (spectral(beta=2.0, seed=219) > 0.45)
     fine = band(lo=40, hi=220, seed=20)
     h = strata * 0.45 + fine * 0.25 - crack * 0.45 + w * 0.3
+    # noda air memanjang ke bawah & lumut kerak di sela strata
+    stain = np.clip((spectral(beta=2.0, seed=221, aniso=(1.0, 0.12)) - 0.58) * 4, 0, 1)
+    lichen = np.clip((spectral(beta=2.4, seed=222) - 0.68) * 5, 0, 1) * (strata > 0.55)
+    chip = (band(lo=90, hi=260, seed=223) > 0.78).astype(float) * 0.5
+    h = h + chip * 0.08
     col = ramp(np.clip(tone * 0.6 + fine * 0.4, 0, 1), [(0, '#5a4a3c'), (0.4, '#7d6a58'), (0.7, '#9a8670'), (1, '#b4a28a')])
-    col *= (0.75 + strata * 0.25 - crack * 0.35)[..., None]
-    save('tebing', col, h, 0.85, 9)
+    col *= (0.75 + strata * 0.25 - crack * 0.35 - stain * 0.22 + chip * 0.1)[..., None]
+    col = col * (1 - lichen[..., None] * 0.7) + lichen[..., None] * 0.7 * np.array([0.6, 0.64, 0.4])
+    save('tebing', col, h, 0.85 - stain * 0.12, 9)
 
 
 def moss():
@@ -228,8 +238,10 @@ def basalt():
     pores = (band(lo=60, hi=200, seed=31) > 0.72).astype(float)
     base = spectral(beta=2.0, seed=32)
     sulfur = np.clip((spectral(beta=2.0, seed=33) - 0.78) * 6, 0, 1) * 0.8
-    h = cols * 0.5 + base * 0.4 - pores * 0.25
+    vein = warp(np.clip(1 - (f2 - f1) * 18, 0, 1) ** 3, 0.05, 133)
+    h = cols * 0.5 + base * 0.4 - pores * 0.25 - vein * 0.35
     col = ramp(base, [(0, '#18161a'), (0.6, '#2c2826'), (1, '#4a3f38')])
+    col *= (1 - vein * 0.6)[..., None]
     col = col * (1 - sulfur[..., None]) + sulfur[..., None] * np.array([0.82, 0.75, 0.25])
     save('vulkanik', col, h, 0.88 - cols * 0.1, 8)
 
