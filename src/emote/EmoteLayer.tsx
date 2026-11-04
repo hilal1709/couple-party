@@ -5,7 +5,7 @@ import gsap from 'gsap'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { sfx } from '@/audio/audio'
 import { cn } from '@/lib/utils'
-import type { EmoteChannel } from '@/games/types'
+import type { EmoteChannel, EmoteSpot } from '@/games/types'
 import { bubbleSpot, EMOTES, emoteById, type Emote } from './emotes'
 
 gsap.registerPlugin(useGSAP)
@@ -80,7 +80,14 @@ function Picker({ onPick }: { onPick: (e: Emote) => void }) {
 }
 
 /** Tombol emote, pemilih, dan gelembung di kursi pengirim. Dipasang sekali di Room. */
-export function EmoteLayer({ channel, seat, names, low }: { channel: EmoteChannel; seat: number; names: string[]; low?: boolean }) {
+const SPOT: Record<EmoteSpot, string> = {
+  mid: 'left-[max(4px,env(safe-area-inset-left))] top-1/2 -translate-y-1/2 items-center',
+  low: 'left-[max(4px,env(safe-area-inset-left))] bottom-[max(6px,env(safe-area-inset-bottom))] items-end',
+  top: 'left-[max(64px,calc(env(safe-area-inset-left)+60px))] top-[max(4px,env(safe-area-inset-top))] items-start',
+  corner: 'left-[max(4px,env(safe-area-inset-left))] top-[max(4px,env(safe-area-inset-top))] items-start',
+}
+
+export function EmoteLayer({ channel, seat, names, spot = 'mid' }: { channel: EmoteChannel; seat: number; names: string[]; spot?: EmoteSpot }) {
   const [open, setOpen] = useState(false)
   const [shown, setShown] = useState<Shown[]>([])
   const lastSent = useRef(0)
@@ -113,10 +120,7 @@ export function EmoteLayer({ channel, seat, names, low }: { channel: EmoteChanne
       </div>
       {open && <div className="fixed inset-0 z-[59]" onClick={() => setOpen(false)} />}
       <div
-        className={cn(
-          'fixed left-[max(4px,env(safe-area-inset-left))] z-[59] flex gap-2',
-          low ? 'bottom-[max(6px,env(safe-area-inset-bottom))] items-end' : 'top-1/2 -translate-y-1/2 items-center',
-        )}
+        className={cn('fixed z-[59] flex gap-2', SPOT[spot])}
       >
         <button
           aria-label="Kirim emote"

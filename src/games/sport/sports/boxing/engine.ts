@@ -44,7 +44,8 @@ export function defend(hand: BoxHand, stance: Stance): BoxOutcome {
   return stance === `dodge${hand}` ? 'dodge' : 'hit'
 }
 
-function damage(a: Attack, outcome: BoxOutcome) {
+/** besar pengurangan darah; dipakai juga di HP yang dipukul untuk langsung menampilkan hasilnya */
+export function damage(a: Attack, outcome: BoxOutcome) {
   if (outcome === 'dodge') return 0
   if (outcome === 'block') return BLOCK_HIT
   const base = BASE_HIT + a.power * POWER_HIT

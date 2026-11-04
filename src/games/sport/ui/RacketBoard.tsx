@@ -11,6 +11,7 @@ import { SwingGesture } from '../sports/racket/gesture'
 import { RacketScene } from '../sports/racket/scene'
 import type { RacketMatch, ShotKind, SportAction, SportState } from '../types'
 import { savedLook } from './lookStore'
+import { MoveStick } from './MoveStick'
 import { CameraFrame, EndCard, SportMenu, StageCover } from './shared'
 import { useSceneStage } from './useSceneStage'
 import { useSportSettings } from './useSportSettings'
@@ -27,8 +28,8 @@ function SwingButtons({ canLob, serving, onSwing }: { canLob: boolean; serving: 
     onSwing(dir, shot)
   }
   return (
-    <div className="pointer-events-none absolute inset-x-3 bottom-3 flex items-end justify-between">
-      <button aria-label="Lob" disabled={serving} onPointerDown={down(0, 'lob')} className={`pointer-events-auto size-18 bg-electric text-[12px] disabled:opacity-40 ${pad}`}>
+    <div className="pointer-events-none absolute right-3 bottom-3 flex flex-col items-end gap-2">
+      <button aria-label="Lob" disabled={serving} onPointerDown={down(0, 'lob')} className={`pointer-events-auto size-16 bg-electric text-[12px] disabled:opacity-40 ${pad}`}>
         Lob
       </button>
       <div className="pointer-events-auto flex items-end gap-2">
@@ -110,6 +111,16 @@ export function RacketBoard({ state: s, seat, names, online, act, exit }: GamePr
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // tombol = lari sendiri pakai analog; kamera badan = lari otomatis
+  const manual = cfg.input === 'buttons'
+  useEffect(() => {
+    const sc = scene.current?.sc
+    if (!ready || !sc) return
+    sc.manual = manual
+    if (!manual) sc.steer(0, 0)
+  }, [ready, manual, scene])
+  const steer = useCallback((x: number, z: number) => scene.current?.sc.steer(x, z), [scene])
+
   useEffect(() => {
     if (ready) scene.current?.sc.setLooks(s.looks[seat], s.looks[foe])
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -158,7 +169,9 @@ export function RacketBoard({ state: s, seat, names, online, act, exit }: GamePr
     } else if ((m.phase === 'point' || m.phase === 'end') && m.last) {
       clearTimers()
       const iWon = m.last.winner === seat
-      sc.celebrate(iWon ? 'me' : 'foe')
+      // bola lolos (bukan keluar): yang kelewatan mengayun telat dulu
+      const loser = iWon ? 'foe' : 'me'
+      sc.celebrate(iWon ? 'me' : 'foe', m.last.why === 'out' ? null : loser)
       setWord(WHY_WORD[m.last.why])
       sfx(iWon ? 'sport-spare' : 'sport-gutter')
       if (m.phase === 'end') sfx(m.winners.includes(seat) ? 'sport-champion' : 'sport-lose', { delay: 500 })
@@ -210,6 +223,11 @@ export function RacketBoard({ state: s, seat, names, online, act, exit }: GamePr
         return
       }
       if (delta > half) return
+      // terlalu jauh dari bola: raket cuma mengayun angin
+      if (!sc.canReach(b)) {
+        lock.current = now + WHIFF_LOCK_MS
+        return
+      }
       if (missTimer.current) clearTimeout(missTimer.current)
       setSwingNow(false)
       act({ type: 'hit', id: b.id, x: sc.toCourt(dir), shot, power, err: delta / half })
@@ -248,6 +266,7 @@ export function RacketBoard({ state: s, seat, names, online, act, exit }: GamePr
         </div>
       </header>
 
+      {ready && manual && (m.phase === 'serve' || m.phase === 'rally') && <MoveStick onMove={steer} />}
       {ready && cfg.input === 'buttons' && (myServe || incoming) && <SwingButtons canLob={!!canSmash} serving={myServe} onSwing={(d, k) => swing(d, k, k === 'smash' ? 0.9 : 0.55)} />}
       {ready && cfg.input === 'camera' && <SwingCamera active={m.phase !== 'end'} onSwing={(k, p) => swing(0, k, p)} onButtons={() => cfg.choose('buttons')} />}
       {ready && m.phase === 'serve' && !myServe && (

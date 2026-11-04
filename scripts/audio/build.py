@@ -11,6 +11,7 @@ Jalankan:  python -I scripts/audio/build.py          (semua)
            python -I scripts/audio/build.py sport    (hanya musik & SFX Sport Kacau)
            python -I scripts/audio/build.py kart     (hanya musik & SFX Kart Kacau)
            python -I scripts/audio/build.py petak    (hanya musik & SFX Petak Cat)
+           python -I scripts/audio/build.py tali     (hanya musik & SFX Tali Jodoh, disintesis tanpa sumber)
 Semua sumber CC0 — lihat public/audio/CREDITS.md.
 """
 import subprocess
@@ -471,6 +472,255 @@ def masak_synth():
     write_ogg(_st(zip_ + thud), out / 'masak-slip.ogg', 64, mono=True, lufs=-17)
 
 
+def puncak_synth():
+    """SFX Puncak Berdua, semua disintesis: langkah, lompat, pegang, napas, jatuh, cebur, angin, api unggun, jingle"""
+    rng = np.random.default_rng(31)
+    out = OUT / 'sfx'
+
+    def noise(n):
+        return rng.standard_normal(n).astype(np.float32)
+
+    def tone(n, f0, f1=None, shape='sin'):
+        f = np.linspace(f0, f1 or f0, n)
+        ph = 2 * np.pi * np.cumsum(f) / SR
+        if shape == 'tri':
+            return (2 / np.pi * np.arcsin(np.sin(ph))).astype(np.float32)
+        return np.sin(ph).astype(np.float32)
+
+    def env(n, a, r):
+        t = np.arange(n) / SR
+        return (np.minimum(1, t / max(a, 1e-4)) * np.exp(-t / r)).astype(np.float32)
+
+    def lowpass(x, k):
+        return np.convolve(x, np.ones(k) / k, mode='same').astype(np.float32)
+
+    def hp(x):
+        return (x - lowpass(x, 24)).astype(np.float32)
+
+    def save(x, name, lufs=-18):
+        write_ogg(_st(x), out / f'puncak-{name}.ogg', 64, mono=True, lufs=lufs)
+
+    n = int(SR * 0.12)
+    save(lowpass(noise(n), 40) * 5 * env(n, 0.003, 0.03) + hp(noise(n)) * env(n, 0.001, 0.01) * 0.3, 'langkah', -22)
+    n = int(SR * 0.35)
+    save(lowpass(noise(n), 10) * 3 * env(n, 0.03, 0.12) + tone(n, 260, 520) * env(n, 0.01, 0.1) * 0.25, 'lompat', -20)
+    n = int(SR * 0.16)
+    save(lowpass(noise(n), 6) * 3 * env(n, 0.002, 0.04) + tone(n, 180, 120) * env(n, 0.002, 0.05) * 0.5, 'pegang', -19)
+    n = int(SR * 1.1)
+    t = np.arange(n) / SR
+    breath = lowpass(noise(n), 18) * 4 * (np.sin(np.pi * np.clip(t / 0.45, 0, 1)) ** 2 + 0.7 * np.sin(np.pi * np.clip((t - 0.55) / 0.5, 0, 1)) ** 2)
+    save(breath.astype(np.float32), 'napas', -22)
+    n = int(SR * 0.5)
+    save(tone(n, 120, 45) * env(n, 0.002, 0.12) + lowpass(noise(n), 30) * 6 * env(n, 0.002, 0.08), 'jatuh', -16)
+    n = int(SR * 0.9)
+    splash = hp(noise(n)) * env(n, 0.005, 0.25) * 0.8 + lowpass(noise(n), 50) * 5 * env(n, 0.01, 0.3)
+    for i in range(10):
+        at = int(rng.uniform(0.05, 0.6) * SR)
+        k = int(SR * 0.05)
+        splash[at:at + k] += tone(k, rng.uniform(900, 1500), rng.uniform(1600, 2600)) * env(k, 0.002, 0.015) * 0.4
+    save(splash, 'cebur', -17)
+    n = int(SR * 0.7)
+    creak = tone(n, 140, 90, 'tri') * env(n, 0.05, 0.3) * (0.6 + 0.4 * np.sin(np.arange(n) / SR * 60)) * 0.5
+    save(creak + tone(n, 880, 880) * env(n, 0.25, 0.2) * 0.25 + tone(n, 1320) * env(n, 0.3, 0.2) * 0.2, 'peti', -18)
+    n = int(SR * 0.4)
+    save(tone(n, 1046) * env(n, 0.004, 0.12) * 0.5 + tone(n, 1568) * env(n, 0.05, 0.15) * 0.4, 'ambil', -18)
+    n = int(SR * 0.45)
+    crunch = np.zeros(n, dtype=np.float32)
+    for i in range(5):
+        at = int(i * 0.08 * SR)
+        k = int(SR * 0.05)
+        crunch[at:at + k] += hp(noise(k)) * env(k, 0.001, 0.02)
+    save(crunch, 'makan', -19)
+    n = int(SR * 0.6)
+    swish = lowpass(noise(n), 8) * 3 * env(n, 0.08, 0.2) * np.linspace(0.4, 1, n)
+    k = int(SR * 0.1)
+    swish[n - k:] += tone(k, 2400, 1800) * env(k, 0.001, 0.03) * 0.5
+    save(swish.astype(np.float32), 'tali', -18)
+    n = int(SR * 1.4)
+    fire = lowpass(noise(n), 40) * 5 * env(n, 0.1, 0.6)
+    for i in range(14):
+        at = int(rng.uniform(0, 1.2) * SR)
+        k = int(SR * 0.02)
+        fire[at:at + k] += hp(noise(k)) * 0.8
+    chime = sum(tone(n, f) * env(n, 0.01 + j * 0.08, 0.5) * 0.18 for j, f in enumerate([523, 659, 784, 1046]))
+    save((fire + chime).astype(np.float32), 'api', -16)
+    n = int(SR * 0.9)
+    save(tone(n, 660, 180, 'tri') * env(n, 0.01, 0.5) * 0.5 + tone(n, 330, 90) * env(n, 0.01, 0.4) * 0.4, 'pingsan', -17)
+    n = int(SR * 0.7)
+    up = sum(tone(int(SR * 0.18), f) * env(int(SR * 0.18), 0.005, 0.08) for f in [523])
+    rise = np.zeros(n, dtype=np.float32)
+    for j, f in enumerate([523, 659, 784, 1046]):
+        at = int(j * 0.11 * SR)
+        k = int(SR * 0.25)
+        rise[at:at + k] += tone(k, f) * env(k, 0.005, 0.1) * 0.5
+    save(rise + 0 * up.sum(), 'bangun', -17)
+    n = int(SR * 0.6)
+    t = np.arange(n) / SR
+    f = 2600 + 180 * np.sin(t * 2 * np.pi * 28)
+    whistle = np.sin(2 * np.pi * np.cumsum(f) / SR).astype(np.float32) * env(n, 0.01, 0.4) + hp(noise(n)) * env(n, 0.01, 0.3) * 0.1
+    save(whistle, 'peluit', -18)
+    n = int(SR * 1.2)
+    save(lowpass(noise(n), 90) * 9 * env(n, 0.05, 0.5) + tone(n, 60, 40) * env(n, 0.02, 0.5) * 0.6, 'batu', -15)
+    n = int(SR * 1.5)
+    save(hp(noise(n)) * env(n, 0.05, 0.8) * 0.9 + lowpass(noise(n), 20) * 3 * env(n, 0.05, 0.6), 'uap', -17)
+    n = int(SR * 0.5)
+    t = np.arange(n) / SR
+    buzz = tone(n, 220) * (0.5 + 0.5 * np.sign(np.sin(t * 2 * np.pi * 220))) * env(n, 0.01, 0.2) * 0.3
+    save(buzz.astype(np.float32), 'sengat', -20)
+    n = int(SR * 0.3)
+    save(tone(n, 784, 1046) * env(n, 0.005, 0.1) * 0.5 + lowpass(noise(n), 10) * env(n, 0.005, 0.05), 'pakai', -19)
+    # jingle menang / kalah: arpeggio plucky
+    def jingle(notes, step, length):
+        n = int(SR * length)
+        x = np.zeros(n, dtype=np.float32)
+        for j, f in enumerate(notes):
+            at = int(j * step * SR)
+            k = min(n - at, int(SR * 0.8))
+            x[at:at + k] += (tone(k, f, shape='tri') * 0.6 + tone(k, f * 2) * 0.25) * env(k, 0.004, 0.25)
+        return x
+    save(jingle([523, 659, 784, 1046, 784, 1046, 1318], 0.12, 1.8), 'menang', -15)
+    save(jingle([523, 466, 392, 311, 262], 0.18, 1.6), 'kalah', -16)
+    # angin: loop 8 detik, hembusan naik-turun, ujung disambung mulus
+    n = int(SR * 8)
+    t = np.arange(n) / SR
+    w = lowpass(noise(n), 60) * 6 + hp(noise(n)) * 0.08
+    gust = 0.55 + 0.45 * np.sin(2 * np.pi * t / 8) ** 2 * (0.7 + 0.3 * np.sin(2 * np.pi * t * 3 / 8))
+    wind = (w * gust).astype(np.float32)
+    k = int(SR * 1)
+    fade = np.linspace(0, 1, k, dtype=np.float32)
+    wind[:k] = wind[:k] * fade + wind[-k:] * (1 - fade)
+    write_ogg(_st(wind[:-k]), out / 'puncak-angin.ogg', 48, mono=True, lufs=-24)
+
+
+def puncak_music():
+    """Musik pendakian: pad lembut + petikan pentatonik + shaker; 32 ketuk @ 84 bpm, loop mulus"""
+    rng = np.random.default_rng(84)
+    bpm = 84
+    beat = 60 / bpm
+    bars = 16
+    n = int(SR * beat * 4 * bars)
+    t = np.arange(n) / SR
+    x = np.zeros((n, 2), dtype=np.float32)
+
+    def env(k, a, r):
+        tt = np.arange(k) / SR
+        return (np.minimum(1, tt / a) * np.exp(-tt / r)).astype(np.float32)
+
+    def pluck(f, k):
+        # Karplus-Strong: senar dipetik
+        p = max(2, int(SR / f))
+        buf = rng.uniform(-1, 1, p).astype(np.float32)
+        out = np.zeros(k, dtype=np.float32)
+        for i in range(k):
+            out[i] = buf[i % p]
+            buf[i % p] = 0.5 * (buf[i % p] + buf[(i + 1) % p]) * 0.996
+        return out
+
+    chords = [[220, 277.2, 329.6], [196, 246.9, 293.7], [174.6, 220, 261.6], [196, 246.9, 329.6]]
+    bar = int(SR * beat * 4)
+    for b in range(bars):
+        c = chords[b % 4]
+        seg = slice(b * bar, (b + 1) * bar)
+        tt = np.arange(bar) / SR
+        pad = sum(np.sin(2 * np.pi * f * tt + 0.3 * np.sin(2 * np.pi * 0.2 * tt)) + 0.4 * np.sin(2 * np.pi * f * 2.003 * tt) for f in c)
+        e = np.minimum(1, tt / 0.6) * np.minimum(1, (bar / SR - tt) / 0.6)
+        pv = (pad * e * 0.07).astype(np.float32)
+        x[seg, 0] += pv
+        x[seg, 1] += pv * 0.95
+        bass = np.sin(2 * np.pi * c[0] / 2 * tt) * env(bar, 0.02, 1.4) * 0.22
+        x[seg, 0] += bass
+        x[seg, 1] += bass
+    scale = [440, 493.9, 554.4, 659.3, 740, 880, 987.8, 1108.7]
+    step = int(SR * beat / 2)
+    for i in range(bars * 8):
+        if rng.random() < 0.42 or (i % 8 == 0):
+            f = scale[int(rng.integers(0, len(scale)))]
+            k = min(n - i * step, int(SR * 1.2))
+            v = pluck(f, k) * 0.22
+            pan = rng.uniform(0.3, 0.7)
+            x[i * step:i * step + k, 0] += v * (1 - pan)
+            x[i * step:i * step + k, 1] += v * pan
+        k = int(SR * 0.05)
+        sh = rng.standard_normal(k).astype(np.float32) * env(k, 0.002, 0.015) * (0.05 if i % 2 else 0.08)
+        sh = sh - np.convolve(sh, np.ones(8) / 8, mode='same')
+        x[i * step:i * step + k] += sh[:, None]
+    # gema sederhana
+    d = int(SR * beat * 0.75)
+    x[d:] += x[:-d] * 0.28
+    write_ogg(seamless_loop(x, 1.5), OUT / 'music' / 'puncak.ogg', 80, lufs=-21)
+
+
+def tali_synth():
+    """SFX Tali Jodoh yang disintesis sendiri: lompat, mendarat, kait, permen, bendera, jatuh, tombol, tuas, finis, gulung."""
+    out = OUT / 'sfx'
+    rng = np.random.default_rng(31)
+
+    def t(n):
+        return np.arange(n) / SR
+
+    def tone(n, f0, f1=None, kind='sin'):
+        f = np.linspace(f0, f1 or f0, n)
+        ph = 2 * np.pi * np.cumsum(f) / SR
+        return np.sin(ph) if kind == 'sin' else np.sign(np.sin(ph)) * 0.3 + np.sin(ph) * 0.7
+
+    def bell(n, f, decay=0.6):
+        x = t(n)
+        return (np.sin(2 * np.pi * f * x) + 0.45 * np.sin(2 * np.pi * f * 2.76 * x) + 0.2 * np.sin(2 * np.pi * f * 5.4 * x)) * np.exp(-x / decay)
+
+    def noise(n, k=1):
+        x = rng.standard_normal(n)
+        if k > 1:
+            x = np.convolve(x, np.ones(k) / k, mode='same')
+        return x
+
+    def w(x, name, lufs=-18):
+        write_ogg(_st(x.astype(np.float32)), out / f'tali-{name}.ogg', 64, mono=True, lufs=lufs)
+
+    n = int(0.22 * SR)
+    w(tone(n, 260, 620) * _env(n, 0.004, 0.08) + noise(n, 30) * 0.15 * _env(n, 0.002, 0.03), 'jump')
+    n = int(0.16 * SR)
+    w(noise(n, 40) * _env(n, 0.002, 0.04) * 3 + tone(n, 110, 70) * 0.6 * _env(n, 0.002, 0.05), 'land', -20)
+    n = int(0.25 * SR)
+    w(bell(n, 820, 0.06) * 0.6 + noise(n, 6) * 0.2 * _env(n, 0.001, 0.02), 'hook')
+    n = int(0.2 * SR)
+    w(noise(n, 80) * 2.5 * _env(n, 0.01, 0.06) + tone(n, 150, 120) * 0.4 * _env(n, 0.005, 0.08), 'brace', -21)
+    n = int(0.45 * SR)
+    w(bell(n, 1318, 0.18) + bell(n, 1760, 0.14) * np.r_[np.zeros(int(0.07 * SR)), np.ones(n - int(0.07 * SR))], 'candy', -17)
+    n = int(0.9 * SR)
+    seq = np.zeros(n)
+    for i, f in enumerate([523, 659, 784, 1046]):
+        a = int(i * 0.11 * SR)
+        seq[a:] += bell(n - a, f, 0.25)[: n - a]
+    w(seq, 'checkpoint', -16)
+    n = int(0.6 * SR)
+    w(noise(n, 12) * _env(n, 0.005, 0.25) * 1.2 + tone(n, 520, 140) * 0.5 * _env(n, 0.005, 0.3), 'fall', -17)
+    n = int(0.12 * SR)
+    w(tone(n, 900, 600) * _env(n, 0.001, 0.025) + noise(n, 4) * 0.3 * _env(n, 0.001, 0.01), 'press', -19)
+    n = int(0.3 * SR)
+    w(noise(n, 20) * _env(n, 0.002, 0.05) * 2 + tone(n, 200, 90) * _env(n, 0.002, 0.12), 'lever', -18)
+    n = int(1.6 * SR)
+    seq = np.zeros(n)
+    for i, f in enumerate([523, 587, 659, 784, 880, 1046, 1318]):
+        a = int(i * 0.09 * SR)
+        seq[a:] += bell(n - a, f, 0.4 if i == 6 else 0.18)[: n - a] * (1.3 if i == 6 else 1)
+    w(seq, 'goal', -15)
+    n = int(0.12 * SR)
+    w(noise(n, 3) * _env(n, 0.002, 0.03) * 0.6 + tone(n, 1400, 1100) * 0.2 * _env(n, 0.001, 0.02), 'reel', -22)
+
+
+def tali_music():
+    """Lagu Tali Jodoh: satu lagu berbeda per level (scripts/audio/tali_songs.py), sudah melingkar mulus."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from tali_songs import SONGS
+    old = OUT / 'music' / 'tali.ogg'
+    if old.exists():
+        old.unlink()
+    for name, make in SONGS.items():
+        x = make()
+        write_ogg(x, OUT / 'music' / f'tali-{name}.ogg', 72, lufs=-20)
+        print('lagu', name, f'{len(x) / SR:.1f} dtk', flush=True)
+
+
 def _env(n, a=0.005, r=0.2):
     """Amplop attack/release sederhana untuk n sampel."""
     t = np.arange(n) / SR
@@ -771,6 +1021,9 @@ if __name__ == '__main__':
     elif sys.argv[1:] == ['kart']:
         kart_music()
         kart_synth()
+    elif sys.argv[1:] == ['tali']:
+        tali_music()
+        tali_synth()
         sfx('kart-')
     elif sys.argv[1:] == ['sport']:
         sport_music()
@@ -784,6 +1037,11 @@ if __name__ == '__main__':
         masak_music()
         masak_synth()
         sfx('masak-')
+    elif sys.argv[1:] == ['puncak']:
+        puncak_synth()
+        tali_music()
+        tali_synth()
+        puncak_music()
     else:
         music()
         draw_music()
@@ -801,6 +1059,8 @@ if __name__ == '__main__':
         petak_synth()
         masak_music()
         masak_synth()
+        puncak_synth()
+        puncak_music()
         sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))
     print(f'Selesai: {len(list(OUT.rglob("*.ogg")))} file, {total / 1024 / 1024:.2f} MB di {OUT}')

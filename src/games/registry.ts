@@ -6,10 +6,14 @@ import ludoArt from '@/assets/ludo/tile-ludo.webp'
 import monopolyArt from '@/assets/monopoly/tile-monopoly.webp'
 import masakArt from '@/assets/masak/tile-masak.webp'
 import petakArt from '@/assets/petak/tile-petak.webp'
+import puncakArt from '@/assets/puncak/tile-puncak.webp'
 import remiArt from '@/assets/remi/tile-remi.webp'
+import sunyiArt from '@/assets/sunyi/tile-sunyi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import spyArt from '@/assets/spy/tile-spy.webp'
+import taliArt from '@/assets/tali/tile-tali.webp'
 import unoArt from '@/assets/snakes/tile-uno.webp'
+import jinakArt from '@/assets/jinak/tile-jinak.webp'
 import type { AnyGame, LobbyProps } from './types'
 import { bom } from './bom'
 import type { BomOptions } from './bom/types'
@@ -44,12 +48,24 @@ import { kart } from './kart'
 import type { KartOptions } from './kart/types'
 import { summary as kartSummary } from './kart/ui/copy'
 import { sprite as kartSprite } from './kart/ui/art'
+import { sunyi } from './sunyi'
+import type { SunyiOptions } from './sunyi/types'
+import { summary as sunyiSummary } from './sunyi/ui/copy'
+import { jinak } from './jinak'
+import type { JinakOptions } from './jinak/types'
+import { summary as jinakSummary } from './jinak/ui/copy'
 import { masak } from './masak'
 import type { MasakOptions } from './masak/types'
 import { summary as masakSummary } from './masak/ui/copy'
+import { tali } from './tali'
+import type { TaliOptions } from './tali/types'
+import { summary as taliSummary } from './tali/ui/copy'
 import { petak } from './petak'
 import type { PetakOptions } from './petak/types'
 import { summary as petakSummary } from './petak/ui/copy'
+import { puncak } from './puncak'
+import type { PuncakOptions } from './puncak/types'
+import { summary as puncakSummary } from './puncak/ui/copy'
 import { uno } from './uno'
 import type { UnoOptions } from './uno/types'
 import { VARIANT_INFO } from './uno/ui/copy'
@@ -221,6 +237,49 @@ export const GAMES: GameEntry[] = [
     Lobby: lazy(() => import('./masak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: MasakOptions) => masakSummary(o),
     nativeBots: true,
+  },
+  {
+    game: puncak,
+    category: 'lainnya',
+    blurb: 'Panjat 8 gunung raksasa berdua: stamina, tali, saling tarik & bangunkan',
+    minPlayers: 1,
+    maxPlayers: 4,
+    art: puncakArt,
+    Lobby: lazy(() => import('./puncak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: PuncakOptions) => puncakSummary(o),
+    nativeBots: true,
+  },
+  {
+    game: tali,
+    category: 'lainnya',
+    blurb: 'Co-op terikat tali: lompat, gelantungan, tarik pasangan di 8 level. Bisa main sendiri bareng bot',
+    minPlayers: 1,
+    maxPlayers: 2,
+    art: taliArt,
+    Lobby: lazy(() => import('./tali/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: TaliOptions) => taliSummary(o),
+    playersFor: (o: TaliOptions) => (o.bot ? [1, 1] : [2, 2]),
+    nativeBots: true,
+  },
+  {
+    game: sunyi,
+    category: 'lainnya',
+    blurb: 'Horor berdua wajib mic: bisik aman, bicara keras Penunggu datang',
+    minPlayers: 2,
+    maxPlayers: 2,
+    art: sunyiArt,
+    Lobby: lazy(() => import('./sunyi/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: SunyiOptions) => sunyiSummary(o),
+  },
+  {
+    game: jinak,
+    category: 'lainnya',
+    blurb: 'Co-op berdua: satu lihat bom 3D, satu pegang buku panduan. Ngobrol atau DUAR',
+    minPlayers: 2,
+    maxPlayers: 4,
+    art: jinakArt,
+    Lobby: lazy(() => import('./jinak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: JinakOptions) => jinakSummary(o),
   },
 ]
 

@@ -45,9 +45,21 @@ import type { LiveChannel } from './games/types'
 import * as petakEngine from './games/petak/engine'
 import type { PetakAction, PetakOptions, PetakState } from './games/petak/types'
 import { PetakBoard } from './games/petak/ui/PetakBoard'
+import * as jinakEngine from './games/jinak/engine'
+import type { JinakAction, Level as JinakLevel } from './games/jinak/types'
+import { JinakBoard } from './games/jinak/ui/JinakBoard'
+import * as sunyiEngine from './games/sunyi/engine'
+import type { SunyiAction, SunyiOptions, SunyiState } from './games/sunyi/types'
+import { SunyiBoard } from './games/sunyi/ui/SunyiBoard'
+import * as taliEngine from './games/tali/engine'
+import type { TaliAction, TaliState } from './games/tali/types'
+import { TaliBoard } from './games/tali/ui/TaliBoard'
 import * as masakEngine from './games/masak/engine'
 import type { MasakAction, MasakOptions, MasakState } from './games/masak/types'
 import { MasakBoard } from './games/masak/ui/MasakBoard'
+import * as puncakEngine from './games/puncak/engine'
+import type { PuncakAction, PuncakOptions, PuncakState } from './games/puncak/types'
+import { PuncakBoard } from './games/puncak/ui/PuncakBoard'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -55,7 +67,11 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' | 'masak' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' | 'masak' | 'puncak' | 'tali' | 'sunyi' | 'jinak' }) {
+  if (variant === 'jinak') return <JinakDemo />
+  if (variant === 'sunyi') return <SunyiDemo />
+  if (variant === 'tali') return <TaliDemo />
+  if (variant === 'puncak') return new URLSearchParams(location.search).get('tile') ? <PuncakTile /> : <PuncakDemo />
   if (variant === 'petak') return <PetakDemo />
   if (variant === 'masak') return <MasakDemo />
 
@@ -339,7 +355,10 @@ function SportDemo() {
     if (q.has('q')) store.setItem('couple-party:sport-quality', q.get('q')!)
     if (!q.has('maker') && !savedLook()) saveLook(randomLook(5)[0])
     const sport = (q.get('s') ?? 'bowling') as SportId
-    let st = sportEngine.init(42, { sport, ends: (Number(q.get('ends') ?? 3) as 3 | 5) || 3, points: (Number(q.get('points') ?? 5) as 5 | 7 | 11) || 5, players: sport === 'bowling' || sport === 'panahan' ? n : 2, frames: (Number(q.get('frames') ?? 3) as 3 | 5 | 10) || 3, rounds: (Number(q.get('rounds') ?? 3) as 1 | 3 | 5) || 3 })
+    const players = sport === 'bowling' || sport === 'panahan' ? n : 2
+    // kursi selain kursi sendiri dimainkan bot, sama seperti room sungguhan yang mengisi kursi kosong
+    const botSeats = Array.from({ length: players }, (_, i) => i).filter((i) => auto || i !== seat)
+    let st = sportEngine.init(42, { sport, botSeats, ends: (Number(q.get('ends') ?? 3) as 3 | 5) || 3, points: (Number(q.get('points') ?? 5) as 5 | 7 | 11) || 5, players, frames: (Number(q.get('frames') ?? 3) as 3 | 5 | 10) || 3, rounds: (Number(q.get('rounds') ?? 3) as 1 | 3 | 5) || 3 })
     if (q.has('end') && st.m.kind === 'bowling') {
       for (let i = 0; i < 200 && st.m.phase !== 'end'; i++) {
         const b = st.m as BowlingMatch
@@ -517,4 +536,215 @@ function MasakDemo() {
     else setS((cur) => masakEngine.reduce(cur, a, seat))
   }
   return <MasakBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} live={live} />
+}
+
+/**
+ * ?demo=puncak&mountain=karang|…|langit|acak&n=1..4 pemain&total=pendaki&seat=&zones=2|4&weather=&loot=&level=&end=1|0
+ * &duo=1: beberapa tab berbagi state & saluran live (BroadcastChannel), seperti beberapa HP. &lag=ms jeda buatan.
+ */
+function PuncakDemo() {
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(4, Math.max(1, Number(q.get('n') ?? 1)))
+  const seat = Number(q.get('seat') ?? 0)
+  const lag = Number(q.get('lag') ?? 0)
+  const [s, setS] = useState<PuncakState>(() => {
+    const o: Partial<PuncakOptions> = {
+      players: n,
+      total: Number(q.get('total') ?? Math.max(2, n)),
+      mountain: (q.get('mountain') ?? 'karang') as PuncakOptions['mountain'],
+      zones: (Number(q.get('zones') ?? 4) === 2 ? 2 : 4) as PuncakOptions['zones'],
+      weather: (q.get('weather') ?? 'cerah') as PuncakOptions['weather'],
+      loot: (q.get('loot') ?? 'normal') as PuncakOptions['loot'],
+      level: (Number(q.get('level') ?? 2) as 1 | 2 | 3) || 2,
+    }
+    let st = puncakEngine.init(Number(q.get('seed') ?? 42), o)
+    if (q.get('end')) st = puncakEngine.reduce(st, { type: 'finish', result: { win: q.get('end') === '1', secs: 812, falls: 1, items: 9, camp: 3, lives: 4 } }, 0)
+    return st
+  })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const bus = useMemo(() => (q.get('duo') ? new BroadcastChannel('puncak-duo') : null), [])
+  useEffect(() => {
+    if (!bus) return
+    const fn = (e: MessageEvent) => {
+      const m = e.data
+      if (m.state && seat !== 0) setS(m.state)
+      if (m.action && seat === 0) setS((cur) => puncakEngine.reduce(cur, m.action, m.by))
+    }
+    bus.addEventListener('message', fn)
+    return () => bus.removeEventListener('message', fn)
+  }, [bus, seat])
+  useEffect(() => {
+    if (bus && seat === 0) bus.postMessage({ state: s })
+  }, [bus, s, seat])
+  const live = useMemo<LiveChannel | undefined>(() => {
+    if (!bus) return undefined
+    return {
+      send: (d) => {
+        const post = () => bus.postMessage({ live: d, from: seat })
+        if (lag) setTimeout(post, lag / 2)
+        else post()
+      },
+      on: (cb) => {
+        const fn = (e: MessageEvent) => {
+          if (e.data.live === undefined) return
+          const run = () => cb(e.data.live, e.data.from)
+          if (lag) setTimeout(run, lag / 2)
+          else run()
+        }
+        bus.addEventListener('message', fn)
+        return () => bus.removeEventListener('message', fn)
+      },
+    }
+  }, [bus, seat, lag])
+  const act = (a: PuncakAction) => {
+    if (bus && seat !== 0) bus.postMessage({ action: a, by: seat })
+    else setS((cur) => puncakEngine.reduce(cur, a, seat))
+  }
+  return <PuncakBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} live={live} />
+}
+
+/** ?demo=puncak&tile=1 : gambar tile Puncak Berdua; window.__tile() → PNG data URL */
+function PuncakTile() {
+  const ref = useRef<HTMLCanvasElement>(null)
+  useEffect(() => {
+    void import('./games/puncak/dev/tile').then((m) => {
+      ;(window as unknown as { __tile?: () => Promise<string> }).__tile = () => m.renderTile(ref.current!)
+    })
+  }, [])
+  return <canvas ref={ref} className="size-full bg-[repeating-conic-gradient(#ddd_0_25%,#fff_0_50%)] bg-[length:20px_20px]" />
+}
+
+/**
+ * Tali Jodoh lokal: ?demo=tali &level=0..7 &seat=0|1 &duo=1 (dua tab berbagi state lewat BroadcastChannel)
+ * &auto=1 (kedua karakter memainkan rute otomatis di satu tab) &bot=1 (main sendiri, Klepon bot) &phase=clear|end &q=low|med|high.
+ */
+function TaliDemo() {
+  const q = new URLSearchParams(location.search)
+  const [s, setS] = useState<TaliState>(() => {
+    let st = taliEngine.init(1, { start: Number(q.get('level') ?? 0), run: q.get('run') !== '0', bot: q.get('bot') === '1' })
+    // &phase=clear|end: langsung ke layar hasil
+    if (q.get('phase')) {
+      st = { ...st, candy: st.candy.map((_, i) => i % 3 !== 2) }
+      st = taliEngine.reduce(taliEngine.reduce(st, { type: 'goal', on: true, ms: 98000 }, 0), { type: 'goal', on: true, ms: 101000 }, 1)
+      if (q.get('phase') === 'end') st = { ...st, phase: 'end' }
+    }
+    return st
+  })
+  const seat = Number(q.get('seat') ?? 0)
+  const autoplay = q.get('auto') === '1'
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const bus = useMemo(() => (q.get('duo') ? new BroadcastChannel('tali-duo') : null), [])
+  useEffect(() => {
+    if (!bus) return
+    const fn = (e: MessageEvent) => {
+      const m = e.data
+      if (m.state && seat !== 0) setS(m.state)
+      if (m.action && seat === 0) setS((cur) => taliEngine.reduce(cur, m.action, m.by))
+    }
+    bus.addEventListener('message', fn)
+    return () => bus.removeEventListener('message', fn)
+  }, [bus, seat])
+  useEffect(() => {
+    if (bus && seat === 0) bus.postMessage({ state: s })
+  }, [bus, s, seat])
+  const live = useMemo<LiveChannel | undefined>(() => {
+    if (!bus) return undefined
+    return {
+      send: (d) => bus.postMessage({ live: d, from: seat }),
+      on: (cb) => {
+        const fn = (e: MessageEvent) => e.data.live !== undefined && cb(e.data.live, e.data.from)
+        bus.addEventListener('message', fn)
+        return () => bus.removeEventListener('message', fn)
+      },
+    }
+  }, [bus, seat])
+  const act = (a: TaliAction) => {
+    if (bus && seat !== 0) bus.postMessage({ action: a, by: seat })
+    else setS((cur) => taliEngine.reduce(cur, a, seat))
+  }
+  return <TaliBoard state={s} seat={seat} names={NAMES.slice(0, 2)} online={[true, true]} act={act} exit={() => {}} live={live} auto={autoplay ? (st) => setS(st) : undefined} />
+}
+
+/**
+ * Sunyi lokal: ?demo=sunyi &n=1|2 &seat= &diff=santai|normal|seram &items=3|5|7 &phase=play (lewati cek mic) &q=low|med|high
+ * &duo=1: dua tab berbagi state, saluran live, dan voice chat lewat BroadcastChannel, seperti room dua HP.
+ */
+function SunyiDemo() {
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(2, Math.max(1, Number(q.get('n') ?? 1)))
+  const seat = Number(q.get('seat') ?? 0)
+  const [s, setS] = useState<SunyiState>(() => {
+    const o: Partial<SunyiOptions> = {
+      players: n,
+      difficulty: (q.get('diff') ?? 'normal') as SunyiOptions['difficulty'],
+      items: (Number(q.get('items') ?? 5) as SunyiOptions['items']) || 5,
+    }
+    let st = sunyiEngine.init(Number(q.get('seed') ?? 42), o)
+    if (q.get('phase') === 'play') st = { ...st, phase: 'play', ready: st.ready.map(() => true) }
+    return st
+  })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const bus = useMemo(() => (q.get('duo') ? new BroadcastChannel('sunyi-duo') : null), [])
+  useEffect(() => {
+    if (!bus) return
+    const fn = (e: MessageEvent) => {
+      const m = e.data
+      if (m.state && seat !== 0) setS(m.state)
+      if (m.action && seat === 0) setS((cur) => sunyiEngine.reduce(cur, m.action, m.by))
+    }
+    bus.addEventListener('message', fn)
+    return () => bus.removeEventListener('message', fn)
+  }, [bus, seat])
+  useEffect(() => {
+    if (bus && seat === 0) bus.postMessage({ state: s })
+  }, [bus, s, seat])
+  const live = useMemo<LiveChannel | undefined>(() => {
+    if (!bus) return undefined
+    return {
+      send: (d) => bus.postMessage({ live: d, from: seat }),
+      on: (cb) => {
+        const fn = (e: MessageEvent) => e.data.live !== undefined && cb(e.data.live, e.data.from)
+        bus.addEventListener('message', fn)
+        return () => bus.removeEventListener('message', fn)
+      },
+    }
+  }, [bus, seat])
+  const act = (a: SunyiAction) => {
+    if (bus && seat !== 0) bus.postMessage({ action: a, by: seat })
+    else setS((cur) => sunyiEngine.reduce(cur, a, seat))
+  }
+  return <SunyiBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} live={live} />
+}
+
+/**
+ * Jinak Bom lokal: ?demo=jinak &level=santai|normal|panik &seat=0|1 (0 = penjinak ronde 1) &start=1 (langsung jalan)
+ * &solve=N (N modul pertama sudah dijinakkan) &end=defused|boom. State & aksi dibuka di window.__jinak untuk skrip uji.
+ */
+function JinakDemo() {
+  const q = new URLSearchParams(location.search)
+  const [seat, setSeat] = useState(() => Number(q.get('seat') ?? 0))
+  const [s, setS] = useState(() => {
+    let st = jinakEngine.init(Number(q.get('seed') ?? 42), { ...jinakEngine.defaultOptions(2), level: (q.get('level') as JinakLevel) || 'normal' })
+    if (q.get('start') === '1' || q.get('solve') || q.get('end')) st = jinakEngine.reduce(st, { type: 'start' }, 0)
+    for (let i = 0; i < Number(q.get('solve') ?? 0); i++) for (const a of jinakEngine.solutionOf(st, i)) st = jinakEngine.reduce(st, a, st.defuser)
+    if (q.get('end') === 'defused') st.modules.forEach((_, i) => jinakEngine.solutionOf(st, i).forEach((a) => (st = jinakEngine.reduce(st, a, st.defuser))))
+    if (q.get('end') === 'boom') st = jinakEngine.reduce(st, { type: 'timeout', clockId: st.clockId }, 0)
+    return st
+  })
+  const act = (a: JinakAction) => setS((cur) => jinakEngine.reduce(cur, a, a.type === 'timeout' ? 0 : a.type === 'start' || a.type === 'next' ? seat : cur.defuser))
+  useEffect(() => {
+    ;(window as unknown as { __jinak: unknown }).__jinak = { s, act, setSeat, solutionOf: jinakEngine.solutionOf }
+  })
+  return (
+    <>
+      <JinakBoard state={s} seat={seat} names={NAMES.slice(0, 2)} online={[true, true]} act={act} exit={() => {}} />
+      <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
+        {[0, 1].map((i) => (
+          <button key={i} onClick={() => setSeat(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>
+            {i}
+          </button>
+        ))}
+      </div>
+    </>
+  )
 }

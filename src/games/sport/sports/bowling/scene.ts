@@ -268,9 +268,9 @@ export class BowlingScene {
       // model menghadap +Z, lintasan menuju -Z
       this.chibi.root.rotation.y = Math.PI
       this.stage.scene.add(this.chibi.root)
+      this.chibi.play('ready')
     } else this.chibi.setLook(look)
     this.ballMat?.color.set(ballColor)
-    this.chibi.play('ready')
   }
 
   /** Pin yang berdiri di posisinya; pin jatuh disembunyikan. */

@@ -221,9 +221,9 @@ export class PenaltyScene {
       pos = watching ? new THREE.Vector3(1.1 + this.ball.position.x * 0.3, 1.8, 1.6) : new THREE.Vector3(1.15, 2.05, 4.7)
       look = new THREE.Vector3(watching ? this.ball.position.x * 0.5 : 0.05, 0.85, GOAL_Z)
     } else {
-      // kiper melihat dari garis gawang, di bawah mistar dan di belakang bahu sendiri
-      pos = new THREE.Vector3(-0.62, 1.62, GOAL_Z - 0.4)
-      look = new THREE.Vector3(watching ? this.ball.position.x * 0.5 : 0.2, 0.75, 0)
+      // kiper melihat dari depan garis gawang, di atas bahu sendiri: jaring & mistar di belakang kamera
+      pos = new THREE.Vector3(-0.35, 1.75, GOAL_Z + 0.15)
+      look = new THREE.Vector3(watching ? this.ball.position.x * 0.5 : 0.1, 0.6, 0)
     }
     const k = 1 - Math.exp(-dt * 4)
     this.camPos.lerp(pos, k)

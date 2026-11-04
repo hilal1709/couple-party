@@ -4,7 +4,7 @@ import { MAP_IDS, mapData } from '../maps'
 import type { PetakAction, PetakState } from '../types'
 import { hiderBot, newBrain, noticeRate, seekerBot, type Sighting } from './bots'
 import { buildNav, findPath, reachable } from './nav'
-import { canSee, groundAt, HIDER_SPEED, pushOut, rayHit, spawnWalker, step, type Walker } from './walk'
+import { canSee, canSee3, FLY_CEIL, flyBounds, groundAt, HIDER_SPEED, pushOut, rayHit, spawnWalker, step, type Walker } from './walk'
 
 const seeded = (seed: number) => () => {
   seed = (seed * 1664525 + 1013904223) % 4294967296
@@ -41,6 +41,45 @@ describe('tabrakan', () => {
 
   it('kotak rendah tidak menutup mata', () => {
     expect(canSee(map.boxes, 4, 0, 9, 0)).toBe(true)
+  })
+
+  it('terbang naik sampai atap, lalu mendarat di atasnya', () => {
+    const w = spawnWalker(-4, 0)
+    w.fly = true
+    for (let i = 0; i < 120; i++) step(w, 0, 0, HIDER_SPEED, 1 / 60, map, 1)
+    expect(w.y).toBeGreaterThan(3)
+    // melayang di atas atap kotak setinggi 3 m, lalu turun
+    for (let i = 0; i < 45; i++) step(w, 1, 0, HIDER_SPEED, 1 / 60, map)
+    expect(w.x).toBeGreaterThan(-2)
+    expect(w.x).toBeLessThan(2)
+    w.fly = false
+    for (let i = 0; i < 120; i++) step(w, 0, 0, HIDER_SPEED, 1 / 60, map)
+    expect(w.y).toBeCloseTo(3)
+  })
+
+  it('terbang tanpa gravitasi dan tidak lewat langit-langit', () => {
+    const w = spawnWalker(-6, 4)
+    w.fly = true
+    for (let i = 0; i < 600; i++) step(w, 0, 0, HIDER_SPEED, 1 / 60, map, 1)
+    expect(w.y).toBeCloseTo(FLY_CEIL)
+    for (let i = 0; i < 60; i++) step(w, 0, 0, HIDER_SPEED, 1 / 60, map)
+    expect(w.y).toBeCloseTo(FLY_CEIL)
+  })
+
+  it('terbang tidak bisa keluar dari batas map', () => {
+    const real = mapData('gang')
+    const b = flyBounds(real)
+    const w = spawnWalker(0, 0)
+    w.fly = true
+    for (let i = 0; i < 1200; i++) step(w, 1, 0, HIDER_SPEED, 1 / 60, real, 1)
+    expect(w.x).toBeLessThanOrEqual(b.x1 + 1e-6)
+  })
+
+  it('pandangan 3D: kotak menutup dari bawah, terbuka dari atas', () => {
+    expect(canSee3(map.boxes, -5, 1, 0, 5, 1, 0)).toBe(false)
+    expect(canSee3(map.boxes, -5, 3.5, 0, 5, 3.5, 0)).toBe(true)
+    // berdiri di atas atap kotak terlihat dari jauh
+    expect(canSee3(map.boxes, -8, 1, 0, -1.5, 3.5, 0)).toBe(true)
   })
 })
 

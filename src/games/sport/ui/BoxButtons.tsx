@@ -17,18 +17,18 @@ function Pad({ label, tone, size = 'size-16', onDown, onUp, children }: { label:
   )
 }
 
-/** Jempol kiri menghindar & menangkis, jempol kanan memukul. */
+/** Jempol kiri melangkah (analog), jempol kanan menghindar, menangkis, dan memukul. */
 export function BoxButtons({ onStance, onPunch }: { onStance: (s: Stance) => void; onPunch: (h: BoxHand, power: number) => void }) {
   return (
-    <div className="pointer-events-none absolute inset-x-3 bottom-3 flex items-end justify-between">
+    <div className="pointer-events-none absolute right-3 bottom-3 flex flex-col items-end gap-2">
       <div className="pointer-events-auto flex items-end gap-2">
-        <Pad label="Hindar ke kiri" tone="bg-petal text-lg" onDown={() => onStance('dodgeL')}>
+        <Pad label="Hindar ke kiri" tone="bg-petal text-lg" size="size-14" onDown={() => onStance('dodgeL')}>
           ◀
         </Pad>
-        <Pad label="Hindar ke kanan" tone="bg-petal text-lg" onDown={() => onStance('dodgeR')}>
+        <Pad label="Hindar ke kanan" tone="bg-petal text-lg" size="size-14" onDown={() => onStance('dodgeR')}>
           ▶
         </Pad>
-        <Pad label="Tangkis, tahan" tone="bg-electric text-[10px]" size="size-18" onDown={() => onStance('guard')} onUp={() => onStance('none')}>
+        <Pad label="Tangkis, tahan" tone="bg-electric text-[10px]" size="size-16" onDown={() => onStance('guard')} onUp={() => onStance('none')}>
           Tangkis
         </Pad>
       </div>
