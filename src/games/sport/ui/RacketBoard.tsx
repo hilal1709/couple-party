@@ -169,7 +169,9 @@ export function RacketBoard({ state: s, seat, names, online, act, exit }: GamePr
     } else if ((m.phase === 'point' || m.phase === 'end') && m.last) {
       clearTimers()
       const iWon = m.last.winner === seat
-      sc.celebrate(iWon ? 'me' : 'foe')
+      // bola lolos (bukan keluar): yang kelewatan mengayun telat dulu
+      const loser = iWon ? 'foe' : 'me'
+      sc.celebrate(iWon ? 'me' : 'foe', m.last.why === 'out' ? null : loser)
       setWord(WHY_WORD[m.last.why])
       sfx(iWon ? 'sport-spare' : 'sport-gutter')
       if (m.phase === 'end') sfx(m.winners.includes(seat) ? 'sport-champion' : 'sport-lose', { delay: 500 })

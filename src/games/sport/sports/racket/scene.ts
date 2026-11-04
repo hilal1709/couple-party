@@ -19,6 +19,10 @@ const SIZE: Record<RacketSport, { hw: number; hl: number; net: number }> = {
   badminton: { hw: 2.6, hl: 5, net: 1.15 },
 }
 const RUN_SPEED = 7
+/** lari lawan di layar ini: cukup cepat untuk bola biasa, telat untuk bola tajam ke pinggir */
+const FOE_SPEED: Record<RacketSport, number> = { tenis: 6, badminton: 4.6 }
+/** jeda reaksi sebelum mulai lari mengejar bola, detik */
+const REACT_S = 0.16
 /** lari manual pakai analog sedikit lebih pelan dari lari otomatis */
 const STICK_SPEED = 5.6
 /** jangkauan raket dari badan ke titik bola, meter */
@@ -68,7 +72,7 @@ function shuttle() {
   return g
 }
 
-type Player = { c: Chibi; x: number; to: number; busy: number; z: number; toZ: number; home: number }
+type Player = { c: Chibi; x: number; to: number; busy: number; z: number; toZ: number; home: number; wait: number; after: Clip | null }
 
 export class RacketScene {
   private stage: Stage
@@ -170,7 +174,7 @@ export class RacketScene {
     c.root.rotation.y = turn
     c.play('rk_ready')
     this.stage.scene.add(c.root)
-    return { c, x: 0, to: 0, busy: 0, z, toZ: z, home: z }
+    return { c, x: 0, to: 0, busy: 0, z, toZ: z, home: z, wait: 0, after: null }
   }
 
   setLooks(me: Look, foe: Look) {
@@ -270,10 +274,14 @@ export class RacketScene {
     if (target !== this.me || !this.manual) {
       target.to = x
       target.toZ = z
+      // lawan baru bergerak setelah membaca arah bola
+      target.wait = target === this.foe ? REACT_S + Math.random() * 0.1 : 0
     }
     if (hitter !== this.me || !this.manual) {
-      hitter.to = hitter.x * 0.4
+      // selesai memukul: kembali ke posisi siap di tengah, setelah ayunan selesai
+      hitter.to = hitter.x * 0.3
       hitter.toZ = hitter.home
+      hitter.wait = 0.3
     }
     this.markerOn = !byMe && this.manual && !s.out
     this.marker.visible = this.markerOn
@@ -281,7 +289,8 @@ export class RacketScene {
     this.marker.position.z = z
   }
 
-  celebrate(winner: Who | null) {
+  /** `lunge` = pihak yang kelewatan bola: mengayun telat dulu, baru lesu */
+  celebrate(winner: Who | null, lunge: Who | null = null) {
     this.shot = null
     this.holding = null
     this.marker.visible = this.markerOn = false
@@ -289,6 +298,13 @@ export class RacketScene {
     if (winner) this.fx?.burst('confetti', 26, 0, 3.4, this.p(winner).z, 0, 2, 0, 8, ['#ff37a6', '#5cf64a', '#ffcc1f', '#42c6ff'])
     for (const who of ['me', 'foe'] as const) {
       const p = this.p(who)
+      if (who === lunge) {
+        // tetap meluncur ke arah bola sambil mengayun telat
+        p.c.play('swing_F', { once: true, fade: 0.05, speed: 1.4 })
+        p.busy = 0.55
+        p.after = 'sad'
+        continue
+      }
       p.to = 0
       p.c.play(who === winner ? 'cheer' : 'sad', { fade: 0.25 })
       p.busy = 1e6
@@ -300,6 +316,8 @@ export class RacketScene {
     for (const who of ['me', 'foe'] as const) {
       const p = this.p(who)
       p.busy = 0
+      p.after = null
+      p.wait = 0
       p.c.play('rk_ready', { fade: 0.2 })
     }
   }
@@ -352,7 +370,9 @@ export class RacketScene {
         const dx = p.to - p.x
         const dz = p.toZ - p.z
         const d = Math.hypot(dx, dz)
-        step = Math.min(d, RUN_SPEED * dt)
+        const speed = p === this.foe ? FOE_SPEED[this.sport] : RUN_SPEED
+        if (p.wait > 0) p.wait -= dt
+        step = p.wait > 0 ? 0 : Math.min(d, speed * dt)
         if (d > 1e-4) {
           p.x += (dx / d) * step
           p.z += (dz / d) * step
@@ -366,7 +386,13 @@ export class RacketScene {
       }
       if (p.busy > 0 && p.busy < 1e5) {
         p.busy -= dt
-        if (p.busy <= 0) p.c.play('rk_ready', { fade: 0.15 })
+        if (p.busy <= 0 && p.after) {
+          p.c.play(p.after, { fade: 0.25 })
+          p.after = null
+          p.busy = 1e6
+          p.to = p.x
+          p.toZ = p.z
+        } else if (p.busy <= 0) p.c.play('rk_ready', { fade: 0.15 })
       }
     }
     this.holdBall()
