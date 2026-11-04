@@ -1,6 +1,6 @@
 """Ekspor render Blender per game (brand/illustrations/<game>/*.png) ke WebP untuk app.
 
-Jalankan:  python -I scripts/blender/export.py [snakes|draw|remi|domino|monopoly|ludo|spy|bom|emote]   (bawaan: snakes)
+Jalankan:  python -I scripts/blender/export.py [snakes|draw|remi|domino|monopoly|ludo|spy|bom|emote|jinak]   (bawaan: snakes)
 Sprite dipangkas ke tepi gambar (kecuali kepala ular: titik tengahnya = pangkal leher) lalu diperkecil.
 """
 import json
@@ -17,7 +17,7 @@ OUT = ROOT / 'src' / 'assets' / GAME
 
 
 def size_for(name: str) -> int:
-    if name.startswith(('tile-', 'snakes-', 'draw-', 'remi-', 'domino-', 'monopoly-', 'ludo-', 'spy-', 'bom-')):
+    if name.startswith(('tile-', 'snakes-', 'draw-', 'remi-', 'domino-', 'monopoly-', 'ludo-', 'spy-', 'bom-', 'jinak-')):
         return 720
     if name.startswith(('mode-', 'landmark-', 'corner-', 'role-', 'mascot-', 'char-', 'kart-')) or name == 'bomb':
         return 240
@@ -39,8 +39,8 @@ def main():
         dest = OUT / f'{name}.webp'
         im.save(dest, 'WEBP', quality=88, method=6)
         meta = {
-            'prompt': f'Origin: hand-modeled in Blender 5.2.2 (no generative AI). Source script scripts/blender/{GAME}.py, asset "{name}"; '
-                      f'{"Cycles render, transparent background" if GAME == "tali" else "Eevee render with Freestyle ink lines, transparent background"}; exported by scripts/blender/export.py. '
+            'prompt': f'Origin: hand-modeled in Blender 5.2.2 (no generative AI). Source script scripts/blender/{GAME + "_ill" if GAME == "jinak" else GAME}.py, asset "{name}"; '
+                      f'{"Cycles render, transparent background" if GAME == "tali" else "Cycles render of PBR-textured models with Freestyle ink lines, transparent background" if GAME == "jinak" else "Eevee render with Freestyle ink lines, transparent background"}; exported by scripts/blender/export.py. '
                       f'Master PNG: brand/illustrations/{GAME}/{name}.png.\n',
             'createdAt': datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'),
         }

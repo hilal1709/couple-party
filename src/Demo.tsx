@@ -45,6 +45,9 @@ import type { LiveChannel } from './games/types'
 import * as petakEngine from './games/petak/engine'
 import type { PetakAction, PetakOptions, PetakState } from './games/petak/types'
 import { PetakBoard } from './games/petak/ui/PetakBoard'
+import * as jinakEngine from './games/jinak/engine'
+import type { JinakAction, Level as JinakLevel } from './games/jinak/types'
+import { JinakBoard } from './games/jinak/ui/JinakBoard'
 import * as sunyiEngine from './games/sunyi/engine'
 import type { SunyiAction, SunyiOptions, SunyiState } from './games/sunyi/types'
 import { SunyiBoard } from './games/sunyi/ui/SunyiBoard'
@@ -64,7 +67,8 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' | 'masak' | 'puncak' | 'tali' | 'sunyi' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' | 'masak' | 'puncak' | 'tali' | 'sunyi' | 'jinak' }) {
+  if (variant === 'jinak') return <JinakDemo />
   if (variant === 'sunyi') return <SunyiDemo />
   if (variant === 'tali') return <TaliDemo />
   if (variant === 'puncak') return new URLSearchParams(location.search).get('tile') ? <PuncakTile /> : <PuncakDemo />
@@ -710,4 +714,37 @@ function SunyiDemo() {
     else setS((cur) => sunyiEngine.reduce(cur, a, seat))
   }
   return <SunyiBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} live={live} />
+}
+
+/**
+ * Jinak Bom lokal: ?demo=jinak &level=santai|normal|panik &seat=0|1 (0 = penjinak ronde 1) &start=1 (langsung jalan)
+ * &solve=N (N modul pertama sudah dijinakkan) &end=defused|boom. State & aksi dibuka di window.__jinak untuk skrip uji.
+ */
+function JinakDemo() {
+  const q = new URLSearchParams(location.search)
+  const [seat, setSeat] = useState(() => Number(q.get('seat') ?? 0))
+  const [s, setS] = useState(() => {
+    let st = jinakEngine.init(Number(q.get('seed') ?? 42), { ...jinakEngine.defaultOptions(2), level: (q.get('level') as JinakLevel) || 'normal' })
+    if (q.get('start') === '1' || q.get('solve') || q.get('end')) st = jinakEngine.reduce(st, { type: 'start' }, 0)
+    for (let i = 0; i < Number(q.get('solve') ?? 0); i++) for (const a of jinakEngine.solutionOf(st, i)) st = jinakEngine.reduce(st, a, st.defuser)
+    if (q.get('end') === 'defused') st.modules.forEach((_, i) => jinakEngine.solutionOf(st, i).forEach((a) => (st = jinakEngine.reduce(st, a, st.defuser))))
+    if (q.get('end') === 'boom') st = jinakEngine.reduce(st, { type: 'timeout', clockId: st.clockId }, 0)
+    return st
+  })
+  const act = (a: JinakAction) => setS((cur) => jinakEngine.reduce(cur, a, a.type === 'timeout' ? 0 : a.type === 'start' || a.type === 'next' ? seat : cur.defuser))
+  useEffect(() => {
+    ;(window as unknown as { __jinak: unknown }).__jinak = { s, act, setSeat, solutionOf: jinakEngine.solutionOf }
+  })
+  return (
+    <>
+      <JinakBoard state={s} seat={seat} names={NAMES.slice(0, 2)} online={[true, true]} act={act} exit={() => {}} />
+      <div className="fixed bottom-1 left-1/2 z-50 flex -translate-x-1/2 gap-1 opacity-60">
+        {[0, 1].map((i) => (
+          <button key={i} onClick={() => setSeat(i)} className={`border-2 border-ink px-1 text-[10px] ${i === seat ? 'bg-electric' : 'bg-paper'}`}>
+            {i}
+          </button>
+        ))}
+      </div>
+    </>
+  )
 }
