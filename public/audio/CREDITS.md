@@ -50,3 +50,5 @@ Petak Cat: tekstur dinding, genteng, seng, bata, kayu, marmer, kain, dan lantai 
 Dapur Kacau: tekstur lantai, dinding, kayu, bata, logam, aspal, dan batu dari **Poly Haven** (CC0), langit dari Poly Haven; model scan 3D wajan, panci, talenan, peti kayu, tong sampah, alat pemadam, roti burger, rak, teko, tanaman pot, lentera, pelampung, dan tong anggur dari **Poly Haven** (CC0); dapur, makanan, hidangan, topi koki, dan tile menu dimodel sendiri di Blender: `scripts/blender/masak*.py`.
 
 Pengolahan (potong, loop mulus, normalisasi loudness, OGG) dilakukan dengan `scripts/audio/build.py`.
+
+Semua suara & musik Puncak Berdua (`music/puncak.ogg`, `sfx/puncak-*`) disintesis sendiri di `scripts/audio/build.py` (`puncak_synth`, `puncak_music`), bukan sampel.

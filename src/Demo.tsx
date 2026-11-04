@@ -48,6 +48,9 @@ import { PetakBoard } from './games/petak/ui/PetakBoard'
 import * as masakEngine from './games/masak/engine'
 import type { MasakAction, MasakOptions, MasakState } from './games/masak/types'
 import { MasakBoard } from './games/masak/ui/MasakBoard'
+import * as puncakEngine from './games/puncak/engine'
+import type { PuncakAction, PuncakOptions, PuncakState } from './games/puncak/types'
+import { PuncakBoard } from './games/puncak/ui/PuncakBoard'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -55,7 +58,8 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' | 'masak' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' | 'masak' | 'puncak' }) {
+  if (variant === 'puncak') return new URLSearchParams(location.search).get('tile') ? <PuncakTile /> : <PuncakDemo />
   if (variant === 'petak') return <PetakDemo />
   if (variant === 'masak') return <MasakDemo />
 
@@ -517,4 +521,80 @@ function MasakDemo() {
     else setS((cur) => masakEngine.reduce(cur, a, seat))
   }
   return <MasakBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} live={live} />
+}
+
+/**
+ * ?demo=puncak&mountain=karang|…|langit|acak&n=1..4 pemain&total=pendaki&seat=&zones=2|4&weather=&loot=&level=&end=1|0
+ * &duo=1: beberapa tab berbagi state & saluran live (BroadcastChannel), seperti beberapa HP. &lag=ms jeda buatan.
+ */
+function PuncakDemo() {
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(4, Math.max(1, Number(q.get('n') ?? 1)))
+  const seat = Number(q.get('seat') ?? 0)
+  const lag = Number(q.get('lag') ?? 0)
+  const [s, setS] = useState<PuncakState>(() => {
+    const o: Partial<PuncakOptions> = {
+      players: n,
+      total: Number(q.get('total') ?? Math.max(2, n)),
+      mountain: (q.get('mountain') ?? 'karang') as PuncakOptions['mountain'],
+      zones: (Number(q.get('zones') ?? 4) === 2 ? 2 : 4) as PuncakOptions['zones'],
+      weather: (q.get('weather') ?? 'cerah') as PuncakOptions['weather'],
+      loot: (q.get('loot') ?? 'normal') as PuncakOptions['loot'],
+      level: (Number(q.get('level') ?? 2) as 1 | 2 | 3) || 2,
+    }
+    let st = puncakEngine.init(Number(q.get('seed') ?? 42), o)
+    if (q.get('end')) st = puncakEngine.reduce(st, { type: 'finish', result: { win: q.get('end') === '1', secs: 812, falls: 1, items: 9, camp: 3, lives: 4 } }, 0)
+    return st
+  })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const bus = useMemo(() => (q.get('duo') ? new BroadcastChannel('puncak-duo') : null), [])
+  useEffect(() => {
+    if (!bus) return
+    const fn = (e: MessageEvent) => {
+      const m = e.data
+      if (m.state && seat !== 0) setS(m.state)
+      if (m.action && seat === 0) setS((cur) => puncakEngine.reduce(cur, m.action, m.by))
+    }
+    bus.addEventListener('message', fn)
+    return () => bus.removeEventListener('message', fn)
+  }, [bus, seat])
+  useEffect(() => {
+    if (bus && seat === 0) bus.postMessage({ state: s })
+  }, [bus, s, seat])
+  const live = useMemo<LiveChannel | undefined>(() => {
+    if (!bus) return undefined
+    return {
+      send: (d) => {
+        const post = () => bus.postMessage({ live: d, from: seat })
+        if (lag) setTimeout(post, lag / 2)
+        else post()
+      },
+      on: (cb) => {
+        const fn = (e: MessageEvent) => {
+          if (e.data.live === undefined) return
+          const run = () => cb(e.data.live, e.data.from)
+          if (lag) setTimeout(run, lag / 2)
+          else run()
+        }
+        bus.addEventListener('message', fn)
+        return () => bus.removeEventListener('message', fn)
+      },
+    }
+  }, [bus, seat, lag])
+  const act = (a: PuncakAction) => {
+    if (bus && seat !== 0) bus.postMessage({ action: a, by: seat })
+    else setS((cur) => puncakEngine.reduce(cur, a, seat))
+  }
+  return <PuncakBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} live={live} />
+}
+
+/** ?demo=puncak&tile=1 : gambar tile Puncak Berdua; window.__tile() → PNG data URL */
+function PuncakTile() {
+  const ref = useRef<HTMLCanvasElement>(null)
+  useEffect(() => {
+    void import('./games/puncak/dev/tile').then((m) => {
+      ;(window as unknown as { __tile?: () => Promise<string> }).__tile = () => m.renderTile(ref.current!)
+    })
+  }, [])
+  return <canvas ref={ref} className="size-full bg-[repeating-conic-gradient(#ddd_0_25%,#fff_0_50%)] bg-[length:20px_20px]" />
 }
