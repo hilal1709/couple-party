@@ -115,8 +115,8 @@ export function step(w: Walker, mx: number, mz: number, speed: number, dt: numbe
   if (w.moving) {
     w.yaw = Math.atan2(mx, mz)
     let [x, z] = pushOut(map.boxes, w.x + mx * speed * dt, w.z + mz * speed * dt, w.y)
-    if (w.fly) {
-      const b = flyBounds(map)
+    if (w.fly && 'spots' in map) {
+      const b = flyBounds(map as MapData)
       x = keepIn(x, w.x, b.x0, b.x1)
       z = keepIn(z, w.z, b.z0, b.z1)
     }

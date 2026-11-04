@@ -10,5 +10,5 @@ export const sunyi: GameDef<SunyiState, SunyiAction, SunyiOptions> = {
   reduce,
   // three.js, tekstur kampung, dan mic: dimuat saat game dimulai saja
   View: lazy(() => import('./ui/SunyiBoard').then((m) => ({ default: m.SunyiBoard }))),
-  emoteLow: true,
+  emoteSpot: 'low',
 }

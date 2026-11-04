@@ -10,5 +10,5 @@ export const tali: GameDef<TaliState, TaliAction, TaliOptions> = {
   reduce,
   // three.js, model, dan tekstur: dimuat saat game dimulai saja
   View: lazy(() => import('./ui/TaliBoard').then((m) => ({ default: m.TaliBoard }))),
-  emoteLow: true,
+  emoteSpot: 'low',
 }
