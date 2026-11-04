@@ -46,6 +46,12 @@ export type Body = {
   umbrella: boolean
   /** sisa waktu lompatan dari dinding */
   lunge: number
+  /** jeda sebelum lunge berikutnya (detik) */
+  lungeCd: number
+  /** lunge kedua yang menyambung sudah dipakai */
+  chain: boolean
+  /** kecepatan datar saat lepas landas: lompat sambil lari tetap jauh */
+  airSpeed: number
   /** sisa waktu terdorong (tidak bisa dikendalikan) */
   stun: number
   moving: boolean
@@ -79,6 +85,8 @@ export type Env = {
   warm: boolean
   /** kolom angin naik (Pulau Langit) */
   lift: number
+  /** tebing basah karena hujan 0..1: pegangan lebih boros (kecuali es) */
+  wet?: number
 }
 
 export type BodyEvent =
@@ -114,6 +122,9 @@ export function newBody(x: number, y: number, z: number, yaw: number): Body {
     surface: 'tanah',
     umbrella: false,
     lunge: 0,
+    lungeCd: 0,
+    chain: false,
+    airSpeed: 0,
     stun: 0,
     moving: false,
   }
@@ -188,6 +199,7 @@ export function stepBody(b: Body, inp: Input, env: Env, dt: number): BodyEvent[]
   const { t } = env
   for (const k of Object.keys(b.buffs) as (keyof Buffs)[]) b.buffs[k] = Math.max(0, b.buffs[k] - dt)
   b.lunge = Math.max(0, b.lunge - dt)
+  b.lungeCd = Math.max(0, b.lungeCd - dt)
   b.stun = Math.max(0, b.stun - dt)
   const zn = t.m.zones[Math.min(t.zones - 1, zoneAtSafe(t, b.x, b.z))]
   tickFatigue(b, env, zn.cold, zn.heat, dt)
@@ -258,6 +270,7 @@ export function stepBody(b: Body, inp: Input, env: Env, dt: number): BodyEvent[]
           // melangkah keluar dari bibir: jatuh
           b.mode = 'air'
           b.vy = 0
+          b.airSpeed = Math.hypot(b.vx, b.vz)
           b.peak = b.y
         } else if (!swim) b.y = f
       }
@@ -290,6 +303,7 @@ export function stepBody(b: Body, inp: Input, env: Env, dt: number): BodyEvent[]
           drain(b, cost)
           b.mode = 'air'
           b.vy = swim ? 4.5 : JUMP_V * (b.buffs.balon > 0 ? 1.15 : 1)
+          b.airSpeed = Math.hypot(b.vx, b.vz)
           b.peak = b.y
           ev.push({ k: 'jump' })
         }
@@ -303,7 +317,8 @@ export function stepBody(b: Body, inp: Input, env: Env, dt: number): BodyEvent[]
       if (env.lift > 0 && b.vy < 6) b.vy += env.lift * dt * 3
       if (b.umbrella && b.vy < -2.4) b.vy = -2.4
       const ctl = b.umbrella ? 3.2 : 1.6
-      const speed = b.umbrella ? 4.4 : WALK
+      // kendali di udara tidak memotong laju lari saat lompat
+      const speed = Math.max(b.umbrella ? 4.4 : WALK, b.airSpeed)
       b.vx += (inp.mx * speed - b.vx) * Math.min(1, dt * ctl) * (b.stun > 0 ? 0 : 1)
       b.vz += (inp.mz * speed - b.vz) * Math.min(1, dt * ctl) * (b.stun > 0 ? 0 : 1)
       b.vx += env.wind[0] * dt * (b.umbrella ? 1.4 : 0.6)
@@ -343,6 +358,7 @@ export function stepBody(b: Body, inp: Input, env: Env, dt: number): BodyEvent[]
       const f = floorAt(env, b.x, b.z, b.y)
       if (b.y <= f && b.vy <= 0) {
         b.y = f
+        b.airSpeed = 0
         land(b, env, inp, ev)
       } else if (b.y < f) {
         // menabrak lereng naik saat melayang
@@ -430,7 +446,7 @@ export function stepBody(b: Body, inp: Input, env: Env, dt: number): BodyEvent[]
       b.yaw = Math.atan2(ux, uz)
       // tepian datar tepat di depan tangan: naik ke atasnya (mantle)
       if (inp.up > 0.2) {
-        for (const reach of [0.6, 1.1]) {
+        for (const reach of [0.6, 1.1, 1.6]) {
           const ax = b.x + ux * reach
           const az = b.z + uz * reach
           const ah = heightAt(t, ax, az)
@@ -449,7 +465,8 @@ export function stepBody(b: Body, inp: Input, env: Env, dt: number): BodyEvent[]
       const slip = b.surface === 'es' && b.buffs.sepatu <= 0 ? 0.35 : b.surface === 'kristal' ? 0.18 : 0
       let up = inp.up
       if (b.lunge > 0) up = 3.2
-      const cost = GRIP_COST[b.surface] * (b.buffs.sepatu > 0 && (b.surface === 'es' || b.surface === 'salju') ? 0.75 : 1) * (b.buffs.kapur > 0 ? 0.55 : 1)
+      const wetK = b.surface === 'es' ? 1 : 1 + 0.35 * (env.wet ?? 0)
+      const cost = wetK * GRIP_COST[b.surface] * (b.buffs.sepatu > 0 && (b.surface === 'es' || b.surface === 'salju') ? 0.75 : 1) * (b.buffs.kapur > 0 ? 0.55 : 1)
       const dy = (CLIMB * up - slip) * dt
       const side = inp.side * CLIMB * 0.8 * dt
       // naik = maju ke arah menanjak secukupnya supaya tetap menempel di permukaan
@@ -459,13 +476,25 @@ export function stepBody(b: Body, inp: Input, env: Env, dt: number): BodyEvent[]
       const surf = heightAt(t, b.x, b.z)
       b.y = surf
       b.moving = Math.abs(inp.up) + Math.abs(inp.side) > 0.2
-      drain(b, (b.moving ? 0.075 : 0.03) * cost * dt + Math.max(0, env.wind[0] ** 2 + env.wind[1] ** 2 - 9) * 0.0008 * dt)
+      // turun jauh lebih hemat daripada naik
+      const effort = !b.moving ? 0.03 : inp.up < -0.2 && b.lunge <= 0 ? 0.026 : 0.075
+      drain(b, effort * cost * dt + Math.max(0, env.wind[0] ** 2 + env.wind[1] ** 2 - 9) * 0.0008 * dt)
       if (b.stamina < 0.2 && b.stamina + 0.075 * dt * cost >= 0.2) ev.push({ k: 'slip' })
       pushOut(env, b)
       if (inp.jump && b.stamina > 0.12) {
-        drain(b, 0.2)
-        b.lunge = 0.3
-        ev.push({ k: 'jump' })
+        if (b.lunge > 0 && !b.chain) {
+          // tekan lagi selagi masih meluncur: sedikit tambahan tinggi
+          drain(b, 0.08)
+          b.lunge += 0.14
+          b.chain = true
+          ev.push({ k: 'jump' })
+        } else if (b.lungeCd <= 0) {
+          drain(b, 0.2)
+          b.lunge = 0.3
+          b.lungeCd = 1
+          b.chain = false
+          ev.push({ k: 'jump' })
+        }
       }
       // tali di dekat tangan: pindah ke tali
       const r = nearRope(env, b)

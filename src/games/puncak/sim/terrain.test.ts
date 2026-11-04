@@ -21,28 +21,40 @@ describe('generator gunung', () => {
     }
   })
 
-  it.each(MOUNTAIN_IDS)('%s: massif bongkahan tanpa dinding tegak, jalur bisa dijalani', (id) => {
+  it.each(MOUNTAIN_IDS)('%s: tidak ada jalan — muka tebing bertingkat dengan pijakan & tonjolan', (id) => {
     const t = buildTerrain(id, 4, 1234)
-    // gunung tinggi
     expect(t.summit.y).toBeGreaterThan(110)
-    // muka batu miring (≤ ~80°), bukan dinding 90°; lubang celah Pulau Langit/Ngarai Kristal dikecualikan
+    // bagian tebing di koridor (di luar jembatan/jurang) cukup banyak: harus memanjat, bukan berjalan
     let steep = 0
+    let flatOnCliff = 0
     let total = 0
-    for (let j = 4; j < t.n - 4; j += 3) {
-      for (let i = 4; i < t.n - 4; i += 3) {
-        const x = i * 0.5 - t.half
-        const z = j * 0.5 - t.half
+    const lo = t.camps[0].z + 20
+    for (let z = lo; z < t.summit.z - 4; z += 1) {
+      for (let x = -28; x <= 28; x += 1) {
+        if (t.decks.some((d) => Math.hypot(d.x - x, d.z - z) < d.hz + 10)) continue
         const y = heightAt(t, x, z)
-        if (y < 0 || t.decks.some((d) => Math.hypot(d.x - x, d.z - z) < d.hz + 10)) continue
+        if (y < 0) continue
         total++
-        if (slopeAt(t, x, z) > 6) steep++
+        const s = slopeAt(t, x, z)
+        if (s > 1) steep++
+        // tempat berdiri di tengah pita tebing (pijakan / tonjolan)
+        if (s < 0.5 && slopeAt(t, x, z + 1.5) > 1.5) flatOnCliff++
       }
     }
-    expect(steep / total).toBeLessThan(0.012)
-    // titik jalur (selain bibir tebing panjat) bisa dipijak
-    const walk = t.route.filter((p) => !p.climb && !t.decks.some((d) => Math.hypot(d.x - p.x, d.z - p.z) < d.hz + 1))
-    const flat = walk.filter((p) => slopeAt(t, p.x, p.z) < 1).length
-    expect(flat / walk.length).toBeGreaterThan(0.9)
+    expect(steep / total).toBeGreaterThan(0.25)
+    expect(flatOnCliff).toBeGreaterThan(200)
+    // tiap zona punya beberapa dinding yang wajib dipanjat di rute
+    for (let k = 0; k < t.zones; k++) {
+      const z0 = t.camps[k].z
+      const z1 = k + 1 < t.zones ? t.camps[k + 1].z : t.summit.z
+      expect(t.route.filter((p) => p.climb && p.z > z0 && p.z <= z1).length).toBeGreaterThanOrEqual(2)
+    }
+    // tidak ada pita landai yang menyambung dari pantai ke puncak: di setiap kolom x ada tebing curam
+    for (let x = -24; x <= 24; x += 8) {
+      let maxS = 0
+      for (let z = t.camps[0].z; z < t.camps[1].z; z += 0.5) maxS = Math.max(maxS, slopeAt(t, x, z))
+      expect(maxS).toBeGreaterThan(2)
+    }
   })
 
   it('sama persis untuk benih yang sama', () => {

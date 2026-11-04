@@ -5,22 +5,34 @@ import fxStar from '@/assets/lottie/masak-bintang.json'
 import { useMusic } from '@/audio/audio'
 import { HoldButton } from '@/components/controls/HoldButton'
 import { Joystick } from '@/components/controls/Joystick'
+import { TapButton } from '@/components/controls/TapButton'
 import { LoadingScreen } from '@/components/feedback/Loader'
 import { ConfirmModal } from '@/components/feedback/Modal'
 import { Slab, Tape } from '@/components/memphis/Slab'
-import { randomLook } from '@/games/sport/look'
-import { savedLook } from '@/games/sport/ui/lookStore'
 import { cn } from '@/lib/utils'
 import type { GameProps } from '../../types'
 import { actorOf, starsOf } from '../engine'
+import { randomLook, saveFirstPerson, savedFirstPerson, savedLook, saveLook } from '../look'
 import { MOUNTAINS } from '../mountains'
 import { Round, type Hud, type Pop } from '../round'
 import { ITEMS } from '../sim/items'
-import { playSound, WindLoop } from '../sounds'
+import { playSound, RainLoop, WindLoop } from '../sounds'
 import type { PuncakAction, PuncakState } from '../types'
 import { botName, clock, STAR_LINE } from './copy'
+import { LookMaker } from './LookMaker'
 
 type Props = GameProps<PuncakState, PuncakAction>
+
+const SKY_LABEL: Record<Hud['sky'], string> = {
+  cerah: 'Cerah',
+  berawan: '☁ Mendung',
+  hujan: '☂ Hujan · licin',
+  badai: '⚡ Badai petir',
+  pasir: '≋ Badai pasir',
+  abu: '☁ Hujan abu',
+  salju: '❄ Salju',
+  kabut: '≈ Kabut',
+}
 
 export function PuncakBoard({ state: s, seat, names, online, act, exit, live }: Props) {
   const [confirmExit, setConfirmExit] = useState(false)
@@ -63,6 +75,10 @@ function ClimbScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
   const nameRef = useRef(nameOf)
   nameRef.current = nameOf
   const popId = useRef(0)
+  const [fp, setFp] = useState(savedFirstPerson)
+  const [styling, setStyling] = useState(false)
+  const me = actorOf(s, seat)
+  const myLook = (me >= 0 ? s.looks[me] : null) ?? savedLook() ?? randomLook(7)[0]
 
   useEffect(() => {
     let r: Round
@@ -72,7 +88,7 @@ function ClimbScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
       setTimeout(() => setPops((x) => x.filter((y) => y.id !== item.id)), 2200)
     }
     try {
-      r = new Round({ canvas: canvas.current!, state: s, seat, look: savedLook(), act: (a) => actRef.current(a), live, onHud: setHud, onPop, onSound: playSound, nameOf: (a) => nameRef.current(a) })
+      r = new Round({ canvas: canvas.current!, state: s, seat, look: savedLook(), fp: savedFirstPerson(), act: (a) => actRef.current(a), live, onHud: setHud, onPop, onSound: playSound, nameOf: (a) => nameRef.current(a) })
     } catch {
       setFailed(true)
       return
@@ -102,6 +118,13 @@ function ClimbScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
     wind.current = new WindLoop()
     return () => wind.current?.stop()
   }, [])
+  const rainLoop = useRef<RainLoop | null>(null)
+  useEffect(() => {
+    rainLoop.current = new RainLoop()
+    return () => rainLoop.current?.stop()
+  }, [])
+  const raining = hud && (hud.sky === 'hujan' || hud.sky === 'badai') ? Math.round(hud.skyK * 10) / 10 : 0
+  useEffect(() => rainLoop.current?.set(raining), [raining])
   useEffect(() => wind.current?.set((hud?.wind ?? 0) + (hud?.storm ?? 0) * 6 + (hud?.alt ?? 0) / 40), [hud?.wind, hud?.storm, hud?.alt])
 
   // geser layar kanan = putar kamera
@@ -164,7 +187,30 @@ function ClimbScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
       {hud && (
         <>
           <Marks hud={hud} nameOf={nameOf} />
-          <TopBar s={s} hud={hud} online={online} nameOf={nameOf} back={back} />
+          <TopBar
+            s={s}
+            hud={hud}
+            online={online}
+            nameOf={nameOf}
+            back={back}
+            fp={fp}
+            onCam={() => {
+              const v = !fp
+              setFp(v)
+              saveFirstPerson(v)
+              round.current?.setFirstPerson(v)
+            }}
+            onStyle={me >= 0 ? () => setStyling(true) : null}
+          />
+          <LookMaker
+            open={styling}
+            onOpenChange={setStyling}
+            look={myLook}
+            onChange={(l) => {
+              saveLook(l)
+              act({ type: 'look', look: l })
+            }}
+          />
           <StaminaBar hud={hud} />
           <Inventory
             hud={hud}
@@ -183,18 +229,28 @@ function ClimbScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
               setPickSlot(null)
             }}
           />
-          <div className="absolute right-3 bottom-3 flex items-end gap-2.5">
-            {hud.action && (
-              <Slab tone="electric" size="md" onClick={() => round.current?.doAction()}>
-                {hud.action.label}
-              </Slab>
-            )}
-            <HoldButton label="Pegang" onHold={(v) => round.current?.grip(v)} className={cn('h-[68px] w-[84px] text-base', hud.mode === 'climb' || hud.mode === 'rope' ? 'bg-rose text-paper' : 'bg-paper')}>
-              Pegang
-            </HoldButton>
-            <Slab tone="rose" size="lg" onClick={() => round.current?.jump()}>
-              Lompat
-            </Slab>
+          {/* ibu jari kanan: Lompat paling besar di pojok, Pegang di sebelahnya, Lari/Lunge & aksi di atasnya */}
+          <div className="absolute right-[max(12px,env(safe-area-inset-right))] bottom-3 flex items-end gap-2">
+            <div className="flex flex-col items-center gap-2">
+              <HoldButton label={hud.mode === 'climb' ? 'Lunge' : 'Lari'} onHold={(v) => round.current?.run(v)} className="h-12 w-[84px] bg-grass text-sm">
+                {hud.mode === 'climb' ? 'Lunge' : 'Lari'}
+              </HoldButton>
+              <HoldButton label="Pegang" onHold={(v) => round.current?.grip(v)} className={cn('h-[74px] w-[84px] text-[13px]', hud.mode === 'climb' || hud.mode === 'rope' ? 'bg-rose text-paper' : 'bg-paper')}>
+                Pegang
+              </HoldButton>
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              {hud.action ? (
+                <TapButton label={hud.action.label} onTap={() => round.current?.doAction()} className="h-12 max-w-[120px] bg-electric px-2 text-xs leading-tight">
+                  {hud.action.label}
+                </TapButton>
+              ) : (
+                <span className="h-12" aria-hidden />
+              )}
+              <TapButton label="Lompat" onTap={() => round.current?.jump()} className="h-[74px] w-[104px] bg-rose text-base">
+                Lompat
+              </TapButton>
+            </div>
           </div>
           {hud.downLeft !== null && (
             <div className="pointer-events-none absolute inset-0 grid place-items-center bg-ink/45">
@@ -226,13 +282,13 @@ function ClimbScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
             <span key={i} className="pointer-events-none absolute size-4 -translate-1/2 rotate-45 border-2 border-ink bg-suit-yellow" style={{ left: `${x}%`, top: `${y}%` }} />
           ))}
           {hud.compass && (
-            <div className="pointer-events-none absolute top-14 left-1/2 flex -translate-x-1/2 flex-col items-center">
+            <div className="pointer-events-none absolute top-[66px] left-1/2 flex -translate-x-1/2 flex-col items-center">
               <span className="block size-0 border-x-[10px] border-b-[18px] border-x-transparent border-b-rose" style={{ transform: `rotate(${-hud.compass[0]}rad)` }} />
               <span className="bg-ink/70 px-1 text-[11px] font-bold text-paper tabular-nums">{hud.compass[1]} m</span>
             </div>
           )}
           {import.meta.env.DEV && (
-            <span className="pointer-events-none absolute bottom-1 left-1/2 -translate-x-1/2 bg-ink/70 px-1 text-[10px] text-paper tabular-nums">
+            <span className="pointer-events-none absolute bottom-1 left-1 bg-ink/70 px-1 text-[10px] text-paper tabular-nums">
               {hud.fps} fps · {hud.mode} · aksi {hud.rtt === null ? 'host' : `${Math.round(hud.rtt)} ms`}
             </span>
           )}
@@ -254,7 +310,7 @@ function StaminaBar({ hud }: { hud: Hud }) {
   ]
   const low = hud.stamina < 0.22
   return (
-    <div className="pointer-events-none absolute bottom-[92px] left-1/2 w-[min(320px,46vw)] -translate-x-1/2" aria-label={`Stamina ${Math.round(hud.stamina * 100)}%`}>
+    <div className="pointer-events-none absolute right-[max(218px,calc(env(safe-area-inset-right)+206px))] bottom-[76px] w-[234px]" aria-label={`Stamina ${Math.round(hud.stamina * 100)}%`}>
       <div className={cn('relative flex h-4 overflow-hidden border-[3px] border-ink bg-ink/40', low && 'animate-pulse')}>
         <span className={cn('h-full', low ? 'bg-rose' : 'bg-electric')} style={{ width: `${hud.stamina * 100}%` }} />
         <span className="h-full" style={{ width: `${Math.max(0, hud.max - hud.stamina) * 100}%` }} />
@@ -280,7 +336,7 @@ function Inventory({ hud, pick, onTap, onLong, onDrop, onGive }: { hud: Hud; pic
   const timer = useRef<number | null>(null)
   const long = useRef(false)
   return (
-    <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+    <div className="absolute right-[max(218px,calc(env(safe-area-inset-right)+206px))] bottom-3 flex gap-1.5">
       {Array.from({ length: 4 }, (_, i) => {
         const id = hud.inv[i]
         const info = id ? ITEMS[id] : null
@@ -302,7 +358,7 @@ function Inventory({ hud, pick, onTap, onLong, onDrop, onGive }: { hud: Hud; pic
               }}
               onPointerLeave={() => timer.current && clearTimeout(timer.current)}
               onContextMenu={(e) => e.preventDefault()}
-              className={cn('grid h-[58px] w-[58px] place-items-center border-[3px] border-ink bg-paper/90 p-0.5 text-center shadow-slab-sm disabled:opacity-50', pick === i && 'outline-2 outline-offset-1 outline-rose')}
+              className={cn('grid h-[54px] w-[54px] place-items-center border-[3px] border-ink bg-paper/90 p-0.5 text-center shadow-slab-sm disabled:opacity-50', pick === i && 'outline-2 outline-offset-1 outline-rose')}
             >
               {info ? (
                 <>
@@ -314,7 +370,7 @@ function Inventory({ hud, pick, onTap, onLong, onDrop, onGive }: { hud: Hud; pic
               )}
             </button>
             {pick === i && id && (
-              <div className="absolute bottom-[64px] left-1/2 flex -translate-x-1/2 flex-col gap-1">
+              <div className="absolute bottom-[60px] left-1/2 flex -translate-x-1/2 flex-col gap-1">
                 <Slab tone="paper" size="sm" onClick={() => onDrop(i)}>
                   Buang
                 </Slab>
@@ -340,7 +396,7 @@ function Marks({ hud, nameOf }: { hud: Hud; nameOf: (a: number) => string }) {
         <span
           key={a}
           className={cn('pointer-events-none absolute -translate-x-1/2 -translate-y-full border-2 border-ink px-1 text-[10px] leading-4 font-bold whitespace-nowrap text-ink', down ? 'animate-pulse bg-rose text-paper' : 'bg-paper/90', off && 'opacity-80')}
-          style={{ left: `${x}%`, top: `${y}%` }}
+          style={{ left: `${Math.min(88, Math.max(12, x))}%`, top: `${Math.min(62, Math.max(26, y))}%` }}
         >
           {off ? '◀ ' : ''}
           {nameOf(a)} · {d} m{down ? ' · PINGSAN' : ''}
@@ -350,14 +406,24 @@ function Marks({ hud, nameOf }: { hud: Hud; nameOf: (a: number) => string }) {
   )
 }
 
-function TopBar({ s, hud, online, nameOf, back }: { s: PuncakState; hud: Hud; online: boolean[]; nameOf: (a: number) => string; back: () => void }) {
+function TopBar({ s, hud, online, nameOf, back, fp, onCam, onStyle }: { s: PuncakState; hud: Hud; online: boolean[]; nameOf: (a: number) => string; back: () => void; fp: boolean; onCam: () => void; onStyle: (() => void) | null }) {
   const m = MOUNTAINS[s.mountain]
   return (
     <div className="pointer-events-none absolute inset-x-2 top-2 flex items-start justify-between gap-2">
       <div className="flex flex-col items-start gap-1">
-        <button onClick={back} className="pointer-events-auto border-[3px] border-ink bg-paper px-2 py-1 text-xs font-bold text-ink">
-          Keluar
-        </button>
+        <div className="pointer-events-auto flex gap-1">
+          <button onClick={back} className="h-8 border-[3px] border-ink bg-paper px-2 text-xs font-bold text-ink">
+            Keluar
+          </button>
+          <button onClick={onCam} aria-label={fp ? 'Kamera orang ketiga' : 'Kamera orang pertama'} className="h-8 border-[3px] border-ink bg-paper px-2 text-xs font-bold text-ink">
+            {fp ? 'Tampak belakang' : 'Tampak mata'}
+          </button>
+          {onStyle && (
+            <button onClick={onStyle} className="h-8 border-[3px] border-ink bg-electric px-2 text-xs font-bold text-ink">
+              Gaya
+            </button>
+          )}
+        </div>
         <ul className="flex max-w-[200px] flex-wrap gap-1">
           {s.actors.map((a, i) => (
             <li key={i} data-seat={a.seat ?? undefined} className={cn('border-2 border-ink bg-paper px-1 text-[10px] leading-4 font-bold text-ink', a.seat !== null && !online[a.seat] && 'opacity-50')}>
@@ -381,6 +447,7 @@ function TopBar({ s, hud, online, nameOf, back }: { s: PuncakState; hud: Hud; on
         <span className="text-sm leading-none text-rose [text-shadow:0_1px_0_#121212]" aria-label={`${hud.lives} nyawa`}>
           {'♥'.repeat(hud.lives)}
         </span>
+        {hud.sky !== 'cerah' && hud.skyK > 0.15 && <span className="border-2 border-ink bg-paper/90 px-1.5 text-[11px] leading-5 font-bold text-ink">{SKY_LABEL[hud.sky]}</span>}
       </div>
     </div>
   )
@@ -393,7 +460,7 @@ function useKeyboard(round: React.RefObject<Round | null>) {
       const x = (held.has('d') || held.has('arrowright') ? 1 : 0) - (held.has('a') || held.has('arrowleft') ? 1 : 0)
       const y = (held.has('w') || held.has('arrowup') ? 1 : 0) - (held.has('s') || held.has('arrowdown') ? 1 : 0)
       const len = Math.hypot(x, y) || 1
-      const run = held.has('control') ? 1 : 0.9
+      const run = 0.9
       round.current?.setMove((x / len) * run, (y / len) * run)
     }
     const down = (e: KeyboardEvent) => {
@@ -401,6 +468,7 @@ function useKeyboard(round: React.RefObject<Round | null>) {
       if (e.repeat) return
       if (k === ' ') round.current?.jump()
       else if (k === 'shift') round.current?.grip(true)
+      else if (k === 'control') round.current?.run(true)
       else if (k === 'e') round.current?.doAction()
       else if ('1234'.includes(k) && k.length === 1) round.current?.useSlot(Number(k) - 1)
       else if (k === 'q') round.current?.look(-40, 0)
@@ -411,6 +479,7 @@ function useKeyboard(round: React.RefObject<Round | null>) {
     const up = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase()
       if (k === 'shift') round.current?.grip(false)
+      else if (k === 'control') round.current?.run(false)
       held.delete(k)
       apply()
     }

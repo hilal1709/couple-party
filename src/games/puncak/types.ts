@@ -1,4 +1,4 @@
-import type { Look } from '../sport/types'
+import type { PuncakLook } from './look'
 import type { BotLevel, Seat } from '../types'
 
 export type MountainId = 'karang' | 'rimba' | 'ngarai' | 'kawah' | 'salju' | 'teh' | 'kristal' | 'langit'
@@ -42,11 +42,11 @@ export type PuncakState = {
   phaseId: number
   seed: number
   actors: Actor[]
-  looks: (Look | null)[]
+  looks: (PuncakLook | null)[]
   result: Result | null
 }
 
 export type PuncakAction =
-  | { type: 'look'; look: Look }
+  | { type: 'look'; look: PuncakLook }
   | { type: 'finish'; result: Result }
   | { type: 'again' }

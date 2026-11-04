@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { OutlineEffect } from 'three/examples/jsm/effects/OutlineEffect.js'
-import { Chibi, loadChibi } from '@/games/sport/render/chibi'
-import { randomLook } from '@/games/sport/look'
+import { Climber, loadClimber } from '../render/climber'
 
 /**
  * Ilustrasi tile Puncak Berdua (dev): gunung kartun bertingkat bersalju, tebing berlapis, bendera pink,
@@ -83,9 +82,9 @@ export async function renderTile(canvas: HTMLCanvasElement) {
   const rope = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(1.9, 9.6, 9.2), new THREE.Vector3(2.2, 8.2, 9.9), new THREE.Vector3(2.4, 6.9, 10.3)]), 16, 0.07, 6), toon('#d9b778'))
   scene.add(rope)
   // dua pendaki: satu di atas menarik, satu memanjat
-  const gltf = await loadChibi()
-  const a = new Chibi(gltf, { ...randomLook(3)[0], shirt: 0, pants: 0, hair: 0, style: 1, acc: 0 }, false)
-  const b = new Chibi(gltf, { ...randomLook(9)[0], shirt: 1, pants: 1, hair: 4, style: 2, acc: 0 }, false)
+  const gltf = await loadClimber()
+  const a = new Climber(gltf, { skin: 1, jacket: 0, pants: 0, hat: 0, cap: 0, face: 0 }, false)
+  const b = new Climber(gltf, { skin: 3, jacket: 1, pants: 1, hat: 1, cap: 1, face: 1 }, false)
   a.root.scale.setScalar(1.5)
   b.root.scale.setScalar(1.5)
   a.root.position.set(1.6, 9.6, 8.6)
@@ -93,12 +92,9 @@ export async function renderTile(canvas: HTMLCanvasElement) {
   b.root.position.set(2.4, 6.2, 10.4)
   b.root.rotation.y = Math.PI + 0.2
   a.play('cheer')
-  b.play('walk', { speed: 0.001 })
+  b.play('hang')
   a.update(0.6)
   b.update(0.3)
-  // lengan pemanjat ke atas
-  const Q = new THREE.Quaternion()
-  for (const n of ['upper_L', 'upper_R']) b.bone(n)?.quaternion.multiply(Q.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -2.6))
   scene.add(a.root, b.root)
   // awan kecil
   const cloud = (x: number, y: number, z: number, s: number) => {

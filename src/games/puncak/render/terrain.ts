@@ -129,6 +129,12 @@ export type TerrainUniforms = {
   uScale: { value: number }
   uCliffScale: { value: number }
   uWet: { value: number }
+  uTime: { value: number }
+  uRain: { value: number }
+  uMoss: { value: number }
+  uMossL: { value: number }
+  uVulk: { value: number }
+  uLava: { value: number }
   uRock: { value: THREE.Color[] }
   uSoil: { value: THREE.Color[] }
   uLedge: { value: THREE.Color[] }
@@ -145,7 +151,7 @@ const zonesOf = (t: Terrain) => {
   return z
 }
 
-export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean) {
+export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean, clock: { value: number } = { value: 0 }) {
   const layers = layersOf(t)
   while (layers.length < 4) layers.push(layers[layers.length - 1])
   const u: TerrainUniforms = {
@@ -157,11 +163,20 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean) {
     uScale: { value: 3.4 },
     uCliffScale: { value: 7 },
     uWet: { value: t.m.id === 'rimba' || t.m.id === 'teh' ? 1 : 0 },
+    uTime: clock,
+    uRain: { value: 0 },
+    // lumut menumpuk di bibir tebing & tonjolan (gunung lembap)
+    uMoss: { value: ({ rimba: 1, teh: 0.7, langit: 0.55, karang: 0.35 } as Record<string, number>)[t.m.id] ?? 0 },
+    uMossL: { value: texIndex('lumut') },
+    uVulk: { value: texIndex('vulkanik') },
+    uLava: { value: t.m.id === 'kawah' ? 1 : 0 },
     uRock: { value: zonesOf(t).map((z) => new THREE.Color(z.rock)) },
     uSoil: { value: zonesOf(t).map((z) => new THREE.Color(z.soil)) },
     uLedge: { value: zonesOf(t).map((z) => new THREE.Color(z.ledge)) },
   }
   const m = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.9, metalness: 0 })
+  // dibaca adegan untuk tebing basah saat hujan
+  m.userData.u = u
   const nrm = !!tex.nrm
   m.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, u)
@@ -186,6 +201,7 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean) {
          uniform highp sampler2DArray uDiff;
          ${nrm ? 'uniform highp sampler2DArray uNrm;' : ''}
          uniform vec4 uGround[4]; uniform float uCliff[4]; uniform float uSnowL; uniform float uScale; uniform float uCliffScale; uniform float uWet;
+         uniform float uTime; uniform float uRain; uniform float uMoss; uniform float uMossL; uniform float uVulk; uniform float uLava;
          uniform vec3 uRock[4]; uniform vec3 uSoil[4]; uniform vec3 uLedge[4];
          varying vec3 vTW; varying vec3 vTN; varying vec4 vW; varying float vSnow; flat varying int vZone; varying float vAO;
          ${NOISE}
@@ -240,6 +256,20 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean) {
          vec3 rockC = uRock[zi] * (0.72 + cliffD.a * 0.5) * (0.88 + hgt * 0.18);
          vec3 styCliff = mix(rockC, cliffD.rgb, 0.18);
          vec3 albedo = mix(mix(styGround, styCliff, cliffW), snowD.rgb, snowW);
+         // lumut di bibir tebing & puncak tonjolan: permukaan setengah tegak, bercak menurut noise
+         float mossW = 0.0;
+         if (uMoss > 0.0) {
+           float edgeUp = smoothstep(0.5, 0.72, wn.y) * (1.0 - smoothstep(0.86, 0.97, wn.y));
+           mossW = uMoss * edgeUp * smoothstep(0.35, 0.6, macro + cliffD.a * 0.3) * (1.0 - snowW);
+           vec4 mD = sampD(uvg * 1.3, uMossL, gdx * 1.3, gdy * 1.3);
+           albedo = mix(albedo, mD.rgb * 0.95, mossW * 0.85);
+         }
+         // urat lava di batu vulkanik (Kawah): retakan gelap menyala berdenyut
+         float vein = 0.0;
+         if (uLava > 0.0) {
+           float isV = (abs(cl - uVulk) < 0.5 ? cliffW : 0.0) + (abs(L.x - uVulk) < 0.5 ? bw.x * (1.0 - cliffW) : 0.0);
+           vein = isV * smoothstep(0.011, 0.005, mix(gl, cliffD.a, cliffW)) * smoothstep(0.45, 0.75, tNoise(vTW.xz * 0.05 + vTW.y * 0.02));
+         }
          albedo *= 0.9 + macro * 0.2;
          diffuseColor.rgb *= albedo;
          float tRough = 0.92;
@@ -264,6 +294,14 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean) {
            vec2 tx = (nx.xy * 2.0 - 1.0) * 0.6; vec2 tz = (nz.xy * 2.0 - 1.0) * 0.6; vec2 ty = (ny.xy * 2.0 - 1.0) * 0.6;
            vec3 cW = normalize(
              vec3(0.0, tx.y, tx.x) * tw.x + vec3(tz.x, tz.y, 0.0) * tw.z + vec3(ty.x, 0.0, ty.y) * tw.y + wn);
+           ${high ? `{
+             float near = 1.0 - smoothstep(10.0, 24.0, length(vViewPosition));
+             if (near > 0.0) {
+               vec3 dn = sampN(ux * 4.0 + uz * 4.0 * tw.z, cl, xdx * 4.0, xdy * 4.0);
+               vec2 dt = (dn.xy * 2.0 - 1.0) * 0.35 * near;
+               cW = normalize(cW + vec3(dt.x * (1.0 - tw.x), dt.y, dt.x * tw.x));
+             }
+           }` : ''}
            tWN = normalize(mix(groundW, cW, cliffW));
            tWN = normalize(mix(tWN, wn, snowW * 0.7));
            float gR = gN.z;
@@ -273,10 +311,25 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean) {
              : ''
          }
          // lumut & daun basah: kilap tipis
-         tRough = mix(tRough, tRough * 0.6, uWet * (1.0 - snowW) * smoothstep(0.4, 0.8, macro));`,
+         tRough = mix(tRough, tRough * 0.6, uWet * (1.0 - snowW) * smoothstep(0.4, 0.8, macro));
+         // hujan: tebing gelap & berkilap
+         float wetNow = uRain * (1.0 - snowW);
+         diffuseColor.rgb *= 1.0 - wetNow * 0.22 * cliffW;
+         tRough = mix(tRough, 0.25, wetNow * cliffW * 0.7);`,
       )
       .replace('#include <roughnessmap_fragment>', 'float roughnessFactor = tRough;')
       .replace('#include <normal_fragment_maps>', 'normal = normalize((viewMatrix * vec4(tWN, 0.0)).xyz);')
+      .replace(
+        '#include <emissivemap_fragment>',
+        `#include <emissivemap_fragment>
+         {
+           // cahaya tepi lembut: lekuk bongkahan terbaca walau membelakangi matahari
+           vec3 Vd = normalize(vViewPosition);
+           float fr = pow(1.0 - clamp(dot(normal, Vd), 0.0, 1.0), 3.0);
+           totalEmissiveRadiance += vec3(0.75, 0.82, 0.95) * fr * 0.07 * (0.4 + cliffW * 0.6);
+           totalEmissiveRadiance += vec3(1.0, 0.32, 0.06) * vein * (1.4 + 0.9 * sin(uTime * 2.2 + vTW.x * 0.35 + vTW.z * 0.2));
+         }`,
+      )
       .replace(
         '#include <aomap_fragment>',
         `float tAO = vAO;
