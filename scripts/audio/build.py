@@ -396,6 +396,81 @@ def petak_synth():
     write_ogg(_st((rumble + clack) * np.sin(np.pi * t / 8) ** 1.2 + horn), out / 'petak-kereta.ogg', 64, mono=True, lufs=-17)
 
 
+def masak_music():
+    """Dapur Kacau: "Coffee House Bump" (OatCog, CC0) — loop jazzy kafe; versi tegang ±10% lebih cepat
+    saat waktu tinggal sedikit. Ditambah loop rebusan "boiling water loops" (TinyWorlds, CC0) untuk kompor."""
+    loop = seamless_loop(load(SRC / 'music' / 'masak' / 'little_cafe.wav'), 1.5)
+    write_ogg(loop, OUT / 'music' / 'masak.ogg', 80, lufs=-20)
+    raw = OUT / 'music' / 'masak-loop.tmp.f32'
+    raw.write_bytes(loop.astype(np.float32).tobytes())
+    ff('-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', str(raw),
+       '-af', f'asetrate={int(SR * 1.1)},aresample={SR},atempo=1.0,loudnorm=I=-19:TP=-1.5:LRA=11',
+       '-ar', str(SR), '-c:a', 'libvorbis', '-b:a', '80k', str(OUT / 'music' / 'masak-tense.ogg'))
+    raw.unlink()
+    write_ogg(seamless_loop(load(SRC / 'masak-sfx' / 'cooking_without_cover_01.ogg'), 0.4), OUT / 'sfx' / 'masak-rebus.ogg', 56, mono=True, lufs=-24)
+
+
+def masak_synth():
+    """SFX Dapur Kacau disintesis: ketuk pisau, desis wajan, api menyala, semprot pemadam, cipratan cuci, dash"""
+    rng = np.random.default_rng(23)
+    out = OUT / 'sfx'
+
+    def noise(n):
+        return rng.standard_normal(n).astype(np.float32)
+
+    def tone(n, f0, f1=None):
+        f = np.linspace(f0, f1 or f0, n)
+        return np.sin(2 * np.pi * np.cumsum(f) / SR).astype(np.float32)
+
+    def env(n, a, r):
+        t = np.arange(n) / SR
+        return (np.minimum(1, t / max(a, 1e-4)) * np.exp(-t / r)).astype(np.float32)
+
+    def lowpass(x, k):
+        return np.convolve(x, np.ones(k) / k, mode='same').astype(np.float32)
+
+    def hp(x, k=0.95):
+        y = np.empty_like(x)
+        prev = 0.0
+        last = 0.0
+        for i, v in enumerate(x):
+            last = k * (last + v - prev)
+            prev = v
+            y[i] = last
+        return y
+
+    n = int(SR * 0.09)
+    knock = tone(n, 1800, 900) * env(n, 0.001, 0.012) * 0.6 + hp(noise(n)) * env(n, 0.001, 0.008) * 0.5 + tone(n, 220, 160) * env(n, 0.002, 0.03) * 0.4
+    write_ogg(_st(knock), out / 'masak-potong.ogg', 64, mono=True, lufs=-17)
+    n = int(SR * 1.2)
+    sizzle = hp(noise(n), 0.985) * (0.6 + 0.4 * np.abs(noise(n)) ** 3).clip(0, 3) * env(n, 0.05, 0.6)
+    write_ogg(_st(sizzle * 0.5), out / 'masak-desis.ogg', 64, mono=True, lufs=-21)
+    n = int(SR * 0.9)
+    whoosh = lowpass(noise(n), 30) * 6 * env(n, 0.06, 0.35) + tone(n, 90, 55) * env(n, 0.02, 0.3) * 0.5
+    write_ogg(_st(whoosh), out / 'masak-api.ogg', 64, mono=True, lufs=-16)
+    n = int(SR * 0.6)
+    spray = hp(noise(n), 0.99) * env(n, 0.03, 0.4)
+    write_ogg(_st(spray * 0.6), out / 'masak-semprot.ogg', 64, mono=True, lufs=-20)
+    n = int(SR * 0.5)
+    drip = np.zeros(n, dtype=np.float32)
+    for i in range(6):
+        at = int(rng.uniform(0, 0.35) * SR)
+        k = int(SR * 0.08)
+        drip[at:at + k] += tone(k, rng.uniform(700, 1300), rng.uniform(1500, 2400)) * env(k, 0.002, 0.02)
+    write_ogg(_st(drip + lowpass(noise(n), 18) * env(n, 0.02, 0.2) * 1.5), out / 'masak-cuci.ogg', 64, mono=True, lufs=-20)
+    n = int(SR * 0.3)
+    write_ogg(_st(lowpass(noise(n), 12) * 4 * env(n, 0.01, 0.1) * np.linspace(0.6, 1, n)), out / 'masak-dash.ogg', 64, mono=True, lufs=-20)
+    # terpeleset: siulan turun-naik konyol + bunyi gedebuk
+    n = int(SR * 0.7)
+    t = np.arange(n) / SR
+    f = 900 - 600 * t / 0.7 + 120 * np.sin(t * 40)
+    zip_ = np.sin(2 * np.pi * np.cumsum(f) / SR).astype(np.float32) * env(n, 0.01, 0.4) * 0.5
+    k = int(SR * 0.15)
+    thud = np.zeros(n, dtype=np.float32)
+    thud[n - k:] = tone(k, 110, 50) * env(k, 0.002, 0.06)
+    write_ogg(_st(zip_ + thud), out / 'masak-slip.ogg', 64, mono=True, lufs=-17)
+
+
 def _env(n, a=0.005, r=0.2):
     """Amplop attack/release sederhana untuk n sampel."""
     t = np.arange(n) / SR
@@ -608,6 +683,15 @@ SFX = {
     'bom-out': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA07.ogg',
     'bom-champion': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA12.ogg',
     'bom-lose': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA15.ogg',
+    # Dapur Kacau — Kenney; potong, desis, api, semprot & cuci disintesis di masak_synth
+    'masak-served': 'interface/x/Audio/confirmation_004.ogg',
+    'masak-order': 'interface/x/Audio/maximize_003.ogg',
+    'masak-wrong': 'interface/x/Audio/error_006.ogg',
+    'masak-missed': 'interface/x/Audio/error_007.ogg',
+    'masak-grab': 'interface/x/Audio/drop_002.ogg',
+    'masak-burnt': 'interface/x/Audio/bong_001.ogg',
+    'masak-win': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL06.ogg',
+    'masak-lose': 'jingles/x/OGG/jingles_STEEL/jingles_STEEL11.ogg',
     # Petak Cat — Kenney; sisanya disintesis di petak_synth
     'petak-hunt': 'jingles/x/OGG/jingles_HIT/jingles_HIT03.ogg',
     'petak-catch': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA03.ogg',
@@ -696,6 +780,10 @@ if __name__ == '__main__':
         petak_music()
         petak_synth()
         sfx('petak-')
+    elif sys.argv[1:] == ['masak']:
+        masak_music()
+        masak_synth()
+        sfx('masak-')
     else:
         music()
         draw_music()
@@ -711,6 +799,8 @@ if __name__ == '__main__':
         sport_synth()
         petak_music()
         petak_synth()
+        masak_music()
+        masak_synth()
         sfx()
     total = sum(p.stat().st_size for p in OUT.rglob('*.ogg'))
     print(f'Selesai: {len(list(OUT.rglob("*.ogg")))} file, {total / 1024 / 1024:.2f} MB di {OUT}')

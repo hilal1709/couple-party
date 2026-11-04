@@ -45,6 +45,9 @@ import type { LiveChannel } from './games/types'
 import * as petakEngine from './games/petak/engine'
 import type { PetakAction, PetakOptions, PetakState } from './games/petak/types'
 import { PetakBoard } from './games/petak/ui/PetakBoard'
+import * as masakEngine from './games/masak/engine'
+import type { MasakAction, MasakOptions, MasakState } from './games/masak/types'
+import { MasakBoard } from './games/masak/ui/MasakBoard'
 
 const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
 
@@ -52,8 +55,9 @@ const NAMES = ['Andi', 'Sari', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita']
  * Hanya untuk development: meja UNO lokal tanpa jaringan (tangkapan layar review).
  * ?demo=classic|flip|noMercy  &n=2..8 jumlah pemain  &turn=lawan untuk melihat dari kursi yang bukan giliran.
  */
-export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' }) {
+export function Demo({ variant }: { variant: Variant | 'draw' | 'remi' | 'domino' | 'monopoly' | 'ludo' | 'spy' | 'bom' | 'kart' | 'sport' | 'petak' | 'masak' }) {
   if (variant === 'petak') return <PetakDemo />
+  if (variant === 'masak') return <MasakDemo />
 
   if (variant === 'draw') return <DrawDemo />
   if (variant === 'domino') return <DominoDemo />
@@ -448,4 +452,69 @@ function PetakDemo() {
     else setS((cur) => petakEngine.reduce(cur, a, seat))
   }
   return <PetakBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} live={live} />
+}
+
+/**
+ * ?demo=masak&n=1..8 pemain&total=koki&seat=&secs=&level=&mode=coop|versus&end=1
+ * &duo=1: beberapa tab berbagi state dan saluran live lewat BroadcastChannel, seperti room beberapa HP.
+ * &lag=ms: tunda pesan live untuk meniru jeda internet.
+ */
+function MasakDemo() {
+  const q = new URLSearchParams(location.search)
+  const n = Math.min(8, Math.max(1, Number(q.get('n') ?? 1)))
+  const seat = Number(q.get('seat') ?? 0)
+  const lag = Number(q.get('lag') ?? 0)
+  const [s, setS] = useState<MasakState>(() => {
+    const o: Partial<MasakOptions> = {
+      players: n,
+      total: Number(q.get('total') ?? Math.max(2, n)),
+      secs: Number(q.get('secs') ?? 180) as MasakOptions['secs'],
+      mode: (q.get('mode') ?? 'coop') as MasakOptions['mode'],
+      kitchen: (q.get('kitchen') ?? 'burger') as MasakOptions['kitchen'],
+      level: (Number(q.get('level') ?? 2) as 1 | 2 | 3) || 2,
+    }
+    let st = masakEngine.init(Number(q.get('seed') ?? 42), o)
+    if (q.get('end')) st = masakEngine.reduce(st, { type: 'finish', result: { score: [140, 95], served: [5, 3], missed: [1, 2] } }, 0)
+    return st
+  })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const bus = useMemo(() => (q.get('duo') ? new BroadcastChannel('masak-duo') : null), [])
+  useEffect(() => {
+    if (!bus) return
+    const fn = (e: MessageEvent) => {
+      const m = e.data
+      if (m.state && seat !== 0) setS(m.state)
+      if (m.action && seat === 0) setS((cur) => masakEngine.reduce(cur, m.action, m.by))
+    }
+    bus.addEventListener('message', fn)
+    return () => bus.removeEventListener('message', fn)
+  }, [bus, seat])
+  useEffect(() => {
+    if (bus && seat === 0) bus.postMessage({ state: s })
+  }, [bus, s, seat])
+  const live = useMemo<LiveChannel | undefined>(() => {
+    if (!bus) return undefined
+    return {
+      send: (d) => {
+        const post = () => bus.postMessage({ live: d, from: seat })
+        if (lag) setTimeout(post, lag / 2)
+        else post()
+      },
+      on: (cb) => {
+        const fn = (e: MessageEvent) => {
+          if (e.data.live === undefined) return
+          const run = () => cb(e.data.live, e.data.from)
+          if (lag) setTimeout(run, lag / 2)
+          else run()
+        }
+        bus.addEventListener('message', fn)
+        return () => bus.removeEventListener('message', fn)
+      },
+    }
+  }, [bus, seat, lag])
+  const act = (a: MasakAction) => {
+    if (bus && seat !== 0) bus.postMessage({ action: a, by: seat })
+    else setS((cur) => masakEngine.reduce(cur, a, seat))
+  }
+  return <MasakBoard state={s} seat={seat} names={NAMES.slice(0, n)} online={Array(n).fill(true)} act={act} exit={() => {}} live={live} />
 }

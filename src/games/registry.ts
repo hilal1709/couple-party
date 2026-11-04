@@ -4,6 +4,7 @@ import bomArt from '@/assets/bom/tile-bom.webp'
 import drawArt from '@/assets/draw/tile-draw.webp'
 import ludoArt from '@/assets/ludo/tile-ludo.webp'
 import monopolyArt from '@/assets/monopoly/tile-monopoly.webp'
+import masakArt from '@/assets/masak/tile-masak.webp'
 import petakArt from '@/assets/petak/tile-petak.webp'
 import remiArt from '@/assets/remi/tile-remi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
@@ -43,6 +44,9 @@ import { kart } from './kart'
 import type { KartOptions } from './kart/types'
 import { summary as kartSummary } from './kart/ui/copy'
 import { sprite as kartSprite } from './kart/ui/art'
+import { masak } from './masak'
+import type { MasakOptions } from './masak/types'
+import { summary as masakSummary } from './masak/ui/copy'
 import { petak } from './petak'
 import type { PetakOptions } from './petak/types'
 import { summary as petakSummary } from './petak/ui/copy'
@@ -205,6 +209,17 @@ export const GAMES: GameEntry[] = [
     art: petakArt,
     Lobby: lazy(() => import('./petak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: PetakOptions) => petakSummary(o),
+    nativeBots: true,
+  },
+  {
+    game: masak,
+    category: 'lainnya',
+    blurb: '8 dapur kacau: masak bareng atau tanding dua tim, sebelum pelanggan kabur',
+    minPlayers: 1,
+    maxPlayers: 8,
+    art: masakArt,
+    Lobby: lazy(() => import('./masak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: MasakOptions) => masakSummary(o),
     nativeBots: true,
   },
 ]
