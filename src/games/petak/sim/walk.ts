@@ -9,9 +9,34 @@ const GRAVITY = 16
 /** mata pengamat di atas tanah */
 export const EYE = 1.05
 
-export type Walker = { x: number; z: number; y: number; vy: number; yaw: number; moving: boolean }
+/** kecepatan naik/turun saat terbang */
+export const FLY_SPEED = 2.6
+/** batas atas terbang di atas tanah: cukup untuk atap dan dinding atas, tidak sampai keluar map */
+export const FLY_CEIL = 6
+/** jarak terbang terjauh di luar titik-titik main map */
+const FLY_MARGIN = 2
 
-export const spawnWalker = (x: number, z: number, yaw = 0): Walker => ({ x, z, y: 0, vy: 0, yaw, moving: false })
+export type Walker = { x: number; z: number; y: number; vy: number; yaw: number; moving: boolean; fly: boolean }
+
+export const spawnWalker = (x: number, z: number, yaw = 0): Walker => ({ x, z, y: 0, vy: 0, yaw, moving: false, fly: false })
+
+type Bounds = { x0: number; x1: number; z0: number; z1: number }
+const boundsCache = new WeakMap<MapData, Bounds>()
+
+/** kotak main map dari titik muncul dan titik sembunyi; terbang tidak boleh keluar dari sini */
+export function flyBounds(map: MapData): Bounds {
+  let b = boundsCache.get(map)
+  if (b) return b
+  const pts = [...map.spawn.hider, ...map.spawn.seeker, ...map.spots.map((s) => [s.x, s.z])]
+  const xs = pts.map((p) => p[0])
+  const zs = pts.map((p) => p[1])
+  b = { x0: Math.min(...xs) - FLY_MARGIN, x1: Math.max(...xs) + FLY_MARGIN, z0: Math.min(...zs) - FLY_MARGIN, z1: Math.max(...zs) + FLY_MARGIN }
+  boundsCache.set(map, b)
+  return b
+}
+
+/** jepit ke batas, tapi tidak menarik balik yang sudah di luar (mis. mulai terbang di pinggir) */
+const keepIn = (v: number, old: number, lo: number, hi: number) => Math.max(Math.min(old, lo), Math.min(Math.max(old, hi), v))
 
 /** titik dunia ke ruang lokal kotak */
 function toLocal(b: Box, x: number, z: number): [number, number] {
@@ -83,17 +108,29 @@ export function isClear(boxes: Box[], x: number, z: number, y: number, r: number
   return true
 }
 
-/** satu langkah simulasi; (mx, mz) = arah dunia, panjang 0..1 */
-export function step(w: Walker, mx: number, mz: number, speed: number, dt: number, map: Pick<MapData, 'boxes'>) {
+/** satu langkah simulasi; (mx, mz) = arah dunia, panjang 0..1; `rise` -1..1 hanya berlaku saat terbang */
+export function step(w: Walker, mx: number, mz: number, speed: number, dt: number, map: Pick<MapData, 'boxes'>, rise = 0) {
   const len = Math.hypot(mx, mz)
   w.moving = len > 0.05
   if (w.moving) {
     w.yaw = Math.atan2(mx, mz)
-    const [x, z] = pushOut(map.boxes, w.x + mx * speed * dt, w.z + mz * speed * dt, w.y)
+    let [x, z] = pushOut(map.boxes, w.x + mx * speed * dt, w.z + mz * speed * dt, w.y)
+    if (w.fly) {
+      const b = flyBounds(map)
+      x = keepIn(x, w.x, b.x0, b.x1)
+      z = keepIn(z, w.z, b.z0, b.z1)
+    }
     w.x = x
     w.z = z
   }
   const g = groundAt(map.boxes, w.x, w.z, w.y)
+  if (w.fly) {
+    // melayang: tanpa gravitasi, tidak menembus pijakan, tidak melewati langit-langit
+    w.vy = 0
+    w.y = Math.max(g, Math.min(Math.max(g, FLY_CEIL), w.y + rise * FLY_SPEED * dt))
+    if (Math.abs(rise) > 0.05) w.moving = true
+    return
+  }
   if (w.y > g) {
     w.vy -= GRAVITY * dt
     w.y = Math.max(g, w.y + w.vy * dt)
@@ -137,3 +174,20 @@ export function rayHit(boxes: Box[], ax: number, az: number, bx: number, bz: num
 }
 
 export const canSee = (boxes: Box[], ax: number, az: number, bx: number, bz: number, y = EYE) => rayHit(boxes, ax, az, bx, bz, y) >= 1
+
+/** pandangan 3D: ruas miring dari mata ke target, dicek dengan cuplikan tiap ~20 cm terhadap isi kotak */
+export function canSee3(boxes: Box[], ax: number, ay: number, az: number, bx: number, by: number, bz: number): boolean {
+  const n = Math.max(2, Math.ceil(Math.hypot(bx - ax, by - ay, bz - az) / 0.2))
+  for (let i = 1; i < n; i++) {
+    const t = i / n
+    const x = ax + (bx - ax) * t
+    const y = ay + (by - ay) * t
+    const z = az + (bz - az) * t
+    for (const b of boxes) {
+      if (b.top <= y) continue
+      const [lx, lz] = toLocal(b, x, z)
+      if (Math.abs(lx) < b.hx && Math.abs(lz) < b.hz) return false
+    }
+  }
+  return true
+}

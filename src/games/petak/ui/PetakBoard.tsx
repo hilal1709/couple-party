@@ -67,6 +67,7 @@ function RoundScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
       onHud: setHud,
       onSound: playSound,
       onPainter: () => setPaintView(r.painter ? r.painter.view : null),
+      names: s.actors.map((_, i) => nameOf(i)),
       })
     } catch {
       // WebGL tidak tersedia, atau HP kehabisan memori
@@ -129,7 +130,7 @@ function RoundScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
           <TopBar s={s} hud={hud} online={online} nameOf={nameOf} back={back} />
           {!painting && s.phase !== 'reveal' && (
             <button onClick={() => round.current?.cycleZoom()} className="absolute top-10 right-2 border-[3px] border-ink bg-paper px-2 py-1 text-xs font-bold text-ink">
-              Zoom
+              {role === 'seeker' && s.phase === 'hunt' ? (hud.firstPerson ? 'Kamera: mata' : 'Kamera: jauh') : 'Zoom'}
             </button>
           )}
           {blind && <BlindScreen secs={hud.secs} />}
@@ -156,9 +157,13 @@ function useKeyboard(round: React.RefObject<Round | null>) {
       const x = (held.has('d') || held.has('arrowright') ? 1 : 0) - (held.has('a') || held.has('arrowleft') ? 1 : 0)
       const y = (held.has('w') || held.has('arrowup') ? 1 : 0) - (held.has('s') || held.has('arrowdown') ? 1 : 0)
       round.current?.setMove(x, y)
+      // terbang: spasi naik, shift / c turun
+      round.current?.setRise((held.has(' ') ? 1 : 0) - (held.has('shift') || held.has('c') ? 1 : 0))
     }
     const down = (e: KeyboardEvent) => {
-      held.add(e.key.toLowerCase())
+      const k = e.key.toLowerCase()
+      if (k === 'f' && !e.repeat) round.current?.toggleFly()
+      held.add(k)
       apply()
     }
     const up = (e: KeyboardEvent) => {
@@ -299,9 +304,50 @@ function HideTip({ secs, total }: { secs: number; total: number }) {
   return <p className="pointer-events-none absolute bottom-2 left-2 w-[46%] border-2 border-ink bg-paper/90 px-2 py-0.5 text-center text-[12px] text-ink">{line}</p>
 }
 
+/** tombol tahan: aktif selama jari menempel */
+function HoldButton({ label, onHold, className }: { label: string; onHold: (on: boolean) => void; className?: string }) {
+  return (
+    <button
+      aria-label={label}
+      onPointerDown={(e) => {
+        e.currentTarget.setPointerCapture(e.pointerId)
+        onHold(true)
+      }}
+      onPointerUp={() => onHold(false)}
+      onPointerCancel={() => onHold(false)}
+      onContextMenu={(e) => e.preventDefault()}
+      className={cn('size-12 touch-none select-none rounded-full border-[3px] border-ink bg-paper font-display text-lg text-ink shadow-slab-sm active:translate-y-0.5', className)}
+    >
+      {label === 'Naik' ? '▲' : '▼'}
+    </button>
+  )
+}
+
+/** terbang: sembunyi di atap, dinding atas, atau melayang di mana saja */
+function FlyControls({ hud, round }: { hud: Hud; round: React.RefObject<Round | null> }) {
+  return (
+    <div className="absolute top-1/2 right-3 flex -translate-y-1/2 flex-col items-center gap-1.5">
+      <button
+        aria-pressed={hud.flying}
+        onClick={() => round.current?.toggleFly()}
+        className={cn('border-[3px] border-ink px-2 py-1 font-display text-[11px] text-ink uppercase shadow-slab-sm', hud.flying ? 'bg-electric' : 'bg-paper')}
+      >
+        {hud.flying ? 'Mendarat' : 'Terbang'}
+      </button>
+      {hud.flying && (
+        <>
+          <HoldButton label="Naik" onHold={(on) => round.current?.setRise(on ? 1 : 0)} />
+          <HoldButton label="Turun" onHold={(on) => round.current?.setRise(on ? -1 : 0)} />
+        </>
+      )}
+    </div>
+  )
+}
+
 function HiderControls({ hud, posing, setPosing, round }: { hud: Hud; posing: boolean; setPosing: (v: boolean) => void; round: React.RefObject<Round | null> }) {
   return (
     <>
+      <FlyControls hud={hud} round={round} />
       <div className="absolute right-3 bottom-3 flex items-end gap-2.5">
         <Slab tone="paper" size="md" onClick={() => setPosing(!posing)}>Pose</Slab>
         <Slab tone="rose" size="lg" onClick={() => round.current?.setPainting(true)}>Cat</Slab>
@@ -355,11 +401,51 @@ const TOOLS: { id: Tool; label: string }[] = [
   { id: 'hapus', label: 'Hapus' },
 ]
 
+/** warna siap pakai: warna-warna yang sering ada di map (tembok, kayu, daun, logam, neon) */
+const PALETTE = ['#f4efe6', '#c9c2b4', '#7d7a76', '#2b2a2e', '#8a5a3b', '#c58b52', '#e6c48e', '#5e7d3a', '#9cc35a', '#2f6e5b', '#3d6fb6', '#8fc6e8', '#b8353b', '#ef8a3c', '#f2d53c', '#d36bb0']
+
+const hsl = (h: number, l: number) => `hsl(${h} 70% ${l}%)`
+function hslHex(h: number, l: number) {
+  const c = document.createElement('canvas').getContext('2d')!
+  c.fillStyle = hsl(h, l)
+  return c.fillStyle
+}
+
+/** pemilih warna sendiri: palet cepat + geser warna dan terang-gelap */
+function ColorPicker({ onPick, onClose }: { onPick: (hex: string) => void; onClose: () => void }) {
+  const [h, setH] = useState(30)
+  const [l, setL] = useState(50)
+  const range = 'h-6 w-full appearance-none border-2 border-ink'
+  return (
+    <div role="dialog" aria-label="Pilih warna" className="absolute top-14 right-[116px] w-[212px] border-[3px] border-ink bg-paper p-1.5 text-ink shadow-slab-sm">
+      <div className="grid grid-cols-8 gap-1">
+        {PALETTE.map((c) => (
+          <button key={c} aria-label={`Warna ${c}`} onClick={() => onPick(c)} className="size-5 border-2 border-ink" style={{ background: c }} />
+        ))}
+      </div>
+      <label className="mt-1.5 block text-[10px] font-bold uppercase">Warna</label>
+      <input type="range" min={0} max={360} value={h} onChange={(e) => setH(+e.target.value)} aria-label="Geser warna" className={range} style={{ background: 'linear-gradient(90deg,#e33,#ee3,#3e3,#3ee,#33e,#e3e,#e33)' }} />
+      <label className="mt-1 block text-[10px] font-bold uppercase">Terang / gelap</label>
+      <input type="range" min={8} max={92} value={l} onChange={(e) => setL(+e.target.value)} aria-label="Terang gelap" className={range} style={{ background: `linear-gradient(90deg,${hsl(h, 8)},${hsl(h, 50)},${hsl(h, 92)})` }} />
+      <div className="mt-1.5 flex gap-1">
+        <span className="h-8 flex-1 border-[3px] border-ink" style={{ background: hsl(h, l) }} />
+        <button className="h-8 border-[3px] border-ink bg-electric px-2 text-[12px] font-bold" onClick={() => onPick(hslHex(h, l))}>
+          Pakai
+        </button>
+        <button className="h-8 border-[3px] border-ink bg-paper px-2 text-[12px] font-bold" onClick={onClose} aria-label="Tutup pemilih warna">
+          ✕
+        </button>
+      </div>
+    </div>
+  )
+}
+
 /** alat mengecat: kiri alat, kanan pengaturan; tengah layar selalu kosong untuk badan dan latar */
 function PaintPanel({ view, round }: { view: PainterView; round: React.RefObject<Round | null> }) {
   const p = round.current?.painter
   const chip = (on: boolean) => cn('h-8 border-[3px] border-ink px-2 text-[12px] font-bold text-ink disabled:opacity-40', on ? 'bg-electric' : 'bg-paper')
   const [zoomed, setZoomed] = useState(false)
+  const [picking, setPicking] = useState(false)
   const set = () => round.current?.paintChanged()
   if (!p) return null
   return (
@@ -391,7 +477,9 @@ function PaintPanel({ view, round }: { view: PainterView; round: React.RefObject
         </button>
       </div>
       <div className="absolute top-14 right-2 bottom-2 flex w-[104px] flex-col items-stretch gap-1">
-        <span className="h-9 border-[3px] border-ink" style={{ background: view.swatch }} aria-label="Warna kuas" />
+        <button className="relative h-9 border-[3px] border-ink" style={{ background: view.swatch }} aria-label="Warna kuas, ketuk untuk pilih warna sendiri" aria-expanded={picking} onClick={() => setPicking(!picking)}>
+          <span className="absolute right-0.5 bottom-0.5 bg-paper px-0.5 text-[9px] leading-3 font-bold text-ink">Pilih</span>
+        </button>
         <div className="grid grid-cols-3 gap-1">
           {['S', 'M', 'L'].map((l, i) => (
             <button key={l} aria-label={`Kuas ${l}`} className={chip(view.size === i)} onClick={() => p.set({ size: i })}>
@@ -418,6 +506,15 @@ function PaintPanel({ view, round }: { view: PainterView; round: React.RefObject
           Selesai
         </Slab>
       </div>
+      {picking && (
+        <ColorPicker
+          onPick={(hex) => {
+            p.setColor(hex)
+            setPicking(false)
+          }}
+          onClose={() => setPicking(false)}
+        />
+      )}
     </>
   )
 }
