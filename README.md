@@ -5,6 +5,7 @@ Kumpulan game untuk 2–8 pemain di Android (landscape) — main dari HP masing-
 ## Game
 - 🃏 **Warna Warni** — game kartu cocokkan warna/angka (aturan 2 pemain: Skip/Reverse/+2/+4 = main lagi).
 - 🐍 **Ular Tangga Tantangan** — papan 10x10 + kotak Truth/Dare (dinilai lawan), kotak efek, item/power-up, dan mini-kuis.
+- 💣 **Jinak Bom** — co-op asimetris berdua: penjinak melihat bom 3D, pakar memegang buku panduan; ngobrol lewat telepon untuk menjinakkan 6 jenis modul sebelum waktu habis. Model & tekstur PBR dari `scripts/blender/jinak.py` (bake Cycles), ilustrasi dari `scripts/blender/jinak_ill.py`.
 - 🕺 Gerak! (kamera) — *segera*
 
 ## Setup online (sekali saja)

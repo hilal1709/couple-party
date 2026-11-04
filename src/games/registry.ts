@@ -9,6 +9,7 @@ import remiArt from '@/assets/remi/tile-remi.webp'
 import snakesArt from '@/assets/snakes/tile-snakes.webp'
 import spyArt from '@/assets/spy/tile-spy.webp'
 import unoArt from '@/assets/snakes/tile-uno.webp'
+import jinakArt from '@/assets/jinak/tile-jinak.webp'
 import type { AnyGame, LobbyProps } from './types'
 import { bom } from './bom'
 import type { BomOptions } from './bom/types'
@@ -46,6 +47,9 @@ import { sprite as kartSprite } from './kart/ui/art'
 import { petak } from './petak'
 import type { PetakOptions } from './petak/types'
 import { summary as petakSummary } from './petak/ui/copy'
+import { jinak } from './jinak'
+import type { JinakOptions } from './jinak/types'
+import { summary as jinakSummary } from './jinak/ui/copy'
 import { uno } from './uno'
 import type { UnoOptions } from './uno/types'
 import { VARIANT_INFO } from './uno/ui/copy'
@@ -206,6 +210,16 @@ export const GAMES: GameEntry[] = [
     Lobby: lazy(() => import('./petak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
     summary: (o: PetakOptions) => petakSummary(o),
     nativeBots: true,
+  },
+  {
+    game: jinak,
+    category: 'lainnya',
+    blurb: 'Co-op berdua: satu lihat bom 3D, satu pegang buku panduan. Ngobrol atau DUAR',
+    minPlayers: 2,
+    maxPlayers: 4,
+    art: jinakArt,
+    Lobby: lazy(() => import('./jinak/ui/Lobby').then((m) => ({ default: m.Lobby }))),
+    summary: (o: JinakOptions) => jinakSummary(o),
   },
 ]
 
