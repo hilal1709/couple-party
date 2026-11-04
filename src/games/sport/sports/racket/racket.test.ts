@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { init, reduce } from '../../engine'
 import { LM, type Pt } from '../../input/pose/landmarks'
 import type { RacketMatch, SportState } from '../../types'
+import { racketBot } from './bot'
+import { chaseLoad } from './court'
 import { flightMs, windowMs } from './engine'
 import { SwingGesture } from './gesture'
 
@@ -174,5 +176,28 @@ describe('gestur raket', () => {
     const lm = body([0, 0])
     lm[LM.lHip].visibility = 0.1
     expect(new SwingGesture().push(lm, 1000)).toEqual({ ok: false, swing: null })
+  })
+})
+
+describe('bot raket mengikuti jarak lari', () => {
+  const shot = (x: number, ms: number) => ({ id: 1, by: 0 as const, x, kind: 'drive' as const, power: 0.5, ms, out: false, serve: false })
+
+  it('bola di dekat badan terkejar, bola tajam ke pinggir yang cepat tidak', () => {
+    expect(chaseLoad('tenis', shot(0.1, 1200), 0)).toBe(0)
+    expect(chaseLoad('tenis', shot(1, 700), -0.6)).toBeGreaterThan(1)
+  })
+
+  it('bot tidak pernah mengembalikan bola yang tidak terkejar', () => {
+    const base = rk(start(7, 'tenis'))
+    const m = { ...base, phase: 'rally' as const, ball: shot(1, 600), hits: 0 }
+    for (let i = 0; i < 50; i++) expect(racketBot(m, 1, 3, Math.random, { x: -0.8 })).toBeNull()
+  })
+
+  it('bola mudah tetap sering dikembalikan bot jago', () => {
+    const base = rk(start(7, 'badminton'))
+    const m = { ...base, phase: 'rally' as const, ball: { ...shot(0, 1150) }, hits: 0 }
+    let back = 0
+    for (let i = 0; i < 200; i++) if (racketBot(m, 1, 3, Math.random, {})) back++
+    expect(back).toBeGreaterThan(150)
   })
 })

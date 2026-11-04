@@ -13,21 +13,13 @@ import { DETAIL } from '../../render/lod'
 import { makeClock } from '../../render/shaders'
 import type { Stage } from '../../render/stage'
 import type { Look, RacketShot, RacketSport, ShotKind } from '../../types'
+import { FOE_SPEED, homeDepth, landDepth, REACH, REACT_JITTER, REACT_S, RECOVER, SIZE } from './court'
 
-const SIZE: Record<RacketSport, { hw: number; hl: number; net: number }> = {
-  tenis: { hw: 4, hl: 8, net: 0.9 },
-  badminton: { hw: 2.6, hl: 5, net: 1.15 },
-}
+export { REACH } from './court'
+
 const RUN_SPEED = 7
-/** lari lawan di layar ini: cukup cepat untuk bola biasa, telat untuk bola tajam ke pinggir */
-const FOE_SPEED: Record<RacketSport, number> = { tenis: 6, badminton: 4.6 }
-/** jeda reaksi sebelum mulai lari mengejar bola, detik */
-const REACT_S = 0.16
 /** lari manual pakai analog sedikit lebih pelan dari lari otomatis */
 const STICK_SPEED = 5.6
-/** jangkauan raket dari badan ke titik bola, meter */
-export const REACH: Record<RacketSport, number> = { tenis: 1.25, badminton: 1.05 }
-
 export type Who = 'me' | 'foe'
 
 const STONE = { tex: 'beton', repeat: 1 }
@@ -139,9 +131,8 @@ export class RacketScene {
     sc.far = 40
     sc.updateProjectionMatrix()
 
-    const { hl } = SIZE[this.sport]
-    this.me = this.spawn(gltf, me, hl - 0.4, Math.PI)
-    this.foe = this.spawn(gltf, foe, -(hl - 0.4), 0)
+    this.me = this.spawn(gltf, me, homeDepth(this.sport), Math.PI)
+    this.foe = this.spawn(gltf, foe, -homeDepth(this.sport), 0)
     this.ball = out ? new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 12), new THREE.MeshStandardMaterial({ color: '#e7f64a', roughness: 0.55 })) : shuttle()
     this.ball.traverse((o) => (o.castShadow = true))
     scene.add(this.ball)
@@ -227,9 +218,7 @@ export class RacketScene {
 
   /** kedalaman titik datang bola di sisi penerima: lob jauh ke belakang, smash dekat net */
   private depth(kind: ShotKind, serve: boolean) {
-    const { hl } = SIZE[this.sport]
-    if (serve) return hl - 0.9
-    return kind === 'lob' ? hl - 0.2 : kind === 'smash' ? hl * 0.5 : hl - 1.1
+    return landDepth(this.sport, kind, serve)
   }
 
   /** titik datang bola ke pemain HP ini, dalam koordinat dunia */
@@ -275,11 +264,11 @@ export class RacketScene {
       target.to = x
       target.toZ = z
       // lawan baru bergerak setelah membaca arah bola
-      target.wait = target === this.foe ? REACT_S + Math.random() * 0.1 : 0
+      target.wait = target === this.foe ? REACT_S + Math.random() * REACT_JITTER : 0
     }
     if (hitter !== this.me || !this.manual) {
       // selesai memukul: kembali ke posisi siap di tengah, setelah ayunan selesai
-      hitter.to = hitter.x * 0.3
+      hitter.to = hitter.x * RECOVER
       hitter.toZ = hitter.home
       hitter.wait = 0.3
     }
