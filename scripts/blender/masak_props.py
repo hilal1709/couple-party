@@ -692,6 +692,32 @@ MAT['topi'] = m.image('kain_topi', np.clip(pola((0.97, 0.96, 0.94), 11, 60, 0.05
 prop('topi_koki', chef_hat)
 # alat pemadam scan Poly Haven, setinggi 55 cm
 prop('pemadam', lambda: m.asset('korean_fire_extinguisher_01', (0, 0, 0), height=0.55, tris=2500, tex=512))
+# wadah kompor yang bisa diangkat (Tahap 3): wajan untuk goreng, panci untuk rebus
+BESI = m.image('besi_wajan', pola((0.17, 0.18, 0.2), 41, 40, 0.25), 0.38)
+m.mats['besi_wajan'][0].node_tree.nodes['Principled BSDF'].inputs['Metallic'].default_value = 0.75
+BAJA_P = m.image('baja_panci', pola((0.78, 0.8, 0.83), 42, 50, 0.08), 0.22)
+m.mats['baja_panci'][0].node_tree.nodes['Principled BSDF'].inputs['Metallic'].default_value = 0.9
+GAGANG = m.image('gagang_kayu', pola((0.5, 0.3, 0.16), 43, 18, 0.25), 0.55)
+MERAH = m.flat('pita_panci', '#e0223c', 0.35)
+
+
+def wajan():
+    # wajan besi cekung, isi diletakkan di tengahnya (titik asal = pusat dasar)
+    lathe([(0, 0), (0.16, 0), (0.27, 0.06), (0.3, 0.085), (0.285, 0.09), (0.255, 0.065), (0.15, 0.012), (0, 0.012)], BESI)
+    m.box((0.43, 0, 0.075), (0.26, 0.05, 0.035), GAGANG, bevel=0.012)
+    m.box((0.29, 0, 0.075), (0.06, 0.04, 0.03), BESI, bevel=0.006)
+
+
+def panci():
+    # panci baja terbuka (tanpa tutup) supaya isinya terlihat dari kamera atas
+    lathe([(0, 0), (0.2, 0), (0.215, 0.015), (0.215, 0.2), (0.228, 0.215), (0.205, 0.215), (0.2, 0.2), (0.2, 0.02), (0, 0.02)], BAJA_P)
+    lathe([(0.217, 0.13), (0.219, 0.13), (0.219, 0.165), (0.217, 0.165)], MERAH)
+    for sx in (-1, 1):
+        m.box((sx * 0.26, 0, 0.17), (0.09, 0.05, 0.03), GAGANG, bevel=0.01)
+
+
+prop('wajan', wajan)
+prop('panci', panci)
 
 GLB_DIR.mkdir(parents=True, exist_ok=True)
 bpy.ops.object.select_all(action='DESELECT')

@@ -1,8 +1,7 @@
 import { nextRand } from '../rng'
-import { cleanLook, randomLook } from '../sport/look'
 import type { Seat } from '../types'
 import { starGoals } from './kitchens'
-import type { MasakAction, MasakOptions, MasakState } from './types'
+import { ANIMALS, type Animal, type MasakAction, type MasakOptions, type MasakState } from './types'
 
 export const MIN_PLAYERS = 1
 export const MAX_PLAYERS = 8
@@ -23,23 +22,21 @@ export function init(seed: number, options?: Partial<MasakOptions>): MasakState 
   const opts: MasakOptions = { ...base, players, total, mode }
   // tim selang-seling seperti Ludo: kursi 0, 2, 4 lawan 1, 3, 5; bot mengisi sisanya dengan pola yang sama
   const actors = Array.from({ length: total }, (_, i) => ({ seat: i < players ? i : null, team: mode === 'versus' ? i % 2 : 0 }))
-  let rng = seed || 1
-  const looks = actors.map((a) => {
-    if (a.seat !== null) return null
-    const [l, next] = randomLook(rng)
-    rng = next
-    return l
-  })
-  return { opts, phase: 'play', phaseId: 1, seed: rng, actors, looks, result: null }
+  return { opts, phase: 'pick', phaseId: 1, seed: seed || 1, actors, koki: actors.map(() => null), result: null }
 }
 
 export function reduce(s: MasakState, a: MasakAction, by: Seat): MasakState {
   const host = by === 0
   switch (a.type) {
-    case 'look': {
+    case 'koki': {
       const me = actorOf(s, by)
-      if (me < 0) return s
-      return { ...s, looks: s.looks.map((l, i) => (i === me ? cleanLook(a.look) : l)) }
+      // hewan yang sudah dipakai koki lain tidak bisa dipilih
+      if (me < 0 || s.phase !== 'pick' || !ANIMALS.includes(a.animal) || s.koki.some((k, i) => k === a.animal && i !== me)) return s
+      return { ...s, koki: s.koki.map((k, i) => (i === me ? a.animal : k)) }
+    }
+    case 'go': {
+      if (!host || s.phase !== 'pick') return s
+      return { ...s, phase: 'play', koki: fillKoki(s.koki, s.seed) }
     }
     case 'finish':
       if (!host || s.phase !== 'play') return s
@@ -64,4 +61,16 @@ export function winner(s: MasakState): number {
 export function starsOf(s: MasakState): number {
   const score = s.result?.score[0] ?? 0
   return starGoals(s.opts.kitchen, s.actors.filter((a) => a.team === 0).length, s.opts.secs).filter((g) => score >= g).length
+}
+
+/** isi koki yang belum memilih (bot, pemain lambat) dengan hewan sisa, acak tapi sama di semua HP */
+export function fillKoki(koki: (Animal | null)[], seed: number): Animal[] {
+  let rng = seed || 1
+  const free: Animal[] = ANIMALS.filter((a) => !koki.includes(a))
+  return koki.map((k) => {
+    if (k) return k
+    const [v, next] = nextRand(rng)
+    rng = next
+    return free.length ? free.splice(Math.floor(v * free.length), 1)[0] : ANIMALS[Math.floor(v * ANIMALS.length)]
+  })
 }

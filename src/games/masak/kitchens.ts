@@ -2,39 +2,49 @@ import type { KitchenId } from './types'
 
 /** bahan dan urutan olahannya; state terakhir = siap ditaruh di piring */
 export type Ing = 'roti' | 'daging' | 'selada' | 'tomat' | 'keju' | 'adonan' | 'jamur' | 'nasi' | 'ikan' | 'nori' | 'timun' | 'mie' | 'telur' | 'bawang' | 'tortilla' | 'pancake' | 'stroberi' | 'madu' | 'pisang' | 'beras' | 'udang' | 'ayam' | 'kacang' | 'lontong'
-export type Step = 'cut' | 'cook' | 'bake'
-export type FoodState = 'raw' | 'cut' | 'cooked' | 'baked' | 'burnt'
+/** cut = talenan, fry = wajan di kompor, boil = panci di kompor, bake = oven */
+export type Step = 'cut' | 'fry' | 'boil' | 'bake'
+export type FoodState = 'raw' | 'cut' | 'boiled' | 'cooked' | 'baked' | 'burnt'
 
 export const ING: Record<Ing, { title: string; steps: Step[] }> = {
   roti: { title: 'Roti', steps: [] },
-  daging: { title: 'Daging', steps: ['cook'] },
+  daging: { title: 'Daging', steps: ['fry'] },
   selada: { title: 'Selada', steps: ['cut'] },
   tomat: { title: 'Tomat', steps: ['cut'] },
   keju: { title: 'Keju', steps: ['cut'] },
   // digiling di talenan dulu, lalu dipanggang di oven
   adonan: { title: 'Adonan', steps: ['cut', 'bake'] },
   jamur: { title: 'Jamur', steps: ['cut'] },
-  nasi: { title: 'Nasi', steps: ['cook'] },
+  nasi: { title: 'Nasi', steps: ['boil'] },
   ikan: { title: 'Ikan', steps: ['cut'] },
   nori: { title: 'Nori', steps: [] },
   timun: { title: 'Timun', steps: ['cut'] },
-  mie: { title: 'Mie', steps: ['cook'] },
-  telur: { title: 'Telur', steps: ['cook'] },
+  mie: { title: 'Mie', steps: ['boil'] },
+  telur: { title: 'Telur', steps: ['fry'] },
   bawang: { title: 'Daun bawang', steps: ['cut'] },
-  tortilla: { title: 'Tortilla', steps: ['cook'] },
-  pancake: { title: 'Adonan pancake', steps: ['cook'] },
+  tortilla: { title: 'Tortilla', steps: ['fry'] },
+  pancake: { title: 'Adonan pancake', steps: ['fry'] },
   stroberi: { title: 'Stroberi', steps: ['cut'] },
   madu: { title: 'Madu', steps: [] },
   pisang: { title: 'Pisang', steps: ['cut'] },
-  beras: { title: 'Nasi', steps: ['cook'] },
-  udang: { title: 'Udang', steps: ['cook'] },
+  beras: { title: 'Nasi', steps: ['fry'] },
+  udang: { title: 'Udang', steps: ['fry'] },
   // ditusuk (potong) dulu, lalu dibakar
-  ayam: { title: 'Ayam', steps: ['cut', 'cook'] },
+  ayam: { title: 'Ayam', steps: ['cut', 'fry'] },
   kacang: { title: 'Saus kacang', steps: [] },
   lontong: { title: 'Lontong', steps: ['cut'] },
 }
 
-export const AFTER: Record<Step, FoodState> = { cut: 'cut', cook: 'cooked', bake: 'baked' }
+export const AFTER: Record<Step, FoodState> = { cut: 'cut', fry: 'cooked', boil: 'boiled', bake: 'baked' }
+
+/** alat tiap langkah, untuk ikon di tiket & kartu resep */
+export type Tool = 'pisau' | 'wajan' | 'panci' | 'oven'
+const TOOL: Record<Step, Tool> = { cut: 'pisau', fry: 'wajan', boil: 'panci', bake: 'oven' }
+export const toolOf = (_ing: Ing, step: Step): Tool => TOOL[step]
+/** wadah di kompor dan langkah yang dikerjakannya */
+export type Pan = 'wajan' | 'panci'
+export const PAN_STEP: Record<Pan, Step> = { wajan: 'fry', panci: 'boil' }
+export const TOOL_TITLE: Record<Tool, string> = { pisau: 'Potong di talenan', wajan: 'Goreng di kompor', panci: 'Rebus di kompor', oven: 'Panggang di oven' }
 
 /** state hasil tiap langkah olahan bahan */
 export const statesOf = (ing: Ing): FoodState[] => ['raw', ...ING[ing].steps.map((s) => AFTER[s])]
@@ -90,11 +100,13 @@ export type Kitchen = {
   menu: string[]
   layout: string[]
   crates: Record<string, Ing>
-  /** ambang bintang co-op untuk 2 koki & 180 detik; diskalakan menurut jumlah koki & durasi */
+  /** ambang bintang co-op untuk 2 koki & 180 detik (≈35/65/95% skor bot Susah); diskalakan menurut jumlah koki & durasi */
   stars: [number, number, number]
   gimmick?: Gimmick
   /** sabuk: bahan yang datang lewat sabuk, bukan dari peti */
   belt?: Ing[]
+  /** kesabaran pelanggan dikali ini (dapur yang jalannya jauh) */
+  patience?: number
 }
 
 export const KITCHENS: Record<KitchenId, Kitchen> = {
@@ -114,7 +126,7 @@ export const KITCHENS: Record<KitchenId, Kitchen> = {
       '##P#W#X##P##',
     ],
     crates: { r: 'roti', s: 'selada', d: 'daging', k: 'keju', t: 'tomat' },
-    stars: [80, 170, 260],
+    stars: [110, 210, 305],
   },
   pizza: {
     id: 'pizza',
@@ -132,7 +144,7 @@ export const KITCHENS: Record<KitchenId, Kitchen> = {
       '##P#W#X##P##',
     ],
     crates: { a: 'adonan', t: 'tomat', k: 'keju', j: 'jamur' },
-    stars: [70, 150, 230],
+    stars: [110, 205, 300],
     gimmick: 'lift',
   },
   sushi: {
@@ -151,7 +163,7 @@ export const KITCHENS: Record<KitchenId, Kitchen> = {
       '##P#W#####P#',
     ],
     crates: { q: 'nasi', n: 'nori' },
-    stars: [80, 170, 260],
+    stars: [140, 260, 380],
     gimmick: 'belt',
     belt: ['ikan', 'timun', 'ikan'],
   },
@@ -171,8 +183,10 @@ export const KITCHENS: Record<KitchenId, Kitchen> = {
       '##P#W###d#X#',
     ],
     crates: { m: 'mie', e: 'telur', b: 'bawang', d: 'daging' },
-    stars: [70, 150, 230],
+    stars: [95, 175, 255],
     gimmick: 'gap',
+    // dua gerbong & sambungan yang sering lepas: jalan dari peti ke kompor jauh
+    patience: 1.5,
   },
   taco: {
     id: 'taco',
@@ -190,7 +204,7 @@ export const KITCHENS: Record<KitchenId, Kitchen> = {
       '##P#W#X##P##',
     ],
     crates: { o: 'tortilla', d: 'daging', s: 'selada', k: 'keju', t: 'tomat' },
-    stars: [75, 160, 245],
+    stars: [105, 195, 285],
     gimmick: 'truck',
   },
   es: {
@@ -209,7 +223,7 @@ export const KITCHENS: Record<KitchenId, Kitchen> = {
       '##P#W#X##P##',
     ],
     crates: { c: 'pancake', s: 'stroberi', m: 'madu', i: 'pisang' },
-    stars: [70, 150, 230],
+    stars: [95, 180, 265],
     gimmick: 'ice',
   },
   kapal: {
@@ -228,7 +242,7 @@ export const KITCHENS: Record<KitchenId, Kitchen> = {
       '##P#W#X##P##',
     ],
     crates: { b: 'beras', u: 'udang', e: 'telur', g: 'bawang' },
-    stars: [70, 150, 230],
+    stars: [120, 225, 325],
     gimmick: 'ship',
   },
   lava: {
@@ -247,7 +261,7 @@ export const KITCHENS: Record<KitchenId, Kitchen> = {
       '##P#W#X##P##',
     ],
     crates: { y: 'ayam', k: 'kacang', l: 'lontong' },
-    stars: [65, 140, 215],
+    stars: [115, 215, 310],
     gimmick: 'lava',
   },
 }
@@ -259,8 +273,24 @@ export const COUNTER_TOP = 0.92
 
 export type StationKind = 'counter' | 'board' | 'stove' | 'plates' | 'serve' | 'trash' | 'crate' | 'sink' | 'oven' | 'belt'
 
-/** langkah yang dikerjakan stasiun panas */
-export const HEAT: Partial<Record<StationKind, Step>> = { stove: 'cook', oven: 'bake' }
+/** langkah yang dikerjakan oven langsung; kompor mengikuti wadah di atasnya (lihat heatAt di sim) */
+export const HEAT: Partial<Record<StationKind, Step>> = { oven: 'bake' }
+
+/**
+ * Wadah awal tiap kompor dapur ini: bergiliran antara alat yang dibutuhkan menu (goreng/rebus),
+ * yang paling sering dipakai lebih dulu.
+ */
+export function pansOf(id: KitchenId): Pan[] {
+  const L = layoutOf(id)
+  const count = new Map<Pan, number>()
+  for (const r of KITCHENS[id].menu) for (const ing of RECIPES[r].ings) for (const st of ING[ing].steps) {
+    const p = st === 'fry' ? 'wajan' : st === 'boil' ? 'panci' : null
+    if (p) count.set(p, (count.get(p) ?? 0) + 1)
+  }
+  const order = [...count.keys()].sort((a, b) => count.get(b)! - count.get(a)!)
+  const stoves = L.stations.filter((s) => s.kind === 'stove').length
+  return Array.from({ length: stoves }, (_, i) => order[i % Math.max(1, order.length)] ?? 'wajan')
+}
 
 export type Station = { kind: StationKind; ing?: Ing; c: number; r: number; x: number; z: number }
 
@@ -369,7 +399,10 @@ export function layoutOf(id: KitchenId): Layout {
 }
 
 /** ambang bintang untuk ronde ini */
+/** skala ambang menurut jumlah koki (2 koki = 1), dari rata-rata skor bot (scripts/masak-calibrate.mts) */
+const COOK_SCALE = [0, 0.5, 1, 1.35, 1.65, 1.85, 2, 2.05, 2.1]
+
 export function starGoals(id: KitchenId, cooks: number, secs: number): [number, number, number] {
-  const f = (0.55 + 0.225 * Math.min(cooks, 5)) * (secs / 180)
+  const f = COOK_SCALE[Math.max(1, Math.min(8, cooks))] * (secs / 180)
   return KITCHENS[id].stars.map((v) => Math.round((v * f) / 5) * 5) as [number, number, number]
 }

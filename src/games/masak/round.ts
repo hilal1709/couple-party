@@ -1,14 +1,15 @@
 import * as THREE from 'three'
 import { initialTier, TIERS, type Quality } from '@/games/kart/render/quality'
 import { spawnWalker, step, type Walker } from '@/games/petak/sim/walk'
-import { Chibi, loadChibi } from '@/games/sport/render/chibi'
-import { randomLook } from '@/games/sport/look'
-import type { Look } from '@/games/sport/types'
 import type { LiveChannel, Seat } from '../types'
 import { actorOf } from './engine'
-import { CELL, layoutOf, type Layout } from './kitchens'
-import { KitchenScene, make } from './render/scene'
-import { COOK_SPEED, moveCook, newBot, stepBot, type Bot, type Plan } from './sim/bots'
+import { CELL, code, COUNTER_TOP, ING, layoutOf, nextStep, type Layout } from './kitchens'
+import { APRONS, Koki, loadKoki, TEAM_APRONS } from './render/koki'
+import { KitchenScene } from './render/scene'
+import { World } from './render/world'
+import { perfOf, type Perf } from './render/perf'
+import { COOK_SPEED, GRIP, moveCook, newBot, stepBot, type Bot, type Plan } from './sim/bots'
+import { contentAt, fitsMenu, HAND_Y, isFood, isPlate, isPot, pickFloor, PICK_R, potFood, potTakes, resolveFlying, throwItem, type CookPose } from './sim/kitchen'
 import { advance, canWork, chop, cloneKit, gapOpen, lavaOn, lavaSoon, liftUp, newKit, prank, slip, turnSoon, use, type Fx, type Kit } from './sim/kitchen'
 import type { Sound } from './sounds'
 import type { MasakAction, MasakState } from './types'
@@ -19,21 +20,24 @@ const KIT_MIN = 0.066
 const KIT_BEAT = 0.5
 /** jarak terjauh koki ke pusat stasiun yang dilayani host (petak 1,2 m + toleransi jeda jaringan) */
 const REACH = CELL * 1.5 + 0.6
-const CHIBI_SCALE = 1.4
-/** sudut lengan atas & bawah saat membawa barang (radian, sumbu X lokal tulang) */
-const ARM_UP0 = -1.4
-const ARM_FORE0 = 0.1
-const DASH_SECS = 0.22
-/** letak topi di ruang tulang kepala */
-const HAT_POS = [0, 0.42, 0] as const
-const HAT_SCALE = 1.25
+/** koki.glb ±1,34 m dengan topi; meja 0,92 m */
+const KOKI_SCALE = 1.35
+/** barang dibawa sedikit di bawah titik tengah kedua tangan */
+const CARRY_DROP = 0.06
+const DASH_SECS = 0.26
 const DASH_COOL = 0.9
-const DASH_SPEED = 2.6
+const DASH_SPEED = 2.8
 const SLIP_SECS = 0.85
 const PUSH_SECS = 0.7
 const SLIP_SPEED = 1.9
 /** jarak injak kulit pisang */
 const PEEL_R = 0.42
+/** kartu cara masak, lalu hitung mundur 3-2-1 (detik) */
+export const CARD_SECS = 6
+const COUNT_SECS = 3
+/** spanduk "Waktu habis!" tampil sekian detik sebelum layar hasil */
+const OVER_SECS = 2.4
+const NO_INTRO = import.meta.env.DEV && new URLSearchParams(location.search).get('intro') === '0'
 
 export type Hud = {
   /** sisa detik */
@@ -58,6 +62,16 @@ export type Hud = {
   missed: number
   orders: { id: number; r: string; left: number }[]
   holding: boolean
+  /** pengali tip beruntun saat ini */
+  streak: number
+  /** bahan di tangan bisa dilempar */
+  canThrow: boolean
+  /** label tombol Ambil/Taruh sesuai barang & stasiun di depan */
+  grab: string
+  /** pembuka ronde: kartu resep, angka hitung mundur, "go" sesaat setelah mulai; null = main */
+  intro: 'card' | 3 | 2 | 1 | 'go' | null
+  /** waktu habis, menunggu layar hasil */
+  over: boolean
   /** tombol tahan untuk stasiun di depan: potong, cuci, semprot; null = tidak ada */
   work: 'Potong' | 'Cuci' | 'Semprot' | null
   chopping: boolean
@@ -70,7 +84,7 @@ export type Hud = {
 
 /** [aktor, x, z, yaw, bergerak] */
 type Pose = [number, number, number, number, number]
-type Op = 'use' | 'chop' | 'unchop' | 'iseng' | 'slip'
+type Op = 'use' | 'chop' | 'unchop' | 'iseng' | 'slip' | 'throw' | 'pick'
 type Wire = { k: 'pose'; a: Pose[] } | { k: 'do'; a: number; op: Op; si: number; n: number } | { k: 'kit'; t: number; s: Kit }
 
 const r2 = (v: number) => Math.round(v * 100) / 100
@@ -79,11 +93,12 @@ export type RoundOptions = {
   canvas: HTMLCanvasElement
   state: MasakState
   seat: Seat
-  look: Look | null
   act: (a: MasakAction) => void
   live?: LiveChannel
   onHud: (h: Hud) => void
   onFx: (f: Fx) => void
+  /** ikon barang siap (data URL per kunci), sekali setelah dapur dimuat */
+  onIcons?: (icons: Map<string, string>) => void
   onSound: (s: Sound, volume: number) => void
 }
 
@@ -95,6 +110,11 @@ export class Round {
   private s: MasakState
   private L: Layout
   private scene: KitchenScene
+  private perf: Perf
+  /** jeda minimum antar frame (ms) menurut batas fps, dan kapan frame berikutnya boleh digambar */
+  private gap = 1000 / 60
+  private nextAt = 0
+  private world: World | null = null
   private kits: Kit[]
   private team: number
   /** jarak geser dapur tim 1 di sumbu x */
@@ -104,7 +124,7 @@ export class Round {
   private walkers: Walker[] = []
   private remotes: Remote[] = []
   private bots: (Bot | null)[] = []
-  private chibis: (Chibi | null)[] = []
+  private kokis: (Koki | null)[] = []
   private roots: THREE.Group[] = []
   private handPts: THREE.Vector3[] = []
   private stopLive: (() => void) | undefined
@@ -132,7 +152,6 @@ export class Round {
   private frames = 0
   private fpsAt = 0
   private fps = 60
-  private anims: string[] = []
 
   constructor(o: RoundOptions) {
     this.o = o
@@ -142,7 +161,9 @@ export class Round {
     this.host = o.seat === 0
     const url = import.meta.env.DEV ? (new URLSearchParams(location.search).get('q') as Quality | null) : null
     const tier = url && TIERS[url] ? TIERS[url] : initialTier()
-    this.scene = new KitchenScene(o.canvas, tier, this.L)
+    this.perf = perfOf(tier)
+    this.gap = 1000 / this.perf.fps
+    this.scene = new KitchenScene(o.canvas, this.perf, this.L)
     const teams = o.state.opts.mode === 'versus' ? 2 : 1
     // pesanan kedua dapur memakai benih yang sama supaya adil
     this.kits = Array.from({ length: teams }, () => newKit(o.state.opts.kitchen, o.state.actors.length, o.state.seed, teams > 1))
@@ -154,13 +175,12 @@ export class Round {
       this.walkers.push(spawnWalker(x, z, Math.PI))
       this.remotes.push({ x, z, yaw: Math.PI, moving: false })
       this.bots.push(a.seat === null ? newBot() : null)
-      this.chibis.push(null)
+      this.kokis.push(null)
       const root = new THREE.Group()
       root.position.set(x, 0, z)
       this.scene.actors.add(root)
       this.roots.push(root)
       this.handPts.push(new THREE.Vector3(x, 0.8, z))
-      this.anims.push('')
     })
   }
 
@@ -175,49 +195,36 @@ export class Round {
     this.ro.observe(el)
     size()
     // tekstur & koki dulu, baru jam ronde jalan: layar muat menutupi dapur yang belum jadi
-    const [gltf] = await Promise.all([loadChibi(), this.scene.load(this.s.opts.kitchen, this.kits.length, this.off)])
+    const [gltf] = await Promise.all([loadKoki(), this.scene.load(this.s.opts.kitchen, this.kits.length, this.off)])
     this.scene.focus(this.team * this.off)
     if (!this.alive) return
-    const pbr = this.scene.shadows
-    this.s.actors.forEach((_, i) => {
-      const look = (i === this.me ? this.o.look : null) ?? this.s.looks[i] ?? randomLook(i * 977 + 13)[0]
-      const c = new Chibi(gltf, look, pbr)
-      c.root.scale.setScalar(CHIBI_SCALE)
-      if (!this.scene.shadows) c.root.traverse((m) => ((m as THREE.Mesh).castShadow = false))
+    const versus = this.s.opts.mode === 'versus'
+    this.s.actors.forEach((a, i) => {
+      const animal = this.s.koki[i] ?? 'kucing'
+      const c = new Koki(gltf, animal, versus ? TEAM_APRONS[a.team] : APRONS[i % APRONS.length], this.scene.shadows)
+      c.root.scale.setScalar(KOKI_SCALE)
       this.roots[i].add(c.root)
-      this.chibis[i] = c
-      this.dressChef(c)
+      this.kokis[i] = c
+      // cincin warna di lantai: tanda koki siapa
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(i === this.me ? 0.4 : 0.42, i === this.me ? 0.56 : 0.5, 40),
+        new THREE.MeshBasicMaterial({ color: versus ? TEAM_APRONS[a.team] : APRONS[i % APRONS.length], transparent: true, opacity: i === this.me ? 0.95 : 0.7, depthWrite: false }),
+      )
+      ring.rotation.x = -Math.PI / 2
+      ring.position.y = 0.015
+      ring.renderOrder = 2
+      this.roots[i].add(ring)
     })
+    this.world = new World(this.scene, this.L, this.s.opts.kitchen, gltf, this.perf.life)
+    this.o.onIcons?.(new Map([...this.scene.icons].map(([k, v]) => [k, v.url])))
+    this.intro = NO_INTRO ? 0 : CARD_SECS + COUNT_SECS
     this.lastT = performance.now()
     this.fpsAt = this.lastT
     this.raf = requestAnimationFrame(this.frame)
   }
 
-  /** topi koki di tulang kepala; aksesori Sport (topi/kacamata/bando) disembunyikan supaya tidak bertumpuk */
-  private dressChef(c: Chibi) {
-    c.root.traverse((o) => {
-      if (/^acc_\d$/.test(o.name)) o.visible = false
-    })
-    const head = c.bone('head')
-    if (!head || head.getObjectByName('topi_koki')) return
-    const hat = make('topi_koki')
-    hat.name = 'topi_koki'
-    hat.position.set(HAT_POS[0], HAT_POS[1], HAT_POS[2])
-    hat.scale.setScalar(HAT_SCALE)
-    head.add(hat)
-  }
-
   setState(s: MasakState) {
-    const prev = this.s
     this.s = s
-    // tampilan orang lain menyusul saat `look` mereka masuk
-    s.looks.forEach((l, i) => {
-      const c = this.chibis[i]
-      if (l && l !== prev.looks[i] && i !== this.me && c) {
-        c.setLook(l)
-        this.dressChef(c)
-      }
-    })
   }
 
   // ---------- kendali ----------
@@ -231,22 +238,95 @@ export class Round {
 
   /** tombol Dash: lari sebentar ke arah hadap */
   dash() {
-    if (this.me < 0 || this.over() || this.dashCool > 0) return
+    if (this.me < 0 || this.locked() || this.dashCool > 0) return
     this.dashT = DASH_SECS
     this.dashCool = DASH_COOL
     this.o.onSound('dash', 0.8)
+    const w = this.walkers[this.me]
+    this.scene.dust(w.x + this.team * this.off, w.z, w.yaw)
   }
 
   /** tombol Ambil/Taruh */
   grab() {
-    if (this.me < 0 || this.target === null || this.over()) return
+    if (this.me < 0 || this.locked()) return
+    const w = this.walkers[this.me]
+    const floor = this.kit.hands[this.me] === null ? this.floorAhead(w) : null
+    if (floor !== null) {
+      this.o.onSound('grab', 0.7)
+      this.request('pick', floor)
+      return
+    }
+    if (this.target === null) return
     this.o.onSound('grab', 0.7)
     this.request('use', this.target)
   }
 
+  /** tombol Lempar: bahan di tangan dilempar ke depan (bidik bantu ke rekan atau wadah di depan) */
+  toss() {
+    if (this.me < 0 || this.locked()) return
+    const it = this.kit.items[this.kit.hands[this.me] ?? -1]
+    if (!isFood(it)) return
+    this.o.onSound('dash', 0.7)
+    this.request('throw', -1)
+  }
+
+  /** barang di lantai terdekat di depan koki, kalau tangan kosong */
+  private floorAhead(w: Walker): number | null {
+    let best: number | null = null
+    let bd = PICK_R
+    for (const f of this.kit.floor) {
+      const dx = f.x - w.x
+      const dz = f.z - w.z
+      const d = Math.hypot(dx, dz)
+      if (d > bd) continue
+      if (d > 0.3 && (dx * Math.sin(w.yaw) + dz * Math.cos(w.yaw)) / d < -0.2) continue
+      bd = d
+      best = f.id
+    }
+    return best
+  }
+
+  /** sasaran lemparan dari koki `actor`: rekan bertangan kosong atau stasiun yang mau menerima, di depan */
+  private aimFor(actor: number): { x: number; z: number; y: number } | null {
+    const k = this.kits[this.teamOf(actor)]
+    const p = this.posOf(actor)
+    const food = k.items[k.hands[actor] ?? -1]
+    if (!isFood(food)) return null
+    const fx = Math.sin(p.yaw)
+    const fz = Math.cos(p.yaw)
+    let best: { x: number; z: number; y: number } | null = null
+    let score = Infinity
+    const consider = (x: number, z: number, y: number, maxD: number, maxAng: number) => {
+      const dx = x - p.x
+      const dz = z - p.z
+      const d = Math.hypot(dx, dz)
+      if (d < 0.9 || d > maxD) return
+      const ang = Math.acos(Math.max(-1, Math.min(1, (dx * fx + dz * fz) / d)))
+      if (ang > maxAng) return
+      const sc = ang + d * 0.06
+      if (sc < score) {
+        score = sc
+        best = { x, z, y }
+      }
+    }
+    this.s.actors.forEach((a, i) => {
+      if (i === actor || a.team !== this.teamOf(actor) || k.hands[i] !== null) return
+      const q = this.posOf(i)
+      consider(q.x, q.z, HAND_Y, 7, 0.6)
+    })
+    const step = nextStep(food.ing, food.s)
+    this.L.stations.forEach((st, si) => {
+      if (k.fire[si] > 0) return
+      const on = k.items[k.hold[si] ?? -1]
+      const ok = (isPot(on) && potTakes(on, food)) || (isPlate(on) && fitsMenu(k, on.f, code(food.ing, food.s))) || (!on && st.kind === 'board' && step === 'cut')
+      if (ok) consider(st.x, st.z, COUNTER_TOP + 0.05, 6, 0.5)
+    })
+    return best
+  }
+
   /** tombol Iseng: pakai satu jatah iseng ke dapur lawan */
   iseng() {
-    if (this.me < 0 || this.over() || this.kits.length < 2 || this.kit.jahil <= 0) return
+    if (this.me < 0 || this.locked() || this.kits.length < 2 || this.kit.jahil <= 0) return
     this.request('iseng', -1)
   }
 
@@ -261,9 +341,9 @@ export class Round {
 
   /** tombol Potong ditahan/dilepas */
   holdChop(on: boolean) {
-    if (this.me < 0 || this.over()) return
+    if (this.me < 0 || this.locked()) return
+    // sekali tekan: koki terus bekerja selama berdiri di depan stasiun; berjalan menghentikannya (progres tersimpan)
     if (on && this.target !== null) this.request('chop', this.target)
-    if (!on) this.request('unchop', this.target ?? -1)
   }
 
   private request(op: Op, si: number) {
@@ -281,7 +361,9 @@ export class Round {
     const t = this.teamOf(actor)
     const k = this.kits[t]
     let changed = false
-    if (op === 'unchop') changed = chop(k, actor, si, false)
+    if (op === 'throw') changed = throwItem(k, actor, this.poseOf(actor), this.aimFor(actor))
+    else if (op === 'pick') changed = pickFloor(k, actor, si, this.poseOf(actor))
+    else if (op === 'unchop') changed = chop(k, actor, si, false)
     else if (op === 'slip') changed = slip(k, si)
     else if (op === 'iseng') {
       const foe = this.kits[1 - t]
@@ -299,8 +381,37 @@ export class Round {
     return changed
   }
 
+  /** sisa waktu pembuka ronde (detik); 0 = sudah main */
+  private intro = CARD_SECS + COUNT_SECS
+  private sinceGo = 99
+  private overFor = 0
+
+  /** host melewati kartu resep: langsung hitung mundur */
+  skipIntro() {
+    if (this.intro > COUNT_SECS) this.intro = COUNT_SECS
+  }
+
+  /** kendali terkunci: belum mulai atau waktu habis */
+  private locked() {
+    return this.intro > 0 || this.over()
+  }
+
   private over() {
     return this.kits[0].t >= this.s.opts.secs * 1000
+  }
+
+  private poseOf(i: number): CookPose {
+    const p = this.posOf(i)
+    return { x: p.x, z: p.z, yaw: p.yaw }
+  }
+
+  /** host: lemparan di tiap dapur ditangkap / mendarat / jatuh, dengan posisi koki tim itu */
+  private resolveThrows() {
+    this.kits.forEach((k, t) => {
+      if (!k.flying.length) return
+      const cooks = this.s.actors.map((a, i) => (a.team === t ? this.poseOf(i) : null))
+      if (resolveFlying(k, cooks)) this.kitDirty[t] = true
+    })
   }
 
   private posOf(i: number) {
@@ -342,8 +453,8 @@ export class Round {
     const w = this.walkers[this.me]
     const chopping = this.kit.chop[this.me] !== null
     // kamera menghadap -z: stik atas = menjauh dari kamera
-    let mx = chopping || this.over() ? 0 : this.input.x
-    let mz = chopping || this.over() ? 0 : -this.input.y
+    let mx = chopping || this.locked() ? 0 : this.input.x
+    let mz = chopping || this.locked() ? 0 : -this.input.y
     this.dashT = Math.max(0, this.dashT - dt)
     this.dashCool = Math.max(0, this.dashCool - dt)
     this.slipT = Math.max(0, this.slipT - dt)
@@ -373,7 +484,7 @@ export class Round {
       mx += push.dir * 0.9 * (push.t / PUSH_SECS)
       speed = Math.max(speed, COOK_SPEED)
     }
-    moveCook(this.kit, w, this.vel, mx, mz, speed, dt)
+    moveCook(this.kit, w, this.vel, mx, mz, speed, dt, GRIP)
     if (this.slipT > 0) w.yaw += dt * 14
     // jalan sambil memotong = berhenti memotong
     if (chopping && Math.hypot(this.input.x, this.input.y) > 0.3) this.request('unchop', -1)
@@ -400,7 +511,7 @@ export class Round {
     this.bots.forEach((b, i) => {
       if (!b) return
       const w = this.walkers[i]
-      if (this.over()) return step(w, 0, 0, 0, dt, this.L)
+      if (this.locked()) return step(w, 0, 0, 0, dt, this.L)
       const t = this.teamOf(i)
       const k = this.kits[t]
       // bot juga bisa terpeleset
@@ -463,77 +574,45 @@ export class Round {
       }
       const turn = Math.atan2(Math.sin(p.yaw - root.rotation.y), Math.cos(p.yaw - root.rotation.y))
       root.rotation.y += turn * Math.min(1, k * 1.6)
-      this.handPts[i].set(root.position.x + Math.sin(root.rotation.y) * 0.5, 0.86, root.position.z + Math.cos(root.rotation.y) * 0.5)
-      const c = this.chibis[i]
+      const c = this.kokis[i]
       if (!c) return
-      const clip = p.moving ? 'walk' : 'idle'
-      if (clip !== this.anims[i]) {
-        this.anims[i] = clip
-        c.play(clip, { speed: clip === 'walk' ? 1.3 : 1 })
-      }
+      this.animate(i, c, p.moving)
       c.update(dt)
-      this.armPose(i, c)
+      root.updateMatrixWorld(true)
+      c.handsCenter(this.handPts[i])
+      this.handPts[i].y -= CARRY_DROP * KOKI_SCALE
     })
   }
 
-  private arms: ({ uL: THREE.Object3D; uR: THREE.Object3D; fL: THREE.Object3D; fR: THREE.Object3D } | null)[] = []
-  private armMix: number[] = []
-  armUp = ARM_UP0
-  armFore = ARM_FORE0
-  private time = 0
-  private static Q = new THREE.Quaternion()
-  private static X = new THREE.Vector3(1, 0, 0)
-
-  /**
-   * Pose lengan di atas klip jalan/diam: bawa barang = kedua lengan ke depan; potong = tangan kanan naik-turun;
-   * cuci = kedua tangan menggosok; semprot = lengan lurus ke depan. Ditimpa setelah mixer supaya klip Sport tetap dipakai.
-   */
-  private armPose(i: number, c: Chibi) {
-    const b = (this.arms[i] ??= (() => {
-      const uL = c.bone('upper_L')
-      const uR = c.bone('upper_R')
-      const fL = c.bone('fore_L')
-      const fR = c.bone('fore_R')
-      return uL && uR && fL && fR ? { uL, uR, fL, fR } : null
-    })())
-    if (!b) return
+  /** pilih klip badan & tangan menurut keadaan koki */
+  private animate(i: number, c: Koki, moving: boolean) {
     const k = this.kits[this.teamOf(i)]
-    const holding = k.hands[i] !== null
+    const mine = i === this.me
+    if (mine && this.slipT > 0) return c.playFull('slip')
+    if (this.over()) return c.playFull(this.cheer(this.teamOf(i)))
+    c.playFull(null)
+    const dashing = mine && this.dashT > 0
+    c.play(dashing ? 'dash' : moving ? 'walk' : 'idle', moving && !dashing ? 1.15 : 1)
     const si = k.chop[i]
+    const held = k.items[k.hands[i] ?? -1]
     const kind = si !== null ? this.L.stations[si].kind : null
-    const ext = holding && k.items[k.hands[i]!]?.k === 'ext'
-    const want = holding || si !== null ? 1 : 0
-    this.armMix[i] = (this.armMix[i] ?? 0) + (want - (this.armMix[i] ?? 0)) * 0.25
-    const mix = this.armMix[i]
-    if (mix < 0.01) return
-    const t = this.time
-    const Q = Round.Q
-    const X = Round.X
-    const ARM_UP = this.armUp
-    const ARM_FORE = this.armFore
-    let upL = ARM_UP
-    let upR = ARM_UP
-    let foL = ARM_FORE
-    let foR = ARM_FORE
-    if (kind === 'board') {
-      upL = ARM_UP * 0.8
-      upR = ARM_UP * 0.9 + Math.sin(t * 22) * 0.35
-      foR = ARM_FORE + Math.sin(t * 22) * 0.5
-    } else if (kind === 'sink') {
-      upL = ARM_UP * 0.85 + Math.sin(t * 9) * 0.18
-      upR = ARM_UP * 0.85 - Math.sin(t * 9) * 0.18
-    } else if (ext) {
-      upL = upR = ARM_UP * 1.1
-      foL = foR = 0.15
-    }
-    b.uL.quaternion.multiply(Q.setFromAxisAngle(X, upL * mix))
-    b.uR.quaternion.multiply(Q.setFromAxisAngle(X, upR * mix))
-    b.fL.quaternion.multiply(Q.setFromAxisAngle(X, foL * mix))
-    b.fR.quaternion.multiply(Q.setFromAxisAngle(X, foR * mix))
+    if (this.time - (this.threwAt[i] ?? -9) < 0.32) return c.playHands('h_throw')
+    c.playHands(
+      held?.k === 'ext' && si !== null ? 'h_spray' : kind === 'board' ? 'h_chop' : kind === 'sink' ? 'h_wash' : held ? 'h_carry' : moving ? 'h_walk' : 'h_idle',
+    )
   }
 
-  private timers() {
-    if (!this.host || this.fired || !this.over()) return
+  /** akhir ronde: koki bersorak kalau dapat bintang / menang, sedih kalau tidak */
+  private cheer(team: number): 'cheer' | 'sad' {
+    const k = this.kits[team]
+    const foe = this.kits[1 - team]
+    return (foe ? k.score >= foe.score : k.served > k.missed) ? 'cheer' : 'sad'
+  }
+
+  private timers(dt: number) {
+    if (!this.over()) return
+    this.overFor += dt
+    if (!this.host || this.fired || this.overFor < OVER_SECS) return
     this.fired = true
     const ks = this.kits
     this.o.act({ type: 'finish', result: { score: ks.map((k) => k.score), served: ks.map((k) => k.served), missed: ks.map((k) => k.missed) } })
@@ -542,34 +621,28 @@ export class Round {
   private frame = (now: number) => {
     if (!this.alive) return
     this.raf = requestAnimationFrame(this.frame)
+    // batas fps: layar 90–144 Hz tidak dirender penuh (sumber utama HP panas); simulasi tetap memakai dt nyata
+    if (now < this.nextAt - 2) return
+    this.nextAt = Math.max(this.nextAt + this.gap, now)
     const dt = Math.min(0.05, (now - this.lastT) / 1000)
     this.lastT = now
     this.time += dt
     this.push.forEach((p) => (p.t = Math.max(0, p.t - dt)))
-    if (!this.over()) this.kits.forEach((k, t) => advance(k, dt * 1000, this.host, this.s.actors.filter((a) => a.team === t).length))
+    this.stepIntro(dt)
+    if (this.intro <= 0 && !this.over()) this.kits.forEach((k, t) => advance(k, dt * 1000, this.host, this.s.actors.filter((a) => a.team === t).length))
     this.stepMe(dt)
     if (this.host) this.stepBots(dt)
-    this.timers()
+    if (this.host) this.resolveThrows()
+    this.timers(dt)
     this.send(dt)
     this.applyBodies(dt)
+    this.readFx()
     this.scene.sync(this.kits, this.handPts, this.off)
     this.scene.effects(this.kits, dt, this.handPts, this.off)
     this.scene.setTarget(this.target, this.team * this.off)
     this.scene.animate(this.kits, dt)
+    this.world?.update(this.kit, dt)
     this.loopSounds(dt)
-    this.kits.forEach((k, t) => {
-      for (const f of k.fx) {
-        if (f.n <= this.seenFx[t]) continue
-        this.seenFx[t] = f.n
-        // lemparan iseng terlihat melayang dari dapur pelempar ke dapur lawan
-        if (f.kind === 'iseng') this.scene.toss(t * this.off, (1 - t) * this.off)
-        if (f.kind === 'belok') {
-          this.push[t] = { t: PUSH_SECS, dir: f.pts ?? 1 }
-          if (t === this.team) this.scene.bump(f.pts ?? 1)
-        }
-        if (t === this.team) this.o.onFx(f)
-      }
-    })
     this.scene.render()
     this.watchFps(now)
     this.hudIn -= dt
@@ -579,12 +652,42 @@ export class Round {
     }
   }
 
+  /** kejadian baru dari isi dapur: suara, efek, animasi (sebelum barang disinkronkan supaya piring tersaji bisa meluncur) */
+  private readFx() {
+    this.kits.forEach((k, t) => {
+      for (const f of k.fx) {
+        if (f.n <= this.seenFx[t]) continue
+        this.seenFx[t] = f.n
+        // lemparan iseng terlihat melayang dari dapur pelempar ke dapur lawan
+        if (f.kind === 'iseng') this.scene.toss(t * this.off, (1 - t) * this.off)
+        if (f.kind === 'lempar' && f.pts !== undefined) this.threwAt[f.pts] = this.time
+        if (f.kind === 'served' && f.st >= 0) this.scene.serveAt(t, f.st)
+        if (f.kind === 'belok') {
+          this.push[t] = { t: PUSH_SECS, dir: f.pts ?? 1 }
+          if (t === this.team) this.scene.bump(f.pts ?? 1)
+        }
+        if (t === this.team) this.o.onFx(f)
+      }
+    })
+  }
+
   private knockIn = 0
   private sizzleIn = 0
 
   /** suara yang berulang selama keadaannya berlangsung: ketuk pisau, semprot, cuci, desis wajan */
+  private risk = 0
+  /** detik ronde saat tiap koki terakhir melempar (animasi) */
+  private threwAt: number[] = []
+  private time = 0
+  private bipIn = 0
+
   private loopSounds(dt: number) {
     const k = this.kit
+    this.bipIn -= dt
+    if (this.risk && this.bipIn <= 0) {
+      this.bipIn = this.risk > 0.75 ? 0.28 : 0.55
+      this.o.onSound('bip', 0.5)
+    }
     this.knockIn -= dt
     this.sizzleIn -= dt
     if (this.knockIn <= 0) {
@@ -601,7 +704,13 @@ export class Round {
     }
     if (this.sizzleIn <= 0) {
       this.sizzleIn = 1.1
-      const cooking = this.L.stations.some((st, si) => st.kind === 'stove' && k.items[k.hold[si] ?? -1]?.k === 'food')
+      // masakan matang yang dibiarkan: bip makin rapat menjelang gosong
+      const risk = this.L.stations.reduce((m, st, si) => {
+        const it = contentAt(k, si)
+        return (st.kind === 'stove' || st.kind === 'oven') && it && (it.s === 'cooked' || it.s === 'boiled' || it.s === 'baked') && it.p > 0.45 ? Math.max(m, it.p) : m
+      }, 0)
+      this.risk = risk
+      const cooking = this.L.stations.some((st, si) => st.kind === 'stove' && !!contentAt(k, si))
       if (cooking) this.o.onSound('desis', 0.35)
       if (k.fire.some((f) => f > 0)) this.o.onSound('api', 0.5)
     }
@@ -613,9 +722,9 @@ export class Round {
     this.fps = Math.round((this.frames * 1000) / (now - this.fpsAt))
     this.frames = 0
     this.fpsAt = now
-    // empat detik berturut-turut di bawah 24 fps: turunkan grafis satu langkah
-    this.slow = this.fps < 24 ? this.slow + 1 : 0
-    if (this.slow >= 4) {
+    // tiga detik berturut-turut di bawah 85% batas fps: turunkan grafis satu langkah (tidak pernah naik sendiri)
+    this.slow = this.fps < this.perf.fps * 0.85 ? this.slow + 1 : 0
+    if (this.slow >= 3) {
       this.slow = 0
       this.scene.lowerQuality()
     }
@@ -630,6 +739,76 @@ export class Round {
     if (si === null || !(k.chop[this.me] !== null || canWork(k, this.me, si))) return null
     if (k.items[k.hands[this.me] ?? -1]?.k === 'ext') return 'Semprot'
     return this.L.stations[si].kind === 'sink' ? 'Cuci' : 'Potong'
+  }
+
+  private stepIntro(dt: number) {
+    this.sinceGo += dt
+    if (this.intro <= 0) return
+    // tamu: dapur host sudah jalan, ikut mulai
+    if (!this.host && this.kit.t > 0) {
+      this.intro = 0
+      this.sinceGo = 0
+      return
+    }
+    const before = Math.ceil(this.intro)
+    this.intro = Math.max(0, this.intro - dt)
+    const now = Math.ceil(this.intro)
+    if (this.intro <= 0) {
+      this.sinceGo = 0
+      this.o.onSound('mulai', 0.9)
+    } else if (now !== before && now <= COUNT_SECS) this.o.onSound('hitung', 0.8)
+  }
+
+  private introState(): Hud['intro'] {
+    if (this.intro > COUNT_SECS) return 'card'
+    if (this.intro > 0) return Math.ceil(this.intro) as 3 | 2 | 1
+    return this.sinceGo < 0.9 ? 'go' : null
+  }
+
+  /** label tombol Ambil/Taruh: apa yang akan terjadi kalau ditekan */
+  private grabLabel(): string {
+    const k = this.kit
+    if (this.me >= 0 && k.hands[this.me] === null) {
+      const f = this.floorAhead(this.walkers[this.me])
+      const it = f !== null ? k.items[f] : undefined
+      if (isFood(it)) return `Pungut ${ING[it.ing].title}`
+    }
+    const si = this.target
+    const hand = this.me >= 0 ? k.items[k.hands[this.me] ?? -1] : undefined
+    if (si === null) return hand ? 'Taruh' : 'Ambil'
+    const st = this.L.stations[si]
+    const on = k.items[k.hold[si] ?? -1]
+    const name = (i: typeof hand) => (isFood(i) ? ING[i.ing].title : isPlate(i) ? 'piring' : isPot(i) ? i.pan : 'pemadam')
+    if (!hand) {
+      if (st.kind === 'crate' && st.ing) return `Ambil ${ING[st.ing].title}`
+      if (st.kind === 'plates') return 'Ambil piring'
+      return on ? `Ambil ${name(on)}` : 'Ambil'
+    }
+    if (st.kind === 'serve') return isPlate(hand) ? 'Sajikan' : 'Taruh'
+    if (isPot(hand)) {
+      const f = potFood(k, hand)
+      if (st.kind === 'trash') return f ? 'Buang isi' : 'Taruh'
+      if (isPlate(on)) return 'Tuang ke piring'
+      if (isPot(on) && f && potTakes(on, f)) return `Pindah ke ${on.pan}`
+      if (st.kind === 'crate' && !f) return `Isi ${hand.pan}`
+      if (isFood(on) && !f) return `Masukkan ke ${hand.pan}`
+      return on ? 'Taruh' : st.kind === 'stove' ? 'Taruh di kompor' : 'Taruh'
+    }
+    if (isFood(hand) && isPot(on)) return `Masukkan ke ${on.pan}`
+    if (isPlate(hand) && isPot(on)) return 'Ke piring'
+    if (st.kind === 'trash') return 'Buang'
+    if (st.kind === 'crate') return isFood(hand) && hand.ing === st.ing ? 'Kembalikan' : isPlate(hand) ? 'Ke piring' : 'Taruh'
+    if (isPlate(hand) && isFood(on)) return 'Ke piring'
+    if (isFood(hand) && isPlate(on)) return 'Ke piring'
+    if (on) return 'Taruh'
+    if (st.kind === 'board' && isFood(hand)) return 'Taruh di talenan'
+    if ((st.kind === 'stove' || st.kind === 'oven') && isFood(hand)) return st.kind === 'oven' ? 'Panggang' : 'Masak'
+    return 'Taruh'
+  }
+
+  /** layar (piksel) di atas stasiun dapur sendiri, untuk angka poin */
+  screenOf(si: number) {
+    return this.scene.screenOf(si, this.team * this.off)
   }
 
   private pushHud() {
@@ -650,8 +829,13 @@ export class Round {
       missed: k.missed,
       orders: k.orders.map((o) => ({ id: o.id, r: o.r, left: Math.max(0, (o.born + o.life - k.t) / o.life) })),
       holding: this.me >= 0 && k.hands[this.me] !== null,
+      streak: k.streak ?? 1,
+      canThrow: this.me >= 0 && isFood(k.items[k.hands[this.me] ?? -1]) && !this.locked(),
+      grab: this.grabLabel(),
+      intro: this.introState(),
+      over: this.over(),
       work: this.workLabel(t),
-      cooking: this.L.stations.filter((st, si) => st.kind === 'stove' && k.items[k.hold[si] ?? -1]?.k === 'food' && k.fire[si] <= 0).length,
+      cooking: this.L.stations.filter((st, si) => st.kind === 'stove' && !!contentAt(k, si) && k.fire[si] <= 0).length,
       chopping: this.me >= 0 && k.chop[this.me] !== null,
       rtt: this.host ? null : this.rtt,
       fps: this.fps,

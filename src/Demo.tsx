@@ -474,7 +474,7 @@ function PetakDemo() {
 }
 
 /**
- * ?demo=masak&n=1..8 pemain&total=koki&seat=&secs=&level=&mode=coop|versus&end=1
+ * ?demo=masak&n=1..8 pemain&total=koki&seat=&secs=&level=&mode=coop|versus&end=1&pick=1
  * &duo=1: beberapa tab berbagi state dan saluran live lewat BroadcastChannel, seperti room beberapa HP.
  * &lag=ms: tunda pesan live untuk meniru jeda internet.
  */
@@ -493,6 +493,8 @@ function MasakDemo() {
       level: (Number(q.get('level') ?? 2) as 1 | 2 | 3) || 2,
     }
     let st = masakEngine.init(Number(q.get('seed') ?? 42), o)
+    // &pick=1: tampilkan layar pilih koki; tanpa itu langsung masak dengan hewan acak
+    if (!q.get('pick')) st = masakEngine.reduce(st, { type: 'go' }, 0)
     if (q.get('end')) st = masakEngine.reduce(st, { type: 'finish', result: { score: [140, 95], served: [5, 3], missed: [1, 2] } }, 0)
     return st
   })

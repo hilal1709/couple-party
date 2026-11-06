@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1793823686.1954396,
-    "seen": 1793826877.3197627,
-    "ast_hash": "575b11a2e907bbb7d88b3a34fec61977",
+    "mtime": 1793831274.7786374,
+    "seen": 1793834290.8669488,
+    "ast_hash": "212f2fe579d55f6bd131db58c8bc3af2",
     "semantic_hash": ""
   },
   "scripts/apk.mjs": {
@@ -60,9 +60,9 @@
     "semantic_hash": ""
   },
   "src/Demo.tsx": {
-    "mtime": 1793823340.7828388,
-    "seen": 1793826877.3202043,
-    "ast_hash": "33ec56bdb019339cacf3f8c295c1ce82",
+    "mtime": 1793833590.2807503,
+    "seen": 1793834290.8672278,
+    "ast_hash": "ea4715b191bfa24836768629159a4964",
     "semantic_hash": ""
   },
   "src/assets/illustrations/hero.webp.json": {
@@ -552,9 +552,9 @@
     "semantic_hash": ""
   },
   "scripts/audio/build.py": {
-    "mtime": 1793823340.764958,
-    "seen": 1793826877.319784,
-    "ast_hash": "f5af629c4f67eaca82002a3426a8d99a",
+    "mtime": 1793963565.4120169,
+    "seen": 1793964899.9380405,
+    "ast_hash": "d28ceeca4a3082363a11c7f412415ed2",
     "semantic_hash": ""
   },
   "src/audio/SoundSettings.tsx": {
@@ -564,9 +564,9 @@
     "semantic_hash": ""
   },
   "src/audio/audio.ts": {
-    "mtime": 1793823341.0671263,
-    "seen": 1793826877.3216937,
-    "ast_hash": "5f7fceaa61127dfd37c97083552e1dfd",
+    "mtime": 1793963565.4120169,
+    "seen": 1793964899.9398606,
+    "ast_hash": "3a1b31719a7e642a2c3f3053967600cc",
     "semantic_hash": ""
   },
   "src/components/ui/slider.tsx": {
@@ -6456,9 +6456,9 @@
     "semantic_hash": ""
   },
   "src/games/kart/render/quality.ts": {
-    "mtime": 1793449684.9479742,
-    "seen": 1793826877.3221207,
-    "ast_hash": "9278f9c890695c28e64aeef9ac211bb8",
+    "mtime": 1793971029.3190622,
+    "seen": 1793971720.308277,
+    "ast_hash": "625ba694e349cd409b093c90aceb6dc5",
     "semantic_hash": ""
   },
   "src/games/kart/render/skids.ts": {
@@ -8922,9 +8922,9 @@
     "semantic_hash": ""
   },
   "src/games/masak/engine.ts": {
-    "mtime": 1793822824.204457,
-    "seen": 1793826877.322287,
-    "ast_hash": "f3402b3c4fb2c593c5725c8dba7026e5",
+    "mtime": 1793833264.9582565,
+    "seen": 1793834290.8683522,
+    "ast_hash": "33031026b16b6959134990e3938f7747",
     "semantic_hash": ""
   },
   "src/games/masak/index.ts": {
@@ -8934,45 +8934,45 @@
     "semantic_hash": ""
   },
   "src/games/masak/kitchens.ts": {
-    "mtime": 1793822824.204457,
-    "seen": 1793826877.3222969,
-    "ast_hash": "f473f55c31cfee479cf1d622cff7c8ce",
+    "mtime": 1793970400.969285,
+    "seen": 1793970529.911045,
+    "ast_hash": "473994b7790ba59f3cc2b4854836dc7f",
     "semantic_hash": ""
   },
   "src/games/masak/render/scene.ts": {
-    "mtime": 1793822824.204457,
-    "seen": 1793826877.3223016,
-    "ast_hash": "a46875dd29d527480b0bee4d77219c27",
+    "mtime": 1793970924.582327,
+    "seen": 1793971720.3085053,
+    "ast_hash": "3e9a7e2ef1da16bd8d55e1a4fec6b562",
     "semantic_hash": ""
   },
   "src/games/masak/round.ts": {
-    "mtime": 1793822824.2113824,
-    "seen": 1793826877.3223069,
-    "ast_hash": "6eb54032f1ea50230f68d18caa2e27e3",
+    "mtime": 1793970879.5602129,
+    "seen": 1793971720.3085217,
+    "ast_hash": "3817090a17032193ae3ab3c852ea385d",
     "semantic_hash": ""
   },
   "src/games/masak/sim/bots.ts": {
-    "mtime": 1793822824.2113824,
-    "seen": 1793826877.3223114,
-    "ast_hash": "d24e150aa9f1c1b6fa09b8e90b001da8",
+    "mtime": 1793970159.8210323,
+    "seen": 1793970529.9110854,
+    "ast_hash": "974733c93bb2935dcbe7ea0809dded7c",
     "semantic_hash": ""
   },
   "src/games/masak/sim/kitchen.test.ts": {
-    "mtime": 1793822824.2113824,
-    "seen": 1793826877.3223174,
-    "ast_hash": "c8cbf4b57cebdada5923e41d9df9e01f",
+    "mtime": 1793969571.2089171,
+    "seen": 1793969782.3865793,
+    "ast_hash": "03f976d65519cea8ec3dbf44a4582ec6",
     "semantic_hash": ""
   },
   "src/games/masak/sim/kitchen.ts": {
-    "mtime": 1793822824.2113824,
-    "seen": 1793826877.3223221,
-    "ast_hash": "835d755851ca7786a6c718d7cc97d822",
+    "mtime": 1793970247.3825653,
+    "seen": 1793970529.9110956,
+    "ast_hash": "2768bd87976c7a77a8401cc6609dcdec",
     "semantic_hash": ""
   },
   "src/games/masak/types.ts": {
-    "mtime": 1793822824.2206235,
-    "seen": 1793826877.322332,
-    "ast_hash": "5c3233f8739d5d6aa0c97b4ad08575a5",
+    "mtime": 1793833264.9562209,
+    "seen": 1793834290.868502,
+    "ast_hash": "850e832d437bc1939075add7254e29b6",
     "semantic_hash": ""
   },
   "src/games/masak/ui/Lobby.tsx": {
@@ -8982,9 +8982,9 @@
     "semantic_hash": ""
   },
   "src/games/masak/ui/MasakBoard.tsx": {
-    "mtime": 1793822824.2226224,
-    "seen": 1793826877.3223412,
-    "ast_hash": "9e2c7047449974b5f0c5903849a51dd4",
+    "mtime": 1793970987.783371,
+    "seen": 1793971720.3085668,
+    "ast_hash": "0fb762a995bc1a4d28aeedb4767782f7",
     "semantic_hash": ""
   },
   "src/games/masak/ui/copy.ts": {
@@ -9000,21 +9000,21 @@
     "semantic_hash": ""
   },
   "scripts/blender/masak_layouts.json": {
-    "mtime": 1793822823.3941042,
-    "seen": 1793826877.319936,
-    "ast_hash": "aa4f4e4a90c0306f96254818dd6875cb",
+    "mtime": 1793970293.8304133,
+    "seen": 1793970529.9090538,
+    "ast_hash": "3f60ae0bd38f85d2bb7840bd84252f63",
     "semantic_hash": ""
   },
   "scripts/blender/masak_lib.py": {
-    "mtime": 1793822823.3961186,
-    "seen": 1793826877.319942,
-    "ast_hash": "478ed7475dcebc690ab143aefb797d75",
+    "mtime": 1793967377.1069658,
+    "seen": 1793968542.2275927,
+    "ast_hash": "ab095edf1e237ca582d54196fd19416e",
     "semantic_hash": ""
   },
   "scripts/blender/masak_props.py": {
-    "mtime": 1793822823.3981318,
-    "seen": 1793826877.319951,
-    "ast_hash": "dcab2ff0bac27da1a9f87a6fbe9f1e73",
+    "mtime": 1793968267.0640848,
+    "seen": 1793968542.227603,
+    "ast_hash": "480698e3ab06c720b50911551334fb7e",
     "semantic_hash": ""
   },
   "scripts/masak-layout.mts": {
@@ -9024,129 +9024,129 @@
     "semantic_hash": ""
   },
   "src/assets/masak/maps/burger.json": {
-    "mtime": 1793822823.518379,
-    "seen": 1793826877.3210924,
-    "ast_hash": "044624f4f610ff461ec132550ca08946",
+    "mtime": 1793967490.6659,
+    "seen": 1793968542.2281897,
+    "ast_hash": "bd22f9b9d8c73d9a3fbc60b2e13b4e57",
     "semantic_hash": ""
   },
   "src/games/masak/sounds.ts": {
-    "mtime": 1793822824.2196217,
-    "seen": 1793826877.322327,
-    "ast_hash": "8f808bff7c38e6480a2160db99a6c1dc",
+    "mtime": 1793968764.4543076,
+    "seen": 1793969129.6090019,
+    "ast_hash": "62724342e6197f85e3364dab6b2a5a61",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/burger-lm.webp": {
-    "mtime": 1793822823.4211504,
-    "seen": 1793826877.326034,
-    "ast_hash": "301ed1af8b01353e995c9e02c25ac95e",
+    "mtime": 1793967456.0904398,
+    "seen": 1793968542.23137,
+    "ast_hash": "a1812edd4738e1dce0c1a2399b1335e0",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-api.ogg": {
-    "mtime": 1793822823.3649313,
-    "seen": 1793826877.327847,
-    "ast_hash": "d8acc759deff01a4d1ad7a4bad9fcbe7",
+    "mtime": 1793963611.4301138,
+    "seen": 1793964899.9432228,
+    "ast_hash": "ee27ba5ee50fef28589e7bc331cf734e",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-burnt.ogg": {
-    "mtime": 1793822823.3649313,
-    "seen": 1793826877.3278518,
-    "ast_hash": "617ec8e325745460a7ddde198a5a6e74",
+    "mtime": 1793963620.3510866,
+    "seen": 1793964899.9432287,
+    "ast_hash": "570b693796a7362fc02f264e2ae423f2",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-cuci.ogg": {
-    "mtime": 1793822823.3669689,
-    "seen": 1793826877.3278565,
-    "ast_hash": "4318a421980e5512c137adabd8bc09cf",
+    "mtime": 1793963613.0632086,
+    "seen": 1793964899.9432306,
+    "ast_hash": "437ff12930b3cd044c01555ac1f9c773",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-dash.ogg": {
-    "mtime": 1793822823.3669689,
-    "seen": 1793826877.3278615,
-    "ast_hash": "60265e5cd69b80ed90793bb2d4a92f87",
+    "mtime": 1793963613.9162047,
+    "seen": 1793964899.9432328,
+    "ast_hash": "bec1186526b0dd53b17861885e9225e8",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-desis.ogg": {
-    "mtime": 1793822823.368989,
-    "seen": 1793826877.3278666,
-    "ast_hash": "cd83b0adb6d02ec800deaa9b26e51bd9",
+    "mtime": 1793963611.0804074,
+    "seen": 1793964899.9432352,
+    "ast_hash": "05385bf0259e3c6ce621129a0478c2a2",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-grab.ogg": {
-    "mtime": 1793822823.3704846,
-    "seen": 1793826877.3278723,
-    "ast_hash": "950fdd4ef6fb3c270df367aadf25ae8b",
+    "mtime": 1793963619.8579283,
+    "seen": 1793964899.9432404,
+    "ast_hash": "38a25bacec34261ab8a4c8352e88fcf1",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-lose.ogg": {
-    "mtime": 1793822823.3712585,
-    "seen": 1793826877.327878,
-    "ast_hash": "40746704f64376d6207f25dd611421d6",
+    "mtime": 1793963621.4290707,
+    "seen": 1793964899.943246,
+    "ast_hash": "702c619b06ce5a7bfee439a611f57d37",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-missed.ogg": {
-    "mtime": 1793822823.3732712,
-    "seen": 1793826877.327883,
-    "ast_hash": "dd586d017e93765b8de506e2d2aae2c6",
+    "mtime": 1793963619.276578,
+    "seen": 1793964899.9432487,
+    "ast_hash": "6f8eb59b18f14321a7b9f05d8ba2e3a7",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-order.ogg": {
-    "mtime": 1793822823.3732712,
-    "seen": 1793826877.3278894,
-    "ast_hash": "292ff8e9d956335e1dad27a12ebb36bd",
+    "mtime": 1793963617.9223042,
+    "seen": 1793964899.9432526,
+    "ast_hash": "956eabe3e58ad545e021bd9b1d08abcd",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-potong.ogg": {
-    "mtime": 1793822823.3732712,
-    "seen": 1793826877.327895,
-    "ast_hash": "d3888b192b51614766c27d37ed50e4e3",
+    "mtime": 1793963610.6351624,
+    "seen": 1793964899.9432547,
+    "ast_hash": "f68ca605ae263ed96e1c4a9df1bb41c8",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-semprot.ogg": {
-    "mtime": 1793822823.3784528,
-    "seen": 1793826877.3279073,
-    "ast_hash": "bb71ab0f58ed1db7434b3668f96c6c74",
+    "mtime": 1793963612.130624,
+    "seen": 1793964899.9432592,
+    "ast_hash": "af7cb83f5abe168189d15697b782b6b1",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-served.ogg": {
-    "mtime": 1793822823.379971,
-    "seen": 1793826877.3279128,
-    "ast_hash": "9a25a4fe0a9bd8cfcc189b38a9f4aabf",
+    "mtime": 1793963617.3885336,
+    "seen": 1793964899.9432611,
+    "ast_hash": "806c4dbf5902528d8e12b5bd85d156b3",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-win.ogg": {
-    "mtime": 1793822823.38199,
-    "seen": 1793826877.3279233,
-    "ast_hash": "effa692e4cfb9ca69d35aaf31cabcb84",
+    "mtime": 1793963620.9549894,
+    "seen": 1793964899.9432662,
+    "ast_hash": "11ec8d0c7410d460022f392689c50219",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-wrong.ogg": {
-    "mtime": 1793822823.3829913,
-    "seen": 1793826877.327928,
-    "ast_hash": "d926a9071363fb98222ad4ca4fce2bb4",
+    "mtime": 1793963618.7077432,
+    "seen": 1793964899.943269,
+    "ast_hash": "fc0419153cc6fad2d8e662ead6811b08",
     "semantic_hash": ""
   },
   "public/audio/music/masak-tense.ogg": {
-    "mtime": 1793822823.333518,
-    "seen": 1793826877.3272188,
-    "ast_hash": "258dad0eec8e5922959b7bb3ca9740e8",
+    "mtime": 1793963605.6097255,
+    "seen": 1793964899.9428983,
+    "ast_hash": "06c3b3d39a11149b1ce7d160b6e39fe7",
     "semantic_hash": ""
   },
   "public/audio/music/masak.ogg": {
-    "mtime": 1793822823.3637493,
-    "seen": 1793826877.3272233,
-    "ast_hash": "3b21fe90c997b8c2dda317fdee6e9ae6",
+    "mtime": 1793963585.9741502,
+    "seen": 1793964899.9429004,
+    "ast_hash": "bebb7823f2150e86c22f329be75373e3",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-rebus.ogg": {
-    "mtime": 1793822823.3752868,
-    "seen": 1793826877.3279016,
-    "ast_hash": "afc73b9b1dd3540579314b018b1a276c",
+    "mtime": 1793963609.3522513,
+    "seen": 1793964899.9432569,
+    "ast_hash": "2b4b5c7db24594346b648d925c1d75c8",
     "semantic_hash": ""
   },
   "public/audio/sfx/masak-slip.ogg": {
-    "mtime": 1793822823.3809905,
-    "seen": 1793826877.3279178,
-    "ast_hash": "36eeb1e617759736d4ab382dacb3e4fc",
+    "mtime": 1793963614.4006562,
+    "seen": 1793964899.9432638,
+    "ast_hash": "ba509f42ab7d349a63b3740951f93daa",
     "semantic_hash": ""
   },
   "scripts/blender/masak_isi.py": {
@@ -9186,51 +9186,51 @@
     "semantic_hash": ""
   },
   "src/assets/masak/maps/pizza.json": {
-    "mtime": 1793822823.8871524,
-    "seen": 1793826877.321113,
+    "mtime": 1793967579.095235,
+    "seen": 1793968542.2282107,
     "ast_hash": "f13ff2323f19ea486593dc2f19d0e175",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/ramen.json": {
-    "mtime": 1793822823.964207,
-    "seen": 1793826877.3211174,
+    "mtime": 1793967746.3614519,
+    "seen": 1793968542.2282164,
     "ast_hash": "c5b716981a8958e1f58e0ea87e607215",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/sushi.json": {
-    "mtime": 1793822824.0448031,
-    "seen": 1793826877.3211224,
+    "mtime": 1793967656.605633,
+    "seen": 1793968542.2282214,
     "ast_hash": "524b9304b08cc321c98a5c0bdeb4955c",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/taco.json": {
-    "mtime": 1793822824.1412463,
-    "seen": 1793826877.3211267,
+    "mtime": 1793967865.0685248,
+    "seen": 1793968542.2282262,
     "ast_hash": "ec0e1ad6d57299d27ec82bc785f6f1a1",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/pizza-lm.webp": {
-    "mtime": 1793822823.7821066,
-    "seen": 1793826877.326057,
-    "ast_hash": "e7e40ab546779acc7b36e2578dff6976",
+    "mtime": 1793967546.676611,
+    "seen": 1793968542.2313948,
+    "ast_hash": "1cec1c8871680966df9e246b717d662d",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/ramen-lm.webp": {
-    "mtime": 1793822823.8891525,
-    "seen": 1793826877.3260627,
-    "ast_hash": "b38d0727a87f7d93953eb0a9f1227dac",
+    "mtime": 1793967711.3854313,
+    "seen": 1793968542.2314003,
+    "ast_hash": "cad31052345e5d4f862bd61e32d4ce38",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/sushi-lm.webp": {
-    "mtime": 1793822823.9667377,
-    "seen": 1793826877.3260677,
-    "ast_hash": "ec1231276a250f974bdeeecb731b6768",
+    "mtime": 1793967623.052289,
+    "seen": 1793968542.231406,
+    "ast_hash": "4c41ccecd315987d6e35e268db4be3cf",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/taco-lm.webp": {
-    "mtime": 1793822824.0527382,
-    "seen": 1793826877.3260722,
-    "ast_hash": "6c92fde2616eb15b15242ec0786410f3",
+    "mtime": 1793967833.1435072,
+    "seen": 1793968542.2314112,
+    "ast_hash": "9cf0ba414d2d0bc2971c95aa15a090e8",
     "semantic_hash": ""
   },
   "scripts/blender/masak_es.py": {
@@ -9252,39 +9252,39 @@
     "semantic_hash": ""
   },
   "src/assets/masak/maps/es.json": {
-    "mtime": 1793822823.580811,
-    "seen": 1793826877.321098,
+    "mtime": 1793967944.2967508,
+    "seen": 1793968542.2281957,
     "ast_hash": "3b9d28c9eeac2c4f51e801873491344d",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/kapal.json": {
-    "mtime": 1793822823.6791337,
-    "seen": 1793826877.3211029,
+    "mtime": 1793968058.1552374,
+    "seen": 1793968542.2282002,
     "ast_hash": "655dc34802a7112d8aaf4eea90ad8e05",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/lava.json": {
-    "mtime": 1793822823.778185,
-    "seen": 1793826877.3211079,
+    "mtime": 1793968126.668928,
+    "seen": 1793968542.2282052,
     "ast_hash": "6bf7b9422c4fe6d08595453d89236ccf",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/es-lm.webp": {
-    "mtime": 1793822823.5213783,
-    "seen": 1793826877.3260405,
-    "ast_hash": "be6e2125cb6e75ce0d840df087faa6ca",
+    "mtime": 1793967923.6749995,
+    "seen": 1793968542.231377,
+    "ast_hash": "5265c26540bd78a1b79f6753fb75af9d",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/kapal-lm.webp": {
-    "mtime": 1793822823.5833192,
-    "seen": 1793826877.3260462,
-    "ast_hash": "c734325e65d6c7ee11ac5487b6d1dd92",
+    "mtime": 1793968030.1684325,
+    "seen": 1793968542.2313821,
+    "ast_hash": "00b66ae3da81fd8524afa6d31c509bbe",
     "semantic_hash": ""
   },
   "src/assets/masak/maps/lava-lm.webp": {
-    "mtime": 1793822823.6811492,
-    "seen": 1793826877.3260515,
-    "ast_hash": "d6e47b69cf17821195e56c4ce159dd9f",
+    "mtime": 1793968097.7844021,
+    "seen": 1793968542.2313879,
+    "ast_hash": "b4d982e1ed0d8acc4b564fa18c0e2ddf",
     "semantic_hash": ""
   },
   "scripts/blender/masak.py": {
@@ -9390,14 +9390,14 @@
     "semantic_hash": ""
   },
   "scripts/puncak-terrain.mts": {
-    "mtime": 1793826197.3819337,
-    "seen": 1793826877.3201702,
-    "ast_hash": "6f079233b6bb4dff8642796e13547f05",
+    "mtime": 1793831252.953739,
+    "seen": 1793834290.8672078,
+    "ast_hash": "30bfa85dac2c88868402259c48edccfc",
     "semantic_hash": ""
   },
   "scripts/puncak_tex.py": {
-    "mtime": 1793829597.7138915,
-    "seen": 1793830978.7459192,
+    "mtime": 1793831252.953739,
+    "seen": 1793834290.8672101,
     "ast_hash": "7525d3d5c9542e0bba324c8a0c8ae065",
     "semantic_hash": ""
   },
@@ -9468,9 +9468,9 @@
     "semantic_hash": ""
   },
   "src/components/controls/TapButton.tsx": {
-    "mtime": 1793826542.4759104,
-    "seen": 1793826877.3217082,
-    "ast_hash": "75cf23fa21a0029518e79c14828dd1eb",
+    "mtime": 1793831253.1781695,
+    "seen": 1793834290.868015,
+    "ast_hash": "b3efe9de343580c33ea2bc6f49b4927c",
     "semantic_hash": ""
   },
   "src/games/jinak/engine.test.ts": {
@@ -9552,14 +9552,14 @@
     "semantic_hash": ""
   },
   "src/games/puncak/dev/tile.ts": {
-    "mtime": 1793828005.88422,
-    "seen": 1793829489.2991397,
+    "mtime": 1793831253.1796966,
+    "seen": 1793834290.8686817,
     "ast_hash": "b2379ff46e7d1d887ecd25ddb2b7eb6f",
     "semantic_hash": ""
   },
   "src/games/puncak/engine.ts": {
-    "mtime": 1793827281.3802316,
-    "seen": 1793827935.6334739,
+    "mtime": 1793831253.1818516,
+    "seen": 1793834290.8686848,
     "ast_hash": "d1d9c166fab9224a6a5583e349e55813",
     "semantic_hash": ""
   },
@@ -9582,21 +9582,21 @@
     "semantic_hash": ""
   },
   "src/games/puncak/render/props.ts": {
-    "mtime": 1793828591.5934105,
-    "seen": 1793829489.2991688,
+    "mtime": 1793831253.188207,
+    "seen": 1793834290.86871,
     "ast_hash": "9f2d7c4063f8a3f2b40a407481523d8b",
     "semantic_hash": ""
   },
   "src/games/puncak/render/scene.ts": {
-    "mtime": 1793829919.5178618,
-    "seen": 1793830978.7472723,
+    "mtime": 1793831253.192024,
+    "seen": 1793834290.8687148,
     "ast_hash": "c4def5528d5d9526ef9452bdec458604",
     "semantic_hash": ""
   },
   "src/games/puncak/render/terrain.ts": {
-    "mtime": 1793830439.9528744,
-    "seen": 1793830978.747275,
-    "ast_hash": "e903ec86a66d92c1eabf82f773f07917",
+    "mtime": 1793831253.1930196,
+    "seen": 1793834290.8687172,
+    "ast_hash": "72a26ec0562db02be0b9c89cc77be724",
     "semantic_hash": ""
   },
   "src/games/puncak/render/textures.ts": {
@@ -9606,8 +9606,8 @@
     "semantic_hash": ""
   },
   "src/games/puncak/round.ts": {
-    "mtime": 1793829919.5154266,
-    "seen": 1793830978.7472808,
+    "mtime": 1793831253.1950357,
+    "seen": 1793834290.8687232,
     "ast_hash": "4b6e708cfc8174380e55dacdc5041bbd",
     "semantic_hash": ""
   },
@@ -9618,21 +9618,21 @@
     "semantic_hash": ""
   },
   "src/games/puncak/sim/climb.test.ts": {
-    "mtime": 1793825810.367443,
-    "seen": 1793826877.3225718,
+    "mtime": 1793831253.2001634,
+    "seen": 1793834290.868729,
     "ast_hash": "dd8d9fae428d7bdd2dce293f7a901fcc",
     "semantic_hash": ""
   },
   "src/games/puncak/sim/climb.ts": {
-    "mtime": 1793828760.054221,
-    "seen": 1793829489.2991898,
+    "mtime": 1793831253.2027,
+    "seen": 1793834290.868732,
     "ast_hash": "72381b9806127c495164ccc56141f3e8",
     "semantic_hash": ""
   },
   "src/games/puncak/sim/hazards.ts": {
-    "mtime": 1793828759.7503493,
-    "seen": 1793829489.2991917,
-    "ast_hash": "80048bd8f8becb62e6b7f44b2508abb4",
+    "mtime": 1793831253.2036989,
+    "seen": 1793834290.8687341,
+    "ast_hash": "d6d1b38ac9d280a4da9e210d85f51987",
     "semantic_hash": ""
   },
   "src/games/puncak/sim/items.ts": {
@@ -9654,26 +9654,26 @@
     "semantic_hash": ""
   },
   "src/games/puncak/sim/terrain.test.ts": {
-    "mtime": 1793826227.4022126,
-    "seen": 1793826877.322595,
+    "mtime": 1793831253.2047,
+    "seen": 1793834290.8687446,
     "ast_hash": "f50e99bf49dfc475f445e8c6a97e8728",
     "semantic_hash": ""
   },
   "src/games/puncak/sim/terrain.ts": {
-    "mtime": 1793826301.3162744,
-    "seen": 1793826877.322599,
+    "mtime": 1793831253.2085953,
+    "seen": 1793834290.868747,
     "ast_hash": "f7c999b84b8eda3441199fee80cee860",
     "semantic_hash": ""
   },
   "src/games/puncak/sounds.ts": {
-    "mtime": 1793828943.8050508,
-    "seen": 1793829489.2992089,
-    "ast_hash": "29bd29e89264824d34238debeaaf3370",
+    "mtime": 1793831253.2103267,
+    "seen": 1793834290.8687525,
+    "ast_hash": "f7644d935e3f0b530fbe5c16d2b3cc15",
     "semantic_hash": ""
   },
   "src/games/puncak/types.ts": {
-    "mtime": 1793827281.3802316,
-    "seen": 1793827935.6335297,
+    "mtime": 1793831253.2118409,
+    "seen": 1793834290.868755,
     "ast_hash": "6a99388ed87cf1813f58e079791d1060",
     "semantic_hash": ""
   },
@@ -9684,9 +9684,9 @@
     "semantic_hash": ""
   },
   "src/games/puncak/ui/PuncakBoard.tsx": {
-    "mtime": 1793830775.8751416,
-    "seen": 1793830978.7473207,
-    "ast_hash": "856135e315eaa4b761e2abf4206db668",
+    "mtime": 1793831253.2159412,
+    "seen": 1793834290.8687634,
+    "ast_hash": "9c56608d494da36d6f2752b9c65742c1",
     "semantic_hash": ""
   },
   "src/games/puncak/ui/copy.ts": {
@@ -10164,44 +10164,44 @@
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/air_n.webp": {
-    "mtime": 1793829705.6131477,
-    "seen": 1793830978.7500777,
+    "mtime": 1793831253.0532,
+    "seen": 1793834290.8713655,
     "ast_hash": "85cf1844d6ca66c4bcf823b91031cd9c",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/awan.webp": {
-    "mtime": 1793829706.428554,
-    "seen": 1793830978.7500842,
+    "mtime": 1793831253.0562253,
+    "seen": 1793834290.871368,
     "ast_hash": "4268c166a21b2bed55f34263d4069385",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/batu_d.webp": {
-    "mtime": 1793829616.7888088,
-    "seen": 1793830978.7500894,
+    "mtime": 1793831253.05874,
+    "seen": 1793834290.8713708,
     "ast_hash": "e10cc552c0650c6f83d6d7b9669dd85e",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/batu_n.webp": {
-    "mtime": 1793829617.7744086,
-    "seen": 1793830978.7500947,
+    "mtime": 1793831253.0654323,
+    "seen": 1793834290.8713734,
     "ast_hash": "962440dc60daecb738d4c1c77fdbe988",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/daun.webp": {
-    "mtime": 1793829703.6501064,
-    "seen": 1793830978.7500997,
+    "mtime": 1793831253.0680366,
+    "seen": 1793834290.8713758,
     "ast_hash": "59430f40643bebf1fec0a47fa9c93d73",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/es_d.webp": {
-    "mtime": 1793829631.2110584,
-    "seen": 1793830978.7501047,
+    "mtime": 1793831253.0701046,
+    "seen": 1793834290.8713782,
     "ast_hash": "f989975f5617bdb3ffa798bbc20262bd",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/es_n.webp": {
-    "mtime": 1793829632.037889,
-    "seen": 1793830978.7501097,
+    "mtime": 1793831253.0740392,
+    "seen": 1793834290.8713813,
     "ast_hash": "dfbafa1dc2a1cc190002dbcc62640d97",
     "semantic_hash": ""
   },
@@ -10212,134 +10212,134 @@
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/kerikil_d.webp": {
-    "mtime": 1793829644.3096273,
-    "seen": 1793830978.7501223,
+    "mtime": 1793831253.0749874,
+    "seen": 1793834290.8713875,
     "ast_hash": "2ec0e2ef6b274a6c447cf15e8084e729",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/kerikil_n.webp": {
-    "mtime": 1793829645.200782,
-    "seen": 1793830978.7501276,
+    "mtime": 1793831253.0821476,
+    "seen": 1793834290.87139,
     "ast_hash": "2ad7ee6ee69c960ec80df390250c048d",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/kristal_d.webp": {
-    "mtime": 1793829638.2038863,
-    "seen": 1793830978.750133,
+    "mtime": 1793831253.083662,
+    "seen": 1793834290.8713925,
     "ast_hash": "076a91ad818a52fda2257c38ecbe5b07",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/kristal_n.webp": {
-    "mtime": 1793829638.6823022,
-    "seen": 1793830978.750139,
+    "mtime": 1793831253.088049,
+    "seen": 1793834290.8713946,
     "ast_hash": "c7278b69a7ddebf3d4ee00736c0af373",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/kulit_kayu_d.webp": {
-    "mtime": 1793829647.7678325,
-    "seen": 1793830978.750144,
+    "mtime": 1793831253.0905826,
+    "seen": 1793834290.871397,
     "ast_hash": "2566da60f828a74e5b4fc9fc645970b2",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/kulit_kayu_n.webp": {
-    "mtime": 1793829648.7073712,
-    "seen": 1793830978.7501488,
+    "mtime": 1793831253.0960176,
+    "seen": 1793834290.8713994,
     "ast_hash": "5d9dee1c37103c95a05e45027dc191a0",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/lumut_d.webp": {
-    "mtime": 1793829624.668769,
-    "seen": 1793830978.7501535,
+    "mtime": 1793831253.0990214,
+    "seen": 1793834290.871402,
     "ast_hash": "569caa11a671f21edf3d21a5ba5b0676",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/lumut_n.webp": {
-    "mtime": 1793829625.3715649,
-    "seen": 1793830978.7501593,
+    "mtime": 1793831253.1025584,
+    "seen": 1793834290.8714046,
     "ast_hash": "785c1bec9fb934bc704db0045bc7c2d4",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/pasir_d.webp": {
-    "mtime": 1793829609.8026743,
-    "seen": 1793830978.7501643,
+    "mtime": 1793831253.106881,
+    "seen": 1793834290.871407,
     "ast_hash": "f43781250479f5e1eba8647e6d53db6d",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/pasir_n.webp": {
-    "mtime": 1793829610.9578366,
-    "seen": 1793830978.7501686,
+    "mtime": 1793831253.11651,
+    "seen": 1793834290.8714097,
     "ast_hash": "b022479abed08cd3bf856633d463fbe7",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/rumput_d.webp": {
-    "mtime": 1793829602.3687792,
-    "seen": 1793830978.750173,
+    "mtime": 1793831253.1241255,
+    "seen": 1793834290.8714123,
     "ast_hash": "f380de0ffcad18e21b1c45d8422fd61a",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/rumput_n.webp": {
-    "mtime": 1793829603.3974464,
-    "seen": 1793830978.7501779,
+    "mtime": 1793831253.1328158,
+    "seen": 1793834290.8714151,
     "ast_hash": "cbbcc11537a833f56bdb44545ff801bf",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/salju_d.webp": {
-    "mtime": 1793829626.8479886,
-    "seen": 1793830978.7501822,
+    "mtime": 1793831253.1354022,
+    "seen": 1793834290.8714175,
     "ast_hash": "b937b0b937878a18ba077f9aec5773fe",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/salju_n.webp": {
-    "mtime": 1793829627.5335765,
-    "seen": 1793830978.7501872,
+    "mtime": 1793831253.13793,
+    "seen": 1793834290.87142,
     "ast_hash": "0289e5714c5a5adb48cb0ca49cbaa144",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/tanah_d.webp": {
-    "mtime": 1793829606.4704232,
-    "seen": 1793830978.7501922,
+    "mtime": 1793831253.1400473,
+    "seen": 1793834290.8714223,
     "ast_hash": "f1ec5bb5b1998652d606a4461305509e",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/tanah_n.webp": {
-    "mtime": 1793829607.3156435,
-    "seen": 1793830978.7501962,
+    "mtime": 1793831253.1478257,
+    "seen": 1793834290.871424,
     "ast_hash": "c73afaa741013ff3c3a26aa159f6dee4",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/tebing_d.webp": {
-    "mtime": 1793829622.083508,
-    "seen": 1793830978.7502003,
+    "mtime": 1793831253.153482,
+    "seen": 1793834290.8714268,
     "ast_hash": "8b01a4ccde2ae7d6b75fd08daa6198f2",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/tebing_n.webp": {
-    "mtime": 1793829623.0755203,
-    "seen": 1793830978.7502053,
+    "mtime": 1793831253.1628923,
+    "seen": 1793834290.8714294,
     "ast_hash": "91bd5f976ccf34c4d881e545d8f1a1ea",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/teh_d.webp": {
-    "mtime": 1793829641.0265653,
-    "seen": 1793830978.750209,
+    "mtime": 1793831253.1659617,
+    "seen": 1793834290.8714316,
     "ast_hash": "bdc1253749676d9662a2fc03821e3b8b",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/teh_n.webp": {
-    "mtime": 1793829641.7746713,
-    "seen": 1793830978.7502131,
+    "mtime": 1793831253.170077,
+    "seen": 1793834290.8714345,
     "ast_hash": "8f2a26a51b17b24c159c95f2bb99d704",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/vulkanik_d.webp": {
-    "mtime": 1793829635.4073539,
-    "seen": 1793830978.750218,
+    "mtime": 1793831253.1720746,
+    "seen": 1793834290.871437,
     "ast_hash": "1825d8e5370064d10f00feb301132d5a",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/vulkanik_n.webp": {
-    "mtime": 1793829636.1843042,
-    "seen": 1793830978.7502227,
+    "mtime": 1793831253.1756735,
+    "seen": 1793834290.8714397,
     "ast_hash": "a0964c1d9afd6fff0beab5a2361f5415",
     "semantic_hash": ""
   },
@@ -10932,27 +10932,27 @@
     "semantic_hash": ""
   },
   "scripts/blender/puncak_chars.py": {
-    "mtime": 1793827164.5596032,
-    "seen": 1793827935.6321585,
+    "mtime": 1793831252.9502058,
+    "seen": 1793834290.8671255,
     "ast_hash": "2ddb7e554887fd088fb7669a30f7b73b",
     "semantic_hash": ""
   },
   "src/games/puncak/look.ts": {
-    "mtime": 1793827265.937067,
-    "seen": 1793827935.6334796,
-    "ast_hash": "b20c0679cef28682c529489ebf191459",
+    "mtime": 1793831253.1818516,
+    "seen": 1793834290.8686907,
+    "ast_hash": "289457f9b452da2c17509188431106ad",
     "semantic_hash": ""
   },
   "src/games/puncak/render/climber.ts": {
-    "mtime": 1793829864.7857244,
-    "seen": 1793830978.747249,
+    "mtime": 1793831253.1838706,
+    "seen": 1793834290.8686962,
     "ast_hash": "a5675398c0bfcf381c9dbfeedc67610f",
     "semantic_hash": ""
   },
   "src/games/puncak/ui/LookMaker.tsx": {
-    "mtime": 1793827412.807516,
-    "seen": 1793827935.6335347,
-    "ast_hash": "0e73d052de038aafe11bdfc6eb2780c1",
+    "mtime": 1793831253.2138562,
+    "seen": 1793834290.8687606,
+    "ast_hash": "1527008da0a17dedae38e8674d94d05e",
     "semantic_hash": ""
   },
   "review/puncak-v2/editor-gaya.png": {
@@ -10980,26 +10980,26 @@
     "semantic_hash": ""
   },
   "scripts/blender/puncak_props.py": {
-    "mtime": 1793828591.5918913,
-    "seen": 1793829489.2969005,
+    "mtime": 1793831252.9517188,
+    "seen": 1793834290.8671286,
     "ast_hash": "92e579c42736f506b3140c633db97240",
     "semantic_hash": ""
   },
   "src/games/puncak/render/life.ts": {
-    "mtime": 1793828816.1131847,
-    "seen": 1793829489.2991624,
-    "ast_hash": "5d62568bee11c442d7349aced2cc6b4f",
+    "mtime": 1793831253.186143,
+    "seen": 1793834290.868705,
+    "ast_hash": "9f59d62247ce3e12234c3e9b2954af4f",
     "semantic_hash": ""
   },
   "src/games/puncak/render/models.ts": {
-    "mtime": 1793829864.7924142,
-    "seen": 1793830978.7472634,
+    "mtime": 1793831253.186143,
+    "seen": 1793834290.868708,
     "ast_hash": "a86c92e8d833dc96565252d81a4744fa",
     "semantic_hash": ""
   },
   "src/games/puncak/sim/weather.test.ts": {
-    "mtime": 1793829082.3367972,
-    "seen": 1793829489.299207,
+    "mtime": 1793831253.2093115,
+    "seen": 1793834290.8687499,
     "ast_hash": "3f47970d1fa6742b97077921c9f243f1",
     "semantic_hash": ""
   },
@@ -11016,15 +11016,15 @@
     "semantic_hash": ""
   },
   "src/games/puncak/render/ink.ts": {
-    "mtime": 1793829864.6255744,
-    "seen": 1793830978.7472558,
-    "ast_hash": "3fa89e9fd15c40cca2ba259a63c19739",
+    "mtime": 1793831253.1851249,
+    "seen": 1793834290.8687022,
+    "ast_hash": "a7de2c3fc0c06055dfb20a1c6e42525a",
     "semantic_hash": ""
   },
   "src/games/puncak/render/quality.ts": {
-    "mtime": 1793829919.3144586,
-    "seen": 1793830978.7472692,
-    "ast_hash": "ffe548c6c4cd7d11c808ee573f6c83d9",
+    "mtime": 1793831253.1902206,
+    "seen": 1793834290.8687122,
+    "ast_hash": "839cacaa231742abbe657042e327df7a",
     "semantic_hash": ""
   },
   "review/puncak-v2/garis-tinta.png": {
@@ -11055,6 +11055,474 @@
     "mtime": 1793830909.447426,
     "seen": 1793830978.748897,
     "ast_hash": "5cfc5eec643d0511cbb1dcecf30cf7aa",
+    "semantic_hash": ""
+  },
+  "scripts/blender/masak_koki.py": {
+    "mtime": 1793971397.6233432,
+    "seen": 1793971720.3056428,
+    "ast_hash": "710e3904d3e496b58e6b393db2a61323",
+    "semantic_hash": ""
+  },
+  "src/games/masak/engine.test.ts": {
+    "mtime": 1793833614.9427245,
+    "seen": 1793834290.8683488,
+    "ast_hash": "c35a3250d2c55800295e4cbd217d6df2",
+    "semantic_hash": ""
+  },
+  "src/games/masak/render/koki.ts": {
+    "mtime": 1793970839.3435032,
+    "seen": 1793971720.3084927,
+    "ast_hash": "9b6856730958eddf2033667afde3c294",
+    "semantic_hash": ""
+  },
+  "review/koki-hewan-draf1.png": {
+    "mtime": 1793832905.1136286,
+    "seen": 1793834290.870738,
+    "ast_hash": "89db7cb186c1b138cea07e57f32782eb",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/dapur-zoom.png": {
+    "mtime": 1793834036.8844154,
+    "seen": 1793834290.870742,
+    "ast_hash": "6a06f20b4315e25f7d0b409a8382f45f",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/dapur.png": {
+    "mtime": 1793834019.0107174,
+    "seen": 1793834290.8707452,
+    "ast_hash": "3a2b0d7fb2c32bc6e280ad756110272c",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/koki-depan.png": {
+    "mtime": 1793834037.0370386,
+    "seen": 1793834290.8707469,
+    "ast_hash": "5b87fd3f3bf92cd7267773bb870dfe53",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/pilih.png": {
+    "mtime": 1793834116.2736783,
+    "seen": 1793834290.8707492,
+    "ast_hash": "3ca1da46f61292024d2c8e6c07e55041",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/koki/ayam.webp": {
+    "mtime": 1793834098.879172,
+    "seen": 1793834290.8711839,
+    "ast_hash": "0cc27c79046631944d68733e8d453d89",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/koki/bebek.webp": {
+    "mtime": 1793834098.6697922,
+    "seen": 1793834290.8711872,
+    "ast_hash": "5db9c82bcdd7c88383c421b3630d7f64",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/koki/beruang.webp": {
+    "mtime": 1793834098.6174624,
+    "seen": 1793834290.8711894,
+    "ast_hash": "a2797cb6850f4a1b060adfb2ebd0ab28",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/koki/kelinci.webp": {
+    "mtime": 1793834098.8389194,
+    "seen": 1793834290.8711913,
+    "ast_hash": "ead99692fe31f8cde537230a66c7ef66",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/koki/kodok.webp": {
+    "mtime": 1793834098.7144008,
+    "seen": 1793834290.8711934,
+    "ast_hash": "200ae19204643b1577842378b09010e8",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/koki/kucing.webp": {
+    "mtime": 1793834098.5784652,
+    "seen": 1793834290.871195,
+    "ast_hash": "454c9a3fa72ca93ea0beb6efbc77b77c",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/koki/panda.webp": {
+    "mtime": 1793834098.7515154,
+    "seen": 1793834290.871197,
+    "ast_hash": "d2cdf6be59ea2234c777b6f767d7e4ea",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/koki/rubah.webp": {
+    "mtime": 1793834098.7898498,
+    "seen": 1793834290.871199,
+    "ast_hash": "28ac101b587dc550a2a9d4c808d12bce",
+    "semantic_hash": ""
+  },
+  "src/games/masak/render/icons.ts": {
+    "mtime": 1793963651.6223948,
+    "seen": 1793964899.9402347,
+    "ast_hash": "b1f256d82cece66587f762c61e637db5",
+    "semantic_hash": ""
+  },
+  "src/games/masak/ui/Hud.tsx": {
+    "mtime": 1793970987.7807007,
+    "seen": 1793971720.308556,
+    "ast_hash": "d829c9455fc749bfdc15a5a90e5f96a0",
+    "semantic_hash": ""
+  },
+  "src/games/masak/ui/tools.ts": {
+    "mtime": 1793963685.405808,
+    "seen": 1793964899.9402742,
+    "ast_hash": "ef50548b2ea1ad2ca41c6f809aac1bc1",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/habis.png": {
+    "mtime": 1793964625.128409,
+    "seen": 1793964899.9418197,
+    "ast_hash": "259ffeb13337604b791b3e35fcb5837f",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/hitung.png": {
+    "mtime": 1793964667.4022496,
+    "seen": 1793964899.9418225,
+    "ast_hash": "f7e1ebaef9f4b13184f82026a88998b3",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/kartu.png": {
+    "mtime": 1793964705.284742,
+    "seen": 1793964899.941825,
+    "ast_hash": "e568c7ce028ac34a5019f0686b933330",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/main.png": {
+    "mtime": 1793964454.7104373,
+    "seen": 1793964899.9418309,
+    "ast_hash": "464c4a19203140773921ce2317123f19",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/masak-bip.ogg": {
+    "mtime": 1793963615.2784166,
+    "seen": 1793964899.9432256,
+    "ast_hash": "1ac11717ea7b1b13249a82e9cfa0e6a3",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/masak-ding.ogg": {
+    "mtime": 1793963614.8729022,
+    "seen": 1793964899.9432373,
+    "ast_hash": "02f6095915718bcc6de474af18dbd220",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/masak-hitung.ogg": {
+    "mtime": 1793963615.8570762,
+    "seen": 1793964899.9432425,
+    "ast_hash": "7c7baf733510ec00f35b1c7b6b871831",
+    "semantic_hash": ""
+  },
+  "public/audio/sfx/masak-mulai.ogg": {
+    "mtime": 1793963616.4216614,
+    "seen": 1793964899.9432504,
+    "ast_hash": "bb829a73b6917136d38c885298d142d2",
+    "semantic_hash": ""
+  },
+  "scripts/blender/masak_luar.py": {
+    "mtime": 1793966650.5144107,
+    "seen": 1793966990.8805697,
+    "ast_hash": "c9f6c33f6aabc950bd3e494165eb6e29",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/burger-luar.json": {
+    "mtime": 1793966373.160048,
+    "seen": 1793966990.881693,
+    "ast_hash": "d9f554b1d00af31b13dd8f05fbea51f6",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/es-luar.json": {
+    "mtime": 1793966121.9648113,
+    "seen": 1793966990.881704,
+    "ast_hash": "52499402fa47673eb0e3c7baa0cac9bb",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/kapal-luar.json": {
+    "mtime": 1793966265.9133146,
+    "seen": 1793966990.8817139,
+    "ast_hash": "a38e3f01fb4b9a47c6ff3bf9b52d5883",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/lava-luar.json": {
+    "mtime": 1793966317.9804738,
+    "seen": 1793966990.8817234,
+    "ast_hash": "293869f05c0de94416e5e41f34a91a69",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/pizza-luar.json": {
+    "mtime": 1793966718.674774,
+    "seen": 1793966990.881732,
+    "ast_hash": "d077902d5fa266579f0515e52be5fefb",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/ramen-luar.json": {
+    "mtime": 1793965904.3390996,
+    "seen": 1793966990.8817413,
+    "ast_hash": "80db8a1a9e1f508a46a3bd2e1ed5b172",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/sushi-luar.json": {
+    "mtime": 1793965819.0569315,
+    "seen": 1793966990.881752,
+    "ast_hash": "eb960b28a986705184496b5d2e7e4f41",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/taco-luar.json": {
+    "mtime": 1793965973.6771474,
+    "seen": 1793966990.8817604,
+    "ast_hash": "ac42a1c9b4adf14f750c7fbfd83c843d",
+    "semantic_hash": ""
+  },
+  "src/games/masak/render/shaders.ts": {
+    "mtime": 1793965421.5918567,
+    "seen": 1793966990.8830473,
+    "ast_hash": "47f08a60ec08a6cdb60b277fb07e17e2",
+    "semantic_hash": ""
+  },
+  "src/games/masak/render/world.ts": {
+    "mtime": 1793970818.5979285,
+    "seen": 1793971720.3085165,
+    "ast_hash": "74ac17783c5d79ea455944c9df893baf",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar-burger.png": {
+    "mtime": 1793966200.4592683,
+    "seen": 1793966990.886486,
+    "ast_hash": "3ceeb31fed6d89be5ad8b9d7fd29adf6",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar-sebelum/burger.png": {
+    "mtime": 1793965010.8222992,
+    "seen": 1793966990.886493,
+    "ast_hash": "79bb18021cebf8c2dc911a38c0562ef2",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar-sebelum/es.png": {
+    "mtime": 1793965108.698624,
+    "seen": 1793966990.886499,
+    "ast_hash": "412a0184201279c70ef493eca1109d48",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar-sebelum/kapal.png": {
+    "mtime": 1793965127.6177223,
+    "seen": 1793966990.8865032,
+    "ast_hash": "3ee4c7d7ed2cb613f7ab62ddee196c8b",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar-sebelum/lava.png": {
+    "mtime": 1793965148.2194698,
+    "seen": 1793966990.8865087,
+    "ast_hash": "b43356a0970a6358b83ac93f232a0399",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar-sebelum/pizza.png": {
+    "mtime": 1793965030.5221832,
+    "seen": 1793966990.8865135,
+    "ast_hash": "d1f6e1a7ade3a3aaa933d202a4973418",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar-sebelum/ramen.png": {
+    "mtime": 1793965070.744164,
+    "seen": 1793966990.8865175,
+    "ast_hash": "503e900b3ff23920c8f100d8d3043b2d",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar-sebelum/semua.png": {
+    "mtime": 1793965151.0862064,
+    "seen": 1793966990.886522,
+    "ast_hash": "edcd10fba9d6355f203e3a7861ae5afd",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar-sebelum/sushi.png": {
+    "mtime": 1793965050.5551765,
+    "seen": 1793966990.8865256,
+    "ast_hash": "3e4ce2124f1b386a57af1934bf5acd61",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar-sebelum/taco.png": {
+    "mtime": 1793965089.335198,
+    "seen": 1793966990.8865304,
+    "ast_hash": "f589e2de3683db1f5d82f0bb0a631834",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar/burger.png": {
+    "mtime": 1793966413.404892,
+    "seen": 1793966990.8865345,
+    "ast_hash": "1188c7c625380aabeca5add9c541dcd5",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar/es.png": {
+    "mtime": 1793966560.227732,
+    "seen": 1793966990.8865387,
+    "ast_hash": "253a4cbfabde11147cdc65bfee7985d0",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar/kapal.png": {
+    "mtime": 1793966586.8161826,
+    "seen": 1793966990.8865426,
+    "ast_hash": "76e11a6f2bc099c7c774e182b207687b",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar/lava.png": {
+    "mtime": 1793966627.0795932,
+    "seen": 1793966990.8865461,
+    "ast_hash": "9c3fc4bfb80fdad997a5b8ec0282b740",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar/pizza.png": {
+    "mtime": 1793966441.7787323,
+    "seen": 1793966990.88655,
+    "ast_hash": "15b80d900f8e94fa65a7be5218944eb3",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar/ramen.png": {
+    "mtime": 1793966506.0176327,
+    "seen": 1793966990.8865533,
+    "ast_hash": "4767592c8e77874b7f1972de169137a3",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar/semua.png": {
+    "mtime": 1793966629.6891563,
+    "seen": 1793966990.8865564,
+    "ast_hash": "5ea734b859393326ad0fc660b83ed9d5",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar/sushi.png": {
+    "mtime": 1793966470.5078382,
+    "seen": 1793966990.88656,
+    "ast_hash": "0083b2f04c471cef8b4c1b1a63b895e9",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/luar/taco.png": {
+    "mtime": 1793966534.1933768,
+    "seen": 1793966990.8865638,
+    "ast_hash": "ab1459810506c861e52dbcc4422b7870",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/burger-luar-lm.webp": {
+    "mtime": 1793966365.4686365,
+    "seen": 1793966990.8875082,
+    "ast_hash": "927adad27508de4e3a3d17f3e185dcb4",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/es-luar-lm.webp": {
+    "mtime": 1793966113.7730782,
+    "seen": 1793966990.8875186,
+    "ast_hash": "fa3912d196305581050baa4dfc7e1030",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/kapal-luar-lm.webp": {
+    "mtime": 1793966259.5046053,
+    "seen": 1793966990.88753,
+    "ast_hash": "494f870907910e5351754426fa6d9e02",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/lava-luar-lm.webp": {
+    "mtime": 1793966314.4275198,
+    "seen": 1793966990.8875396,
+    "ast_hash": "abcd78401d99fd63cd23f7a9f287e558",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/pizza-luar-lm.webp": {
+    "mtime": 1793966714.639075,
+    "seen": 1793966990.8875499,
+    "ast_hash": "d0e2a7161e82dccacdb3de121f09d50d",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/ramen-luar-lm.webp": {
+    "mtime": 1793965899.154887,
+    "seen": 1793966990.8875601,
+    "ast_hash": "7f128debc2fc07082425496c16cfad1c",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/sushi-luar-lm.webp": {
+    "mtime": 1793965815.0252175,
+    "seen": 1793966990.88757,
+    "ast_hash": "a58e38bd13bab06e53b9f1cf49744742",
+    "semantic_hash": ""
+  },
+  "src/assets/masak/maps/taco-luar-lm.webp": {
+    "mtime": 1793965970.1501737,
+    "seen": 1793966990.8875794,
+    "ast_hash": "dfee0b03139f86ce0642dd174d946a33",
+    "semantic_hash": ""
+  },
+  "scripts/masak-jam.mts": {
+    "mtime": 1793970124.8641202,
+    "seen": 1793970529.9092011,
+    "ast_hash": "26924118e2ca27e0997832ed99f56c6e",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/wadah-zoom.png": {
+    "mtime": 1793968424.0641594,
+    "seen": 1793968542.2307706,
+    "ast_hash": "4858601bc8131bc57a5d2e9c1a9bff04",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/wadah.png": {
+    "mtime": 1793968421.8225894,
+    "seen": 1793968542.230774,
+    "ast_hash": "d911c1ecc81ad0b67652ce1998927ef4",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/lempar-zoom.png": {
+    "mtime": 1793968994.2318258,
+    "seen": 1793969129.6106555,
+    "ast_hash": "02b46c3ee9398f866d7d2b6b8254649d",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/lempar.png": {
+    "mtime": 1793968986.1481993,
+    "seen": 1793969129.6106613,
+    "ast_hash": "8fe7d38aa441a0ed507e67c9b02cfff2",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/saji.png": {
+    "mtime": 1793969706.7969067,
+    "seen": 1793969782.3882537,
+    "ast_hash": "54d3e72c529a81dcb68d24bf34d0cc9c",
+    "semantic_hash": ""
+  },
+  "scripts/masak-calibrate.mts": {
+    "mtime": 1793969901.1611638,
+    "seen": 1793970529.909197,
+    "ast_hash": "f8c70e4d249b8eb9645cb81288032125",
+    "semantic_hash": ""
+  },
+  "src/games/masak/render/perf.ts": {
+    "mtime": 1793970782.3508415,
+    "seen": 1793971720.308499,
+    "ast_hash": "264b08ba9a8aa0dba8c3b40a73bc0391",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/hemat-zoom.png": {
+    "mtime": 1793971349.7803428,
+    "seen": 1793971720.311947,
+    "ast_hash": "c62476241d3222286393741fa550ae75",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/hemat.png": {
+    "mtime": 1793971341.1593297,
+    "seen": 1793971720.311954,
+    "ast_hash": "0a2d34c3118029334384d91adba13525",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/menu-grafis.png": {
+    "mtime": 1793971603.722618,
+    "seen": 1793971720.3120985,
+    "ast_hash": "351df3a10dacdfa3a253e5108ca5444e",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/tinggi-zoom.png": {
+    "mtime": 1793971505.87504,
+    "seen": 1793971720.3121152,
+    "ast_hash": "55e1943b4ecaba2a61029f97ece530d0",
+    "semantic_hash": ""
+  },
+  "review/masak-v2/tinggi.png": {
+    "mtime": 1793971503.9716032,
+    "seen": 1793971720.3121197,
+    "ast_hash": "e7ccc5877e3c1dfbfd9d571ac978035e",
     "semantic_hash": ""
   }
 }
