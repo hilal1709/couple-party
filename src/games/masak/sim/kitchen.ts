@@ -1,5 +1,5 @@
 import { nextRand } from '../../rng'
-import { AFTER, CELL, code, finalCode, HEAT, ING, KITCHENS, layoutOf, nextStep, RECIPES, type FoodState, type Ing, type Layout } from '../kitchens'
+import { AFTER, CELL, code, COUNTER_TOP, finalCode, HEAT, ING, KITCHENS, layoutOf, nextStep, PAN_STEP, pansOf, RECIPES, type FoodState, type Ing, type Layout, type Pan, type Step } from '../kitchens'
 import type { KitchenId } from '../types'
 
 /**
@@ -10,14 +10,16 @@ export type Food = { id: number; k: 'food'; ing: Ing; s: FoodState; p: number }
 export type Plate = { id: number; k: 'plate'; f: string[] }
 /** alat pemadam api */
 export type Ext = { id: number; k: 'ext' }
-export type Item = Food | Plate | Ext
+/** wajan / panci: berisi satu bahan (id Food di `items`), memasak hanya saat di atas kompor */
+export type Pot = { id: number; k: 'pot'; pan: Pan; in: number | null }
+export type Item = Food | Plate | Ext | Pot
 
 export type Order = { id: number; r: string; born: number; life: number }
 
 /** kejadian untuk suara & efek; `n` naik terus supaya HP lain tahu mana yang baru */
 export type Fx = {
   n: number
-  kind: 'served' | 'wrong' | 'missed' | 'cut' | 'cooked' | 'burnt' | 'trash' | 'order' | 'fire' | 'out' | 'washed' | 'dirty' | 'pisang' | 'tepung' | 'iseng' | 'slip' | 'belok' | 'lift' | 'sembur'
+  kind: 'served' | 'wrong' | 'missed' | 'cut' | 'cooked' | 'burnt' | 'trash' | 'order' | 'fire' | 'out' | 'washed' | 'dirty' | 'pisang' | 'tepung' | 'iseng' | 'slip' | 'belok' | 'lift' | 'sembur' | 'lempar' | 'tangkap' | 'jatuh' | 'mendarat'
   st: number
   pts?: number
 }
@@ -68,7 +70,15 @@ export type Kit = {
   /** truk: kapan belok berikutnya dan ke mana (-1 kiri, 1 kanan) */
   turnAt: number
   turnDir: number
+  /** bahan yang sedang dilempar: posisi & kecepatan (koordinat dapur), pelempar, umur (ms) */
+  flying: Flying[]
+  /** pengali tip: naik tiap menyajikan pesanan paling tua berturut-turut (maks TIP_STREAK_MAX), balik 1 kalau salah urut/kabur */
+  streak: number
+  /** bahan tergeletak di lantai (jatuh dari lemparan) */
+  floor: { id: number; x: number; z: number }[]
 }
+
+export type Flying = { id: number; x: number; y: number; z: number; vx: number; vy: number; vz: number; by: number; age: number }
 
 export const BAKE_MS = 8000
 export const BELT_MS = 1400
@@ -120,6 +130,8 @@ const PEELS = 3
 
 export const CHOP_MS = 2200
 export const COOK_MS = 7000
+/** merebus sedikit lebih lama dari menggoreng */
+export const BOIL_MS = 7000
 /** lama aman setelah matang sebelum gosong */
 export const BURN_MS = 9000
 /** gosong yang dibiarkan di kompor menyala jadi api */
@@ -133,11 +145,38 @@ const ORDER_LIFE = 80_000
 const ORDER_GAP = 20_000
 const MISS_POINTS = 10
 const TIP_MAX = 10
+export const TIP_STREAK_MAX = 4
 const PLATES_EACH = 2
 
 export const isFood = (i: Item | undefined): i is Food => i?.k === 'food'
 export const isPlate = (i: Item | undefined): i is Plate => i?.k === 'plate'
 export const isExt = (i: Item | undefined): i is Ext => i?.k === 'ext'
+export const isPot = (i: Item | undefined): i is Pot => i?.k === 'pot'
+
+/** isi wadah, atau undefined */
+export const potFood = (k: Kit, p: Pot) => (p.in !== null ? (k.items[p.in] as Food | undefined) : undefined)
+
+/** bahan di stasiun: langsung, atau di dalam wadah di atasnya */
+export function contentAt(k: Kit, si: number): Food | undefined {
+  const it = k.items[k.hold[si] ?? -1]
+  if (isFood(it)) return it
+  if (isPot(it)) return potFood(k, it)
+  return undefined
+}
+
+/** langkah panas yang dikerjakan stasiun saat ini: oven memanggang, kompor menurut wadahnya */
+export function heatAt(k: Kit, si: number): Step | null {
+  const kind = layoutOf(k.kitchen).stations[si]?.kind
+  if (!kind) return null
+  if (kind === 'stove') {
+    const it = k.items[k.hold[si] ?? -1]
+    return isPot(it) ? PAN_STEP[it.pan] : null
+  }
+  return HEAT[kind] ?? null
+}
+
+/** bahan ini boleh masuk wadah ini (wadah kosong & langkah berikutnya cocok) */
+export const potTakes = (p: Pot, f: Food) => p.in === null && nextStep(f.ing, f.s) === PAN_STEP[p.pan]
 
 export function newKit(kitchen: KitchenId, actors: number, seed: number, versus = false): Kit {
   const L = layoutOf(kitchen)
@@ -174,8 +213,17 @@ export function newKit(kitchen: KitchenId, actors: number, seed: number, versus 
     // kapal: geser pertama di puncak miring pertama (4 dtk); gunung api: semburan pertama 12 dtk
     turnAt: KITCHENS[kitchen].gimmick === 'ship' ? SHIP_PERIOD_MS / 4 : KITCHENS[kitchen].gimmick === 'lava' ? 12_000 : 14_000,
     turnDir: KITCHENS[kitchen].gimmick === 'ship' ? 1 : (seed || 1) % 2 ? 1 : -1,
+    flying: [],
+    floor: [],
+    streak: 1,
   }
   if (L.extinguisher >= 0) k.hold[L.extinguisher] = spawn(k, { k: 'ext' })
+  // tiap kompor mulai dengan wajan atau panci
+  const pans = pansOf(kitchen)
+  let n = 0
+  L.stations.forEach((st, si) => {
+    if (st.kind === 'stove') k.hold[si] = spawn(k, { k: 'pot', pan: pans[n++] ?? 'wajan', in: null })
+  })
   return k
 }
 
@@ -188,7 +236,7 @@ function fx(k: Kit, kind: Fx['kind'], st: number, pts?: number) {
   if (k.fx.length > 12) k.fx.shift()
 }
 
-function spawn(k: Kit, item: Omit<Food, 'id'> | Omit<Plate, 'id'> | Omit<Ext, 'id'>): number {
+function spawn(k: Kit, item: Omit<Food, 'id'> | Omit<Plate, 'id'> | Omit<Ext, 'id'> | Omit<Pot, 'id'>): number {
   const id = k.nextId++
   k.items[id] = { ...item, id } as Item
   return id
@@ -227,9 +275,17 @@ function accepts(L: Layout, si: number, item: Item): boolean {
   const kind = L.stations[si].kind
   if (kind === 'counter' || kind === 'belt') return true
   if (kind === 'board') return isFood(item)
+  // kompor hanya menerima wadah; bahan dimasukkan ke wadahnya
+  if (kind === 'stove') return isPot(item)
   const heat = HEAT[kind]
   if (heat) return isFood(item) && (nextStep(item.ing, item.s) === heat || item.s === AFTER[heat])
   return false
+}
+
+/** isi wadah yang sudah jadi (siap dituang ke piring) */
+const readyIn = (k: Kit, p: Pot) => {
+  const f = potFood(k, p)
+  return f && f.s !== 'burnt' && nextStep(f.ing, f.s) === null ? f : undefined
 }
 
 const platesNear = (L: Layout, si: number) => {
@@ -273,6 +329,11 @@ export function use(k: Kit, actor: number, si: number): boolean {
         k.hands[actor] = null
         return true
       }
+      // wajan/panci kosong di tangan: bahan mentah langsung masuk
+      if (isPot(hand) && hand.in === null && ING[ing].steps[0] === PAN_STEP[hand.pan]) {
+        hand.in = spawn(k, { k: 'food', ing, s: 'raw', p: 0 })
+        return true
+      }
       // bahan tanpa olahan (roti) langsung ke piring di tangan
       if (isPlate(hand) && ING[ing].steps.length === 0) {
         const c = code(ing, 'raw')
@@ -310,6 +371,12 @@ export function use(k: Kit, actor: number, si: number): boolean {
         fx(k, 'trash', si)
         return true
       }
+      if (isPot(hand) && hand.in !== null) {
+        delete k.items[hand.in]
+        hand.in = null
+        fx(k, 'trash', si)
+        return true
+      }
       return false
     }
     case 'serve': {
@@ -320,7 +387,11 @@ export function use(k: Kit, actor: number, si: number): boolean {
         return true
       }
       const left = Math.max(0, o.born + o.life - k.t) / o.life
-      const pts = RECIPES[o.r].points + Math.ceil(TIP_MAX * left)
+      // tip beruntun: pesanan paling tua (paling kiri) disajikan lebih dulu menaikkan pengali
+      const oldest = k.orders.reduce((a, b) => (b.born < a.born ? b : a))
+      const mult = o.id === oldest.id ? k.streak : 1
+      k.streak = o.id === oldest.id ? Math.min(TIP_STREAK_MAX, k.streak + 1) : 1
+      const pts = RECIPES[o.r].points + Math.ceil(TIP_MAX * left) * mult
       k.score += pts
       k.served++
       k.orders = k.orders.filter((x) => x.id !== o.id)
@@ -351,6 +422,51 @@ export function use(k: Kit, actor: number, si: number): boolean {
       if (isFood(hand) && isPlate(on) && addTo(k, on, hand)) {
         k.hands[actor] = null
         return true
+      }
+      // bahan ke wadah di stasiun, atau wadah di tangan menyendok bahan di meja
+      if (isFood(hand) && isPot(on) && potTakes(on, hand)) {
+        hand.p = 0
+        on.in = hand.id
+        k.hands[actor] = null
+        return true
+      }
+      if (isPot(hand) && isFood(on) && potTakes(hand, on)) {
+        on.p = 0
+        hand.in = on.id
+        k.hold[si] = null
+        return true
+      }
+      // pindahkan isi antarwadah (beras rebus dari panci ke wajan, dan sebaliknya)
+      if (isPot(hand) && isPot(on)) {
+        const f = potFood(k, hand)
+        if (f && potTakes(on, f)) {
+          f.p = 0
+          on.in = f.id
+          hand.in = null
+          return true
+        }
+        const g = potFood(k, on)
+        if (g && potTakes(hand, g)) {
+          g.p = 0
+          hand.in = g.id
+          on.in = null
+          return true
+        }
+      }
+      // tuang isi wadah yang sudah jadi ke piring (wadah di tangan ke piring di meja, atau sebaliknya)
+      if (isPot(hand) && isPlate(on)) {
+        const f = readyIn(k, hand)
+        if (f && addTo(k, on, f)) {
+          hand.in = null
+          return true
+        }
+      }
+      if (isPlate(hand) && isPot(on)) {
+        const f = readyIn(k, on)
+        if (f && addTo(k, hand, f)) {
+          on.in = null
+          return true
+        }
       }
       return false
     }
@@ -386,8 +502,9 @@ function ignite(k: Kit, si: number) {
   if (k.fire[si] > 0) return
   k.fire[si] = 1
   k.spread[si] = k.t + SPREAD_MS
-  // isi meja ikut gosong
-  const it = k.items[k.hold[si] ?? -1]
+  // isi meja (atau isi wadahnya) ikut gosong
+  const held = k.items[k.hold[si] ?? -1]
+  const it = isPot(held) ? potFood(k, held) : held
   if (isFood(it)) {
     it.s = 'burnt'
     it.p = 0
@@ -401,6 +518,7 @@ function ignite(k: Kit, si: number) {
 export function advance(k: Kit, dt: number, host: boolean, cooks: number) {
   const L = layoutOf(k.kitchen)
   k.t += dt
+  flyAdvance(k, dt)
   // kerja tahan: potong, cuci, semprot
   k.chop.forEach((si, a) => {
     if (si === null) return
@@ -447,13 +565,13 @@ export function advance(k: Kit, dt: number, host: boolean, cooks: number) {
     }
   })
   // kompor & oven
-  L.stations.forEach((st, si) => {
-    const heat = HEAT[st.kind]
+  L.stations.forEach((_, si) => {
+    const heat = heatAt(k, si)
     if (!heat || k.fire[si] > 0) return
-    const food = k.items[k.hold[si] ?? -1]
-    if (!isFood(food)) return
+    const food = contentAt(k, si)
+    if (!food) return
     if (nextStep(food.ing, food.s) === heat) {
-      food.p += dt / (heat === 'bake' ? BAKE_MS : COOK_MS)
+      food.p += dt / (heat === 'bake' ? BAKE_MS : heat === 'boil' ? BOIL_MS : COOK_MS)
       if (food.p >= 1 && host) {
         food.s = AFTER[heat]
         food.p = 0
@@ -498,6 +616,7 @@ export function advance(k: Kit, dt: number, host: boolean, cooks: number) {
   for (const o of k.orders) {
     if (o.born + o.life > k.t) continue
     k.missed++
+    k.streak = 1
     k.score = Math.max(0, k.score - MISS_POINTS)
     fx(k, 'missed', -1)
   }
@@ -507,7 +626,7 @@ export function advance(k: Kit, dt: number, host: boolean, cooks: number) {
     if (k.orders.length < cap) {
       const [v, r1] = nextRand(k.rng)
       const menu = menuOf(k)
-      k.orders.push({ id: k.oid++, r: menu[Math.floor(v * menu.length)], born: k.t, life: ORDER_LIFE })
+      k.orders.push({ id: k.oid++, r: menu[Math.floor(v * menu.length)], born: k.t, life: ORDER_LIFE * (KITCHENS[k.kitchen].patience ?? 1) })
       k.rng = r1
       fx(k, 'order', -1)
     }
@@ -579,8 +698,8 @@ function gimmicks(k: Kit, L: Layout) {
     k.rng = r2
     const si = stoves[Math.floor(v * stoves.length)]
     if (si !== undefined) {
-      const food = k.items[k.hold[si] ?? -1]
-      if (isFood(food) && food.s === 'cooked') food.p = Math.min(0.95, food.p + 0.55)
+      const food = contentAt(k, si)
+      if (food && (food.s === 'cooked' || food.s === 'boiled')) food.p = Math.min(0.95, food.p + 0.55)
       fx(k, 'sembur', si)
     }
     k.turnAt = k.t + 14_000 + w * 8000
@@ -642,3 +761,186 @@ export function slip(k: Kit, peel: number): boolean {
 
 /** salinan dalam supaya mutasi host tidak menyentuh yang sudah dikirim */
 export const cloneKit = (k: Kit): Kit => structuredClone(k)
+
+// ---------- lempar & tangkap ----------
+const GRAVITY = 9.8
+/** tinggi tangan saat melempar & menangkap */
+export const HAND_Y = 1.0
+const THROW_SPEED = 7
+const THROW_UP = 3
+/** jarak tangkap dari badan koki, dan sudut hadap minimal (cos) */
+const CATCH_R = 0.7
+const CATCH_DOT = 0.2
+/** pelempar tidak bisa menangkap lemparannya sendiri sesaat */
+const OWN_MS = 350
+/** jarak pungut barang di lantai */
+export const PICK_R = 0.95
+
+/** posisi & hadap koki untuk perhitungan tangkap */
+export type CookPose = { x: number; z: number; yaw: number }
+
+/** waktu terbang sampai ketinggian `ty` dengan kecepatan naik THROW_UP */
+const flightTime = (ty: number) => (THROW_UP + Math.sqrt(THROW_UP * THROW_UP + 2 * GRAVITY * (HAND_Y - ty))) / GRAVITY
+
+/**
+ * Lempar bahan di tangan `actor` ke arah hadapnya. `aim` = titik sasaran (bidik bantu: rekan bertangan kosong atau
+ * stasiun penerima) supaya jatuhnya pas; tanpa sasaran lurus ke depan. Hanya bahan (bukan piring/wadah/pemadam).
+ */
+export function throwItem(k: Kit, actor: number, from: CookPose, aim: { x: number; z: number; y: number } | null): boolean {
+  const it = k.items[k.hands[actor] ?? -1]
+  if (!isFood(it)) return false
+  let dx = Math.sin(from.yaw)
+  let dz = Math.cos(from.yaw)
+  let speed = THROW_SPEED
+  const x0 = from.x + dx * 0.4
+  const z0 = from.z + dz * 0.4
+  if (aim) {
+    const ax = aim.x - x0
+    const az = aim.z - z0
+    const d = Math.hypot(ax, az)
+    if (d > 0.2) {
+      dx = ax / d
+      dz = az / d
+      speed = Math.min(11, d / flightTime(aim.y))
+    }
+  }
+  k.hands[actor] = null
+  k.chop[actor] = null
+  k.flying.push({ id: it.id, x: x0, y: HAND_Y, z: z0, vx: dx * speed, vy: THROW_UP, vz: dz * speed, by: actor, age: 0 })
+  fx(k, 'lempar', -1, actor)
+  return true
+}
+
+/** gerak terbang (semua HP, untuk tampilan); host lalu memutuskan tangkap/mendarat lewat resolveFlying */
+export function flyAdvance(k: Kit, dt: number) {
+  const s = dt / 1000
+  for (const f of k.flying) {
+    f.age += dt
+    f.x += f.vx * s
+    f.z += f.vz * s
+    f.y += f.vy * s
+    f.vy -= GRAVITY * s
+  }
+}
+
+/** petak lantai terdekat yang bisa diinjak (tempat barang jatuh) */
+function floorCell(L: Layout, x: number, z: number): [number, number] {
+  const c0 = Math.round(x / CELL + (L.w - 1) / 2)
+  const r0 = Math.round(z / CELL + (L.h - 1) / 2)
+  let best: [number, number] = [x, z]
+  let bd = Infinity
+  for (let r = Math.max(0, r0 - 2); r <= Math.min(L.h - 1, r0 + 2); r++) {
+    for (let c = Math.max(0, c0 - 2); c <= Math.min(L.w - 1, c0 + 2); c++) {
+      if (L.grid[r * L.w + c] >= 0) continue
+      const cx = (c - (L.w - 1) / 2) * CELL
+      const cz = (r - (L.h - 1) / 2) * CELL
+      const d = Math.hypot(cx - x, cz - z)
+      if (d < bd) {
+        bd = d
+        best = [cx, cz]
+      }
+    }
+  }
+  // di dalam petak, sedikit acak supaya barang jatuh tidak bertumpuk di tengah
+  const [cx, cz] = best
+  return [cx + Math.max(-0.4, Math.min(0.4, x - cx)), cz + Math.max(-0.4, Math.min(0.4, z - cz))]
+}
+
+/** stasiun di bawah titik ini, -1 = lantai/luar */
+function stationUnder(L: Layout, x: number, z: number) {
+  const c = Math.round(x / CELL + (L.w - 1) / 2)
+  const r = Math.round(z / CELL + (L.h - 1) / 2)
+  if (c < 0 || r < 0 || c >= L.w || r >= L.h) return -2
+  return L.grid[r * L.w + c]
+}
+
+/** bahan mendarat di stasiun: wadah yang cocok, piring yang mau, talenan/meja kosong. false = memantul */
+function landOn(k: Kit, si: number, f: Food): boolean {
+  const L = layoutOf(k.kitchen)
+  const st = L.stations[si]
+  if (k.fire[si] > 0) return false
+  const onId = k.hold[si]
+  const on = onId !== null ? k.items[onId] : undefined
+  if (isPot(on) && potTakes(on, f)) {
+    f.p = 0
+    on.in = f.id
+    return true
+  }
+  if (isPlate(on)) return addTo(k, on, f)
+  if (!on && (st.kind === 'counter' || st.kind === 'board' || st.kind === 'belt')) {
+    k.hold[si] = f.id
+    return true
+  }
+  // tong sampah menelan lemparan
+  if (st.kind === 'trash') {
+    delete k.items[f.id]
+    fx(k, 'trash', si)
+    return true
+  }
+  return false
+}
+
+/**
+ * Host: lemparan ditangkap koki bertangan kosong yang menghadapnya, mendarat di stasiun, atau jatuh ke lantai.
+ * Mengembalikan true kalau ada yang berubah.
+ */
+export function resolveFlying(k: Kit, cooks: (CookPose | null)[]): boolean {
+  if (!k.flying.length) return false
+  const L = layoutOf(k.kitchen)
+  let changed = false
+  k.flying = k.flying.filter((f) => {
+    const food = k.items[f.id]
+    if (!isFood(food)) return false
+    // tangkap
+    for (let a = 0; a < cooks.length; a++) {
+      const c = cooks[a]
+      if (!c || k.hands[a] !== null || (a === f.by && f.age < OWN_MS) || f.y < 0.4 || f.y > 1.9) continue
+      const dx = f.x - c.x
+      const dz = f.z - c.z
+      const d = Math.hypot(dx, dz)
+      if (d > CATCH_R) continue
+      if (d > 0.15 && (dx * Math.sin(c.yaw) + dz * Math.cos(c.yaw)) / d < CATCH_DOT) continue
+      k.hands[a] = f.id
+      k.chop[a] = null
+      fx(k, 'tangkap', -1, a)
+      changed = true
+      return false
+    }
+    // stasiun: puncak meja tersentuh dari atas
+    const si = stationUnder(L, f.x, f.z)
+    if (si >= 0 && f.y <= COUNTER_TOP + 0.12) {
+      changed = true
+      if (landOn(k, si, food)) {
+        fx(k, 'mendarat', si)
+        return false
+      }
+      // memantul dari stasiun yang tidak menerima: jatuh di lantai depannya
+      const [x, z] = floorCell(L, f.x - f.vx * 0.08, f.z - f.vz * 0.08)
+      k.floor.push({ id: f.id, x, z })
+      fx(k, 'jatuh', -1)
+      return false
+    }
+    // keluar dapur atau menyentuh lantai
+    if (si === -2 || f.y <= 0.05) {
+      const [x, z] = floorCell(L, f.x, f.z)
+      k.floor.push({ id: f.id, x, z })
+      fx(k, 'jatuh', -1)
+      changed = true
+      return false
+    }
+    return true
+  })
+  return changed
+}
+
+/** pungut barang di lantai (tangan kosong, cukup dekat) */
+export function pickFloor(k: Kit, actor: number, id: number, at: CookPose): boolean {
+  if (k.hands[actor] !== null) return false
+  const i = k.floor.findIndex((f) => f.id === id)
+  if (i < 0) return false
+  const f = k.floor[i]
+  if (Math.hypot(f.x - at.x, f.z - at.z) > PICK_R + 0.5) return false
+  k.floor.splice(i, 1)
+  k.hands[actor] = id
+  return true
+}

@@ -95,9 +95,11 @@ class Dapur:
         m = self.m
         x, y = st['x'], st['y']
         self.lemari(st, self.theme['badan_kompor'], self.BAJA_GELAP)
-        # tungku: cincin + wajan scan
+        # tungku: cincin api + kisi (wajan/panci adalah barang yang bisa diangkat, ada di props.glb)
         m.cyl((x, y, TOP + 0.004), 0.3, 0.01, self.BAJA_GELAP, verts=32)
-        m.asset('brass_pan_01', (x, y, TOP + 0.01), rot=self.facing(st) + 1.2, width=0.78, tris=1500)
+        m.cyl((x, y, TOP + 0.012), 0.2, 0.008, self.BARA, verts=24)
+        for a in range(4):
+            m.box((x, y, TOP + 0.02), (0.56 if a % 2 == 0 else 0.03, 0.03 if a % 2 == 0 else 0.56, 0.02), self.KARET, rot=a * math.pi / 4, bevel=0.004)
         # kenop di depan
         for dx, dy in st['open'][:1]:
             for i in (-1, 1):

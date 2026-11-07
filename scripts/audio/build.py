@@ -470,6 +470,20 @@ def masak_synth():
     thud = np.zeros(n, dtype=np.float32)
     thud[n - k:] = tone(k, 110, 50) * env(k, 0.002, 0.06)
     write_ogg(_st(zip_ + thud), out / 'masak-slip.ogg', 64, mono=True, lufs=-17)
+    # matang: denting lonceng kecil (dua harmonik, peluruhan panjang)
+    n = int(SR * 0.9)
+    ding = (tone(n, 1568) + tone(n, 3136) * 0.35 + tone(n, 2350) * 0.15) * env(n, 0.002, 0.25)
+    write_ogg(_st(ding * 0.5), out / 'masak-ding.ogg', 64, mono=True, lufs=-19)
+    # mau gosong: bip pendek bernada tinggi
+    n = int(SR * 0.09)
+    bip = np.sign(tone(n, 1760)) * env(n, 0.002, 0.04) * 0.25
+    write_ogg(_st(lowpass(bip, 3)), out / 'masak-bip.ogg', 64, mono=True, lufs=-20)
+    # hitung mundur 3-2-1 dan "Mulai!"
+    n = int(SR * 0.25)
+    write_ogg(_st(tone(n, 880) * env(n, 0.003, 0.08) * 0.6), out / 'masak-hitung.ogg', 64, mono=True, lufs=-18)
+    n = int(SR * 0.8)
+    go = (tone(n, 1046, 1568) + tone(n, 1318, 1975) * 0.6) * env(n, 0.005, 0.3)
+    write_ogg(_st(go * 0.5), out / 'masak-mulai.ogg', 64, mono=True, lufs=-17)
 
 
 def puncak_synth():
@@ -933,7 +947,7 @@ SFX = {
     'bom-out': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA07.ogg',
     'bom-champion': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA12.ogg',
     'bom-lose': 'jingles/x/OGG/jingles_PIZZA/jingles_PIZZA15.ogg',
-    # Dapur Kacau — Kenney; potong, desis, api, semprot & cuci disintesis di masak_synth
+    # Dapur Kacau — Kenney; potong, desis, api, semprot, cuci, ding, bip, hitung & mulai disintesis di masak_synth
     'masak-served': 'interface/x/Audio/confirmation_004.ogg',
     'masak-order': 'interface/x/Audio/maximize_003.ogg',
     'masak-wrong': 'interface/x/Audio/error_006.ogg',

@@ -4,7 +4,7 @@ import { spawnWalker } from '../../petak/sim/walk'
 import { init } from '../engine'
 import { KITCHEN_IDS, layoutOf, starGoals } from '../kitchens'
 import { moveCook, newBot, stepBot, type Plan } from './bots'
-import { advance, BELT_MS, chop, GAP_CYCLE_MS, isPlate, LAVA_CYCLE_MS, lavaOn, lavaSoon, LIFT_CYCLE_MS, LIFT_UP_MS, liftUp, newKit, prank, SHIP_PERIOD_MS, shipTilt, slip, use, wallsOf, type Kit } from './kitchen'
+import { advance, BELT_MS, chop, contentAt, pickFloor, resolveFlying, throwItem, GAP_CYCLE_MS, isPlate, isPot, LAVA_CYCLE_MS, lavaOn, lavaSoon, LIFT_CYCLE_MS, LIFT_UP_MS, liftUp, newKit, prank, SHIP_PERIOD_MS, shipTilt, slip, use, wallsOf, type Kit } from './kitchen'
 
 const at = (k: Kit, kind: string, ing?: string) => layoutOf(k.kitchen).stations.findIndex((s) => s.kind === kind && (!ing || s.ing === ing))
 
@@ -22,18 +22,25 @@ describe('aturan dapur', () => {
     expect(chop(k, 0, board, true)).toBe(true)
     advance(k, 2300, true, 1)
     expect(k.items[k.hold[board]!]).toMatchObject({ s: 'cut' })
-    // daging → kompor
+    // daging → wajan di kompor
+    expect(isPot(k.items[k.hold[stove]!])).toBe(true)
     use(k, 0, at(k, 'crate', 'daging'))
     use(k, 0, stove)
+    expect(k.hands[0]).toBeNull()
     advance(k, 7100, true, 1)
-    expect(k.items[k.hold[stove]!]).toMatchObject({ s: 'cooked' })
+    expect(contentAt(k, stove)).toMatchObject({ s: 'cooked' })
     // piring di meja, isi
     use(k, 0, at(k, 'plates'))
     use(k, 0, counter)
     use(k, 0, board)
     use(k, 0, counter)
+    // angkat wajan, tuang ke piring, kembalikan wajan ke kompor
     use(k, 0, stove)
+    expect(isPot(k.items[k.hands[0]!])).toBe(true)
     use(k, 0, counter)
+    expect(contentAt(k, stove)).toBeUndefined()
+    use(k, 0, stove)
+    expect(isPot(k.items[k.hold[stove]!])).toBe(true)
     use(k, 0, counter)
     const plate = k.items[k.hands[0]!]
     expect(isPlate(plate) && plate.f.length).toBe(2)
@@ -49,7 +56,7 @@ describe('aturan dapur', () => {
     use(k, 0, at(k, 'crate', 'daging'))
     use(k, 0, stove)
     for (let t = 0; t < 17_000; t += 100) advance(k, 100, true, 1)
-    expect(k.items[k.hold[stove]!]).toMatchObject({ s: 'burnt' })
+    expect(contentAt(k, stove)).toMatchObject({ s: 'burnt' })
     use(k, 0, at(k, 'plates'))
     use(k, 0, at(k, 'crate', 'roti'))
     use(k, 0, at(k, 'serve'))
@@ -190,6 +197,107 @@ describe('aturan dapur', () => {
     expect(lavaOn(lv)).toBe(1)
     lv.t = LAVA_CYCLE_MS / 2 - 500
     expect(lavaSoon(lv)).toBe(1)
+  })
+
+  it('wadah: kompor hanya menerima wajan/panci, bahan mentah salah wadah ditolak, isi gosong dibuang ke tong', () => {
+    const k = newKit('ramen', 1, 3)
+    const L = layoutOf('ramen')
+    const stoves = L.stations.flatMap((s, si) => (s.kind === 'stove' ? [si] : []))
+    const pans = stoves.map((si) => (k.items[k.hold[si]!] as { pan: string }).pan)
+    expect(new Set(pans)).toEqual(new Set(['wajan', 'panci']))
+    const panci = stoves[pans.indexOf('panci')]
+    const wajan = stoves[pans.indexOf('wajan')]
+    // telur (goreng) tidak masuk panci, mie (rebus) masuk
+    use(k, 0, at(k, 'crate', 'telur'))
+    expect(use(k, 0, panci)).toBe(false)
+    expect(use(k, 0, wajan)).toBe(true)
+    use(k, 0, at(k, 'crate', 'mie'))
+    expect(use(k, 0, panci)).toBe(true)
+    // angkat panci berisi: kompor kosong menolak bahan langsung
+    use(k, 0, panci)
+    const counter = L.stations.findIndex((s, si) => s.kind === 'counter' && k.hold[si] === null && L.fronts[si].length > 0)
+    use(k, 0, counter)
+    use(k, 0, at(k, 'crate', 'daging'))
+    expect(use(k, 0, panci)).toBe(false)
+    // isi gosong di wajan: angkat wajan, buang isi ke tong, wajan tetap di tangan
+    const egg = contentAt(k, wajan)!
+    egg.s = 'burnt'
+    use(k, 0, at(k, 'crate', 'daging'))
+    use(k, 0, wajan)
+    expect(isPot(k.items[k.hands[0]!])).toBe(true)
+    use(k, 0, at(k, 'trash'))
+    expect((k.items[k.hands[0]!] as { in: number | null }).in).toBeNull()
+  })
+
+  it('lempar: jatuh ke lantai lalu dipungut, ditangkap rekan yang menghadap, mendarat di wajan yang cocok', () => {
+    const fly = (k: Kit, cooks: ({ x: number; z: number; yaw: number } | null)[]) => {
+      for (let i = 0; i < 60 && k.flying.length; i++) {
+        advance(k, 50, true, 2)
+        resolveFlying(k, cooks)
+      }
+    }
+    // ke lantai: lempar sepanjang lorong tanpa sasaran
+    const k = newKit('burger', 2, 3)
+    k.items[500] = { id: 500, k: 'food', ing: 'tomat', s: 'raw', p: 0 }
+    k.hands[0] = 500
+    expect(throwItem(k, 0, { x: -3, z: -1.8, yaw: Math.PI / 2 }, null)).toBe(true)
+    expect(k.hands[0]).toBeNull()
+    fly(k, [null, null])
+    expect(k.floor.map((f) => f.id)).toEqual([500])
+    const f = k.floor[0]
+    expect(pickFloor(k, 1, 500, { x: f.x + 0.3, z: f.z, yaw: 0 })).toBe(true)
+    expect(k.hands[1]).toBe(500)
+    // ditangkap: rekan 3 m di depan, menghadap pelempar
+    k.hands[1] = null
+    k.hands[0] = 500
+    k.floor = []
+    throwItem(k, 0, { x: -3, z: -1.8, yaw: Math.PI / 2 }, { x: 0, z: -1.8, y: 1 })
+    fly(k, [null, { x: 0, z: -1.8, yaw: -Math.PI / 2 }])
+    expect(k.hands[1]).toBe(500)
+    // ke wajan: daging mentah dibidik ke kompor
+    const L = layoutOf('burger')
+    const stove = at(k, 'stove')
+    const st = L.stations[stove]
+    k.items[501] = { id: 501, k: 'food', ing: 'daging', s: 'raw', p: 0 }
+    k.hands[0] = 501
+    throwItem(k, 0, { x: st.x - 3, z: st.z, yaw: Math.PI / 2 }, { x: st.x, z: st.z, y: 0.97 })
+    fly(k, [null, null])
+    expect(contentAt(k, stove)?.id).toBe(501)
+  })
+
+  it('bot memungut bahan yang jatuh di lantai', () => {
+    const k = newKit('burger', 1, 3)
+    const L = layoutOf('burger')
+    const [sx, sz] = L.spawns[0]
+    k.items[600] = { id: 600, k: 'food', ing: 'selada', s: 'raw', p: 0 }
+    k.floor.push({ id: 600, x: sx + 2.4, z: sz })
+    const w = spawnWalker(sx, sz)
+    const b = newBot()
+    for (let t = 0; t < 6 && k.floor.length; t += 0.05) stepBot(k, 0, b, w, 0.05, 3, [])
+    expect(k.floor.length).toBe(0)
+    expect(k.hands[0]).toBe(600)
+  })
+
+  it('tip beruntun: menyajikan pesanan paling tua berturut-turut menaikkan pengali, salah urut mengembalikannya', () => {
+    const k = newKit('burger', 1, 5)
+    const serve = at(k, 'serve')
+    const plate = (id: number) => {
+      k.items[id] = { id, k: 'plate', f: ['roti:raw', 'daging:cooked', 'selada:cut'] }
+      k.hands[0] = id
+    }
+    for (let i = 0; i < 4; i++) k.orders.push({ id: 200 + i, r: 'burger', born: k.t + i, life: 80_000 })
+    plate(901)
+    use(k, 0, serve)
+    expect(k.streak).toBe(2)
+    plate(902)
+    use(k, 0, serve)
+    expect(k.streak).toBe(3)
+    // pesanan yang lebih muda didahulukan: pengali balik
+    k.orders.push({ id: 300, r: 'burgerKeju', born: k.t + 99, life: 80_000 })
+    k.items[903] = { id: 903, k: 'plate', f: ['roti:raw', 'daging:cooked', 'keju:cut'] }
+    k.hands[0] = 903
+    use(k, 0, serve)
+    expect(k.streak).toBe(1)
   })
 
   it('pesanan kedaluwarsa memotong skor', () => {

@@ -2,7 +2,7 @@ import { Howl } from 'howler'
 import { getSettings, sfx, type SfxName } from '@/audio/audio'
 import type { Fx } from './sim/kitchen'
 
-export type Sound = 'slip' | 'served' | 'order' | 'wrong' | 'missed' | 'grab' | 'burnt' | 'win' | 'lose' | 'potong' | 'desis' | 'api' | 'semprot' | 'cuci' | 'dash'
+export type Sound = 'slip' | 'served' | 'order' | 'wrong' | 'missed' | 'grab' | 'burnt' | 'win' | 'lose' | 'potong' | 'desis' | 'api' | 'semprot' | 'cuci' | 'dash' | 'ding' | 'bip' | 'hitung' | 'mulai'
 
 export function playSound(s: Sound, volume = 1) {
   sfx(`masak-${s}` as SfxName, { volume })
@@ -16,9 +16,12 @@ const FX_SOUND: Partial<Record<Fx['kind'], Sound>> = {
   missed: 'missed',
   burnt: 'burnt',
   fire: 'api',
-  cooked: 'desis',
+  cooked: 'ding',
   washed: 'cuci',
   out: 'semprot',
+  tangkap: 'grab',
+  jatuh: 'grab',
+  mendarat: 'grab',
 }
 
 export const fxSound = (f: Fx) => FX_SOUND[f.kind] ?? null

@@ -9396,9 +9396,9 @@
     "semantic_hash": ""
   },
   "scripts/puncak_tex.py": {
-    "mtime": 1793823340.778824,
-    "seen": 1793826877.3201752,
-    "ast_hash": "ecca0a7e9207fe89f03d804fc52f1a69",
+    "mtime": 1793829597.7138915,
+    "seen": 1793830978.7459192,
+    "ast_hash": "7525d3d5c9542e0bba324c8a0c8ae065",
     "semantic_hash": ""
   },
   "scripts/sunyi/audio.py": {
@@ -9588,15 +9588,15 @@
     "semantic_hash": ""
   },
   "src/games/puncak/render/scene.ts": {
-    "mtime": 1793828891.100365,
-    "seen": 1793829489.2991724,
-    "ast_hash": "0ef7f12539580f0d2f7fe7a2a3b04e6e",
+    "mtime": 1793829919.5178618,
+    "seen": 1793830978.7472723,
+    "ast_hash": "c4def5528d5d9526ef9452bdec458604",
     "semantic_hash": ""
   },
   "src/games/puncak/render/terrain.ts": {
-    "mtime": 1793828760.0564225,
-    "seen": 1793829489.2991757,
-    "ast_hash": "e42e57203e0be32a0381cb69e1929d19",
+    "mtime": 1793830439.9528744,
+    "seen": 1793830978.747275,
+    "ast_hash": "e903ec86a66d92c1eabf82f773f07917",
     "semantic_hash": ""
   },
   "src/games/puncak/render/textures.ts": {
@@ -9606,9 +9606,9 @@
     "semantic_hash": ""
   },
   "src/games/puncak/round.ts": {
-    "mtime": 1793829119.980983,
-    "seen": 1793829489.299182,
-    "ast_hash": "d3b75b524033cb1ca98079cad9530ee5",
+    "mtime": 1793829919.5154266,
+    "seen": 1793830978.7472808,
+    "ast_hash": "4b6e708cfc8174380e55dacdc5041bbd",
     "semantic_hash": ""
   },
   "src/games/puncak/sim/bots.ts": {
@@ -9684,9 +9684,9 @@
     "semantic_hash": ""
   },
   "src/games/puncak/ui/PuncakBoard.tsx": {
-    "mtime": 1793828944.0245361,
-    "seen": 1793829489.299221,
-    "ast_hash": "27af084f46e1025f573530dfed6c2736",
+    "mtime": 1793830775.8751416,
+    "seen": 1793830978.7473207,
+    "ast_hash": "856135e315eaa4b761e2abf4206db668",
     "semantic_hash": ""
   },
   "src/games/puncak/ui/copy.ts": {
@@ -10164,183 +10164,183 @@
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/air_n.webp": {
-    "mtime": 1793823340.8438559,
-    "seen": 1793826877.326339,
-    "ast_hash": "0d72968e4f24d5414940f8ed653a4730",
+    "mtime": 1793829705.6131477,
+    "seen": 1793830978.7500777,
+    "ast_hash": "85cf1844d6ca66c4bcf823b91031cd9c",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/awan.webp": {
-    "mtime": 1793823340.8438559,
-    "seen": 1793826877.3263435,
-    "ast_hash": "80255acd0274dbf6847089a5deb7eda3",
+    "mtime": 1793829706.428554,
+    "seen": 1793830978.7500842,
+    "ast_hash": "4268c166a21b2bed55f34263d4069385",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/batu_d.webp": {
-    "mtime": 1793823340.8476918,
-    "seen": 1793826877.3263476,
-    "ast_hash": "91dc74f54a970dcd3198ea08505ad32c",
+    "mtime": 1793829616.7888088,
+    "seen": 1793830978.7500894,
+    "ast_hash": "e10cc552c0650c6f83d6d7b9669dd85e",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/batu_n.webp": {
-    "mtime": 1793823340.8476918,
-    "seen": 1793826877.3263514,
-    "ast_hash": "3bba37af68c14d35e050f716a8ba52d0",
+    "mtime": 1793829617.7744086,
+    "seen": 1793830978.7500947,
+    "ast_hash": "962440dc60daecb738d4c1c77fdbe988",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/daun.webp": {
-    "mtime": 1793823340.8476918,
-    "seen": 1793826877.326356,
-    "ast_hash": "4caaac409985e9d4fc0e9da5cc8e2628",
+    "mtime": 1793829703.6501064,
+    "seen": 1793830978.7500997,
+    "ast_hash": "59430f40643bebf1fec0a47fa9c93d73",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/es_d.webp": {
-    "mtime": 1793823340.8476918,
-    "seen": 1793826877.3263605,
-    "ast_hash": "e5c523ac79dd6ff71c9e70228e4fa49e",
+    "mtime": 1793829631.2110584,
+    "seen": 1793830978.7501047,
+    "ast_hash": "f989975f5617bdb3ffa798bbc20262bd",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/es_n.webp": {
-    "mtime": 1793823340.8476918,
-    "seen": 1793826877.3263643,
-    "ast_hash": "20cdb48848c275f5bf579dfa21afd8ad",
+    "mtime": 1793829632.037889,
+    "seen": 1793830978.7501097,
+    "ast_hash": "dfbafa1dc2a1cc190002dbcc62640d97",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/helai.webp": {
-    "mtime": 1793823340.8542228,
-    "seen": 1793826877.3263674,
+    "mtime": 1793829704.7290273,
+    "seen": 1793830978.7501166,
     "ast_hash": "862486fa9d5ca8d28f5c7e6b897300c1",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/kerikil_d.webp": {
-    "mtime": 1793823340.856237,
-    "seen": 1793826877.3263707,
-    "ast_hash": "4358887bc94304a270a85ce1338f22f4",
+    "mtime": 1793829644.3096273,
+    "seen": 1793830978.7501223,
+    "ast_hash": "2ec0e2ef6b274a6c447cf15e8084e729",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/kerikil_n.webp": {
-    "mtime": 1793823340.858248,
-    "seen": 1793826877.326374,
-    "ast_hash": "0a4a447ab786dd6aeed97aab7b032fc3",
+    "mtime": 1793829645.200782,
+    "seen": 1793830978.7501276,
+    "ast_hash": "2ad7ee6ee69c960ec80df390250c048d",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/kristal_d.webp": {
-    "mtime": 1793823340.858248,
-    "seen": 1793826877.3263779,
-    "ast_hash": "d9c7bce3d10438c4a6564f0da3a20e5c",
+    "mtime": 1793829638.2038863,
+    "seen": 1793830978.750133,
+    "ast_hash": "076a91ad818a52fda2257c38ecbe5b07",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/kristal_n.webp": {
-    "mtime": 1793823340.8597615,
-    "seen": 1793826877.3263822,
-    "ast_hash": "a707689bd8c2f1c01fee66d546b5b694",
+    "mtime": 1793829638.6823022,
+    "seen": 1793830978.750139,
+    "ast_hash": "c7278b69a7ddebf3d4ee00736c0af373",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/kulit_kayu_d.webp": {
-    "mtime": 1793823340.8617778,
-    "seen": 1793826877.3263862,
-    "ast_hash": "fa3dde811027792c93b1f27028a4ec53",
+    "mtime": 1793829647.7678325,
+    "seen": 1793830978.750144,
+    "ast_hash": "2566da60f828a74e5b4fc9fc645970b2",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/kulit_kayu_n.webp": {
-    "mtime": 1793823340.8637922,
-    "seen": 1793826877.3263905,
-    "ast_hash": "44426439b6ffac3bbd3b72a9bd0d6845",
+    "mtime": 1793829648.7073712,
+    "seen": 1793830978.7501488,
+    "ast_hash": "5d9dee1c37103c95a05e45027dc191a0",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/lumut_d.webp": {
-    "mtime": 1793823340.864996,
-    "seen": 1793826877.3263946,
-    "ast_hash": "dc8b511c3a2838b8abb4136695f90ee3",
+    "mtime": 1793829624.668769,
+    "seen": 1793830978.7501535,
+    "ast_hash": "569caa11a671f21edf3d21a5ba5b0676",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/lumut_n.webp": {
-    "mtime": 1793823340.866377,
-    "seen": 1793826877.3263981,
-    "ast_hash": "d94dbc32984613372f01f1ab52e68502",
+    "mtime": 1793829625.3715649,
+    "seen": 1793830978.7501593,
+    "ast_hash": "785c1bec9fb934bc704db0045bc7c2d4",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/pasir_d.webp": {
-    "mtime": 1793823340.8683763,
-    "seen": 1793826877.3264022,
-    "ast_hash": "4dbe59088eb1707ff1b20db613565a60",
+    "mtime": 1793829609.8026743,
+    "seen": 1793830978.7501643,
+    "ast_hash": "f43781250479f5e1eba8647e6d53db6d",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/pasir_n.webp": {
-    "mtime": 1793823340.8703759,
-    "seen": 1793826877.326407,
-    "ast_hash": "1463606daee8a907fa53c5df69e731af",
+    "mtime": 1793829610.9578366,
+    "seen": 1793830978.7501686,
+    "ast_hash": "b022479abed08cd3bf856633d463fbe7",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/rumput_d.webp": {
-    "mtime": 1793823340.872838,
-    "seen": 1793826877.3264115,
-    "ast_hash": "9b3228334dccc9d9acb273893416f02e",
+    "mtime": 1793829602.3687792,
+    "seen": 1793830978.750173,
+    "ast_hash": "f380de0ffcad18e21b1c45d8422fd61a",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/rumput_n.webp": {
-    "mtime": 1793823340.874,
-    "seen": 1793826877.3264153,
-    "ast_hash": "086e20df6aaec86e9de641ae95282834",
+    "mtime": 1793829603.3974464,
+    "seen": 1793830978.7501779,
+    "ast_hash": "cbbcc11537a833f56bdb44545ff801bf",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/salju_d.webp": {
-    "mtime": 1793823340.8750024,
-    "seen": 1793826877.3264194,
-    "ast_hash": "a6c70b18f0e693c0242321ece899c843",
+    "mtime": 1793829626.8479886,
+    "seen": 1793830978.7501822,
+    "ast_hash": "b937b0b937878a18ba077f9aec5773fe",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/salju_n.webp": {
-    "mtime": 1793823340.8759992,
-    "seen": 1793826877.3264234,
-    "ast_hash": "608a2de2c34a6b9b9618703e8b5020ec",
+    "mtime": 1793829627.5335765,
+    "seen": 1793830978.7501872,
+    "ast_hash": "0289e5714c5a5adb48cb0ca49cbaa144",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/tanah_d.webp": {
-    "mtime": 1793823340.8770032,
-    "seen": 1793826877.326428,
-    "ast_hash": "0be3d07e74f7d3fb11abdf5975c7f16f",
+    "mtime": 1793829606.4704232,
+    "seen": 1793830978.7501922,
+    "ast_hash": "f1ec5bb5b1998652d606a4461305509e",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/tanah_n.webp": {
-    "mtime": 1793823340.8790028,
-    "seen": 1793826877.3264325,
-    "ast_hash": "192b4b0d3c0dd730565cb0c45ca2b30d",
+    "mtime": 1793829607.3156435,
+    "seen": 1793830978.7501962,
+    "ast_hash": "c73afaa741013ff3c3a26aa159f6dee4",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/tebing_d.webp": {
-    "mtime": 1793823340.8810022,
-    "seen": 1793826877.3264365,
-    "ast_hash": "98a161dca1b5162a665b269e30142fc7",
+    "mtime": 1793829622.083508,
+    "seen": 1793830978.7502003,
+    "ast_hash": "8b01a4ccde2ae7d6b75fd08daa6198f2",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/tebing_n.webp": {
-    "mtime": 1793823340.8830173,
-    "seen": 1793826877.3264413,
-    "ast_hash": "4bad72c96f52e0d818e4f2670d330f92",
+    "mtime": 1793829623.0755203,
+    "seen": 1793830978.7502053,
+    "ast_hash": "91bd5f976ccf34c4d881e545d8f1a1ea",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/teh_d.webp": {
-    "mtime": 1793823340.8841105,
-    "seen": 1793826877.326445,
-    "ast_hash": "f3dc23b38680de8e5b179fef11df0ed0",
+    "mtime": 1793829641.0265653,
+    "seen": 1793830978.750209,
+    "ast_hash": "bdc1253749676d9662a2fc03821e3b8b",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/teh_n.webp": {
-    "mtime": 1793823340.8875406,
-    "seen": 1793826877.3264487,
-    "ast_hash": "fd01cfb782a8eac1df1dab6019380c15",
+    "mtime": 1793829641.7746713,
+    "seen": 1793830978.7502131,
+    "ast_hash": "8f2a26a51b17b24c159c95f2bb99d704",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/vulkanik_d.webp": {
-    "mtime": 1793823340.88852,
-    "seen": 1793826877.3264527,
-    "ast_hash": "9eadfb544057e8043ed59b0e1326da87",
+    "mtime": 1793829635.4073539,
+    "seen": 1793830978.750218,
+    "ast_hash": "1825d8e5370064d10f00feb301132d5a",
     "semantic_hash": ""
   },
   "src/assets/puncak/tex/vulkanik_n.webp": {
-    "mtime": 1793823340.890539,
-    "seen": 1793826877.3264568,
-    "ast_hash": "c303a8c5ac60cd7b55d4f6ae243d890a",
+    "mtime": 1793829636.1843042,
+    "seen": 1793830978.7502227,
+    "ast_hash": "a0964c1d9afd6fff0beab5a2361f5415",
     "semantic_hash": ""
   },
   "src/assets/puncak/tile-puncak.webp": {
@@ -10944,9 +10944,9 @@
     "semantic_hash": ""
   },
   "src/games/puncak/render/climber.ts": {
-    "mtime": 1793827266.891263,
-    "seen": 1793827935.6334858,
-    "ast_hash": "a6a9951bbb9cef8409acb709403a2568",
+    "mtime": 1793829864.7857244,
+    "seen": 1793830978.747249,
+    "ast_hash": "a5675398c0bfcf381c9dbfeedc67610f",
     "semantic_hash": ""
   },
   "src/games/puncak/ui/LookMaker.tsx": {
@@ -10992,9 +10992,9 @@
     "semantic_hash": ""
   },
   "src/games/puncak/render/models.ts": {
-    "mtime": 1793828591.5934105,
-    "seen": 1793829489.2991652,
-    "ast_hash": "7ce2ebd9a5053b101a74af78b7b21876",
+    "mtime": 1793829864.7924142,
+    "seen": 1793830978.7472634,
+    "ast_hash": "a86c92e8d833dc96565252d81a4744fa",
     "semantic_hash": ""
   },
   "src/games/puncak/sim/weather.test.ts": {
@@ -11013,6 +11013,48 @@
     "mtime": 1793829424.7963727,
     "seen": 1793829489.302226,
     "ast_hash": "898ef941ba5a2abd33a0aca68e60bb14",
+    "semantic_hash": ""
+  },
+  "src/games/puncak/render/ink.ts": {
+    "mtime": 1793829864.6255744,
+    "seen": 1793830978.7472558,
+    "ast_hash": "3fa89e9fd15c40cca2ba259a63c19739",
+    "semantic_hash": ""
+  },
+  "src/games/puncak/render/quality.ts": {
+    "mtime": 1793829919.3144586,
+    "seen": 1793830978.7472692,
+    "ast_hash": "ffe548c6c4cd7d11c808ee573f6c83d9",
+    "semantic_hash": ""
+  },
+  "review/puncak-v2/garis-tinta.png": {
+    "mtime": 1793830909.3635733,
+    "seen": 1793830978.7488513,
+    "ast_hash": "e06ae587a1afee73855487eaf4e710f6",
+    "semantic_hash": ""
+  },
+  "review/puncak-v2/shader-lumut-rimba.png": {
+    "mtime": 1793830909.1900163,
+    "seen": 1793830978.7488813,
+    "ast_hash": "8553fd31b23b4e0b04776099891bbdcd",
+    "semantic_hash": ""
+  },
+  "review/puncak-v2/shader-urat-lava.png": {
+    "mtime": 1793830909.2858274,
+    "seen": 1793830978.748885,
+    "ast_hash": "aa8e28b51732e88bb9dba75c8f3bb7c6",
+    "semantic_hash": ""
+  },
+  "review/puncak-v2/tombol-720.png": {
+    "mtime": 1793830909.5347116,
+    "seen": 1793830978.7488928,
+    "ast_hash": "55afab87d38238ee260407a1586a2295",
+    "semantic_hash": ""
+  },
+  "review/puncak-v2/tombol-844.png": {
+    "mtime": 1793830909.447426,
+    "seen": 1793830978.748897,
+    "ast_hash": "5cfc5eec643d0511cbb1dcecf30cf7aa",
     "semantic_hash": ""
   }
 }

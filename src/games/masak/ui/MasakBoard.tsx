@@ -10,17 +10,17 @@ import { Joystick } from '@/components/controls/Joystick'
 import { LoadingScreen } from '@/components/feedback/Loader'
 import { ConfirmModal } from '@/components/feedback/Modal'
 import { Slab, Tape } from '@/components/memphis/Slab'
-import { randomLook } from '@/games/sport/look'
-import { savedLook } from '@/games/sport/ui/lookStore'
 import { cn } from '@/lib/utils'
 import type { GameProps } from '../../types'
 import { actorOf, starsOf, winner } from '../engine'
-import { ING, KITCHENS, RECIPES, starGoals } from '../kitchens'
+import { KITCHENS, starGoals } from '../kitchens'
 import { Round, type Hud } from '../round'
 import type { Fx } from '../sim/kitchen'
 import { Boil, fxSound, playSound } from '../sounds'
-import type { MasakAction, MasakState } from '../types'
-import { botName, clock, STAR_LINE } from './copy'
+import { ANIMAL_TITLE, APRONS, TEAM_APRONS } from '../render/koki'
+import { ANIMALS, type Animal, type MasakAction, type MasakState } from '../types'
+import { botName, STAR_LINE } from './copy'
+import { ClockScore, Countdown, GraphicsMenu, RecipeCard, Tickets, type IconUrls } from './Hud'
 
 type Props = GameProps<MasakState, MasakAction>
 
@@ -31,16 +31,11 @@ export function MasakBoard({ state: s, seat, names, online, act, exit, live }: P
     const a = s.actors[actor].seat
     return a === null ? botName(actor) : names[a] ?? '?'
   }
-  // kirim tampilan koki sekali; dipakai HP lain untuk mewarnai chibi kita
-  const sentLook = useRef(false)
-  useEffect(() => {
-    if (sentLook.current || me < 0 || s.looks[me]) return
-    sentLook.current = true
-    act({ type: 'look', look: savedLook() ?? randomLook(Date.now() % 100000)[0] })
-  }, [act, me, s.looks])
   return (
     <div className="relative h-dvh overflow-hidden bg-ink select-none">
-      {s.phase === 'end' ? (
+      {s.phase === 'pick' ? (
+        <PickScreen s={s} seat={seat} me={me} nameOf={nameOf} act={act} back={() => setConfirmExit(true)} />
+      ) : s.phase === 'end' ? (
         <EndScreen s={s} seat={seat} nameOf={nameOf} act={act} exit={exit} />
       ) : (
         <RoundScreen key={s.phaseId} s={s} seat={seat} online={online} act={act} live={live} nameOf={nameOf} back={() => setConfirmExit(true)} />
@@ -50,9 +45,97 @@ export function MasakBoard({ state: s, seat, names, online, act, exit, live }: P
   )
 }
 
+const PORTRAIT = import.meta.glob<string>('@/assets/masak/koki/*.webp', { eager: true, import: 'default' })
+const portraitOf = (a: Animal) => PORTRAIT[`/src/assets/masak/koki/${a}.webp`]
+const LAST_KEY = 'masak-koki'
+
+function savedAnimal(): Animal | null {
+  try {
+    const v = localStorage.getItem(LAST_KEY) as Animal | null
+    return v && ANIMALS.includes(v) ? v : null
+  } catch {
+    return null
+  }
+}
+
+/** sebelum ronde pertama: tiap pemain memilih koki hewan; host memulai saat semua siap */
+function PickScreen({ s, seat, me, nameOf, act, back }: { s: MasakState; seat: number; me: number; nameOf: (a: number) => string; act: (a: MasakAction) => void; back: () => void }) {
+  useMusic('masak')
+  const mine = me >= 0 ? s.koki[me] : null
+  // pilihan terakhir dipakai lagi kalau belum diambil orang
+  const tried = useRef(false)
+  useEffect(() => {
+    if (tried.current || me < 0 || mine) return
+    tried.current = true
+    const last = savedAnimal()
+    if (last && !s.koki.includes(last)) act({ type: 'koki', animal: last })
+  }, [act, me, mine, s.koki])
+  const pick = (a: Animal) => {
+    playSound('grab', 0.7)
+    try {
+      localStorage.setItem(LAST_KEY, a)
+    } catch {
+      /* penyimpanan diblokir: pilihan tetap berlaku ronde ini */
+    }
+    act({ type: 'koki', animal: a })
+  }
+  const owner = (a: Animal) => s.koki.indexOf(a)
+  const versus = s.opts.mode === 'versus'
+  const apron = (i: number) => (versus ? TEAM_APRONS[s.actors[i].team] : APRONS[i % APRONS.length])
+  const humans = s.actors.flatMap((a, i) => (a.seat !== null ? [i] : []))
+  const waiting = humans.filter((i) => !s.koki[i]).length
+  return (
+    <div className="absolute inset-0 flex flex-col gap-2 bg-petal p-3 text-ink">
+      <div className="flex items-center gap-2">
+        <button onClick={back} className="border-[3px] border-ink bg-paper px-2 py-1 text-xs font-bold">
+          Keluar
+        </button>
+        <h2 className="font-display text-2xl leading-none uppercase">
+          <Tape tone="electric">Pilih koki</Tape>
+        </h2>
+        <span className="text-sm">{KITCHENS[s.opts.kitchen].title}</span>
+        {seat === 0 ? (
+          <Slab tone="rose" size="md" className="ml-auto" onClick={() => act({ type: 'go' })}>
+            {waiting ? `Mulai (${waiting} belum pilih)` : 'Mulai masak'}
+          </Slab>
+        ) : (
+          <span className="ml-auto text-sm">{mine ? 'Menunggu host mulai.' : 'Pilih kokimu dulu.'}</span>
+        )}
+      </div>
+      <ul className="grid flex-1 grid-cols-8 gap-2" role="radiogroup" aria-label="Koki hewan">
+        {ANIMALS.map((a) => {
+          const o = owner(a)
+          const taken = o >= 0 && o !== me
+          const on = o >= 0 && o === me
+          return (
+            <li key={a} className="min-h-0">
+              <button
+                role="radio"
+                aria-checked={on}
+                disabled={taken || me < 0}
+                onClick={() => pick(a)}
+                data-seat={o >= 0 ? (s.actors[o].seat ?? undefined) : undefined}
+                className={cn('flex size-full flex-col items-center justify-end border-[3px] border-ink px-1 pb-1', on ? 'bg-electric' : 'bg-paper shadow-slab-sm', taken && 'opacity-60')}
+              >
+                <img src={portraitOf(a)} alt="" className="min-h-0 w-full flex-1 object-contain" />
+                <span className="font-display text-sm uppercase">{ANIMAL_TITLE[a]}</span>
+                <span className="h-4 max-w-full truncate px-1 text-[11px] font-bold" style={o >= 0 ? { background: apron(o) } : undefined}>
+                  {o >= 0 ? nameOf(o) : ''}
+                </span>
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+      <p className="text-[12px] text-ink/70">Bot dapat koki yang tersisa. Warna celemek = warna kamu di dapur.</p>
+    </div>
+  )
+}
+
 type ScreenProps = Pick<Props, 'seat' | 'online' | 'act' | 'live'> & { s: MasakState; nameOf: (a: number) => string; back: () => void }
 
-type Pop = { id: number; text: string; tone: 'electric' | 'rose' }
+/** angka/pesan melayang; x,y = piksel layar (dari stasiun), kosong = tengah layar */
+type Pop = { id: number; text: string; tone: 'electric' | 'rose'; x?: number; y?: number }
 
 function RoundScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) {
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -60,6 +143,8 @@ function RoundScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
   const [hud, setHud] = useState<Hud | null>(null)
   const [failed, setFailed] = useState(false)
   const [pops, setPops] = useState<Pop[]>([])
+  const [icons, setIcons] = useState<IconUrls>(new Map())
+  const [coins, setCoins] = useState<{ id: number; x: number; y: number }[]>([])
   const actRef = useRef(act)
   actRef.current = act
 
@@ -70,12 +155,19 @@ function RoundScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
       if (snd) playSound(snd, f.kind === 'cooked' ? 0.6 : 1)
       const text = f.kind === 'served' ? `+${f.pts}` : f.kind === 'wrong' ? 'Salah pesanan!' : f.kind === 'missed' ? 'Pelanggan kabur −10' : f.kind === 'burnt' ? 'Gosong!' : null
       if (!text) return
-      const pop: Pop = { id: f.n, text, tone: f.kind === 'served' ? 'electric' : 'rose' }
+      const at = f.st >= 0 ? round.current?.screenOf(f.st) : null
+      if (f.kind === 'served' && at) {
+        // beberapa koin terbang dari loket ke skor
+        const burst = [0, 1, 2].map((i) => ({ id: f.n * 10 + i, x: at[0] + (i - 1) * 14, y: at[1] }))
+        setCoins((c) => [...c.slice(-9), ...burst])
+        setTimeout(() => setCoins((c) => c.filter((x) => !burst.some((b) => b.id === x.id))), 1100)
+      }
+      const pop: Pop = { id: f.n, text, tone: f.kind === 'served' ? 'electric' : 'rose', x: at?.[0], y: at?.[1] }
       setPops((p) => [...p.slice(-3), pop])
       setTimeout(() => setPops((p) => p.filter((x) => x.id !== pop.id)), 1600)
     }
     try {
-      r = new Round({ canvas: canvas.current!, state: s, seat, look: savedLook(), act: (a) => actRef.current(a), live, onHud: setHud, onFx, onSound: playSound })
+      r = new Round({ canvas: canvas.current!, state: s, seat, act: (a) => actRef.current(a), live, onHud: setHud, onFx, onSound: playSound, onIcons: setIcons })
     } catch {
       setFailed(true)
       return
@@ -123,7 +215,7 @@ function RoundScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
       )}
       {hud && (
         <>
-          <TopBar s={s} hud={hud} online={online} nameOf={nameOf} back={back} />
+          <TopBar s={s} hud={hud} online={online} nameOf={nameOf} back={back} icons={icons} />
           <div className="absolute right-3 bottom-3 flex items-end gap-2.5">
             {s.opts.mode === 'versus' && (
               <button
@@ -139,25 +231,37 @@ function RoundScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
             <HoldButton label="Dash" onHold={(v) => v && round.current?.dash()} className="h-[52px] w-[64px] bg-paper/90 text-sm">
               Dash
             </HoldButton>
-            {hud.work && (
-              <HoldButton label={hud.work} onHold={(v) => round.current?.holdChop(v)} className={cn('h-[64px] w-[92px] text-base', hud.chopping ? 'bg-electric' : 'bg-paper')}>
-                {hud.work}
+            {hud.canThrow && (
+              <HoldButton label="Lempar" onHold={(v) => v && round.current?.toss()} className="h-[56px] w-[76px] bg-suit-yellow text-sm">
+                Lempar
               </HoldButton>
             )}
-            <Slab tone="rose" size="lg" onClick={() => round.current?.grab()}>
-              {hud.holding ? 'Taruh' : 'Ambil'}
+            {hud.work && (
+              <HoldButton label={hud.work} onHold={(v) => v && round.current?.holdChop(true)} className={cn('h-[64px] w-[92px] text-base', hud.chopping ? 'bg-electric' : 'bg-paper')}>
+                {hud.chopping ? `${hud.work}…` : hud.work}
+              </HoldButton>
+            )}
+            <Slab tone="rose" size="lg" className="min-w-[132px] text-center" onClick={() => round.current?.grab()}>
+              {hud.grab}
             </Slab>
           </div>
           {hud.flour && <Flour />}
           <Gimmick s={s} hud={hud} />
           {pops.some((p) => p.tone === 'electric') && <Lottie key={pops.at(-1)?.id} src={fxServe} loop={false} className="pointer-events-none absolute top-[30%] left-1/2 size-32 -translate-x-1/2" />}
-          <ul className="pointer-events-none absolute inset-x-0 top-[38%] flex flex-col items-center gap-1">
-            {pops.map((p) => (
-              <li key={p.id}>
-                <Tape tone={p.tone} className="font-display text-lg uppercase">{p.text}</Tape>
-              </li>
-            ))}
-          </ul>
+          {pops.map((p, i) => (
+            <span
+              key={p.id}
+              className="pointer-events-none absolute animate-[floatUp_1.6s_ease-out_forwards]"
+              style={{ left: p.x ?? '50%', top: p.y ?? `calc(38% + ${i * 34}px)` }}
+            >
+              <Tape tone={p.tone} className="font-display text-lg whitespace-nowrap uppercase">{p.text}</Tape>
+            </span>
+          ))}
+          {coins.map((c, i) => (
+            <FlyCoin key={c.id} x={c.x} y={c.y} delay={(i % 3) * 70} />
+          ))}
+          <Countdown intro={hud.intro} over={hud.over} />
+          {hud.intro === 'card' && <RecipeCard kitchen={s.opts.kitchen} icons={icons} host={seat === 0} onSkip={() => round.current?.skipIntro()} />}
           {import.meta.env.DEV && (
             <span className="pointer-events-none absolute bottom-1 left-1/2 -translate-x-1/2 bg-ink/70 px-1 text-[10px] text-paper tabular-nums">
               {hud.fps} fps · aksi {hud.rtt === null ? 'host' : `${Math.round(hud.rtt)} ms`}
@@ -166,6 +270,34 @@ function RoundScreen({ s, seat, online, act, live, nameOf, back }: ScreenProps) 
         </>
       )}
     </div>
+  )
+}
+
+/** koin kecil terbang dari titik layar ke angka skor ([data-score]) */
+function FlyCoin({ x, y, delay }: { x: number; y: number; delay: number }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    const to = document.querySelector('[data-score]')?.getBoundingClientRect()
+    if (!el) return
+    // versus tidak punya angka koin: koin cukup memudar di tempat
+    if (!to) {
+      el.style.opacity = '0'
+      return
+    }
+    const id = setTimeout(() => {
+      el.style.transform = `translate(${to.left + to.width / 2 - x}px, ${to.top + to.height / 2 - y}px) scale(0.6)`
+      el.style.opacity = '0.2'
+    }, 30 + delay)
+    return () => clearTimeout(id)
+  }, [x, y, delay])
+  return (
+    <span ref={ref} className="pointer-events-none absolute z-20 -mt-3 -ml-3 transition-[transform,opacity] duration-700 ease-in" style={{ left: x, top: y }} aria-hidden>
+      <svg viewBox="0 0 24 24" className="size-6 drop-shadow">
+        <circle cx="12" cy="12" r="9.5" fill="#ffd23f" stroke="#121212" strokeWidth={2} />
+        <circle cx="12" cy="12" r="5.5" fill="none" stroke="#c98a12" strokeWidth={2} />
+      </svg>
+    </span>
   )
 }
 
@@ -232,13 +364,13 @@ function useKeyboard(round: React.RefObject<Round | null>) {
       if (k === ' ' || k === 'e') round.current?.grab()
       else if (k === 'f') round.current?.holdChop(true)
       else if (k === 'shift') round.current?.dash()
+      else if (k === 'r') round.current?.toss()
       else if (k === 'q') round.current?.iseng()
       held.add(k)
       apply()
     }
     const up = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase()
-      if (k === 'f') round.current?.holdChop(false)
       held.delete(k)
       apply()
     }
@@ -254,66 +386,28 @@ function useKeyboard(round: React.RefObject<Round | null>) {
 const TEAM_BG = ['bg-electric', 'bg-rose']
 export const TEAM_NAME = ['Tim Hijau', 'Tim Pink']
 
-const ING_DOT: Record<string, string> = {
-  roti: 'bg-[#d99a4e]',
-  daging: 'bg-[#6b3f22]',
-  selada: 'bg-[#6cc24a]',
-  tomat: 'bg-[#e8432f]',
-  keju: 'bg-suit-yellow',
-  adonan: 'bg-[#f1e3c2]',
-  jamur: 'bg-[#a8876a]',
-  nasi: 'bg-paper',
-  ikan: 'bg-[#ff8a5c]',
-  nori: 'bg-[#1d2b22]',
-  timun: 'bg-[#3d8a2f]',
-  mie: 'bg-[#f5d27a]',
-  telur: 'bg-[#ffa21a]',
-  bawang: 'bg-[#7fd65a]',
-  tortilla: 'bg-[#e9c98a]',
-  pancake: 'bg-[#d9954a]',
-  stroberi: 'bg-[#d81a2a]',
-  madu: 'bg-[#e8a317]',
-  pisang: 'bg-[#f7d84a]',
-  beras: 'bg-[#c98a4a]',
-  udang: 'bg-[#ff7a3c]',
-  ayam: 'bg-[#e8b08a]',
-  kacang: 'bg-[#8a4f1e]',
-  lontong: 'bg-[#4f9a3a]',
-}
-
-function TopBar({ s, hud, online, nameOf, back }: { s: MasakState; hud: Hud; online: boolean[]; nameOf: (a: number) => string; back: () => void }) {
+function TopBar({ s, hud, online, nameOf, back, icons }: { s: MasakState; hud: Hud; online: boolean[]; nameOf: (a: number) => string; back: () => void; icons: IconUrls }) {
+  const versus = s.opts.mode === 'versus'
+  const [menu, setMenu] = useState(false)
   return (
+    <>
+    {menu && <GraphicsMenu onClose={() => setMenu(false)} />}
     <div className="pointer-events-none absolute inset-x-2 top-2 flex items-start justify-between gap-2">
-      <div className="flex flex-col items-start gap-1">
-        <button onClick={back} className="pointer-events-auto border-[3px] border-ink bg-paper px-2 py-1 text-xs font-bold text-ink">
-          Keluar
-        </button>
-        <ul className="flex max-w-[180px] flex-wrap gap-1">
-          {s.actors.map((a, i) => (
-            <li key={i} data-seat={a.seat ?? undefined} className={cn('border-2 border-ink px-1 text-[10px] leading-4 font-bold text-ink', s.opts.mode === 'versus' ? TEAM_BG[a.team] : 'bg-paper', a.seat !== null && !online[a.seat] && 'opacity-50')}>
-              {nameOf(i)}
-            </li>
-          ))}
-        </ul>
+      <div className="flex min-w-0 items-start gap-2">
+        <div className="flex flex-col gap-1">
+          <button onClick={back} className="pointer-events-auto border-[3px] border-ink bg-paper px-2 py-1 text-xs font-bold text-ink">
+            Keluar
+          </button>
+          <button onClick={() => setMenu(true)} aria-label="Pengaturan grafis" className="pointer-events-auto grid h-7 place-items-center border-[3px] border-ink bg-paper text-ink">
+            <svg viewBox="0 0 24 24" className="size-4" aria-hidden>
+              <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm8.2 4.6.1-1.1-.1-1.1 2-1.6-2-3.4-2.4.9a7.6 7.6 0 0 0-1.9-1.1L15.5 2h-4l-.4 2.6c-.7.3-1.3.6-1.9 1.1l-2.4-.9-2 3.4 2 1.6-.1 1.1.1 1.1-2 1.6 2 3.4 2.4-.9c.6.5 1.2.8 1.9 1.1l.4 2.6h4l.4-2.6c.7-.3 1.3-.6 1.9-1.1l2.4.9 2-3.4-2-1.6Z" fill="#121212" />
+            </svg>
+          </button>
+        </div>
+        <Tickets orders={hud.orders} icons={icons} />
       </div>
-      <ol className="flex flex-1 justify-center gap-1.5" aria-label="Pesanan">
-        {hud.orders.map((o) => (
-          <li key={o.id} className="w-[92px] border-[3px] border-ink bg-paper px-1.5 pt-0.5 pb-1 text-ink shadow-slab-sm">
-            <p className="font-display text-[12px] leading-tight uppercase">{RECIPES[o.r].title}</p>
-            <p className="my-0.5 flex gap-1" aria-label={RECIPES[o.r].ings.map((i) => ING[i].title).join(', ')}>
-              {RECIPES[o.r].ings.map((i, n) => (
-                <span key={n} className={cn('size-3.5 rounded-full border-2 border-ink', ING_DOT[i])} />
-              ))}
-            </p>
-            <span className="block h-1.5 border border-ink bg-ink/10">
-              <span className={cn('block h-full', o.left < 0.25 ? 'bg-rose' : 'bg-electric')} style={{ width: `${o.left * 100}%` }} />
-            </span>
-          </li>
-        ))}
-      </ol>
-      <div className="flex flex-col items-end gap-1">
-        <span className={cn('border-[3px] border-ink bg-paper px-2 py-0.5 font-display text-xl leading-none text-ink tabular-nums shadow-slab-sm', hud.secs <= 15 && 'text-rose')}>{clock(hud.secs)}</span>
-        {s.opts.mode === 'versus' ? (
+      <ClockScore secs={hud.secs} score={hud.score} streak={hud.streak} versus={versus}>
+        {versus && (
           <span className="flex gap-1" aria-label="Skor tim">
             {hud.scores.map((v, t) => (
               <span key={t} className={cn('border-[3px] border-ink px-1.5 py-0.5 font-display text-base leading-none text-ink tabular-nums', TEAM_BG[t], t === hud.team && 'outline-2 outline-offset-1 outline-paper')}>
@@ -321,11 +415,22 @@ function TopBar({ s, hud, online, nameOf, back }: { s: MasakState; hud: Hud; onl
               </span>
             ))}
           </span>
-        ) : (
-          <span className="border-[3px] border-ink bg-electric px-2 py-0.5 font-display text-base leading-none text-ink tabular-nums">{hud.score} poin</span>
         )}
-      </div>
+        <ul className="flex max-w-[150px] flex-wrap justify-end gap-1">
+          {s.actors.map((a, i) => (
+            <li
+              key={i}
+              data-seat={a.seat ?? undefined}
+              className={cn('border-2 border-ink px-1 text-[10px] leading-4 font-bold text-ink', a.seat !== null && !online[a.seat] && 'opacity-50')}
+              style={{ background: versus ? TEAM_APRONS[a.team] : APRONS[i % APRONS.length] }}
+            >
+              {nameOf(i)}
+            </li>
+          ))}
+        </ul>
+      </ClockScore>
     </div>
+    </>
   )
 }
 

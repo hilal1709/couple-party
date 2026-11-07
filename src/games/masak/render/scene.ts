@@ -10,9 +10,14 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import SKY from '@/assets/sport/tex/langit-siang.hdr?url'
 import { Particles } from '@/games/kart/render/particles'
 import type { Tier } from '@/games/kart/render/quality'
+import type { Perf } from './perf'
 import { addRim } from '@/games/sport/render/shaders'
-import { CELL, COUNTER_TOP, DISH_OF, KITCHENS, type Ing, type Layout } from '../kitchens'
-import { gapOpen, isExt, isFood, isPlate, lavaOn, lavaSoon, liftUp, shipTilt, type Item, type Kit } from '../sim/kitchen'
+import { AFTER, CELL, COUNTER_TOP, DISH_OF, KITCHENS, nextStep, toolOf, type Ing, type Layout, type Tool } from '../kitchens'
+import type { KitchenId } from '../types'
+import { drawTool, INK } from '../ui/tools'
+import { bakeIcons, ingKey, type Icons } from './icons'
+import { clothShader, lavaShader, leafShader, waterShader, worldTime } from './shaders'
+import { contentAt, gapOpen, heatAt, isExt, isFood, isPlate, isPot, lavaOn, lavaSoon, liftUp, potFood, shipTilt, type Item, type Kit, type Pot } from '../sim/kitchen'
 
 import PROPS from '@/assets/masak/models/props.glb?url'
 
@@ -42,9 +47,11 @@ function loadProps() {
 let PROP: Map<string, THREE.Object3D> = new Map()
 export const make = (name: string) => PROP.get(name)?.clone() ?? new THREE.Object3D()
 
-function foodMesh(ing: Ing, s: string): THREE.Object3D {
+export function foodMesh(ing: Ing, s: string): THREE.Object3D {
   if (ing === 'daging') return make(`daging_${s}`)
   if (s === 'burnt') return make('arang')
+  // rebusan memakai model matangnya; beras rebus = gundukan nasi putih (beras_cooked = nasi goreng)
+  if (s === 'boiled') return make(ing === 'beras' ? 'nasi_cooked' : `${ing}_cooked`)
   return make(`${ing}_${s}`)
 }
 
@@ -68,7 +75,7 @@ function spread(g: THREE.Group, ings: [Ing, string][], y: number, r = 0.12, scal
 }
 
 /** Hidangan di piring (atau mangkuk untuk ramen): bahan yang cocok menyatu jadi bentuk hidangannya. */
-function plateMesh(codes: string[], dirty = false, bowl = false): THREE.Object3D {
+export function plateMesh(codes: string[], dirty = false, bowl = false): THREE.Object3D {
   const g = new THREE.Group()
   g.add(make(bowl ? 'mangkuk' : dirty ? 'piring_kotor' : 'piring'))
   const ings = codes.map((c) => c.split(':') as [Ing, string])
@@ -184,7 +191,71 @@ function shrink(tex: THREE.Texture, max: number) {
 
 const TMP = new THREE.Vector3()
 
-const itemKey = (it: Item) => (isPlate(it) ? `p|${it.f.join()}` : isExt(it) ? 'ext' : `f|${it.ing}|${it.s}`)
+/** dunia statis: matriks lokal dihitung sekali (benda bergerak & akarnya tetap otomatis) */
+function freeze(root: THREE.Object3D) {
+  root.traverse((o) => {
+    if (o === root || /^(rana_\d+|jembatan|kisi_\d|lewat_|bobot_)/.test(o.name)) return
+    let p = o.parent
+    while (p && p !== root) {
+      if (/^(rana_\d+|jembatan|kisi_\d)$/.test(p.name)) return
+      p = p.parent
+    }
+    o.updateMatrix()
+    o.matrixAutoUpdate = false
+  })
+}
+
+const SKY_TINT: Record<string, string> = {
+  burger: '#9ccbe6',
+  pizza: '#f3b38a',
+  sushi: '#c6e3ef',
+  ramen: '#a9d3ee',
+  taco: '#f2d3a0',
+  es: '#dcecf6',
+  kapal: '#5f7fa3',
+  lava: '#3b1c16',
+}
+
+/** isi gelembung di atas barang: ikon isi piring, lencana alat berikutnya, centang matang, atau tanda bahaya */
+type Bubble = { kind: 'icons'; keys: string[] } | { kind: 'tool'; tool: Tool } | { kind: 'done' } | { kind: 'warn' }
+const bubbleKey = (b: Bubble) => (b.kind === 'icons' ? `i|${b.keys.join()}` : b.kind === 'tool' ? `t|${b.tool}` : b.kind)
+const BUBBLE_H = 0.6
+
+function roundRect(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  g.beginPath()
+  g.moveTo(x + r, y)
+  g.arcTo(x + w, y, x + w, y + h, r)
+  g.arcTo(x + w, y + h, x, y + h, r)
+  g.arcTo(x, y + h, x, y, r)
+  g.arcTo(x, y, x + w, y, r)
+  g.closePath()
+}
+
+/** tinggi & skala isi di dalam wadah: wajan dangkal (isi terlihat), panci dalam (isi menyembul di mulutnya) */
+const POT_FILL = { wajan: { y: 0.015, s: 0.8 }, panci: { y: 0.13, s: 0.7 } } as const
+
+function potMesh(k: Kit, p: Pot): THREE.Object3D {
+  const g = new THREE.Group()
+  g.add(make(p.pan))
+  const f = potFood(k, p)
+  if (f) {
+    const o = foodMesh(f.ing, f.s)
+    o.position.y = POT_FILL[p.pan].y
+    o.scale.setScalar(POT_FILL[p.pan].s)
+    g.add(o)
+  }
+  return g
+}
+
+const itemKey = (k: Kit, it: Item) => {
+  if (isPlate(it)) return `p|${it.f.join()}`
+  if (isExt(it)) return 'ext'
+  if (isPot(it)) {
+    const f = potFood(k, it)
+    return `w|${it.pan}|${f ? `${f.ing}|${f.s}` : ''}`
+  }
+  return `f|${it.ing}|${it.s}`
+}
 
 /** dunia 3D satu dapur */
 export class KitchenScene {
@@ -194,27 +265,43 @@ export class KitchenScene {
   actors = new THREE.Group()
   particles: Particles
   shadows: boolean
-  private items = new Map<number, { key: string; obj: THREE.Object3D }>()
+  private items = new Map<number, { key: string; obj: THREE.Object3D; where?: string; popAt?: number }>()
+  /** piring yang baru tersaji: meluncur keluar loket lalu hilang */
+  private slides: { obj: THREE.Object3D; from: THREE.Vector3; dir: THREE.Vector3; t: number }[] = []
+  private serving: { team: number; si: number; ox: number }[] = []
   private stacks = new Map<number, THREE.Object3D[]>()
   private bars = new Map<number, { root: THREE.Object3D; fill: THREE.Mesh; mat: THREE.MeshBasicMaterial }>()
   private target: THREE.Mesh
   private L: Layout
   private tier: Tier
+  perf: Perf
   private composer: EffectComposer | null = null
   private sun: THREE.DirectionalLight
   private gimmick: string | null = null
   private bowls = false
   private belts: THREE.Texture[] = []
+  private lavaMaps: THREE.Texture[] = []
+  /** templat benda bergerak dari GLB luar (lewat_* melintas, bobot_* mengapung/berjalan) */
+  templates = new Map<string, THREE.Object3D>()
+  /** isi dunia luar (NPC, kendaraan); dipasang Round setelah dimuat */
+  outdoor = new THREE.Group()
   /** benda bergerak per salinan dapur: nama → objek & posisi asal */
   private movers: Map<string, { o: THREE.Object3D; y: number; z: number }>[] = []
   private roll = 0
   private rollV = 0
   private ox = 0
   private size: [number, number] = [1, 1]
+  /** ikon barang (dirender sekali saat dapur dimuat) */
+  icons: Icons = new Map()
+  private bubbles = new Map<number, { key: string; sprite: THREE.Sprite }>()
+  private bubbleTex = new Map<string, { tex: THREE.CanvasTexture; aspect: number }>()
+  private liveBubbles = new Set<number>()
 
-  constructor(canvas: HTMLCanvasElement, tier: Tier, L: Layout) {
+  constructor(canvas: HTMLCanvasElement, perf: Perf, L: Layout) {
+    const tier = perf.tier
     this.L = L
     this.tier = tier
+    this.perf = perf
     // tanpa composer: MSAA bawaan kanvas; dengan composer: MSAA di target + SMAA
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' })
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, tier.ratio))
@@ -224,6 +311,8 @@ export class KitchenScene {
     this.shadows = tier.shadow > 0
     this.renderer.shadowMap.enabled = this.shadows
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    // bayangan digambar ulang sendiri (lihat render): tidak tiap frame
+    this.renderer.shadowMap.autoUpdate = false
     this.scene.background = new THREE.Color('#2a1f2b')
     // dunia memakai lightmap; lampu ini hanya mengisi peta bayangan (intensitas 0), koki & barang diterangi langit HDR
     this.sun = new THREE.DirectionalLight('#fff1dc', 0)
@@ -243,7 +332,7 @@ export class KitchenScene {
     }
     this.particles = new Particles(tier.particles)
     this.scene.add(this.sun, this.actors, this.particles.group)
-    if (tier.post) {
+    if (perf.post) {
       this.composer = new EffectComposer(this.renderer, new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: tier.samples }))
       this.composer.setPixelRatio(Math.min(devicePixelRatio, tier.ratio))
       this.composer.addPass(new RenderPass(this.scene, this.camera))
@@ -259,6 +348,10 @@ export class KitchenScene {
   /** langit HDR, map GLB ber-lightmap, dan bayangan koki di atas dunia */
   async load(kitchen: string, copies = 1, off = 0) {
     this.gimmick = KITCHENS[kitchen as keyof typeof KITCHENS]?.gimmick ?? null
+    // langit & kabut per tema: ujung dunia luar memudar ke warna langit, tidak terpotong hitam
+    const tint = SKY_TINT[kitchen] ?? '#2a1f2b'
+    this.scene.background = new THREE.Color(tint)
+    this.scene.fog = new THREE.Fog(tint, 26, 48)
     this.bowls = kitchen === 'ramen'
     const [sky, gltf, lm, pr] = await Promise.all([
       new HDRLoader().loadAsync(SKY),
@@ -273,59 +366,16 @@ export class KitchenScene {
     pmrem.dispose()
     sky.dispose()
     this.scene.environment = env
+    this.icons = bakeIcons(this.renderer, env, kitchen as KitchenId)
     // koki & barang: cahaya langit penuh; dunia: lightmap + sedikit pantulan
     this.scene.environmentIntensity = 1.15
-    lm.flipY = false
-    lm.channel = 1
-    lm.colorSpace = THREE.SRGBColorSpace
     const tints = (MAP_JSON[`/src/assets/masak/maps/${kitchen}.json`] as { tint?: Record<string, number[]> } | undefined)?.tint ?? {}
     const catchers: THREE.Mesh[] = []
-    gltf.scene.traverse((o) => {
-      const m = o as THREE.Mesh
-      if (!m.isMesh) return
-      const mat = m.material as THREE.MeshPhysicalMaterial
-      mat.transmission = 0
-      const c = tints[mat.name]
-      if (c) mat.color.setRGB(c[0], c[1], c[2])
-      mat.envMap = env
-      mat.envMapIntensity = mat.metalness > 0.5 ? 0.9 : 0.25
-      if (this.tier.q !== 'high' && mat.map) shrink(mat.map, this.tier.pbr ? 1024 : 768)
-      if (!this.tier.pbr && mat.normalMap) {
-        mat.normalMap.dispose()
-        mat.normalMap = null
-      }
-      if (mat.map) mat.map.anisotropy = this.tier.q === 'high' ? 8 : 4
-      // urutan layer Blender: UVMap, Sway, Lightmap → glTF uv, uv1, uv2
-      const g = m.geometry
-      if (g.attributes.uv2) {
-        g.setAttribute('uv1', g.attributes.uv2)
-        g.deleteAttribute('uv2')
-        mat.lightMap = lm
-        // three membagi irradiance dengan π, Blender tidak
-        mat.lightMapIntensity = LM_RANGE * Math.PI
-      }
-      if (mat.name.startsWith('neon_')) mat.emissiveIntensity = Math.max(mat.emissiveIntensity, 2)
-      // kolam lava: menyala penuh dengan teksturnya sendiri, ikut bloom
-      if (mat.name.startsWith('neon_lava')) {
-        mat.emissive.set('#ff5a14')
-        mat.emissiveMap = mat.map
-        mat.emissiveIntensity = 5
-      }
-      if (mat.name.startsWith('air_')) {
-        mat.transparent = true
-        mat.opacity = 0.75
-      }
-      if (mat.name.startsWith('belt_') && mat.map && !this.belts.includes(mat.map)) this.belts.push(mat.map)
-      // benda bergerak tidak ikut lightmap: terangi sendiri dengan warnanya
-      if (!g.attributes.uv1 && !mat.name.startsWith('neon_')) {
-        mat.emissive = mat.color.clone()
-        mat.emissiveMap = mat.map
-        mat.emissiveIntensity = 0.35
-      }
-      if (this.shadows && !mat.name.startsWith('neon_')) catchers.push(m)
-    })
+    this.prepWorld(gltf.scene, lm, env, tints, catchers)
+    freeze(gltf.scene)
     this.scene.add(gltf.scene)
     this.collectMovers(gltf.scene)
+    await this.loadOutside(kitchen, env)
     // versus: dapur lawan = salinan di samping (geometri & bahan bersama). Sedikit lebih rendah supaya
     // lantai luar yang bertumpuk tidak berkedip.
     const copiesList = [gltf.scene]
@@ -348,6 +398,94 @@ export class KitchenScene {
     }
   }
 
+  /** siapkan bahan dunia ber-lightmap: tint, pantulan, lightmap uv1, neon, lava, air, sabuk, daun */
+  private prepWorld(root: THREE.Object3D, lm: THREE.Texture, env: THREE.Texture, tints: Record<string, number[]>, catchers: THREE.Mesh[]) {
+    lm.flipY = false
+    lm.channel = 1
+    lm.colorSpace = THREE.SRGBColorSpace
+    root.traverse((o) => {
+      const m = o as THREE.Mesh
+      if (!m.isMesh) return
+      const mat = m.material as THREE.MeshPhysicalMaterial
+      mat.transmission = 0
+      const c = tints[mat.name]
+      if (c) mat.color.setRGB(c[0], c[1], c[2])
+      mat.envMap = env
+      mat.envMapIntensity = mat.metalness > 0.5 ? 0.9 : 0.25
+      if (this.tier.q !== 'high' && mat.map) shrink(mat.map, this.tier.pbr ? 1024 : 768)
+      if (!this.tier.pbr && mat.normalMap) {
+        mat.normalMap.dispose()
+        mat.normalMap = null
+      }
+      if (mat.map) mat.map.anisotropy = this.tier.q === 'high' ? 8 : 4
+      // urutan layer Blender: UVMap, Sway, Lightmap → glTF uv, uv1, uv2
+      const g = m.geometry
+      if (g.attributes.uv2) {
+        // UV kedua = amplitudo goyang kain (petak_lib.Map.join)
+        g.setAttribute('sway', g.attributes.uv1)
+        g.setAttribute('uv1', g.attributes.uv2)
+        g.deleteAttribute('uv2')
+        mat.lightMap = lm
+        // three membagi irradiance dengan π, Blender tidak
+        mat.lightMapIntensity = LM_RANGE * Math.PI
+      }
+      if (mat.name.startsWith('neon_')) mat.emissiveIntensity = Math.max(mat.emissiveIntensity, 2)
+      // kolam lava: menyala penuh dengan teksturnya sendiri, ikut bloom
+      if (mat.name.startsWith('neon_lava')) {
+        mat.emissive.set('#ff5a14')
+        mat.emissiveMap = mat.map
+        mat.emissiveIntensity = 5
+        if (mat.emissiveMap) {
+          lavaShader(mat)
+          if (!this.lavaMaps.includes(mat.emissiveMap)) this.lavaMaps.push(mat.emissiveMap)
+        }
+      }
+      if (mat.name.startsWith('air_')) {
+        mat.transparent = true
+        mat.opacity = 0.8
+        waterShader(mat, mat.name === 'air_laut' ? 0.08 : 0.015)
+      }
+      if (mat.name.startsWith('daun_')) leafShader(mat)
+      if (mat.name.startsWith('sway_') && g.attributes.sway) {
+        mat.side = THREE.DoubleSide
+        clothShader(mat)
+      }
+      if (mat.name.startsWith('belt_') && mat.map && !this.belts.includes(mat.map)) this.belts.push(mat.map)
+      // benda bergerak tidak ikut lightmap: terangi sendiri dengan warnanya
+      if (!g.attributes.uv1 && !mat.name.startsWith('neon_')) {
+        mat.emissive = mat.color.clone()
+        mat.emissiveMap = mat.map
+        mat.emissiveIntensity = 0.35
+      }
+      if (this.shadows && !mat.name.startsWith('neon_')) catchers.push(m)
+    })
+  }
+
+  /** lingkungan di luar dinding (<id>-luar.glb): hanya di sekitar dapur tim sendiri, karena dapur lawan bersebelahan */
+  private async loadOutside(kitchen: string, env: THREE.Texture) {
+    const url = MAPS[`/src/assets/masak/maps/${kitchen}-luar.glb`]
+    const lmUrl = MAPS[`/src/assets/masak/maps/${kitchen}-luar-lm.webp`]
+    if (!url || !lmUrl) return
+    const [g, lm] = await Promise.all([new GLTFLoader().loadAsync(url), new THREE.TextureLoader().loadAsync(lmUrl)])
+    const tints = (MAP_JSON[`/src/assets/masak/maps/${kitchen}-luar.json`] as { tint?: Record<string, number[]> } | undefined)?.tint ?? {}
+    const catchers: THREE.Mesh[] = []
+    this.prepWorld(g.scene, lm, env, tints, catchers)
+    for (const o of [...g.scene.children]) {
+      if (!/^(lewat|bobot)_/.test(o.name)) continue
+      g.scene.remove(o)
+      o.position.set(0, 0, 0)
+      this.templates.set(o.name, o)
+    }
+    freeze(g.scene)
+    this.outside = g.scene
+    // versus: dunia luar mengikuti dapur yang difokus (lihat focus)
+    this.scene.add(g.scene, this.outdoor)
+    if (this.shadows) this.outsideCatch = this.catchShadows(g.scene, catchers.filter((m) => m.geometry.attributes.uv1))
+  }
+
+  private outside: THREE.Object3D | null = null
+  private outsideCatch: THREE.Object3D | null = null
+
   private collectMovers(root: THREE.Object3D) {
     const map = new Map<string, { o: THREE.Object3D; y: number; z: number }>()
     root.traverse((o) => {
@@ -358,6 +496,8 @@ export class KitchenScene {
 
   /** gimik tiap dapur: rana lift, jembatan gerbong, sabuk & jalan bergeser, goyangan truk */
   animate(kits: Kit[], dt: number) {
+    worldTime.value += dt
+    for (const t of this.lavaMaps) t.offset.x += dt * 0.05
     const speed = this.gimmick === 'truck' ? 1.6 : 0.6
     for (const t of this.belts) t.offset.x -= dt * speed * (this.gimmick === 'truck' ? 0.12 : 0.35)
     kits.forEach((k, t) => {
@@ -402,13 +542,19 @@ export class KitchenScene {
     const P = this.particles
     const rx = () => this.ox + (Math.random() - 0.5) * W * 1.3
     const rz = () => (Math.random() - 0.5) * H * 1.2
-    if (this.gimmick === 'ship') for (let i = 0; i < 6; i++) P.emit('rain', rx(), 6, rz(), -1.5, -14, 0, '#bcd8f0', 0.5)
-    if (this.gimmick === 'ice') for (let i = 0; i < 2; i++) P.emit('snow', rx(), 4, rz(), 0.3, -0.8, 0, '#ffffff', 0.35)
+    const n = this.perf.weather
+    if (this.gimmick === 'ship') for (let i = 0; i < Math.round(6 * n); i++) P.emit('rain', rx(), 6, rz(), -1.5, -14, 0, '#bcd8f0', 0.5)
+    if (this.gimmick === 'ice') for (let i = 0; i < Math.max(1, Math.round(2 * n)); i++) P.emit('snow', rx(), 4, rz(), 0.3, -0.8, 0, '#ffffff', 0.35)
     if (this.gimmick === 'lava') {
       const L = this.L
       const on = lavaOn(kits[0])
-      for (const [x, z] of L.lava[on] ?? []) if (Math.random() < 0.25) P.emit('spark', this.ox + x + (Math.random() - 0.5) * 0.8, 0.05, z + (Math.random() - 0.5) * 0.8, 0, 2.2, 0, '#ffb347', 0.3)
+      for (const [x, z] of L.lava[on] ?? []) if (Math.random() < 0.25 * n) P.emit('spark', this.ox + x + (Math.random() - 0.5) * 0.8, 0.05, z + (Math.random() - 0.5) * 0.8, 0, 2.2, 0, '#ffb347', 0.3)
     }
+  }
+
+  /** kepulan debu di belakang kaki saat dash */
+  dust(x: number, z: number, yaw: number) {
+    this.particles.burst('dust', 10, x - Math.sin(yaw) * 0.3, 0.08, z - Math.cos(yaw) * 0.3, -Math.sin(yaw) * 1.2, 0.6, -Math.cos(yaw) * 1.2, 1.6, ['#f4efe8', '#d9d2c6'], 0.5)
   }
 
   /** truk belok ke `dir`: dapur miring sebentar */
@@ -421,6 +567,9 @@ export class KitchenScene {
   /** kamera & peta bayangan mengikuti dapur tim sendiri */
   focus(x: number) {
     this.ox = x
+    this.outside?.position.setX(x)
+    this.outsideCatch?.position.setX(x)
+    this.outdoor.position.setX(x)
     this.sun.position.set(x - 3.5, 12, 5)
     this.sun.target.position.set(x, 0, 0)
     this.scene.add(this.sun.target)
@@ -458,6 +607,7 @@ export class KitchenScene {
     const o = new THREE.Mesh(geo, catcher)
     o.receiveShadow = true
     this.scene.add(o)
+    return o
   }
 
   /** kamera tetap: seluruh dapur muat di layar mendatar */
@@ -485,27 +635,66 @@ export class KitchenScene {
   /** letakkan semua barang sesuai isi tiap dapur; `hands` = titik tangan tiap aktor (koordinat dunia) */
   sync(kits: Kit[], hands: THREE.Vector3[], off: number) {
     const seen = new Set<number>()
+    this.copyOff = off
     kits.forEach((k, t) => this.syncKit(k, t, t * off, hands, seen))
     for (const [id, e] of this.items) {
       if (seen.has(id)) continue
-      this.scene.remove(e.obj)
       this.items.delete(id)
+      // piring yang hilang tepat saat tersaji: meluncur keluar lewat loket
+      const team = Math.floor(id / 1_000_000)
+      const sv = e.key.startsWith('p|') ? this.serving.find((x) => x.team === team) : undefined
+      if (sv) {
+        const st = this.L.stations[sv.si]
+        this.slides.push({ obj: e.obj, from: new THREE.Vector3(st.x + sv.ox, COUNTER_TOP + 0.01, st.z), dir: this.outward(sv.si), t: 0 })
+        this.serving = this.serving.filter((x) => x !== sv)
+        continue
+      }
+      this.scene.remove(e.obj)
     }
+    this.serving = []
     this.syncPeels(kits, off)
   }
 
+  /** pesanan tersaji di loket `si` dapur `team`: piring yang hilang berikutnya dianimasikan keluar */
+  serveAt(team: number, si: number) {
+    this.serving.push({ team, si, ox: team * this.copyOff })
+  }
+
+  /** arah keluar dapur dari sebuah stasiun di tepi denah */
+  private outward(si: number) {
+    const L = this.L
+    const st = L.stations[si]
+    const d = new THREE.Vector3(st.c >= L.w - 1 ? 1 : st.c <= 0 ? -1 : 0, 0, st.r >= L.h - 1 ? 1 : st.r <= 0 ? -1 : 0)
+    return d.lengthSq() ? d.normalize() : d.set(1, 0, 0)
+  }
+
+  private stepSlides(dt: number) {
+    this.slides = this.slides.filter((s) => {
+      s.t += dt / 0.55
+      const t = Math.min(1, s.t)
+      s.obj.position.copy(s.from).addScaledVector(s.dir, t * 1.4)
+      s.obj.position.y += Math.sin(t * Math.PI) * 0.12
+      s.obj.scale.setScalar(1 - Math.max(0, t - 0.6) * 2)
+      if (t < 1) return true
+      this.scene.remove(s.obj)
+      return false
+    })
+  }
+
+  private copyOff = 0
+
   private syncKit(k: Kit, team: number, ox: number, hands: THREE.Vector3[], seen: Set<number>) {
     const L = this.L
-    const place = (raw: number, x: number, y: number, z: number, glide = false) => {
+    const place = (raw: number, x: number, y: number, z: number, glide = false, where = '') => {
       const it = k.items[raw]
       if (!it) return
       const id = team * 1_000_000 + raw
       seen.add(id)
-      const key = itemKey(it)
+      const key = itemKey(k, it)
       let e = this.items.get(id)
       if (!e || e.key !== key) {
         if (e) this.scene.remove(e.obj)
-        const obj = isPlate(it) ? plateMesh(it.f, false, this.bowls) : isExt(it) ? make('pemadam') : foodMesh(it.ing, it.s)
+        const obj = isPlate(it) ? plateMesh(it.f, false, this.bowls) : isExt(it) ? make('pemadam') : isPot(it) ? potMesh(k, it) : foodMesh(it.ing, it.s)
         obj.traverse((o) => (o.castShadow = this.shadows))
         e = { key, obj }
         this.items.set(id, e)
@@ -514,10 +703,33 @@ export class KitchenScene {
       // di sabuk barang meluncur halus dari petak ke petak, bukan melompat
       if (glide && e.obj.position.distanceToSquared(TMP.set(x, y, z)) < 2.5) e.obj.position.lerp(TMP, 0.18)
       else e.obj.position.set(x, y, z)
+      // putaran sisa lemparan dihapus; terbang & lantai mengatur putarannya sendiri setelah ini
+      e.obj.rotation.set(0, 0, 0)
+      // pindah tempat (diambil, ditaruh, ditangkap): membal sebentar
+      if (where && e.where !== where) {
+        if (e.where !== undefined) e.popAt = worldTime.value
+        e.where = where
+      }
+      const pt = e.popAt !== undefined ? (worldTime.value - e.popAt) / 0.22 : 1
+      e.obj.scale.setScalar(pt < 1 ? 1 + Math.sin(pt * Math.PI) * 0.3 : 1)
     }
-    const lift = { board: 0.035, stove: 0.04, oven: 0.02, belt: 0.01 } as Record<string, number>
-    k.hold.forEach((id, si) => id !== null && place(id, L.stations[si].x + ox, COUNTER_TOP + (lift[L.stations[si].kind] ?? 0.005), L.stations[si].z, L.stations[si].kind === 'belt' || this.gimmick === 'truck'))
-    k.hands.forEach((id, a) => id !== null && hands[a] && place(id, hands[a].x, hands[a].y, hands[a].z))
+    const lift = { board: 0.035, stove: 0.03, oven: 0.02, belt: 0.01 } as Record<string, number>
+    k.hold.forEach((id, si) => id !== null && place(id, L.stations[si].x + ox, COUNTER_TOP + (lift[L.stations[si].kind] ?? 0.005), L.stations[si].z, L.stations[si].kind === 'belt' || this.gimmick === 'truck', L.stations[si].kind === 'belt' ? 'sabuk' : `s${si}`))
+    k.hands.forEach((id, a) => id !== null && hands[a] && place(id, hands[a].x, hands[a].y, hands[a].z, false, `a${a}`))
+    k.hold.forEach((id, si) => id !== null && this.bubbleFor(k, team, id, si))
+    k.hands.forEach((id) => id !== null && this.bubbleFor(k, team, id, -1))
+    // lemparan berputar di udara; barang jatuh tergeletak di lantai (dengan gelembung alatnya)
+    for (const f of k.flying) {
+      place(f.id, f.x + ox, f.y, f.z)
+      const e = this.items.get(team * 1_000_000 + f.id)
+      if (e) e.obj.rotation.set(f.age * 0.012, f.age * 0.008, 0)
+    }
+    for (const f of k.floor) {
+      place(f.id, f.x + ox, 0.02, f.z)
+      const e = this.items.get(team * 1_000_000 + f.id)
+      if (e) e.obj.rotation.set(0, (f.id * 1.3) % 6.28, 0)
+      this.bubbleFor(k, team, f.id, -1)
+    }
     // tumpukan piring bersih & kotor
     L.stations.forEach((st, si) => {
       if (st.kind !== 'plates' && st.kind !== 'sink') return
@@ -585,14 +797,143 @@ export class KitchenScene {
     })
   }
 
+  /** gelembung di atas satu barang; `si` = stasiun tempatnya, -1 = di tangan */
+  /** dapur yang sedang digambar (untuk isi wadah di gelembung) */
+  private kitNow: Kit | null = null
+
+  private bubbleFor(k: Kit, team: number, raw: number, si: number) {
+    this.kitNow = k
+    const it = k.items[raw]
+    const e = this.items.get(team * 1_000_000 + raw)
+    if (!it || !e) return
+    const b = this.bubbleOf(it, si)
+    if (!b) return
+    const id = team * 1_000_000 + raw
+    this.liveBubbles.add(id)
+    const key = bubbleKey(b)
+    let s = this.bubbles.get(id)
+    if (!s || s.key !== key) {
+      const t = this.bubbleTexture(b)
+      if (!t) return
+      if (!s) {
+        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: t.tex, depthTest: false, transparent: true }))
+        sprite.renderOrder = 20
+        this.scene.add(sprite)
+        s = { key, sprite }
+        this.bubbles.set(id, s)
+      }
+      s.key = key
+      s.sprite.material.map = t.tex
+      s.sprite.material.needsUpdate = true
+      const h = b.kind === 'icons' ? BUBBLE_H : BUBBLE_H * 0.85
+      s.sprite.scale.set(h * t.aspect, h, 1)
+    }
+    const p = e.obj.position
+    s.sprite.position.set(p.x, p.y + (si < 0 ? 0.5 : 0.55), p.z)
+    // tanda bahaya berkedip makin cepat menjelang gosong
+    if (b.kind === 'warn' && isFood(it)) s.sprite.visible = Math.floor(k.t / Math.max(110, 330 - it.p * 260)) % 2 === 0
+    else s.sprite.visible = true
+  }
+
+  private bubbleOf(it: Item, si: number): Bubble | null {
+    if (isPlate(it)) return it.f.length ? { kind: 'icons', keys: it.f.map((c) => { const [i, st] = c.split(':'); return ingKey(i as Ing, st) }) } : null
+    const kind = si >= 0 ? this.L.stations[si].kind : null
+    const heat = si >= 0 && this.kitNow ? heatAt(this.kitNow, si) : null
+    if (isPot(it)) {
+      const f = this.kitNow ? potFood(this.kitNow, it) : undefined
+      if (!f || f.s === 'burnt') return null
+      if (heat && f.s === AFTER[heat]) return f.p > 0.45 ? { kind: 'warn' } : { kind: 'done' }
+      // di luar kompor, atau sedang dimasak: tunjukkan isinya
+      return heat && nextStep(f.ing, f.s) === heat ? null : { kind: 'icons', keys: [ingKey(f.ing, f.s)] }
+    }
+    if (!isFood(it) || it.s === 'burnt') return null
+    if (heat) {
+      if (it.s === AFTER[heat]) return it.p > 0.45 ? { kind: 'warn' } : { kind: 'done' }
+      return null
+    }
+    const step = nextStep(it.ing, it.s)
+    if (!step) return null
+    // sedang dipotong: bar progres sudah cukup
+    if (kind === 'board' && step === 'cut' && it.p > 0) return null
+    return { kind: 'tool', tool: toolOf(it.ing, step) }
+  }
+
+  private bubbleTexture(b: Bubble) {
+    const key = bubbleKey(b)
+    const hit = this.bubbleTex.get(key)
+    if (hit) return hit
+    const cell = 64
+    const pad = 8
+    const n = b.kind === 'icons' ? b.keys.length : 1
+    const c = document.createElement('canvas')
+    c.width = n * cell + pad * 2
+    c.height = cell + pad * 2 + 14
+    const g = c.getContext('2d')!
+    const bodyH = cell + pad * 2
+    const fill = b.kind === 'warn' ? '#ff3b30' : b.kind === 'done' ? '#5cf64a' : '#fffdf8'
+    // ekor gelembung menunjuk ke barang
+    g.fillStyle = fill
+    g.strokeStyle = INK
+    g.lineWidth = 5
+    g.beginPath()
+    g.moveTo(c.width / 2 - 10, bodyH - 3)
+    g.lineTo(c.width / 2, c.height - 2)
+    g.lineTo(c.width / 2 + 10, bodyH - 3)
+    g.closePath()
+    g.fill()
+    g.stroke()
+    roundRect(g, 3, 3, c.width - 6, bodyH - 6, 16)
+    g.fill()
+    g.stroke()
+    if (b.kind === 'icons') {
+      b.keys.forEach((k0, i) => {
+        const ic = this.icons.get(k0)
+        if (ic) g.drawImage(ic.canvas, pad + i * cell - 4, pad - 4, cell + 8, cell + 8)
+      })
+    } else if (b.kind === 'tool') {
+      drawTool(g, b.tool, pad + 6, pad + 6, cell - 12)
+    } else {
+      g.fillStyle = b.kind === 'warn' ? '#ffffff' : INK
+      g.font = `900 ${cell - 8}px system-ui, sans-serif`
+      g.textAlign = 'center'
+      g.textBaseline = 'middle'
+      g.fillText(b.kind === 'warn' ? '!' : '✓', c.width / 2, pad + cell / 2 + 3)
+    }
+    const tex = new THREE.CanvasTexture(c)
+    tex.colorSpace = THREE.SRGBColorSpace
+    tex.anisotropy = 4
+    const out = { tex, aspect: c.width / c.height }
+    this.bubbleTex.set(key, out)
+    return out
+  }
+
+  private pruneBubbles() {
+    for (const [id, b] of this.bubbles) {
+      if (this.liveBubbles.has(id)) continue
+      this.scene.remove(b.sprite)
+      b.sprite.material.dispose()
+      this.bubbles.delete(id)
+    }
+    this.liveBubbles.clear()
+  }
+
+  /** titik layar (piksel CSS) untuk posisi dunia di atas stasiun; untuk angka poin yang melayang */
+  screenOf(si: number, ox = 0): [number, number] | null {
+    const st = this.L.stations[si]
+    if (!st) return null
+    TMP.set(st.x + ox, COUNTER_TOP + 0.6, st.z).project(this.camera)
+    return [((TMP.x + 1) / 2) * this.size[0], ((1 - TMP.y) / 2) * this.size[1]]
+  }
+
   private syncBars(k: Kit, team: number, ox: number) {
     const L = this.L
-    k.hold.forEach((id, si) => {
-      const it = k.items[id ?? -1]
+    k.hold.forEach((_, si) => {
+      const it = contentAt(k, si)
       const kind = L.stations[si].kind
-      if (!isFood(it) || (kind !== 'board' && kind !== 'stove')) return
-      const cooking = kind === 'stove' && it.s === 'raw'
-      const burning = kind === 'stove' && it.s === 'cooked'
+      const heat = heatAt(k, si)
+      if (!it || (kind !== 'board' && kind !== 'stove' && kind !== 'oven')) return
+      const cooking = !!heat && nextStep(it.ing, it.s) === heat
+      const burning = !!heat && it.s === AFTER[heat]
       const chopping = kind === 'board' && it.p > 0 && it.s === 'raw'
       if (!cooking && !burning && !chopping) return
       const key = team * 1000 + si
@@ -638,6 +979,7 @@ export class KitchenScene {
   /** api, asap, uap, serpihan potongan, semprotan pemadam; `spray` = titik semprot koki yang memegang pemadam */
   effects(kits: Kit[], dt: number, hands: THREE.Vector3[], off: number) {
     this.pruneBars()
+    this.pruneBubbles()
     this.fxIn -= dt
     const tick = this.fxIn <= 0
     if (tick) {
@@ -645,6 +987,7 @@ export class KitchenScene {
       kits.forEach((k, t) => this.kitEffects(k, t * off, hands))
     }
     this.flyTosses(dt)
+    this.stepSlides(dt)
     this.particles.update(dt)
   }
 
@@ -661,13 +1004,15 @@ export class KitchenScene {
           if (Math.random() < 0.5) P.emit('smoke', st.x, y + 0.6, st.z, (Math.random() - 0.5) * 0.3, 0.9, (Math.random() - 0.5) * 0.3, '#3a3236', 0.5)
           return
         }
-        const it = k.items[k.hold[si] ?? -1]
-        if (st.kind === 'stove' && isFood(it) && Math.random() < 0.35) {
-          const color = it.s === 'burnt' ? '#2a2426' : it.s === 'cooked' && it.p > 0.5 ? '#6a5a55' : '#f4efe8'
+        const it = contentAt(k, si)
+        if (st.kind === 'stove' && it && Math.random() < 0.35) {
+          const color = it.s === 'burnt' ? '#2a2426' : (it.s === 'cooked' || it.s === 'boiled') && it.p > 0.5 ? '#6a5a55' : '#f4efe8'
           P.emit('smoke', st.x + (Math.random() - 0.5) * 0.3, y + 0.05, st.z + (Math.random() - 0.5) * 0.3, 0, 0.6, 0, color, 0.28)
           if (it.s !== 'burnt' && Math.random() < 0.3) P.emit('spark', st.x, y, st.z, (Math.random() - 0.5) * 1.2, 1.5, (Math.random() - 0.5) * 1.2, '#ffe2a8', 0.2)
         }
       })
+      // jejak lemparan: serpih putih kecil di belakang bahan yang terbang
+      for (const f of k.flying) P.emit('snow', f.x + ox, f.y, f.z, -f.vx * 0.05, 0.2, -f.vz * 0.05, '#fffdf2', 0.18)
       k.chop.forEach((si, a) => {
         if (si === null || !hands[a]) return
         const st = { ...L.stations[si], x: L.stations[si].x + ox }
@@ -697,21 +1042,44 @@ export class KitchenScene {
     this.target.position.set(st.x + ox, COUNTER_TOP + 0.03, st.z)
   }
 
-  /** HP kewalahan: matikan efek layar dulu (MSAA kanvas tetap aktif), lalu turunkan resolusi */
-  lowerQuality() {
+  /**
+   * HP kewalahan, satu langkah per panggilan: efek layar mati (MSAA kanvas tetap aktif) → bayangan lebih jarang →
+   * resolusi turun sampai 1,25 → bayangan mati. false = sudah paling ringan.
+   */
+  lowerQuality(): boolean {
     if (this.composer) {
       this.composer.dispose()
       this.composer = null
-      return
+      return true
     }
+    if (this.shadows && this.perf.shadowEvery < 3) {
+      this.perf = { ...this.perf, shadowEvery: 3 }
+      return true
+    }
+    // resolusi tidak turun di bawah 1,25: tepi dunia luar (gedung, pagar, rel) jadi bergerigi kalau lebih rendah
     const r = this.renderer.getPixelRatio()
-    if (r > 1) {
-      this.renderer.setPixelRatio(Math.max(1, r - 0.25))
+    if (r > 1.25) {
+      this.renderer.setPixelRatio(Math.max(1.25, r - 0.25))
       this.resize(this.size[0], this.size[1])
+      return true
     }
+    if (this.shadows) {
+      this.shadows = false
+      this.renderer.shadowMap.enabled = false
+      this.sun.castShadow = false
+      this.scene.traverse((o) => {
+        const m = o as THREE.Mesh
+        if (m.isMesh && (m.material as THREE.Material).type === 'ShadowMaterial') m.visible = false
+      })
+      return true
+    }
+    return false
   }
 
+  private frameNo = 0
+
   render() {
+    if (this.shadows && this.frameNo++ % this.perf.shadowEvery === 0) this.renderer.shadowMap.needsUpdate = true
     if (this.composer) this.composer.render()
     else this.renderer.render(this.scene, this.camera)
   }

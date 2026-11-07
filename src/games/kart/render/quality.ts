@@ -56,9 +56,10 @@ function probeQuality(): Quality {
     gl.getExtension('WEBGL_lose_context')?.loseContext()
     const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4
     const cores = navigator.hardwareConcurrency ?? 4
-    // GPU HP lama / kelas bawah
+    // GPU HP lama / kelas bawah. Tinggi hanya untuk GPU kelas atas + memori ≥8 GB + ≥8 inti: HP baru pun
+    // panas kalau semua efek nyala, jadi tebakan otomatis condong ke Sedang
     if (/mali-(4|t[0-9])|adreno \(tm\) (3|4|50)|powervr|sgx|mali-g(31|51|52|57)/.test(gpu) || mem <= 3 || cores <= 4) return 'low'
-    if (/adreno \(tm\) (7[3-9]|[89]\d\d)|mali-g(7[1-9]|71[0-9]|72[0-9])|immortalis|apple|nvidia|geforce|radeon|intel\(r\) (iris|arc)/.test(gpu) && mem >= 6) return 'high'
+    if (/adreno \(tm\) (7[3-9]|[89]\d\d)|mali-g(7[1-9]|71[0-9]|72[0-9])|immortalis|apple|nvidia|geforce|radeon|intel\(r\) (iris|arc)/.test(gpu) && mem >= 8 && cores >= 8) return 'high'
     return 'med'
   } catch {
     return 'low'
