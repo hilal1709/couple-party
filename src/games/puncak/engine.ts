@@ -1,7 +1,7 @@
 import { nextRand } from '../rng'
 import { cleanLook, randomLook } from './look'
 import type { Seat } from '../types'
-import { MOUNTAIN_IDS } from './mountains'
+import { MOUNTAIN_IDS, zoneCount } from './mountains'
 import type { MountainId, PuncakAction, PuncakOptions, PuncakState } from './types'
 
 export const MIN_PLAYERS = 1
@@ -9,7 +9,7 @@ export const MAX_PLAYERS = 4
 export const MAX_CLIMBERS = 4
 
 export function defaultOptions(players = 2): PuncakOptions {
-  return { players, mountain: 'karang', zones: 4, weather: 'cerah', loot: 'normal', total: Math.max(1, players), level: 2 }
+  return { players, mountain: 'hijau', zones: 4, weather: 'cerah', loot: 'normal', total: Math.max(1, players), level: 2 }
 }
 
 export const actorOf = (s: PuncakState, seat: Seat) => s.actors.findIndex((a) => a.seat === seat)
@@ -63,6 +63,7 @@ export function reduce(s: PuncakState, a: PuncakAction, by: Seat): PuncakState {
 export function starsOf(s: PuncakState): number {
   const r = s.result
   if (!r?.win) return 0
-  const par = s.opts.zones === 4 ? 16 * 60 : 8 * 60
+  // ±4 menit per zona
+  const par = zoneCount(s.mountain, s.opts.zones) * 4 * 60
   return 1 + (r.secs <= par ? 1 : 0) + (r.falls <= 1 ? 1 : 0)
 }

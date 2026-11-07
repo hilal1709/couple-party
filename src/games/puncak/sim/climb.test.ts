@@ -47,6 +47,8 @@ describe('fisika memanjat', () => {
     const ev = run(b, { ...still, mx: dir[0], mz: dir[1], grip: true, up: 1 }, env, 12, 'top')
     expect(ev.some((e) => e.k === 'grab')).toBe(true)
     expect(ev.some((e) => e.k === 'top')).toBe(true)
+    // naik tepian meluncur sebentar (bukan teleport), lalu berdiri
+    if (b.mode === 'mantle') run(b, still, env, 1)
     expect(b.mode).toBe('ground')
     expect(b.y).toBeGreaterThan(top.y - 2)
     expect(b.stamina).toBeLessThan(1)
@@ -61,6 +63,25 @@ describe('fisika memanjat', () => {
     const ev = run(b, { ...still, grip: true }, env, 2)
     expect(ev.some((e) => e.k === 'tired')).toBe(true)
     expect(b.mode).not.toBe('climb')
+  })
+
+  it('gerak berbobot: mulai jalan tidak instan, berhenti lebih cepat, berbalik tidak patah', () => {
+    const c = t.camps[0]
+    const b = newBody(c.x, c.y, c.z, 0)
+    const env = envOf(t)
+    const go = { ...still, mx: 1, mz: 0 }
+    run(b, go, env, 0.1)
+    const early = Math.hypot(b.vx, b.vz)
+    expect(early).toBeGreaterThan(0.8)
+    expect(early).toBeLessThan(3)
+    run(b, go, env, 0.5)
+    expect(Math.hypot(b.vx, b.vz)).toBeGreaterThan(3.4)
+    const yaw0 = b.yaw
+    // balik arah: satu frame hanya memutar badan sedikit
+    stepBody(b, { ...still, mx: -1, mz: 0 }, env, 1 / 60)
+    expect(Math.abs(Math.atan2(Math.sin(b.yaw - yaw0), Math.cos(b.yaw - yaw0)))).toBeLessThan(0.2)
+    run(b, still, env, 0.3)
+    expect(Math.hypot(b.vx, b.vz)).toBeLessThan(0.05)
   })
 
   it('lompat sambil lari: langsung melayang dan laju larinya tetap', () => {

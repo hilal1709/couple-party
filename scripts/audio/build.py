@@ -607,61 +607,16 @@ def puncak_synth():
 
 
 def puncak_music():
-    """Musik pendakian: pad lembut + petikan pentatonik + shaker; 32 ketuk @ 84 bpm, loop mulus"""
-    rng = np.random.default_rng(84)
-    bpm = 84
-    beat = 60 / bpm
-    bars = 16
-    n = int(SR * beat * 4 * bars)
-    t = np.arange(n) / SR
-    x = np.zeros((n, 2), dtype=np.float32)
-
-    def env(k, a, r):
-        tt = np.arange(k) / SR
-        return (np.minimum(1, tt / a) * np.exp(-tt / r)).astype(np.float32)
-
-    def pluck(f, k):
-        # Karplus-Strong: senar dipetik
-        p = max(2, int(SR / f))
-        buf = rng.uniform(-1, 1, p).astype(np.float32)
-        out = np.zeros(k, dtype=np.float32)
-        for i in range(k):
-            out[i] = buf[i % p]
-            buf[i % p] = 0.5 * (buf[i % p] + buf[(i + 1) % p]) * 0.996
-        return out
-
-    chords = [[220, 277.2, 329.6], [196, 246.9, 293.7], [174.6, 220, 261.6], [196, 246.9, 329.6]]
-    bar = int(SR * beat * 4)
-    for b in range(bars):
-        c = chords[b % 4]
-        seg = slice(b * bar, (b + 1) * bar)
-        tt = np.arange(bar) / SR
-        pad = sum(np.sin(2 * np.pi * f * tt + 0.3 * np.sin(2 * np.pi * 0.2 * tt)) + 0.4 * np.sin(2 * np.pi * f * 2.003 * tt) for f in c)
-        e = np.minimum(1, tt / 0.6) * np.minimum(1, (bar / SR - tt) / 0.6)
-        pv = (pad * e * 0.07).astype(np.float32)
-        x[seg, 0] += pv
-        x[seg, 1] += pv * 0.95
-        bass = np.sin(2 * np.pi * c[0] / 2 * tt) * env(bar, 0.02, 1.4) * 0.22
-        x[seg, 0] += bass
-        x[seg, 1] += bass
-    scale = [440, 493.9, 554.4, 659.3, 740, 880, 987.8, 1108.7]
-    step = int(SR * beat / 2)
-    for i in range(bars * 8):
-        if rng.random() < 0.42 or (i % 8 == 0):
-            f = scale[int(rng.integers(0, len(scale)))]
-            k = min(n - i * step, int(SR * 1.2))
-            v = pluck(f, k) * 0.22
-            pan = rng.uniform(0.3, 0.7)
-            x[i * step:i * step + k, 0] += v * (1 - pan)
-            x[i * step:i * step + k, 1] += v * pan
-        k = int(SR * 0.05)
-        sh = rng.standard_normal(k).astype(np.float32) * env(k, 0.002, 0.015) * (0.05 if i % 2 else 0.08)
-        sh = sh - np.convolve(sh, np.ones(8) / 8, mode='same')
-        x[i * step:i * step + k] += sh[:, None]
-    # gema sederhana
-    d = int(SR * beat * 0.75)
-    x[d:] += x[:-d] * 0.28
-    write_ogg(seamless_loop(x, 1.5), OUT / 'music' / 'puncak.ogg', 80, lufs=-21)
+    """Musik & suara alam Puncak Berdua v3: lihat scripts/audio/puncak_songs.py"""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import puncak_songs as ps
+    write_ogg(seamless_loop(ps.song_low(), 1.5), OUT / 'music' / 'puncak.ogg', 80, lufs=-21)
+    write_ogg(seamless_loop(ps.song_high(), 2.0), OUT / 'music' / 'puncak-tinggi.ogg', 80, lufs=-21)
+    rng = np.random.default_rng(717)
+    for name, x in ps.ambience(rng).items():
+        write_ogg(_st(x), OUT / 'sfx' / f'puncak-{name}.ogg', 48, mono=True, lufs=-26)
+    for name, x in ps.coop_sfx(rng).items():
+        write_ogg(_st(x), OUT / 'sfx' / f'puncak-{name}.ogg', 64, mono=True, lufs=-19)
 
 
 def tali_synth():
@@ -1053,8 +1008,6 @@ if __name__ == '__main__':
         sfx('masak-')
     elif sys.argv[1:] == ['puncak']:
         puncak_synth()
-        tali_music()
-        tali_synth()
         puncak_music()
     else:
         music()

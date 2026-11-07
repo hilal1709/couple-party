@@ -292,23 +292,24 @@ export function meadow(t: Terrain, mats: PropMats, density: number, grassLayer: 
   }
   const patches: THREE.InstancedMesh[] = []
   const CH = 24
-  const cells = Math.ceil(t.size / CH)
+  const cellsX = Math.ceil(t.sx / CH)
+  const cellsZ = Math.ceil(t.sz / CH)
   const r = rng(91)
   const m4 = new THREE.Matrix4()
   const q = new THREE.Quaternion()
   const up = new THREE.Vector3(0, 1, 0)
   const col = new THREE.Color()
   const per = Math.round(CH * CH * 1.1 * density)
-  for (let cj = 0; cj < cells; cj++) {
-    for (let ci = 0; ci < cells; ci++) {
+  for (let cj = 0; cj < cellsZ; cj++) {
+    for (let ci = 0; ci < cellsX; ci++) {
       const pts: [number, number, number, number, number][] = []
       for (let k = 0; k < per; k++) {
-        const x = ci * CH - t.half + r() * CH
-        const z = cj * CH - t.half + r() * CH
-        const i = Math.round((x + t.half) / CELL)
-        const j = Math.round((z + t.half) / CELL)
-        if (i < 1 || j < 1 || i >= t.n - 1 || j >= t.n - 1) continue
-        const idx = j * t.n + i
+        const x = ci * CH - t.hx + r() * CH
+        const z = cj * CH - t.hz + r() * CH
+        const i = Math.round((x + t.hx) / CELL)
+        const j = Math.round((z + t.hz) / CELL)
+        if (i < 1 || j < 1 || i >= t.nx - 1 || j >= t.nz - 1) continue
+        const idx = j * t.nx + i
         const zone = t.zone[idx]
         const zn = t.m.zones[zone]
         if (!zn.grass || t.snow[idx] > 90) continue
@@ -317,7 +318,7 @@ export function meadow(t: Terrain, mats: PropMats, density: number, grassLayer: 
         if (w < 0.45) continue
         const h = t.h[idx]
         const gx = (t.h[idx + 1] - t.h[idx - 1]) / (2 * CELL)
-        const gz = (t.h[idx + t.n] - t.h[idx - t.n]) / (2 * CELL)
+        const gz = (t.h[idx + t.nx] - t.h[idx - t.nx]) / (2 * CELL)
         if (Math.hypot(gx, gz) > 0.8 || (t.m.sea && h < t.m.sea.y + 0.3)) continue
         if (r() > (zn.grass === 'kering' ? 0.85 : 0.6)) continue
         pts.push([x, h, z, w, zn.grass === 'kering' ? 1 : 0])
@@ -335,8 +336,9 @@ export function meadow(t: Terrain, mats: PropMats, density: number, grassLayer: 
         im.setColorAt(i, col)
       })
       im.computeBoundingSphere()
-      im.userData.cx = ci * CH - t.half + CH / 2
-      im.userData.cz = cj * CH - t.half + CH / 2
+      im.userData.cx = ci * CH - t.hx + CH / 2
+      im.userData.cz = cj * CH - t.hz + CH / 2
+      im.userData.r = CH * 0.71
       patches.push(im)
     }
   }
@@ -404,6 +406,43 @@ export function chest(kind: ChestKind, wood: THREE.Material) {
     g.add(bag, pocket, roll)
   }
   g.traverse((o) => ((o as THREE.Mesh).castShadow = true))
+  // badan & pita logam jadi satu mesh per bahan; tutup (beranimasi) & telur (disembunyikan) tetap terpisah
+  return batchStatic(g, (o) => o.name === 'lid' || o.name === 'egg')
+}
+
+/**
+ * Gabungkan mesh statis di dalam `g` per bahan (satu draw call per bahan, bukan per bagian).
+ * Mesh yang `keep` (atau di bawah objek yang `keep`) tidak disentuh karena dianimasikan adegan.
+ */
+export function batchStatic<T extends THREE.Object3D>(g: T, keep: (o: THREE.Object3D) => boolean): T {
+  g.updateMatrixWorld(true)
+  const inv = g.matrixWorld.clone().invert()
+  const byMat = new Map<THREE.Material, THREE.BufferGeometry[]>()
+  const gone: THREE.Mesh[] = []
+  const walk = (o: THREE.Object3D) => {
+    if (keep(o)) return
+    const m = o as THREE.Mesh
+    if (m.isMesh && !Array.isArray(m.material)) {
+      const geo = (m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone()).applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld))
+      const list = byMat.get(m.material) ?? []
+      list.push(geo)
+      byMat.set(m.material, list)
+      gone.push(m)
+    }
+    for (const c of [...o.children]) walk(c)
+  }
+  for (const c of [...g.children]) walk(c)
+  if (gone.length < 2) return g
+  for (const m of gone) m.removeFromParent()
+  for (const [mat, geos] of byMat) {
+    // hanya atribut yang dimiliki semua bagian (uv dipertahankan untuk bahan bertekstur)
+    const common = Object.keys(geos[0].attributes).filter((k) => geos.every((q) => q.getAttribute(k)?.itemSize === geos[0].getAttribute(k).itemSize))
+    for (const q of geos) for (const k of Object.keys(q.attributes)) if (!common.includes(k)) q.deleteAttribute(k)
+    const mesh = new THREE.Mesh(mergeGeometries(geos), mat)
+    mesh.castShadow = gone[0].castShadow
+    mesh.receiveShadow = gone[0].receiveShadow
+    g.add(mesh)
+  }
   return g
 }
 
@@ -438,7 +477,8 @@ export function campfire(rock: THREE.Material, wood: THREE.Material) {
     ;(o as THREE.Mesh).castShadow = true
     ;(o as THREE.Mesh).receiveShadow = true
   })
-  return g
+  // 17 bagian → 3 draw call (batu, kayu, bara yang menyala diatur adegan)
+  return batchStatic(g, (o) => o.name === 'ember')
 }
 
 /** bendera puncak: kain berkibar */

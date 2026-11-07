@@ -549,11 +549,14 @@ function PuncakDemo() {
   const n = Math.min(4, Math.max(1, Number(q.get('n') ?? 1)))
   const seat = Number(q.get('seat') ?? 0)
   const lag = Number(q.get('lag') ?? 0)
+  // uji jaringan HP: &lag=ms satu arah (ping ≈ 2×lag), &jitter=ms, &loss=0..1 per pesan (hanya pesan live; state room tetap andal)
+  const jitter = Number(q.get('jitter') ?? 0)
+  const loss = Number(q.get('loss') ?? 0)
   const [s, setS] = useState<PuncakState>(() => {
     const o: Partial<PuncakOptions> = {
       players: n,
       total: Number(q.get('total') ?? Math.max(2, n)),
-      mountain: (q.get('mountain') ?? 'karang') as PuncakOptions['mountain'],
+      mountain: (q.get('mountain') ?? 'hijau') as PuncakOptions['mountain'],
       zones: (Number(q.get('zones') ?? 4) === 2 ? 2 : 4) as PuncakOptions['zones'],
       weather: (q.get('weather') ?? 'cerah') as PuncakOptions['weather'],
       loot: (q.get('loot') ?? 'normal') as PuncakOptions['loot'],
@@ -582,22 +585,25 @@ function PuncakDemo() {
     if (!bus) return undefined
     return {
       send: (d) => {
+        if (loss && Math.random() < loss) return
         const post = () => bus.postMessage({ live: d, from: seat })
-        if (lag) setTimeout(post, lag / 2)
+        const wait = lag / 2 + (Math.random() * 2 - 1) * (jitter / 2)
+        if (wait > 0) setTimeout(post, wait)
         else post()
       },
       on: (cb) => {
         const fn = (e: MessageEvent) => {
           if (e.data.live === undefined) return
           const run = () => cb(e.data.live, e.data.from)
-          if (lag) setTimeout(run, lag / 2)
+          const wait = lag / 2 + (Math.random() * 2 - 1) * (jitter / 2)
+          if (wait > 0) setTimeout(run, wait)
           else run()
         }
         bus.addEventListener('message', fn)
         return () => bus.removeEventListener('message', fn)
       },
     }
-  }, [bus, seat, lag])
+  }, [bus, seat, lag, jitter, loss])
   const act = (a: PuncakAction) => {
     if (bus && seat !== 0) bus.postMessage({ action: a, by: seat })
     else setS((cur) => puncakEngine.reduce(cur, a, seat))

@@ -1,4 +1,4 @@
-import type { Body } from './climb'
+import { feed, type Body } from './climb'
 import { gradAt, heightAt, type Rope, type Terrain } from './terrain'
 
 export type ItemId =
@@ -69,7 +69,48 @@ export const ITEMS: Record<ItemId, ItemInfo> = {
 }
 
 export const ITEM_IDS = Object.keys(ITEMS) as ItemId[]
-export const SLOTS = 4
+/** saku (bisa dipakai kapan saja) dan isi ransel (harus dipindah ke saku dulu, hanya saat berdiri) */
+export const SLOTS = 3
+export const BAG = 4
+
+/** lempar barang: kecepatan datar & naik (m/s) */
+const THROW_V = 8.5
+const THROW_UP = 4.2
+const G = 20
+
+/**
+ * Jalur lemparan dari tangan (x, y+1.3, z) ke arah yaw. Berhenti saat menyentuh medan.
+ * Mengembalikan titik jatuh dan lama terbang (dipakai host untuk barang di tanah & tampilan melayang).
+ */
+export function throwArc(t: Terrain, x: number, y: number, z: number, yaw: number) {
+  const dx = Math.sin(yaw)
+  const dz = Math.cos(yaw)
+  let px = x + dx * 0.4
+  let py = y + 1.3
+  let pz = z + dz * 0.4
+  let vy = THROW_UP
+  const dt = 1 / 60
+  let time = 0
+  for (let i = 0; i < 240; i++) {
+    const nx = px + dx * THROW_V * dt
+    const nz = pz + dz * THROW_V * dt
+    vy -= G * dt
+    const ny = py + vy * dt
+    time += dt
+    const ground = heightAt(t, nx, nz)
+    if (ny <= ground) {
+      // menabrak dinding di depan: jatuh di kaki dinding (titik terakhir yang masih di udara)
+      const hitWall = ground - ny > 0.6
+      const lx = hitWall ? px : nx
+      const lz = hitWall ? pz : nz
+      return { x: lx, y: heightAt(t, lx, lz), z: lz, time }
+    }
+    px = nx
+    py = ny
+    pz = nz
+  }
+  return { x: px, y: heightAt(t, px, pz), z: pz, time }
+}
 
 /** isi peti dari angka acak 0..1 (host) */
 export function rollItem(r: number, kind: 'peti' | 'sarang' | 'tas'): ItemId {
@@ -107,6 +148,8 @@ export function findLedge(t: Terrain, x: number, y: number, z: number, dx: numbe
 
 /** arah ke tebing: menanjak kalau sedang memanjat, atau arah hadap */
 function wallDir(t: Terrain, b: Body): [number, number] {
+  // memanjat: ke dalam dinding (kebalikan normal), berlaku juga untuk bongkahan & pohon
+  if (b.mode === 'climb' && Math.hypot(b.nx, b.nz) > 0.05) return [-b.nx, -b.nz]
   if (b.mode === 'climb') {
     const [gx, gz] = gradAt(t, b.x, b.z)
     return [gx, gz]
@@ -138,7 +181,8 @@ export type UseOutcome = { text: string; good?: boolean }
  */
 export function applyToBody(b: Body, t: Terrain, item: ItemId, ctx: { warm: boolean; lucky: boolean }): UseOutcome {
   const f = b.fat
-  const fill = (v: number) => (b.stamina = Math.min(1, b.stamina + v))
+  // yang melebihi bar masuk ke bar bonus
+  const fill = (v: number) => feed(b, v)
   switch (item) {
     case 'pisang':
       f.hunger = Math.max(0, f.hunger - 0.15)
