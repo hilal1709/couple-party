@@ -299,6 +299,41 @@ def animate(arm):
     hurt = p({'spine': (-20, 0, 8), 'head': (-30, 0, 16), 'upper_R': (-20, 40, 0), 'upper_L': (-20, -40, 0)})
     limp = p({'root': (-86, 0, 0), 'head': (10, 0, 0), 'upper_R': (0, 60, 0), 'upper_L': (0, -60, 0), 'fore_R': (0, 0, 0), 'fore_L': (0, 0, 0), 'thigh_L': (-8, -10, 0), 'thigh_R': (-8, 10, 0)})
     action(arm, 'ko', [(0, hurt, (0, 0.2, -0.02)), (10, p(hurt, {'root': (-30, 0, 0)}), (0, 0.32, 0)), (24, limp, (0, 0.5, 0.2)), (40, limp, (0, 0.5, 0.2))])
+
+    # ---------- v3: transisi supaya gerak tidak patah ----------
+    # belok di tempat: kaki menyeret bergantian, badan memutar duluan
+    t1 = p({'spine': (2, 0, 10), 'head': (0, 0, 8), 'thigh_L': (-18, 0, 0), 'shin_L': (26, 0, 0), 'upper_L': (10, -12, 0), 'upper_R': (-6, 12, 0)})
+    t2 = p({'spine': (2, 0, 10), 'head': (0, 0, 8), 'thigh_R': (-18, 0, 0), 'shin_R': (26, 0, 0), 'upper_R': (10, 12, 0), 'upper_L': (-6, -12, 0)})
+    action(arm, 'turn', [(0, t1), (8, t2, (0, 0, 0.015)), (16, t1)])
+    # mendarat: lutut menekuk menahan berat, tangan terayun ke depan, lalu bangkit
+    sq = p({'spine': (24, 0, 0), 'head': (-14, 0, 0), 'thigh_L': (-62, 0, 0), 'thigh_R': (-62, 0, 0), 'shin_L': (100, 0, 0), 'shin_R': (100, 0, 0), 'foot_L': (-36, 0, 0), 'foot_R': (-36, 0, 0),
+            'upper_L': (-50, -30, 0), 'upper_R': (-50, 30, 0), 'fore_L': (-40, 0, 0), 'fore_R': (-40, 0, 0)})
+    action(arm, 'land', [(0, sq, (0, 0, -0.14)), (5, p(sq, {'spine': (16, 0, 0)}), (0, 0, -0.1)), (14, p({'spine': (4, 0, 0)}), (0, 0, -0.01)), (18, p())])
+    # meraih: satu tangan menjulur jauh ke atas, badan terentang, ujung kaki berjinjit
+    re = p(ci, {'spine': (2, 0, -6), 'head': (-34, 0, -6), 'upper_R': (-180, 4, 0), 'fore_R': (0, 0, 0), 'hand_R': (-20, 0, 0), 'upper_L': (-140, -18, 0), 'fore_L': (-40, 0, 0),
+                'thigh_L': (-6, 0, 0), 'shin_L': (12, 0, 0), 'foot_L': (30, 0, 0), 'thigh_R': (-30, 0, 0), 'shin_R': (50, 0, 0)})
+    action(arm, 'reach', [(0, re, (0, 0, 0.03)), (20, p(re, {'upper_R': (-176, 8, 0), 'hand_R': (-34, 0, 0)}), (0, 0, 0.05)), (40, re, (0, 0, 0.03))])
+    # naik tepian: badan sim sendiri yang meluncur naik lalu maju (mode 'mantle'), jadi klip hanya
+    # memberi pose: tangan di bibir, siku menarik, lutut naik, berdiri. Akar nyaris tidak bergeser.
+    m0 = p(hang, {'head': (-30, 0, 0)})
+    m1 = p({'spine': (30, 0, 0), 'head': (-20, 0, 0), 'upper_L': (-100, -20, 0), 'upper_R': (-100, 20, 0), 'fore_L': (-110, 0, 0), 'fore_R': (-110, 0, 0), 'thigh_L': (-40, 0, 0), 'shin_L': (60, 0, 0), 'thigh_R': (-10, 0, 0), 'shin_R': (30, 0, 0)})
+    m2 = p({'spine': (40, 0, 0), 'head': (-24, 0, 0), 'upper_L': (-30, -30, 0), 'upper_R': (-30, 30, 0), 'fore_L': (-30, 0, 0), 'fore_R': (-30, 0, 0), 'thigh_L': (-110, 0, 0), 'shin_L': (120, 0, 0), 'thigh_R': (10, 0, 0), 'shin_R': (40, 0, 0)})
+    m3 = p({'spine': (14, 0, 0), 'thigh_L': (-30, 0, 0), 'shin_L': (40, 0, 0)})
+    action(arm, 'pull_up', [(0, m0, (0, 0.06, 0)), (8, m1, (0, 0.04, -0.04)), (16, m2, (0, 0.02, -0.06)), (24, m3, (0, 0, -0.02)), (30, p())])
+    # tergelincir: tangan mencakar-cakar ke bawah, kaki menendang mencari pijakan
+    sa = p(ci, {'upper_L': (-130, -30, 0), 'fore_L': (-60, 0, 0), 'upper_R': (-170, 20, 0), 'fore_R': (-10, 0, 0), 'thigh_L': (-60, 0, 0), 'shin_L': (90, 0, 0), 'thigh_R': (10, 0, 0), 'head': (-10, 0, 10)})
+    sb = p(ci, {'upper_R': (-130, 30, 0), 'fore_R': (-60, 0, 0), 'upper_L': (-170, -20, 0), 'fore_L': (-10, 0, 0), 'thigh_R': (-60, 0, 0), 'shin_R': (90, 0, 0), 'thigh_L': (10, 0, 0), 'head': (-10, 0, -10)})
+    action(arm, 'slip', [(0, sa, (0, 0, 0.02)), (4, sb, (0.02, 0, -0.03)), (8, sa, (-0.02, 0, 0.0)), (12, sb, (0, 0, -0.03)), (16, sa, (0, 0, 0.02))])
+    # luka: badan membungkuk memegang pinggang, kaki kanan diseret
+    ih = p({'spine': (18, 0, -8), 'head': (6, 0, -6), 'upper_R': (-10, 50, 0), 'fore_R': (-100, 0, 40), 'upper_L': (4, -16, 0), 'thigh_R': (6, 0, 0)})
+    action(arm, 'idle_hurt', [(0, ih, (0, 0, -0.03)), (36, p(ih, {'spine': (22, 0, -10), 'head': (10, 0, -4)}), (0, 0, -0.05)), (72, ih, (0, 0, -0.03))])
+    wh1 = p(ih, {'thigh_L': (-34, 0, 0), 'shin_L': (40, 0, 0), 'thigh_R': (14, 0, 0), 'spine': (14, 0, 8), 'upper_L': (20, -14, 0)})
+    wh2 = p(ih, {'thigh_L': (16, 0, 0), 'thigh_R': (-12, 0, 0), 'shin_R': (6, 0, 0), 'spine': (24, 0, -12), 'upper_L': (-16, -14, 0)})
+    action(arm, 'walk_hurt', [(0, wh1, (0, 0, 0.0)), (10, wh2, (0, 0, -0.07)), (24, wh1, (0, 0, 0.0))])
+    # bangun dari pingsan: dari pose terkapar (akhir 'ko') duduk, berlutut, berdiri
+    sit = p({'root': (-40, 0, 0), 'spine': (30, 0, 0), 'head': (10, 0, 0), 'thigh_L': (-50, 0, 0), 'thigh_R': (-40, 0, 0), 'shin_L': (40, 0, 0), 'upper_L': (20, -40, 0), 'upper_R': (20, 40, 0)})
+    kneel = p({'spine': (30, 0, 0), 'thigh_L': (-90, 0, 0), 'shin_L': (90, 0, 0), 'thigh_R': (10, 0, 0), 'shin_R': (110, 0, 0), 'upper_R': (-40, 20, 0), 'fore_R': (-30, 0, 0)})
+    action(arm, 'recover', [(0, limp, (0, 0.5, 0.2)), (12, sit, (0, 0.3, -0.1)), (24, kneel, (0, 0.05, -0.22)), (36, p({'spine': (10, 0, 0)}), (0, 0, -0.02)), (42, p())])
     arm.animation_data.action = None
 
 

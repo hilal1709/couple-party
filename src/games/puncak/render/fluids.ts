@@ -5,7 +5,7 @@ import { loadTex } from './textures'
 
 /** peta tinggi medan sebagai tekstur: air memakainya untuk warna kedalaman & buih pantai */
 export function heightTexture(t: Terrain) {
-  const tex = new THREE.DataTexture(t.h, t.n, t.n, THREE.RedFormat, THREE.FloatType)
+  const tex = new THREE.DataTexture(t.h, t.nx, t.nz, THREE.RedFormat, THREE.FloatType)
   tex.magFilter = THREE.LinearFilter
   tex.minFilter = THREE.LinearFilter
   tex.needsUpdate = true
@@ -23,8 +23,8 @@ export async function water(t: Terrain, y: number, hTex: THREE.DataTexture, cloc
     sh.uniforms.uClock = clock
     sh.uniforms.uH = { value: hTex }
     sh.uniforms.uN = { value: n }
-    sh.uniforms.uHalf = { value: t.half }
-    sh.uniforms.uSize = { value: t.size }
+    sh.uniforms.uHalf = { value: new THREE.Vector2(t.hx, t.hz) }
+    sh.uniforms.uSize = { value: new THREE.Vector2(t.sx, t.sz) }
     sh.uniforms.uSea = { value: y }
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', '#include <common>\nvarying vec3 vWW;')
@@ -33,7 +33,7 @@ export async function water(t: Terrain, y: number, hTex: THREE.DataTexture, cloc
       .replace(
         '#include <common>',
         `#include <common>
-         uniform float uClock; uniform sampler2D uH; uniform sampler2D uN; uniform float uHalf; uniform float uSize; uniform float uSea;
+         uniform float uClock; uniform sampler2D uH; uniform sampler2D uN; uniform vec2 uHalf; uniform vec2 uSize; uniform float uSea;
          varying vec3 vWW;
          float wDepth(){ vec2 q = (vWW.xz + uHalf) / uSize; if (q.x < 0.0 || q.y < 0.0 || q.x > 1.0 || q.y > 1.0) return 30.0; return uSea - texture2D(uH, q).r; }`,
       )
@@ -99,13 +99,13 @@ export async function lava(y: number, size: number, clock: Clock, x = 0, z = 0, 
 }
 
 /** lautan awan / kabut lembah: dua lapis noise bergerak, tepi lembut */
-export async function clouds(y: number, size: number, color: string, clock: Clock, opacity = 1, scale = 0.012, ground?: { tex: THREE.DataTexture; half: number; size: number }) {
+export async function clouds(y: number, size: number, color: string, clock: Clock, opacity = 1, scale = 0.012, ground?: { tex: THREE.DataTexture; half: THREE.Vector2; size: THREE.Vector2 }) {
   const noise = await loadTex('awan.webp', false)
   const m = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
     fog: true,
-    uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { uClock: { value: 0 }, uNz: { value: noise }, uColor: { value: new THREE.Color(color) }, uOp: { value: opacity }, uScale: { value: scale }, uH: { value: null }, uHalf: { value: 0 }, uSize: { value: 1 }, uY: { value: y }, uSoft: { value: ground ? 1 : 0 } }]),
+    uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { uClock: { value: 0 }, uNz: { value: noise }, uColor: { value: new THREE.Color(color) }, uOp: { value: opacity }, uScale: { value: scale }, uH: { value: null }, uHalf: { value: new THREE.Vector2() }, uSize: { value: new THREE.Vector2(1, 1) }, uY: { value: y }, uSoft: { value: ground ? 1 : 0 } }]),
     vertexShader: `
       #include <fog_pars_vertex>
       varying vec3 vCW;
@@ -119,7 +119,7 @@ export async function clouds(y: number, size: number, color: string, clock: Cloc
     fragmentShader: `
       #include <fog_pars_fragment>
       uniform float uClock; uniform sampler2D uNz; uniform vec3 uColor; uniform float uOp; uniform float uScale;
-      uniform sampler2D uH; uniform float uHalf; uniform float uSize; uniform float uY; uniform float uSoft;
+      uniform sampler2D uH; uniform vec2 uHalf; uniform vec2 uSize; uniform float uY; uniform float uSoft;
       varying vec3 vCW;
       void main(){
         vec2 q = vCW.xz * uScale;

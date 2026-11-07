@@ -1,7 +1,7 @@
 import type { PuncakLook } from './look'
 import type { BotLevel, Seat } from '../types'
 
-export type MountainId = 'karang' | 'rimba' | 'ngarai' | 'kawah' | 'salju' | 'teh' | 'kristal' | 'langit'
+export type MountainId = 'hijau' | 'karang' | 'rimba' | 'ngarai' | 'kawah' | 'salju' | 'teh' | 'kristal' | 'langit'
 export type Weather = 'cerah' | 'angin' | 'ekstrem'
 export type Loot = 'sedikit' | 'normal' | 'banyak'
 

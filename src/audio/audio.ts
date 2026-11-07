@@ -2,7 +2,7 @@ import { Howl, Howler } from 'howler'
 import { useEffect, useSyncExternalStore } from 'react'
 import { store } from '@/net/transport'
 
-export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense' | 'sport' | 'sport-tense' | 'petak' | 'petak-tense' | 'masak' | 'masak-tense' | 'puncak' | `tali-${'sawah' | 'apung' | 'atap' | 'pabrik' | 'gua' | 'candi' | 'bromo' | 'malam'}` | 'sunyi' | 'sunyi-tense'
+export type Track = 'menu' | 'uno' | 'uno-tense' | 'snakes' | 'snakes-tense' | 'draw' | 'draw-tense' | 'remi' | 'remi-tense' | 'domino' | 'domino-tense' | 'monopoly' | 'monopoly-tense' | 'ludo' | 'ludo-tense' | 'spy' | 'spy-tense' | 'bom' | 'bom-tense' | 'kart' | 'kart-tense' | 'sport' | 'sport-tense' | 'petak' | 'petak-tense' | 'masak' | 'masak-tense' | 'puncak' | 'puncak-tinggi' | `tali-${'sawah' | 'apung' | 'atap' | 'pabrik' | 'gua' | 'candi' | 'bromo' | 'malam'}` | 'sunyi' | 'sunyi-tense'
 
 export type SfxName =
   | 'card-place-1'
@@ -246,6 +246,9 @@ export type SfxName =
   | 'masak-hitung'
   | 'masak-mulai'
   | 'puncak-langkah'
+  | 'puncak-lempar'
+  | 'puncak-tangkap'
+  | 'puncak-gendong'
   | 'puncak-lompat'
   | 'puncak-pegang'
   | 'puncak-napas'

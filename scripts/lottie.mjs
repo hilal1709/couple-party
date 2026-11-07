@@ -2398,6 +2398,78 @@ function petakLolos() {
   return doc('petak-lolos', S, S, OP, layers)
 }
 
+
+// Puncak Berdua: api unggun menyala — tiga lidah api tumbuh berdenyut + bara terbang naik
+function puncakApi() {
+  const S = 260
+  const OP = 90
+  const c = S / 2
+  const flame = (w, h, color) => [
+    { ty: 'sh', ks: st({ c: true, v: [[0, -h], [w, 0], [0, h * 0.35], [-w, 0]], i: [[0, 0], [0, -h * 0.55], [w * 0.6, 0], [0, h * 0.35]], o: [[0, 0], [0, h * 0.35], [-w * 0.6, 0], [0, -h * 0.55]] }) },
+    fill(color),
+    stroke('#121212', 4),
+  ]
+  const layers = []
+  // kayu bersilang
+  layers.push(layer(1, [{ ty: 'rc', p: st([0, 0]), s: st([120, 18]), r: st(9) }, fill('#8a5a33'), stroke('#121212', 4)], { p: st([c, c + 70, 0]), r: st(12), s: popScale(0, OP - 12, OP) }, OP))
+  layers.push(layer(2, [{ ty: 'rc', p: st([0, 0]), s: st([120, 18]), r: st(9) }, fill('#6b4425'), stroke('#121212', 4)], { p: st([c, c + 70, 0]), r: st(-12), s: popScale(0, OP - 12, OP) }, OP))
+  const fl = [
+    [0, 46, 92, '#ff6b35', 4],
+    [-26, 28, 60, '#ffb347', 8],
+    [24, 26, 56, '#ffcc1f', 10],
+    [0, 18, 40, '#fff4fa', 14],
+  ]
+  for (const [dx, w, h, col, t0] of fl) {
+    layers.push(
+      layer(layers.length + 1, flame(w, h, col), {
+        p: st([c + dx, c + 52, 0]),
+        a: st([0, h * 0.3, 0]),
+        s: anim([[0, [0, 0, 100]], [t0, [0, 0, 100]], [t0 + 10, [110, 125, 100]], [t0 + 22, [95, 92, 100]], [t0 + 34, [105, 112, 100]], [t0 + 46, [98, 96, 100]], [OP - 10, [100, 100, 100]], [OP - 1, [0, 0, 100]]]),
+        r: anim([[0, [0]], [30, [dx > 0 ? 6 : -6]], [60, [dx > 0 ? -4 : 4]], [OP - 1, [0]]]),
+      }, OP),
+    )
+  }
+  for (let i = 0; i < 10; i++) {
+    const t0 = 10 + Math.floor(rand() * 40)
+    const x = c + (rand() - 0.5) * 80
+    layers.push(
+      layer(layers.length + 1, [{ ty: 'el', p: st([0, 0]), s: st([9, 9]) }, fill(i % 2 ? '#ffcc1f' : '#ff6b35'), stroke('#121212', 2)], {
+        p: anim([[t0, [x, c + 30, 0]], [t0 + 36, [x + (rand() - 0.5) * 70, c - 110, 0]]]),
+        s: anim([[0, [0, 0, 100]], [t0, [0, 0, 100]], [t0 + 4, [100, 100, 100]], [t0 + 36, [0, 0, 100]], [OP - 1, [0, 0, 100]]]),
+      }, OP),
+    )
+  }
+  return doc('puncak-api', S, S, OP, layers)
+}
+
+// Puncak Berdua: sampai puncak — gunung hijau menyembul, bendera naik & berkibar, bintang berpencar
+function puncakPuncak() {
+  const S = 320
+  const OP = 110
+  const c = S / 2
+  const layers = []
+  layers.push(layer(1, [poly([[-120, 70], [-20, -60], [20, -30], [60, -75], [130, 70]]), fill('#43b929'), stroke('#121212', 5)], { p: st([c, c + 60, 0]), s: popScale(0, OP - 14, OP) }, OP))
+  layers.push(layer(2, [poly([[-34, -36], [-20, -60], [-6, -40]]), fill('#fff4fa'), stroke('#121212', 4)], { p: st([c, c + 60, 0]), s: popScale(4, OP - 14, OP) }, OP))
+  // tiang & bendera naik dari puncak lalu berkibar
+  layers.push(
+    layer(3, [{ ty: 'rc', p: st([0, -40]), s: st([6, 80]), r: st(0) }, fill('#121212'), { ty: 'sh', ks: anim([[16, { c: true, v: [[3, -80], [56, -66], [3, -50]], i: [[0, 0], [0, 0], [0, 0]], o: [[0, 0], [0, 0], [0, 0]] }], [40, { c: true, v: [[3, -80], [56, -60], [3, -50]], i: [[0, 0], [-10, -6], [0, 0]], o: [[0, 0], [10, 6], [0, 0]] }], [64, { c: true, v: [[3, -80], [56, -68], [3, -50]], i: [[0, 0], [-10, 6], [0, 0]], o: [[0, 0], [10, -6], [0, 0]] }], [OP - 1, { c: true, v: [[3, -80], [56, -64], [3, -50]], i: [[0, 0], [0, 0], [0, 0]], o: [[0, 0], [0, 0], [0, 0]] }]]) }, fill('#ff37a6'), stroke('#121212', 4)], {
+      p: anim([[0, [c - 20, c + 40, 0]], [10, [c - 20, c + 40, 0]], [26, [c - 20, c - 2, 0]], [OP - 1, [c - 20, c - 2, 0]]]),
+      s: popScale(8, OP - 14, OP),
+    }, OP),
+  )
+  for (let i = 0; i < 9; i++) {
+    const a = -Math.PI / 2 + (i - 4) * 0.32
+    layers.push(
+      layer(layers.length + 1, star(12, 5, 5, PALETTE[i % 5]), {
+        p: anim([[22, [c - 20, c - 60, 0]], [70, [c - 20 + Math.cos(a) * 130, c - 60 + Math.sin(a) * 110, 0]]]),
+        s: anim([[0, [0, 0, 100]], [22, [0, 0, 100]], [30, [110, 110, 100]], [80, [0, 0, 100]], [OP - 1, [0, 0, 100]]]),
+        r: anim([[22, [0]], [80, [200]]]),
+      }, OP),
+    )
+  }
+  return doc('puncak-puncak', S, S, OP, layers)
+}
+
 const out = {
   confetti: confetti(),
   burst: burst(),
@@ -2477,6 +2549,9 @@ const out = {
   'masak-bintang': sportBurst('masak-bintang', 14, ['#ffcc1f', '#fff4fa', '#ff37a6']),
   'masak-saji': sportBurst('masak-saji', 9, ['#5cf64a', '#ffcc1f']),
   'masak-menang': sportBurst('masak-menang', 18, PALETTE.slice(0, 5)),
+  // Puncak Berdua paling akhir, supaya acakan efek lain tidak berubah
+  'puncak-api': puncakApi(),
+  'puncak-puncak': puncakPuncak(),
 }
 for (const [name, json] of Object.entries(out)) writeFileSync(`src/assets/lottie/${name}.json`, JSON.stringify(json))
 console.log('Lottie dibuat:', Object.keys(out).join(', '))

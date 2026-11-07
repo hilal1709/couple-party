@@ -13,11 +13,14 @@ import { batAt, crabAt, rockAt, ventOn, type WeatherNow } from '../sim/hazards'
 import type { Mount } from '../sim/mount'
 import { deckY, heightAt, type Terrain } from '../sim/terrain'
 import { clouds, heightTexture, lava, water, waterfall } from './fluids'
-import { bat, boulder, bridge, campfire, chest, crab, dropMesh, forest, hive, meadow, propMaterials, ropeMesh, summitFlag, vent, type PropMats } from './props'
-import { bakeAO, buildTerrainMesh, terrainMaterial } from './terrain'
-import { decor, loadProps, modelForest, PROP_NAMES } from './models'
+import { bat, batchStatic, boulder, bridge, campfire, chest, crab, dropMesh, forest, hive, meadow, propMaterials, ropeMesh, summitFlag, vent, type PropMats } from './props'
+import { bakeAO, buildTerrainMesh, terrainMaterial, type TerrainMesh } from './terrain'
+import { campDecor, decor, loadProps, modelForest, PROP_NAMES, slimTextures } from './models'
 import { Life } from './life'
+import { backdrop } from './backdrop'
+import { mergeTiles } from './tiles'
 import { loadTerrainTex } from './textures'
+import type { Step } from './perf'
 import { ANISO } from './quality'
 
 const SKIES = import.meta.glob('/src/assets/sport/tex/langit-*.hdr', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
@@ -64,7 +67,12 @@ export class MountainScene {
   private t!: Terrain
   private mats!: PropMats
   private terrainMat: THREE.MeshStandardMaterial | null = null
+  private terrain: TerrainMesh | null = null
   private chests = new Map<number, THREE.Object3D>()
+  /** benda kecil yang tidak perlu digambar dari jauh (peti, sarang, lubang uap): disembunyikan di luar ±70 m */
+  private small: THREE.Object3D[] = []
+  /** bagi ulang LOD pohon menurut posisi kamera */
+  private forestLod: ((x: number, z: number) => void) | null = null
   private drops = new Map<number, THREE.Object3D>()
   private ropes = new Map<number, THREE.Object3D>()
   private decks = new Map<number, THREE.Object3D>()
@@ -76,10 +84,15 @@ export class MountainScene {
   private boulders: THREE.Object3D[] = []
   private vents: THREE.Object3D[] = []
   private grass: THREE.InstancedMesh[] = []
+  private grassTiles: ReturnType<typeof mergeTiles> | null = null
   private fx = { weather: 0, embers: 0, steam: 0 }
   private life: Life | null = null
   /** cahaya dasar (cuaca menggelapkan dari sini) */
   private base = { sun: 2.7, hemi: 0.35, env: 0.75, bg: 1, fog: new THREE.Color(), wet: 0 }
+  /** nilai dasar asli gunung (sebelum suasana zona) */
+  private orig = { sun: 2.7, hemi: 0.35 }
+  /** suasana zona sekarang (Punggung Hijau), dihaluskan */
+  private moodK = -1
   private fogTo = new THREE.Color()
   private tintC = new THREE.Color()
   private flash = 0
@@ -94,7 +107,8 @@ export class MountainScene {
     this.tier = tier
     // tanpa composer: MSAA bawaan kanvas; dengan composer: MSAA di target + SMAA (tidak pernah tanpa AA)
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' })
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, tier.ratio))
+    // statistik dihitung untuk seluruh frame (composer menggambar beberapa pass), di-reset manual di render()
+    this.renderer.info.autoReset = false
     this.renderer.outputColorSpace = THREE.SRGBColorSpace
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
     this.renderer.toneMappingExposure = 1.0
@@ -122,9 +136,9 @@ export class MountainScene {
     this.scene.add(this.sun, this.sun.target, this.hemi, this.actors, this.particles.group, this.fireLight, this.torch)
     if (tier.post) {
       this.composer = new EffectComposer(this.renderer, new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: tier.samples }))
-      this.composer.setPixelRatio(Math.min(devicePixelRatio, tier.ratio))
       this.composer.addPass(new RenderPass(this.scene, this.camera))
-      this.composer.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), 0.16, 0.45, 1.0))
+      // bloom hanya profil Tinggi; Sedang tetap memakai gradasi warna & SMAA
+      if (tier.q === 'high') this.composer.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), 0.16, 0.45, 1.0))
       this.composer.addPass(new OutputPass())
       this.grade = new ShaderPass(GradeShader)
       this.composer.addPass(this.grade)
@@ -162,45 +176,62 @@ export class MountainScene {
     this.hemi.color.set(night ? '#5a4f9a' : '#cfe6ff')
     this.hemi.intensity = night ? 0.45 : 0.35
     this.base = { sun: this.sun.intensity, hemi: this.hemi.intensity, env: this.scene.environmentIntensity, bg: this.scene.backgroundIntensity, fog: new THREE.Color(m.fog), wet: 0 }
+    this.orig = { sun: this.sun.intensity, hemi: this.hemi.intensity }
     if (this.grade) this.grade.uniforms.uGrade.value.set(...m.grade)
 
     // medan
     const ao = bakeAO(t, this.tier.q === 'low' ? 4 : 2)
     this.terrainMat = terrainMaterial(t, tex, high, this.clock)
     const tm = buildTerrainMesh(t, ao, this.terrainMat, this.shadows, this.tier.far)
+    // detail di sekitar kemah awal dibangun sekarang; sisanya menyusul saat kamera mendekat
+    tm.update(t.start.x, t.start.z, 64)
+    this.terrain = tm
     this.scene.add(tm.group)
 
     // laut / lava / awan
-    const big = t.size * 3
+    const big = Math.max(t.sx, t.sz) * 3
     const hTex = heightTexture(t)
-    const ground = { tex: hTex, half: t.half, size: t.size }
+    const ground = { tex: hTex, half: new THREE.Vector2(t.hx, t.hz), size: new THREE.Vector2(t.sx, t.sz) }
     if (m.sea?.kind === 'air') this.scene.add(await water(t, m.sea.y, hTex, this.clock, big))
     if (m.sea?.kind === 'lava') this.scene.add(await lava(m.sea.y, big, this.clock))
     if (m.sea?.kind === 'awan') {
       this.scene.add(await clouds(m.sea.y, big * 1.5, '#ffe2ef', this.clock, 1, 0.006, ground))
       this.scene.add(await clouds(m.sea.y - 8, big * 1.5, '#f0c6dc', this.clock, 1, 0.004))
     }
+    if (t.kinds) {
+      // Punggung Hijau: dasar lembah, hutan lembah, dan pegunungan jauh sampai 1,2 km
+      this.scene.add(backdrop(t, m.fog, this.tier.detail, t.m.id.length * 97 + 11))
+      this.camera.far = 1500
+      this.camera.updateProjectionMatrix()
+    }
     if (t.lavaY !== null) this.scene.add(await lava(t.lavaY, t.craterR + 2, this.clock, t.center.x, t.center.z, true))
     // kabut lembah: lapisan awan tipis di beberapa ketinggian
     if (m.id === 'teh' || m.id === 'rimba' || m.id === 'salju') {
-      for (let k = 1; k < t.zones; k++) this.scene.add(await clouds(t.base[k] - 6, t.size * 1.6, m.fog, this.clock, m.id === 'teh' ? 0.5 : 0.25, 0.01, ground))
+      for (let k = 1; k < t.zones; k++) this.scene.add(await clouds(t.base[k] - 6, Math.max(t.sx, t.sz) * 1.6, m.fog, this.clock, m.id === 'teh' ? 0.5 : 0.25, 0.01, ground))
     }
     // air terjun di sisi tebing panjat
     for (const f of t.falls) this.scene.add(await waterfall(t, f.x, f.z, f.dx, f.dz, 3.4, this.clock))
 
     // pohon, batu, rumput
     // pohon & batu: model CC0; yang belum punya model (kristal, karang) tetap prosedural
-    const fm = modelForest(t, t.solids, models, this.clock, this.shadows, this.tier.q === 'high')
+    // Hemat: model pohon penuh hanya yang sangat dekat
+    const fm = modelForest(t, t.solids, models, this.clock, this.shadows, this.tier.q === 'high', this.tier.q === 'low' ? 12 : 38 * this.tier.far, 230 * this.tier.far, this.tier.q === 'low' ? 1 : 9)
+    this.forestLod = fm.update
+    fm.update(t.start.x, t.start.z)
     this.scene.add(fm.group)
     if (fm.rest.length) this.scene.add(forest(fm.rest, mats, this.shadows, m.zones[0].snow))
+    if (t.decor.length) this.scene.add(campDecor(t, models, this.shadows))
     if (this.tier.detail > 0.2) {
-      this.grass = [...meadow(t, mats, this.tier.detail, 0), ...decor(t, models, this.clock, this.tier.detail, this.shadows)]
+      // petak 24 m digabung: satu InstancedMesh per jenis hiasan, diisi petak di sekitar kamera
+      this.grassTiles = mergeTiles([...meadow(t, mats, this.tier.detail, 0), ...decor(t, models, this.clock, this.tier.detail, this.shadows)])
+      this.grass = this.grassTiles.meshes
       for (const g of this.grass) this.scene.add(g)
+      this.grassTiles.update(t.start.x, t.start.z, 46 * this.tier.far)
     }
 
     // burung, kupu-kupu, kunang-kunang, hujan
     const leafy = m.zones.some((z) => z.trees.some((tr) => tr !== 'kristal' && tr !== 'kering'))
-    this.life = new Life({ birds: m.id !== 'kristal', butterflies: leafy && m.id !== 'salju', dark: night || m.id === 'kristal' || m.id === 'rimba', tier: this.tier.detail })
+    this.life = new Life({ birds: m.id !== 'kristal', butterflies: leafy && m.id !== 'salju' && this.tier.q !== 'low', dark: night || m.id === 'kristal' || m.id === 'rimba', tier: this.tier.detail })
     this.scene.add(this.life.group)
     this.base.wet = (this.terrainMat.userData.u?.uWet?.value as number) ?? 0
 
@@ -211,10 +242,14 @@ export class MountainScene {
       o.rotation.y = c.yaw
       this.scene.add(o)
       this.chests.set(c.id, o)
+      this.small.push(o)
     }
     for (const c of t.camps) {
       const g = campfire(mats.rock, mats.wood)
       g.position.set(c.x, c.y, c.z)
+      // api unggun berikutnya tetap terlihat dari agak jauh (penanda tujuan)
+      g.userData.cull = 150
+      this.small.push(g)
       this.scene.add(g)
       this.camps.push({ g, ember: g.getObjectByName('ember') as THREE.Mesh, lit: false })
     }
@@ -222,7 +257,8 @@ export class MountainScene {
     flag.position.set(t.summit.x, t.summit.y, t.summit.z)
     this.scene.add(flag)
     for (const v of t.vines) {
-      const o = ropeMesh(v, mats.wood)
+      // sulur statis: bagian-bagiannya digabung per bahan
+      const o = batchStatic(ropeMesh(v, mats.wood), () => false)
       this.scene.add(o)
       this.ropes.set(v.id, o)
     }
@@ -248,6 +284,7 @@ export class MountainScene {
       const o = hive()
       o.position.set(h.x, h.y, h.z)
       this.scene.add(o)
+      this.small.push(o)
     }
     for (const _ of t.rocks) {
       const o = boulder(mats.rock)
@@ -261,15 +298,76 @@ export class MountainScene {
       this.scene.add(o)
       this.vents.push(o)
     }
+    // tekstur kembar dipakai bersama; Hemat: tanpa peta PBR & tekstur prop ≤ 256 px
+    slimTextures(this.scene, this.tier.q === 'low')
     // kompilasi shader sekarang, bukan saat pertama terlihat (menghindari patah-patah)
     await this.renderer.compileAsync(this.scene, this.camera)
   }
 
+  /**
+   * Suasana per zona Punggung Hijau: warna & tebal kabut, warna & kuat matahari, langit hemisfer, dan
+   * gradasi warna berbaur mengikuti posisi di antara api unggun (bukan berganti mendadak).
+   */
+  private mood(dt: number) {
+    const t = this.t
+    if (!t.kinds) return
+    // posisi zona kontinu dari ketinggian target kamera: 2,4 = 40% jalan dari api unggun 2 ke 3
+    const y = this.target.y
+    let f = 0
+    for (let k = 0; k < t.zones; k++) {
+      const lo = t.base[k]
+      const hi = t.base[k + 1]
+      if (y >= lo) f = k + Math.min(1, Math.max(0, (y - lo) / Math.max(1, hi - lo)))
+    }
+    this.moodK = this.moodK < 0 ? f : this.moodK + (f - this.moodK) * Math.min(1, dt * 0.8)
+    const a = Math.floor(this.moodK)
+    const b = Math.min(t.zones - 1, a + 1)
+    const k = this.moodK - a
+    const A = MOODS[t.kinds[Math.min(a, t.zones - 1)]]
+    const B = MOODS[t.kinds[b]]
+    // tepi zona: separuh terakhir menuju zona berikutnya
+    const e = Math.max(0, (k - 0.5) * 2)
+    const mix = (x: number, z: number) => x + (z - x) * e
+    this.base.fog.set(A.fog).lerp(this.tintC.set(B.fog), e)
+    this.base.sun = this.orig.sun * mix(A.sun, B.sun)
+    this.base.hemi = this.orig.hemi * mix(A.hemi, B.hemi)
+    this.sun.color.set(A.sunC).lerp(this.tintC.set(B.sunC), e)
+    this.hemi.color.set(A.sky).lerp(this.tintC.set(B.sky), e)
+    this.fogMul = mix(A.fogK, B.fogK)
+    if (this.grade) this.grade.uniforms.uGrade.value.set(mix(A.grade[0], B.grade[0]), mix(A.grade[1], B.grade[1]), mix(A.grade[2], B.grade[2]))
+  }
+  /** pengali kabut dari suasana zona */
+  private fogMul = 1
+
   /** kamera orang ketiga di belakang target, tidak menembus medan */
+  /** rasa kamera: hentakan mendarat (pegas) dan FOV tambahan saat lari */
+  private dip = 0
+  private dipV = 0
+  /** derajat tambahan FOV (Round mengisi: lari = +5) */
+  fovAdd = 0
+  /** arah & laju gerak pemain untuk kamera melihat sedikit ke depan */
+  lead: [number, number] = [0, 0]
+
+  /** hentakan kamera saat mendarat; `m` = kedalaman (meter) */
+  bump(m: number) {
+    this.dipV -= m * 9
+  }
+
+  private spring(dt: number) {
+    // pegas teredam: turun cepat, kembali tanpa memantul berlebihan
+    this.dipV += (-this.dip * 90 - this.dipV * 14) * dt
+    this.dip += this.dipV * dt
+    this.dip = Math.max(-0.4, Math.min(0.15, this.dip))
+  }
+
   follow(x: number, y: number, z: number, yaw: number, pitch: number, dist: number, dt: number) {
+    this.spring(dt)
     const k = 1 - Math.exp(-dt * 10)
+    // kamera sedikit mendahului arah lari: jalur di depan lebih terlihat
+    x += this.lead[0] * 0.18
+    z += this.lead[1] * 0.18
     this.target.x += (x - this.target.x) * k
-    this.target.y += (y + 1.3 - this.target.y) * k
+    this.target.y += (y + 1.3 + this.dip - this.target.y) * k
     this.target.z += (z - this.target.z) * k
     if (this.target.distanceTo(new THREE.Vector3(x, y + 1.3, z)) > 8) this.target.set(x, y + 1.3, z)
     const cp = Math.cos(pitch)
@@ -288,14 +386,16 @@ export class MountainScene {
     const cz = this.target.z - Math.cos(yaw) * cp * d
     let cy = this.target.y + Math.sin(pitch) * d
     cy = Math.max(cy, heightAt(this.t, cx, cz) + 0.7)
-    this.camera.position.set(cx, cy, cz)
+    this.camera.position.set(cx, cy + this.dip * 0.5, cz)
     this.camera.lookAt(this.target)
-    this.setFov(56, dt)
+    this.setFov(56 + this.fovAdd, dt)
     this.around(this.target.x, this.target.y, this.target.z)
   }
 
   /** kamera orang pertama di mata pendaki; `pitch` positif = mendongak */
   followFP(x: number, y: number, z: number, yaw: number, pitch: number, dt: number) {
+    this.spring(dt)
+    y += this.dip
     const cp = Math.cos(pitch)
     const dx = Math.sin(yaw) * cp
     const dz = Math.cos(yaw) * cp
@@ -304,7 +404,7 @@ export class MountainScene {
     this.target.set(x + dx * 10, y + Math.sin(pitch) * 10, z + dz * 10)
     this.camera.lookAt(this.target)
     this.target.set(x, y - 1.2, z)
-    this.setFov(72, dt)
+    this.setFov(72 + this.fovAdd, dt)
     this.around(x, y, z)
   }
 
@@ -318,8 +418,14 @@ export class MountainScene {
   private around(x: number, y: number, z: number) {
     this.sun.position.set(x + Math.cos(this.sunAz) * 72, y + 110, z + Math.sin(this.sunAz) * 72)
     this.sun.target.position.set(x, y, z)
+    this.forestLod?.(this.camera.position.x, this.camera.position.z)
     const far = 46 * this.tier.far
-    for (const g of this.grass) g.visible = Math.hypot(g.userData.cx - x, g.userData.cz - z) < far
+    this.grassTiles?.update(x, z, far)
+    // peti 70 m jauhnya hanya beberapa piksel, tapi tiap peti beberapa draw call
+    for (const o of this.small) {
+      const near = ((o.userData.cull as number | undefined) ?? (this.tier.q === 'low' ? 60 : 70)) * this.tier.far
+      o.visible = Math.abs(o.position.x - x) < near && Math.abs(o.position.z - z) < near && Math.hypot(o.position.x - x, o.position.z - z) < near
+    }
   }
 
   /** samakan benda dinamis dengan isi gunung & jam ronde */
@@ -348,6 +454,13 @@ export class MountainScene {
         s.rotation.y += dt * 1.6
         s.position.y = 0.45 + Math.sin(secs * 2 + d.id) * 0.08
       }
+      // barang yang dilempar: melengkung dari tangan pelempar ke titik jatuh
+      if (d.fly) {
+        const k = Math.min(1, Math.max(0, (mount.t - d.fly.t0) / Math.max(1, d.fly.dur)))
+        const arc = 4 * Math.max(0.6, (d.fly.y - d.y) * 0.25 + 1.2) * k * (1 - k)
+        o.position.set(d.fly.x + (d.x - d.fly.x) * k, d.fly.y + (d.y - d.fly.y) * k + arc - 0.45 * (1 - k), d.fly.z + (d.z - d.fly.z) * k)
+        if (s) s.rotation.x += dt * 9 * (1 - k)
+      }
     }
     for (const [id, o] of this.drops) {
       if (seen.has(id)) continue
@@ -357,7 +470,7 @@ export class MountainScene {
     // tali & tangga pasangan
     for (const r of mount.ropes) {
       if (this.ropes.has(r.id)) continue
-      const o = ropeMesh(r, this.mats.wood)
+      const o = batchStatic(ropeMesh(r, this.mats.wood), () => false)
       this.scene.add(o)
       this.ropes.set(r.id, o)
     }
@@ -418,7 +531,9 @@ export class MountainScene {
     t.rocks.forEach((_, i) => {
       const r = rockAt(t, i, secs)
       const o = this.boulders[i]
-      o.visible = !!r && !r.warn
+      // batu yang menggelinding jauh di bawah (dilihat dari tebing) tidak perlu digambar
+      const c = this.camera.position
+      o.visible = !!r && !r.warn && Math.abs(r.x - c.x) + Math.abs(r.z - c.z) < 110 * this.tier.far
       if (r && !r.warn) {
         o.position.set(r.x, r.y, r.z)
         o.rotation.x += dt * 8 * r.dz
@@ -448,6 +563,7 @@ export class MountainScene {
    * Juga menggelapkan cahaya, menebalkan kabut, membasahi tebing, dan menggerakkan matahari.
    */
   weather(storm: number, wind: [number, number], dt: number, w: WeatherNow, secs: number) {
+    this.mood(dt)
     const id = this.t.m.id
     const k = w.k
     const sky = w.sky
@@ -470,7 +586,7 @@ export class MountainScene {
     const fog = this.scene.fog as THREE.FogExp2 | null
     if (fog) {
       fog.color.lerp(this.fogTo, Math.min(1, dt * 1.5))
-      const want = (this.t.m.fogDensity * (1 + storm * 3.5 + thick)) / this.tier.far
+      const want = (this.t.m.fogDensity * this.fogMul * (1 + storm * 3.5 + thick)) / this.tier.far
       fog.density += (want - fog.density) * Math.min(1, dt * 1.5)
     }
     if (this.grade) this.grade.uniforms.uStorm.value = Math.max(storm, sky === 'salju' || sky === 'kabut' ? k * 0.6 : 0)
@@ -488,7 +604,7 @@ export class MountainScene {
     if (this.fx.weather > 0) return
     this.fx.weather = 1 / 30
     const rnd = (s: number) => (Math.random() - 0.5) * s
-    const P = this.tier.particles / 210
+    const P = (this.tier.particles / 210) * this.fxK
     // salju: badai lama + cuaca salju
     const snow = (id === 'salju' ? 3 : 0) + storm * 14 + (sky === 'salju' ? k * 16 : 0)
     for (let i = 0; i < Math.round(snow * P); i++) this.particles.emit('snow', c.x + rnd(30), c.y + 6 + Math.random() * 6, c.z + rnd(30), wind[0] * 0.8, -2.5, wind[1] * 0.8, '#ffffff', 0.35)
@@ -517,32 +633,69 @@ export class MountainScene {
     this.particles.burst(kind, n, x, y + 0.1, z, 0, 1.2, 0, 2, color, kind === 'splash' ? 0.8 : 0.9)
   }
 
+  private w = 1
+  private h = 1
+  /** pengali partikel cuaca (diturunkan pengatur adaptif) */
+  private fxK = 1
+  /** bayangan digambar ulang tiap N frame (1 = tiap frame) */
+  private shadowEvery = 1
+  private frameNo = 0
+  private streamTick = 0
+
   resize(w: number, h: number) {
+    this.w = w
+    this.h = h
     this.camera.aspect = w / h
     this.camera.updateProjectionMatrix()
     this.renderer.setSize(w, h, false)
     this.composer?.setSize(w, h)
   }
 
+  /** pixel ratio render internal (dari profil × skala adaptif) */
+  setRatio(r: number) {
+    if (Math.abs(this.renderer.getPixelRatio() - r) < 0.01) return
+    this.renderer.setPixelRatio(r)
+    this.composer?.setPixelRatio(r)
+    this.resize(this.w, this.h)
+  }
+
   render(dt: number) {
     this.clock.value += dt
     this.particles.update(dt)
+    this.renderer.info.reset()
+    if (this.terrain && this.streamTick++ % 3 === 0) this.terrain.update(this.camera.position.x, this.camera.position.z, 2)
+    if (this.shadows && this.shadowEvery > 1) this.renderer.shadowMap.needsUpdate = this.frameNo++ % this.shadowEvery === 0
     if (this.composer) this.composer.render()
     else this.renderer.render(this.scene, this.camera)
   }
 
-  /** fps rendah: buang post-processing dulu (MSAA kanvas tetap), lalu turunkan resolusi */
-  lowerQuality() {
-    if (this.composer) {
+  /** satu langkah turun kualitas dari pengatur adaptif; medan & pegangan tidak pernah disentuh */
+  degrade(step: Step) {
+    if (step === 'shadow' && this.shadows) {
+      // peta lebih kecil + digambar selang-seling: bayangan tetap ada, biayanya ±seperempat
+      this.sun.shadow.map?.dispose()
+      this.sun.shadow.map = null
+      this.sun.shadow.mapSize.setScalar(Math.min(1024, this.sun.shadow.mapSize.x / 2))
+      this.renderer.shadowMap.autoUpdate = false
+      this.shadowEvery = 2
+    }
+    if (step === 'grass') {
+      for (const g of this.grass) g.visible = false
+      this.grass = []
+      this.grassTiles = null
+    }
+    if (step === 'fx') this.fxK = 0.5
+    if (step === 'post' && this.composer) {
       this.composer.dispose()
       this.composer = null
       this.grade = null
-      return
     }
-    const r = this.renderer.getPixelRatio()
-    if (r > 1) this.renderer.setPixelRatio(Math.max(1, r - 0.25))
-    for (const g of this.grass) g.visible = false
-    this.grass = []
+  }
+
+  /** angka render untuk overlay & laporan performa */
+  stats() {
+    const i = this.renderer.info
+    return { calls: i.render.calls, tris: i.render.triangles, geo: i.memory.geometries, tex: i.memory.textures, chunks: this.terrain?.built() ?? 0, ratio: this.renderer.getPixelRatio(), height: Math.round(this.h * this.renderer.getPixelRatio()) }
   }
 
   dispose() {
@@ -555,6 +708,23 @@ export class MountainScene {
     this.composer?.dispose()
     this.renderer.dispose()
   }
+}
+
+/** suasana tiap jenis zona Punggung Hijau (pengali dari nilai dasar gunung) */
+type Mood = { fog: string; fogK: number; sun: number; sunC: string; hemi: number; sky: string; grade: [number, number, number] }
+const MOODS: Record<NonNullable<Terrain['kinds']>[number], Mood> = {
+  // pagi hangat di padang kemah
+  kemah: { fog: '#d3e2cf', fogK: 1, sun: 1, sunC: '#ffe4bd', hemi: 1, sky: '#d8ecff', grade: [1.04, 1.01, 0.95] },
+  // di bawah tajuk: kabut hijau lebih tebal, matahari teredam, bayangan kehijauan
+  hutan: { fog: '#a8c6a0', fogK: 1.9, sun: 0.82, sunC: '#fff0cf', hemi: 1.15, sky: '#c4e4bd', grade: [0.96, 1.04, 0.93] },
+  // batu terbuka: netral, sedikit hangat
+  batu: { fog: '#cad3c9', fogK: 1.15, sun: 1.02, sunC: '#fff1dc', hemi: 1, sky: '#d4e6f6', grade: [1.01, 1.0, 0.98] },
+  // tebing tinggi: udara jernih
+  tebing: { fog: '#c3d5e0', fogK: 0.85, sun: 1.06, sunC: '#fff6ea', hemi: 0.95, sky: '#cfe4ff', grade: [0.99, 1.0, 1.02] },
+  // punggung berangin: dingin kebiruan
+  punggung: { fog: '#b9cde0', fogK: 0.8, sun: 1.1, sunC: '#f2f4ff', hemi: 0.9, sky: '#c8dcff', grade: [0.96, 0.99, 1.06] },
+  // puncak: terang & dingin, kabut tipis di bawah
+  puncak: { fog: '#d6e3ef', fogK: 0.65, sun: 1.16, sunC: '#ffffff', hemi: 0.95, sky: '#d6e6ff', grade: [1.0, 1.0, 1.05] },
 }
 
 /** seberapa gelap tiap cuaca (dikali kekuatannya) */

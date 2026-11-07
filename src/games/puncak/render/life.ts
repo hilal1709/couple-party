@@ -33,7 +33,7 @@ export class Life {
     const ink = new THREE.MeshBasicMaterial({ color: '#2a2230', side: THREE.DoubleSide })
     if (opts.birds) {
       const wg = wingGeo(0.55, 0.28)
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < Math.max(3, Math.round(7 * opts.tier)); i++) {
         const g = new THREE.Group()
         const body = new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 4).scale(0.8, 0.7, 2), ink)
         const l = new THREE.Mesh(wg, ink)

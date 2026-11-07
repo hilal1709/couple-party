@@ -25,6 +25,6 @@ for (const id of ids) {
   let maxClimb = 0
   for (let i = 1; i < t.route.length; i++) if (t.route[i].climb) maxClimb = Math.max(maxClimb, t.route[i].y - t.route[i - 1].y)
   console.log(
-    `${id.padEnd(8)} ${ms}ms size=${t.size} summit=${t.summit.y.toFixed(1)} camps=${t.camps.map((c) => c.y.toFixed(0)).join('/')} chests=${t.chests.length} route=${t.route.length} climbs=${climbs} maxClimb=${maxClimb.toFixed(1)} steep=${((steep / tot) * 100).toFixed(0)}% >6=${((vsteep / tot) * 100).toFixed(1)}% vines=${t.vines.length} decks=${t.decks.length} start=${t.start.y.toFixed(1)} h(start)=${heightAt(t, t.start.x, t.start.z).toFixed(1)}`,
+    `${id.padEnd(8)} ${ms}ms size=${t.sx}x${t.sz} summit=${t.summit.y.toFixed(1)} camps=${t.camps.map((c) => c.y.toFixed(0)).join('/')} chests=${t.chests.length} route=${t.route.length} climbs=${climbs} maxClimb=${maxClimb.toFixed(1)} steep=${((steep / tot) * 100).toFixed(0)}% >6=${((vsteep / tot) * 100).toFixed(1)}% vines=${t.vines.length} decks=${t.decks.length} start=${t.start.y.toFixed(1)} h(start)=${heightAt(t, t.start.x, t.start.z).toFixed(1)}`,
   )
 }

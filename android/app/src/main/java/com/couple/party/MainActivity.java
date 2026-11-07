@@ -4,6 +4,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.WindowManager;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -21,6 +22,19 @@ public class MainActivity extends BridgeActivity {
             getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         }
         hideSystemBars();
+        // tombol kembali: tanya web dulu (mis. Puncak membuka menu jeda); kalau tidak ditangani, perilaku bawaan
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                OnBackPressedCallback self = this;
+                getBridge().getWebView().evaluateJavascript("window.__cpBack ? window.__cpBack() : false", (handled) -> {
+                    if ("true".equals(handled)) return;
+                    self.setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                    self.setEnabled(true);
+                });
+            }
+        });
     }
 
     @Override

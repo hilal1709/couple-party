@@ -7,7 +7,7 @@ const R = 52
  * Area stik gerak: stik muncul di bawah jari yang pertama menyentuh area ini.
  * `onMove(x, y)` panjang 0..1, y positif = ke atas layar.
  */
-export function Joystick({ onMove, className }: { onMove: (x: number, y: number) => void; className?: string }) {
+export function Joystick({ onMove, className, deadzone = 0 }: { onMove: (x: number, y: number) => void; className?: string; deadzone?: number }) {
   const el = useRef<HTMLDivElement>(null)
   const finger = useRef<{ id: number; x: number; y: number } | null>(null)
   const [stick, setStick] = useState<{ x: number; y: number; dx: number; dy: number } | null>(null)
@@ -27,7 +27,9 @@ export function Joystick({ onMove, className }: { onMove: (x: number, y: number)
     const dy = e.clientY - f.y
     const len = Math.min(1, Math.hypot(dx, dy) / R)
     const a = Math.atan2(dy, dx)
-    onMove(Math.cos(a) * len, -Math.sin(a) * len)
+    // zona mati: getaran ibu jari tidak menggerakkan pendaki; sisanya dipetakan ulang ke 0..1
+    const out = len <= deadzone ? 0 : (len - deadzone) / (1 - deadzone)
+    onMove(Math.cos(a) * out, -Math.sin(a) * out)
     setStick((s) => s && { ...s, dx: Math.cos(a) * len * R, dy: Math.sin(a) * len * R })
   }
 

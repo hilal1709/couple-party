@@ -5,20 +5,18 @@ import type { TerrainTex } from './textures'
 
 /** sel per sisi satu potongan medan (32 m) */
 const CHUNK = 64
-/** jarak ganti tingkat detail (m): 0,5 m → 1 m → 2 m → 4 m per sel */
-const LOD_DIST = [45, 95, 190]
 
 /** AO dari horizon: lembah & kaki tebing lebih gelap (diganti lightmap Blender, dihitung sekali saat muat) */
 export function bakeAO(t: Terrain, step = 1): Float32Array {
-  const n = t.n
-  const out = new Float32Array(n * n)
+  const { nx, nz } = t
+  const out = new Float32Array(nx * nz)
   const dirs = 6
   const dist = [1.5, 3, 5, 8, 12, 18, 26]
-  for (let j = 0; j < n; j += step) {
-    for (let i = 0; i < n; i += step) {
-      const x = i * CELL - t.half
-      const z = j * CELL - t.half
-      const h = t.h[j * n + i]
+  for (let j = 0; j < nz; j += step) {
+    for (let i = 0; i < nx; i += step) {
+      const x = i * CELL - t.hx
+      const z = j * CELL - t.hz
+      const h = t.h[j * nx + i]
       let occ = 0
       for (let d = 0; d < dirs; d++) {
         const a = (d / dirs) * Math.PI * 2 + 0.3
@@ -32,18 +30,23 @@ export function bakeAO(t: Terrain, step = 1): Float32Array {
         occ += best / Math.sqrt(1 + best * best)
       }
       const v = 1 - (occ / dirs) * 0.85
-      for (let jj = j; jj < Math.min(n, j + step); jj++) for (let ii = i; ii < Math.min(n, i + step); ii++) out[jj * n + ii] = v
+      for (let jj = j; jj < Math.min(nz, j + step); jj++) for (let ii = i; ii < Math.min(nx, i + step); ii++) out[jj * nx + ii] = v
     }
   }
   return out
 }
 
-function chunkGeometry(t: Terrain, ao: Float32Array, ci: number, cj: number, s: number) {
-  const n = t.n
-  const cells = CHUNK / s
-  const verts = (cells + 1) * (cells + 1)
+/** geometri potongan (ci, cj) selebar `span` sampel, langkah `s` sampel per sel; dipotong di tepi peta */
+function chunkGeometry(t: Terrain, ao: Float32Array, ci: number, cj: number, s: number, span = CHUNK) {
+  const i0 = ci * CHUNK
+  const j0 = cj * CHUNK
+  // sel yang benar-benar ada di peta (simpul besar di tepi peta tidak membuang segitiga di luar)
+  const ca = Math.max(1, Math.min(span / s, Math.ceil((t.nx - 1 - i0) / s)))
+  const cb = Math.max(1, Math.min(span / s, Math.ceil((t.nz - 1 - j0) / s)))
+  const row = ca + 1
+  const verts = row * (cb + 1)
   // tepi turun (skirt) menutupi celah antar tingkat detail
-  const skirt = cells * 4 + 4
+  const skirt = 2 * (ca + cb) + 4
   const total = verts + skirt
   const pos = new Float32Array(total * 3)
   const nor = new Float32Array(total * 3)
@@ -52,11 +55,11 @@ function chunkGeometry(t: Terrain, ao: Float32Array, ci: number, cj: number, s: 
   const zone = new Float32Array(total)
   const aoA = new Float32Array(total)
   const put = (k: number, gi: number, gj: number, drop: number) => {
-    const i = Math.min(n - 1, gi)
-    const j = Math.min(n - 1, gj)
-    const idx = j * n + i
-    const x = i * CELL - t.half
-    const z = j * CELL - t.half
+    const i = Math.min(t.nx - 1, gi)
+    const j = Math.min(t.nz - 1, gj)
+    const idx = j * t.nx + i
+    const x = i * CELL - t.hx
+    const z = j * CELL - t.hz
     pos[k * 3] = x
     pos[k * 3 + 1] = t.h[idx] - drop
     pos[k * 3 + 2] = z
@@ -70,28 +73,27 @@ function chunkGeometry(t: Terrain, ao: Float32Array, ci: number, cj: number, s: 
     zone[k] = t.zone[idx]
     aoA[k] = ao[idx]
   }
-  const i0 = ci * CHUNK
-  const j0 = cj * CHUNK
-  for (let b = 0; b <= cells; b++) for (let a = 0; a <= cells; a++) put(b * (cells + 1) + a, i0 + a * s, j0 + b * s, 0)
+  for (let b = 0; b <= cb; b++) for (let a = 0; a <= ca; a++) put(b * row + a, i0 + a * s, j0 + b * s, 0)
   const idx: number[] = []
-  for (let b = 0; b < cells; b++) {
-    for (let a = 0; a < cells; a++) {
-      const p = b * (cells + 1) + a
-      idx.push(p, p + cells + 1, p + 1, p + 1, p + cells + 1, p + cells + 2)
+  for (let b = 0; b < cb; b++) {
+    for (let a = 0; a < ca; a++) {
+      const p = b * row + a
+      idx.push(p, p + row, p + 1, p + 1, p + row, p + row + 1)
     }
   }
   // skirt: keliling potongan
   let k = verts
   const ring: number[] = []
-  for (let a = 0; a <= cells; a++) ring.push(a)
-  for (let b = 1; b <= cells; b++) ring.push(b * (cells + 1) + cells)
-  for (let a = cells - 1; a >= 0; a--) ring.push(cells * (cells + 1) + a)
-  for (let b = cells - 1; b >= 1; b--) ring.push(b * (cells + 1))
+  for (let a = 0; a <= ca; a++) ring.push(a)
+  for (let b = 1; b <= cb; b++) ring.push(b * row + ca)
+  for (let a = ca - 1; a >= 0; a--) ring.push(cb * row + a)
+  for (let b = cb - 1; b >= 1; b--) ring.push(b * row)
   const first = k
   for (const p of ring) {
-    const gi = i0 + (p % (cells + 1)) * s
-    const gj = j0 + Math.floor(p / (cells + 1)) * s
-    put(k++, gi, gj, 3)
+    const gi = i0 + (p % row) * s
+    const gj = j0 + Math.floor(p / row) * s
+    // simpul kasar punya selisih tinggi lebih besar dengan tetangga halus: tirai tepi lebih dalam
+    put(k++, gi, gj, 1.5 + s * 1.5)
   }
   for (let r = 0; r < ring.length; r++) {
     const a = ring[r]
@@ -145,15 +147,17 @@ export type TerrainUniforms = {
  * bukan gradasi buram), tebing triplanar (tanpa tekstur melar di dinding), dan salju yang menumpuk di
  * permukaan menghadap ke atas. AO horizon dari medan meredupkan cahaya langit di lembah.
  */
+/** zona terbanyak satu gunung (Punggung Hijau = 6); larik uniform shader sepanjang ini */
+const MAXZ = 6
 const zonesOf = (t: Terrain) => {
   const z = t.m.zones.slice(0, t.zones)
-  while (z.length < 4) z.push(z[z.length - 1])
+  while (z.length < MAXZ) z.push(z[z.length - 1])
   return z
 }
 
 export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean, clock: { value: number } = { value: 0 }) {
   const layers = layersOf(t)
-  while (layers.length < 4) layers.push(layers[layers.length - 1])
+  while (layers.length < MAXZ) layers.push(layers[layers.length - 1])
   const u: TerrainUniforms = {
     uDiff: { value: tex.diff },
     uNrm: { value: tex.nrm },
@@ -200,9 +204,9 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean, cloc
         `#include <common>
          uniform highp sampler2DArray uDiff;
          ${nrm ? 'uniform highp sampler2DArray uNrm;' : ''}
-         uniform vec4 uGround[4]; uniform float uCliff[4]; uniform float uSnowL; uniform float uScale; uniform float uCliffScale; uniform float uWet;
+         uniform vec4 uGround[${MAXZ}]; uniform float uCliff[${MAXZ}]; uniform float uSnowL; uniform float uScale; uniform float uCliffScale; uniform float uWet;
          uniform float uTime; uniform float uRain; uniform float uMoss; uniform float uMossL; uniform float uVulk; uniform float uLava;
-         uniform vec3 uRock[4]; uniform vec3 uSoil[4]; uniform vec3 uLedge[4];
+         uniform vec3 uRock[${MAXZ}]; uniform vec3 uSoil[${MAXZ}]; uniform vec3 uLedge[${MAXZ}];
          varying vec3 vTW; varying vec3 vTN; varying vec4 vW; varying float vSnow; flat varying int vZone; varying float vAO;
          ${NOISE}
          float lum(vec3 c){ return dot(c, vec3(0.3, 0.55, 0.15)); }
@@ -212,7 +216,7 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean, cloc
       .replace(
         '#include <map_fragment>',
         `vec3 wn = normalize(vTN);
-         int zi = clamp(vZone, 0, 3);
+         int zi = clamp(vZone, 0, ${MAXZ - 1});
          vec4 L = uGround[zi];
          float macro = tNoise(vTW.xz * 0.013) * 0.6 + tNoise(vTW.xz * 0.061) * 0.4;
          // tanah: 4 slot, height-blend
@@ -342,30 +346,135 @@ export function terrainMaterial(t: Terrain, tex: TerrainTex, high: boolean, cloc
   return m
 }
 
-export type TerrainMesh = { group: THREE.Group; lods: THREE.LOD[]; material: THREE.MeshStandardMaterial }
+/** simpul quadtree medan: tingkat k = sel 0,5·2^k m, sisi 32·2^k m, selalu 64×64 sel */
+type Node = { k: number; ci: number; cj: number; x0: number; z0: number; x1: number; z1: number; top: number; mesh: THREE.Mesh | null; used: number; kids: Node[] | null }
 
-/** potongan-potongan medan, masing-masing dengan 3 tingkat detail */
+/** tingkat terkasar (akar): sel 4 m, sisi 256 m */
+const ROOT = 3
+/** simpul dipecah saat kamera lebih dekat dari SPLIT × sisinya */
+const SPLIT = 0.6
+
+export type TerrainMesh = {
+  group: THREE.Group
+  material: THREE.MeshStandardMaterial
+  /** pilih simpul quadtree menurut jarak kamera; bangun paling banyak `budget` geometri baru */
+  update(x: number, z: number, budget?: number): void
+  /** jumlah geometri yang sedang ada di memori (untuk statistik) */
+  built(): number
+  dispose(): void
+}
+
+/**
+ * Medan sebagai quadtree LOD. Setiap simpul selalu 64×64 sel, tetapi sisinya berlipat dua per tingkat:
+ * 32 m (sel 0,5 m) di dekat kamera, lalu 64, 128, dan 256 m (sel 4 m) di kejauhan. Jumlah mesh yang
+ * tergambar jadi hampir tetap (belasan–dua puluhan) berapa pun panjang petanya.
+ * - Akar dibangun saat muat. Simpul halus dibangun bertahap (beberapa per frame), dan induknya tetap
+ *   tampil sampai keempat anaknya siap, jadi tidak ada lubang.
+ * - Simpul yang lama tidak dipakai dibuang supaya memori tidak menumpuk.
+ * - Celah antar tingkat ditutup "skirt" yang turun di tepi tiap simpul.
+ */
 export function buildTerrainMesh(t: Terrain, ao: Float32Array, mat: THREE.MeshStandardMaterial, shadows: boolean, far: number): TerrainMesh {
   const group = new THREE.Group()
-  const count = Math.ceil((t.n - 1) / CHUNK)
-  const lods: THREE.LOD[] = []
-  for (let cj = 0; cj < count; cj++) {
-    for (let ci = 0; ci < count; ci++) {
-      // potongan yang seluruhnya jauh di bawah laut/awan dilewati
-      let top = -Infinity
-      for (let j = cj * CHUNK; j <= Math.min(t.n - 1, (cj + 1) * CHUNK); j += 4) for (let i = ci * CHUNK; i <= Math.min(t.n - 1, (ci + 1) * CHUNK); i += 4) top = Math.max(top, t.h[j * t.n + i])
-      if (t.m.sea && top < t.m.sea.y - (t.m.sea.kind === 'awan' ? 4 : 6)) continue
-      const lod = new THREE.LOD()
-      ;[1, 2, 4, 8].forEach((s, k) => {
-        const mesh = new THREE.Mesh(chunkGeometry(t, ao, ci, cj, s), mat)
-        mesh.receiveShadow = shadows
-        mesh.castShadow = shadows && k === 0
-        lod.addLevel(mesh, k === 0 ? 0 : LOD_DIST[k - 1] * far)
-      })
-      lod.autoUpdate = true
-      group.add(lod)
-      lods.push(lod)
+  group.name = 'medan'
+  let live = 0
+  let clock = 0
+  const sea = t.m.sea ? t.m.sea.y - (t.m.sea.kind === 'awan' ? 4 : 6) : -Infinity
+  const make = (k: number, ci: number, cj: number): Node | null => {
+    const span = CHUNK << k
+    const i0 = ci * CHUNK
+    const j0 = cj * CHUNK
+    if (i0 >= t.nx - 1 || j0 >= t.nz - 1) return null
+    const iE = Math.min(t.nx - 1, i0 + span)
+    const jE = Math.min(t.nz - 1, j0 + span)
+    let top = -Infinity
+    const st = Math.max(1, span >> 4)
+    for (let j = j0; j <= jE; j += st) for (let i = i0; i <= iE; i += st) top = Math.max(top, t.h[j * t.nx + i])
+    // seluruhnya jauh di bawah laut/awan: tidak perlu digambar
+    if (top < sea) return null
+    return { k, ci, cj, x0: i0 * CELL - t.hx, z0: j0 * CELL - t.hz, x1: iE * CELL - t.hx, z1: jE * CELL - t.hz, top, mesh: null, used: 0, kids: null }
+  }
+  const build = (n: Node) => {
+    const mesh = new THREE.Mesh(chunkGeometry(t, ao, n.ci, n.cj, 1 << n.k, CHUNK << n.k), mat)
+    mesh.receiveShadow = shadows
+    // kotak bayangan matahari ±38 m: cukup simpul dua tingkat terhalus yang melempar bayangan
+    mesh.castShadow = shadows && n.k <= 1
+    mesh.visible = false
+    mesh.matrixAutoUpdate = false
+    group.add(mesh)
+    n.mesh = mesh
+    live++
+  }
+  const drop = (n: Node) => {
+    if (n.mesh) {
+      group.remove(n.mesh)
+      n.mesh.geometry.dispose()
+      n.mesh = null
+      live--
     }
   }
-  return { group, lods, material: mat }
+  const kidsOf = (n: Node) => {
+    if (!n.kids) {
+      const c = 1 << (n.k - 1)
+      n.kids = [make(n.k - 1, n.ci, n.cj), make(n.k - 1, n.ci + c, n.cj), make(n.k - 1, n.ci, n.cj + c), make(n.k - 1, n.ci + c, n.cj + c)].filter((q): q is Node => !!q)
+    }
+    return n.kids
+  }
+  const roots: Node[] = []
+  const rootSpan = CHUNK << ROOT
+  for (let cj = 0; cj * CHUNK < t.nz - 1; cj += rootSpan / CHUNK) {
+    for (let ci = 0; ci * CHUNK < t.nx - 1; ci += rootSpan / CHUNK) {
+      const n = make(ROOT, ci, cj)
+      if (!n) continue
+      build(n)
+      roots.push(n)
+    }
+  }
+  const all = () => {
+    const out: Node[] = []
+    const walk = (n: Node) => {
+      out.push(n)
+      for (const c of n.kids ?? []) walk(c)
+    }
+    roots.forEach(walk)
+    return out
+  }
+  return {
+    group,
+    material: mat,
+    update(x, z, budget = 2) {
+      clock++
+      const show = new Set<Node>()
+      const dist = (n: Node) => Math.hypot(Math.max(n.x0 - x, 0, x - n.x1), Math.max(n.z0 - z, 0, z - n.z1))
+      // pilih simpul: pecah kalau dekat; anak yang belum siap dibangun (terdekat dulu), induk tampil sementara
+      const want: Node[] = []
+      const visit = (n: Node) => {
+        n.used = clock
+        const size = (CHUNK << n.k) * CELL
+        if (n.k > 0 && dist(n) < size * SPLIT * far) {
+          const kids = kidsOf(n)
+          if (kids.every((c) => c.mesh)) {
+            kids.forEach(visit)
+            return
+          }
+          for (const c of kids) if (!c.mesh) want.push(c)
+        }
+        show.add(n)
+      }
+      roots.forEach(visit)
+      want.sort((a, b) => dist(a) - dist(b))
+      for (const n of want) {
+        if (budget-- <= 0) break
+        build(n)
+      }
+      for (const n of all()) {
+        if (n.mesh) n.mesh.visible = show.has(n)
+        // tidak dipakai ±10 dtk (300 panggilan): buang geometrinya; akar selalu disimpan
+        if (n.k < ROOT && n.mesh && !show.has(n) && clock - n.used > 300) drop(n)
+      }
+    },
+    built: () => live,
+    dispose() {
+      for (const n of all()) drop(n)
+    },
+  }
 }

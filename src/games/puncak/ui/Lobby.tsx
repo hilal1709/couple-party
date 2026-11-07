@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Slab, Tape } from '@/components/memphis/Slab'
 import type { BotLevel, LobbyProps } from '../../types'
 import { defaultOptions, MAX_CLIMBERS } from '../engine'
-import { MOUNTAIN_IDS, MOUNTAINS } from '../mountains'
+import { MOUNTAIN_IDS, MOUNTAINS, zoneCount } from '../mountains'
 import type { PuncakOptions } from '../types'
 import { LEVEL_TITLE, LOOT_TITLE, WEATHER_TITLE } from './copy'
 
@@ -60,7 +60,7 @@ export function Lobby({ players, cta, initial, onSubmit }: LobbyProps<PuncakOpti
       </div>
 
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-        <Choice label="Rute" values={[2, 4] as const} value={opts.zones} show={(v) => (v === 4 ? 'Penuh 4 zona' : 'Pendek 2 zona')} onPick={(zones) => set({ zones })} />
+        <Choice label="Rute" values={[2, 4] as const} value={opts.zones} show={(v) => `${v === 4 ? 'Penuh' : 'Pendek'}${opts.mountain === 'acak' ? '' : ` ${zoneCount(opts.mountain, v)} zona`}`} onPick={(zones) => set({ zones })} />
         <Choice label="Cuaca" values={['cerah', 'angin', 'ekstrem'] as const} value={opts.weather} show={(v) => WEATHER_TITLE[v]} onPick={(weather) => set({ weather })} />
         <Choice label="Item" values={['sedikit', 'normal', 'banyak'] as const} value={opts.loot} show={(v) => LOOT_TITLE[v]} onPick={(loot) => set({ loot })} />
         <Choice label="Pendaki" values={totals} value={total} onPick={(v) => set({ total: v })} />

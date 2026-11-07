@@ -55,4 +55,4 @@ Tali Jodoh: delapan lagu (satu per level: suling & angklung, marimba, piano elek
 
 Pengolahan (potong, loop mulus, normalisasi loudness, OGG) dilakukan dengan `scripts/audio/build.py`.
 
-Semua suara & musik Puncak Berdua (`music/puncak.ogg`, `sfx/puncak-*`) disintesis sendiri di `scripts/audio/build.py` (`puncak_synth`, `puncak_music`), bukan sampel.
+Semua suara & musik Puncak Berdua disintesis sendiri, bukan sampel: lagu "Kemah Pagi" (`music/puncak.ogg`: kecapi petik, okarina, rebana) dan "Punggung Angin" (`music/puncak-tinggi.ogg`: pad paduan suara, dentum rendah), suasana hutan, air terjun & api unggun, serta SFX lempar/tangkap/gendong di `scripts/audio/puncak_songs.py`; SFX lain di `scripts/audio/build.py` (`puncak_synth`).

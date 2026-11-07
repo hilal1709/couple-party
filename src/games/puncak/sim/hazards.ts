@@ -134,6 +134,7 @@ export type WeatherNow = {
 
 /** cuaca yang mungkin di tiap gunung (urutan diundi per giliran) */
 export const SKY_POOL: Record<Terrain['id'], Sky[]> = {
+  hijau: ['berawan', 'kabut', 'hujan', 'berawan'],
   karang: ['berawan', 'hujan', 'hujan', 'badai'],
   rimba: ['hujan', 'kabut', 'hujan', 'badai'],
   ngarai: ['pasir', 'berawan', 'pasir'],

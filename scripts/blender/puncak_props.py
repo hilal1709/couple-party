@@ -37,6 +37,7 @@ PROPS = {
     'kering-2': (MK / 'DeadTree_3.gltf', 7, 'h'),
     'kering-salju-1': (UN / 'CommonTree_Dead_Snow_2.fbx', 7, 'h'),
     'semak-1': (MK / 'Bush_Common_Flowers.gltf', 1.3, 'h'),
+    # Bush_Common di paket berdaun merah (Leaves_TwistedTree_C); di sini diberi daun hijau (lihat RETEX)
     'semak-2': (MK / 'Bush_Common.gltf', 1.3, 'h'),
     'semak-salju-1': (UN / 'Bush_Snow_1.fbx', 1.3, 'h'),
     'teh-1': (UN / 'Bush_1.fbx', 1.1, 'h'),
@@ -61,6 +62,52 @@ PROPS = {
 }
 
 
+# ganti tekstur daun: nama prop → {gambar asli: gambar pengganti di folder yang sama}
+# batas poligon versi jauh (LOD)
+LOD_CAP = 160
+
+RETEX = {'semak-2': {'Leaves_TwistedTree_C.png': 'Leaves_NormalTree_C.png'}}
+
+
+def thin_islands(o, keep=4, grow=1.55):
+    """LOD daun: kartu daun = pulau terpisah yang tidak bisa didecimate. Pertahankan 1 dari `keep`
+    pulau (diperbesar di sekitar pusatnya supaya tajuk tetap rimbun), buang sisanya."""
+    import bmesh
+    bm = bmesh.new()
+    bm.from_mesh(o.data)
+    bm.faces.ensure_lookup_table()
+    seen = set()
+    islands = []
+    for f in bm.faces:
+        if f.index in seen:
+            continue
+        stack = [f]
+        isl = []
+        seen.add(f.index)
+        while stack:
+            g = stack.pop()
+            isl.append(g)
+            for e in g.edges:
+                for h in e.link_faces:
+                    if h.index not in seen:
+                        seen.add(h.index)
+                        stack.append(h)
+        islands.append(isl)
+    if len(islands) >= 24:
+        drop = []
+        for n, isl in enumerate(islands):
+            if n % keep:
+                drop.extend(isl)
+                continue
+            vs = {v for f in isl for v in f.verts}
+            c = sum((v.co for v in vs), Vector()) / len(vs)
+            for v in vs:
+                v.co = c + (v.co - c) * grow
+        bmesh.ops.delete(bm, geom=drop, context='FACES')
+    bm.to_mesh(o.data)
+    bm.free()
+
+
 def reset():
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
@@ -79,6 +126,19 @@ def convert(name, path, size, axis):
     else:
         bpy.ops.import_scene.gltf(filepath=str(path))
     meshes = [o for o in bpy.context.scene.objects if o.type == 'MESH']
+    for img in bpy.data.images:
+        # importer glTF menamai gambar tanpa ekstensi & filepath bisa kosong: cocokkan keduanya
+        swap = RETEX.get(name, {})
+        key = next((k for k in swap if Path(k).stem in (img.name, Path(img.filepath).stem)), None)
+        if key:
+            img.filepath = str(path.parent / swap[key])
+            img.source = 'FILE'
+            img.reload()
+            if img.packed_file:
+                img.unpack(method='REMOVE')
+                img.filepath = str(path.parent / swap[key])
+                img.reload()
+            print('RETEX', name, img.name, '->', swap[key], img.size[:])
     for o in list(bpy.context.scene.objects):
         if o.type not in ('MESH', 'EMPTY'):
             bpy.data.objects.remove(o, do_unlink=True)
@@ -109,6 +169,23 @@ def convert(name, path, size, axis):
     bpy.ops.export_scene.gltf(filepath=str(dest), export_format='GLB', export_yup=True, export_apply=True, export_image_format='WEBP', export_materials='EXPORT')
     dg = bpy.context.evaluated_depsgraph_get()
     print('GLB', name, sum(len(o.evaluated_get(dg).data.polygons) for o in meshes), 'poligon', dest.stat().st_size // 1024, 'KB')
+    # versi jauh (LOD) untuk pohon, semak, & batu: ±160 poligon, tekstur 256 px
+    if not name.startswith('hias'):
+        for o in meshes:
+            for mod in list(o.modifiers):
+                o.modifiers.remove(mod)
+            thin_islands(o)
+        total2 = sum(len(o.data.polygons) for o in meshes)
+        for o in meshes:
+            d = o.modifiers.new('lod', 'DECIMATE')
+            d.ratio = min(1, max(0.02, LOD_CAP / max(1, total2)))
+        for img in bpy.data.images:
+            if img.size[0] > 256:
+                img.scale(256, max(1, int(256 * img.size[1] / img.size[0])))
+        dest = (OUT / f'{name}-lod.glb').resolve()
+        bpy.ops.export_scene.gltf(filepath=str(dest), export_format='GLB', export_yup=True, export_apply=True, export_image_format='WEBP', export_materials='EXPORT')
+        dg = bpy.context.evaluated_depsgraph_get()
+        print('GLB', f'{name}-lod', sum(len(o.evaluated_get(dg).data.polygons) for o in meshes), 'poligon', dest.stat().st_size // 1024, 'KB')
 
 
 OUT.mkdir(parents=True, exist_ok=True)

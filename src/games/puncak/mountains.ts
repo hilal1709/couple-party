@@ -79,6 +79,8 @@ export type Mountain = {
   zones: Zone[]
   creatures: Creature[]
   hazards: Hazard[]
+  /** tata letak Punggung Hijau: tiap zona punya bentuk sendiri (lihat ZONE_KINDS), bukan pita tebing seragam */
+  ridge?: boolean
   /** suara suasana */
   amb: 'pantai' | 'hutan' | 'angin' | 'kawah' | 'badai' | 'kabut' | 'gua' | 'langit'
 }
@@ -86,6 +88,35 @@ export type Mountain = {
 const Z = (title: string, ground: Zone['ground'], cliff: Tex, trees: Tree[], density: number, o: Partial<Zone> = {}): Zone => ({ title, ground, cliff, snow: 0, trees, density, cold: 0, heat: 0, rock: '#8c9a98', ledge: '#d9c79a', soil: '#c8a46a', grass: 'hijau', ...o })
 
 export const MOUNTAINS: Record<MountainId, Mountain> = {
+  hijau: {
+    id: 'hijau',
+    title: 'Punggung Hijau',
+    line: 'Hutan, formasi batu, tebing, punggung angin',
+    sky: 'siang',
+    fog: '#c6d9cf',
+    fogDensity: 0.0034,
+    grade: [0.99, 1.02, 0.97],
+    sea: null,
+    ramp: 20,
+    cliff: 10,
+    rough: 1,
+    terrace: 0,
+    vines: 2,
+    block: 10,
+    jag: 3,
+    ridge: true,
+    zones: [
+      Z('Kemah Awal', ['rumput', 'tanah', 'rumput', 'kerikil'], 'batu', ['pinus', 'semak'], 0.3),
+      Z('Hutan Bawah', ['tanah', 'lumut', 'rumput', 'kerikil'], 'lumut', ['jati', 'beringin', 'pinus', 'semak'], 1.8),
+      Z('Formasi Batu', ['kerikil', 'rumput', 'batu', 'lumut'], 'tebing', ['pinus', 'semak'], 0.45),
+      Z('Tebing Besar', ['batu', 'kerikil', 'rumput', 'lumut'], 'tebing', ['pinus', 'semak'], 0.25),
+      Z('Punggung Atas', ['rumput', 'kerikil', 'batu', 'rumput'], 'batu', ['kering', 'semak', 'pinus'], 0.22, { cold: 0.12 }),
+      Z('Puncak', ['kerikil', 'batu', 'rumput', 'kerikil'], 'batu', ['semak'], 0.08, { cold: 0.25, snow: 0.12 }),
+    ],
+    creatures: ['lebah'],
+    hazards: ['batu', 'angin'],
+    amb: 'hutan',
+  },
   karang: {
     id: 'karang',
     title: 'Karang Tropis',
@@ -282,6 +313,14 @@ export const MOUNTAINS: Record<MountainId, Mountain> = {
 
 /** palet gaya referensi per gunung, dari kaki ke puncak: [batu, tepian, tanah, rumput] */
 const PALETTE: Record<MountainId, [string, string, string, Zone['grass']][]> = {
+  hijau: [
+    ['#8d988c', '#a9c97c', '#8c7652', 'hijau'],
+    ['#7a8876', '#93b866', '#6f6043', 'hijau'],
+    ['#8f9690', '#b6c88a', '#8a7c62', 'hijau'],
+    ['#8a9294', '#c2cc98', '#8e846c', 'hijau'],
+    ['#949c98', '#c9cf9c', '#958b72', 'kering'],
+    ['#a0a6a6', '#dcdcc4', '#a49c88', 'kering'],
+  ],
   karang: [
     ['#97a7a3', '#e6d3a0', '#dcb877', 'kering'],
     ['#8d9f9c', '#d9cc96', '#c9b27a', 'kering'],
@@ -339,3 +378,27 @@ for (const id of Object.keys(MOUNTAINS) as MountainId[]) {
 }
 
 export const MOUNTAIN_IDS = Object.keys(MOUNTAINS) as MountainId[]
+
+/** bentuk tiap zona Punggung Hijau, dari kaki ke puncak */
+export type ZoneKind = 'kemah' | 'hutan' | 'batu' | 'tebing' | 'punggung' | 'puncak'
+const RIDGE_FULL: ZoneKind[] = ['kemah', 'hutan', 'batu', 'tebing', 'punggung', 'puncak']
+/** rute pendek tetap memuat tebing besar */
+const RIDGE_SHORT: ZoneKind[] = ['kemah', 'tebing', 'puncak']
+const RIDGE_IDX: Record<ZoneKind, number> = { kemah: 0, hutan: 1, batu: 2, tebing: 3, punggung: 4, puncak: 5 }
+
+/** jenis zona yang dipakai (hanya gunung ridge) */
+export const zoneKinds = (id: MountainId, zones: number): ZoneKind[] | null => (MOUNTAINS[id].ridge ? (zones >= 4 ? RIDGE_FULL : RIDGE_SHORT) : null)
+
+/**
+ * Gunung seperti yang benar-benar dimainkan: Punggung Hijau rute pendek memakai sebagian zonanya.
+ * Indeks zona di medan, HUD, dan api unggun selalu mengacu ke `mountainFor(...).zones`.
+ */
+export function mountainFor(id: MountainId, zones: number): Mountain {
+  const m = MOUNTAINS[id]
+  const kinds = zoneKinds(id, zones)
+  if (!kinds) return { ...m, zones: m.zones.slice(0, Math.max(1, Math.min(m.zones.length, zones))) }
+  return { ...m, zones: kinds.map((k) => m.zones[RIDGE_IDX[k]]) }
+}
+
+/** jumlah api unggun (= zona) untuk opsi rute */
+export const zoneCount = (id: MountainId, zones: number) => mountainFor(id, zones).zones.length
